@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English C1 — Study App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F4F7FF;
+    --surface: #FFFFFF;
+    --surface2: #EEF2FF;
+    --border: #DDE3F5;
+    --border2: #C7D0EE;
+    --blue: #2563EB;
+    --blue-light: #EFF6FF;
+    --blue-mid: #BFDBFE;
+    --blue-text: #1D4ED8;
+    --text: #0F172A;
+    --text2: #475569;
+    --text3: #94A3B8;
+    --green: #16A34A;
+    --green-light: #F0FDF4;
+    --green-border: #BBF7D0;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --red-border: #FECACA;
+    --yellow: #D97706;
+    --yellow-light: #FFFBEB;
+    --yellow-border: #FDE68A;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* Layout */
+  .app { max-width: 680px; margin: 0 auto; padding-bottom: 80px; }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 0;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 32px; height: 32px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; }
+  .logo-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .header-stats { display: flex; gap: 16px; align-items: center; }
+  .stat { text-align: center; }
+  .stat-val { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 4px; justify-content: center; }
+  .stat-label { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+  .sync-dot.offline { background: var(--text3); }
+  .sync-dot.syncing { background: var(--yellow); animation: pulse 1s infinite; }
+
+  /* Nav */
+  .nav { display: flex; gap: 2px; overflow-x: auto; }
+  .nav-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 14px 10px; border: none; background: transparent; cursor: pointer;
+    color: var(--text3); font-family: 'DM Sans', sans-serif; font-size: 11px;
+    font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent;
+    transition: all 0.15s; position: relative;
+  }
+  .nav-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .nav-btn svg { width: 17px; height: 17px; }
+  .nav-badge {
+    position: absolute; top: 5px; right: 8px;
+    background: var(--red); color: #fff; border-radius: 10px;
+    font-size: 9px; padding: 1px 5px; font-weight: 600; line-height: 1.4;
+  }
+
+  /* Content */
+  .content { padding: 16px; display: grid; gap: 12px; }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+  }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .card-title svg { width: 15px; height: 15px; color: var(--text2); }
+
+  /* Stats row */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 10px; text-align: center; box-shadow: var(--shadow);
+  }
+  .stat-card-val { font-size: 20px; font-weight: 600; margin: 6px 0 2px; }
+  .stat-card-label { font-size: 11px; color: var(--text3); }
+  .stat-card-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+  .stat-card-icon svg { width: 14px; height: 14px; }
+
+  /* Checkin grid */
+  .checkin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
+  .checkin-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 10px 4px; border-radius: 10px; border: 1px solid var(--border);
+    background: transparent; cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .checkin-btn.done { background: var(--green-light); border-color: var(--green-border); }
+  .checkin-btn.today { background: var(--blue-light); border-color: var(--blue-mid); }
+  .checkin-btn .day-label { font-size: 11px; color: var(--text2); font-weight: 500; }
+  .checkin-btn .today-tag { font-size: 9px; color: var(--blue); font-family: 'DM Mono', monospace; }
+  .checkin-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; }
+  .checkin-icon.done { background: var(--green); border-color: var(--green); }
+  .checkin-icon svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 3; }
+
+  /* Progress bar */
+  .progress-bar { height: 6px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; background: var(--green); }
+
+  /* Tags */
+  .tag { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-family: 'DM Mono', monospace; display: inline-flex; align-items: center; }
+  .tag-blue { background: var(--blue-light); color: var(--blue-text); }
+  .tag-gray { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-yellow { background: var(--yellow-light); color: var(--yellow); }
+
+  /* Lesson cards */
+  .lesson-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px; cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  }
+  .lesson-card:hover { border-color: var(--blue-mid); }
+  .lesson-card.active { background: var(--blue-light); border-color: var(--blue); }
+  .lesson-card.active .lesson-title { color: var(--blue-text); }
+  .lesson-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .lesson-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+  .lesson-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ext-link { color: var(--blue); flex-shrink: 0; margin-top: 2px; }
+  .ext-link svg { width: 14px; height: 14px; }
+
+  /* Prompt box */
+  .prompt-box {
+    background: var(--blue-light); border: 1px solid var(--blue-mid);
+    border-left: 3px solid var(--blue); border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+  .prompt-label { font-size: 10px; color: var(--blue); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+  .prompt-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+  /* Textarea */
+  textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    line-height: 1.6; background: var(--surface2); color: var(--text);
+    resize: vertical; min-height: 130px; transition: border-color 0.15s;
+  }
+  textarea:focus { outline: none; border-color: var(--blue); background: var(--surface); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; background: var(--surface);
+    color: var(--text2);
+  }
+  .btn:hover { background: var(--surface2); }
+  .btn:active { transform: scale(0.97); }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .btn-primary:hover { background: var(--blue-text); }
+  .btn-danger { background: var(--red-light); color: var(--red); border-color: var(--red-border); }
+  .btn-danger:hover { background: var(--red-border); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Speaking indicator */
+  .listening-bar {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: var(--red-light); border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+  }
+  .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1s infinite; }
+  .listening-text { font-size: 12px; color: var(--red); font-weight: 500; }
+
+  /* Analysis results */
+  .correction-item { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .correction-wrong { padding: 8px 12px; background: var(--red-light); font-size: 12px; color: var(--red); }
+  .correction-right { padding: 8px 12px; background: var(--green-light); font-size: 12px; color: var(--green); font-weight: 500; }
+  .correction-why { padding: 8px 12px; font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  .upgrade-item {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px; display: flex; justify-content: space-between;
+    align-items: flex-start; gap: 10px;
+  }
+  .upgrade-simple { font-size: 12px; color: var(--text3); text-decoration: line-through; }
+  .upgrade-arrow { font-size: 12px; color: var(--text3); margin: 0 4px; }
+  .upgrade-c1 { font-size: 13px; font-weight: 600; color: var(--blue-text); }
+  .upgrade-example { font-size: 12px; color: var(--text2); font-style: italic; margin-top: 4px; }
+
+  /* Flashcard */
+  .flashcard {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; min-height: 200px; padding: 28px 24px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; cursor: pointer;
+    box-shadow: var(--shadow); transition: all 0.15s;
+  }
+  .flashcard:hover { border-color: var(--blue-mid); }
+  .flashcard-hint { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 10px; }
+  .flashcard-word { font-size: 24px; font-weight: 600; margin-bottom: 14px; }
+  .flashcard-word.blue { color: var(--blue-text); }
+  .flashcard-example { font-size: 13px; color: var(--text2); font-style: italic; margin-bottom: 8px; }
+  .flashcard-tap { font-size: 12px; color: var(--text3); }
+
+  .review-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .review-btn {
+    padding: 12px 8px; border-radius: 10px; border: 1px solid var(--border);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+    background: var(--surface);
+  }
+  .review-btn:active { transform: scale(0.97); }
+  .review-btn .rb-label { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .review-btn .rb-sub { font-size: 11px; opacity: 0.7; font-family: 'DM Mono', monospace; }
+  .review-btn.hard { background: var(--red-light); border-color: var(--red-border); color: var(--red); }
+  .review-btn.good { background: var(--yellow-light); border-color: var(--yellow-border); color: var(--yellow); }
+  .review-btn.easy { background: var(--green-light); border-color: var(--green-border); color: var(--green); }
+
+  /* Progress dots */
+  .progress-dots { display: flex; gap: 4px; }
+  .progress-dot { flex: 1; height: 4px; border-radius: 4px; background: var(--border); transition: background 0.2s; }
+  .progress-dot.done { background: var(--green); }
+  .progress-dot.current { background: var(--blue); }
+
+  /* My cards list */
+  .card-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    box-shadow: var(--shadow);
+  }
+  .card-item.due { border-color: var(--red-border); background: var(--red-light); }
+  .card-item-simple { font-size: 12px; color: var(--text3); text-decoration: line-through; }
+  .card-item-c1 { font-size: 13px; font-weight: 600; color: var(--blue-text); }
+  .card-item-example { font-size: 12px; color: var(--text2); font-style: italic; margin: 4px 0 6px; }
+
+  /* Alert banner */
+  .alert-banner {
+    background: var(--red-light); border: 1px solid var(--red-border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; box-shadow: var(--shadow);
+  }
+  .alert-text { font-size: 14px; font-weight: 600; color: var(--red); }
+  .alert-sub { font-size: 12px; color: var(--red); opacity: 0.8; margin-top: 2px; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 40px 20px; }
+  .empty-icon { width: 40px; height: 40px; margin: 0 auto 14px; color: var(--text3); }
+  .empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.5; }
+
+  /* Phase info */
+  .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* Level badge */
+  .level-badge { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .level-B1 { color: var(--yellow); }
+  .level-B2 { color: var(--blue); }
+  .level-C1 { color: var(--green); }
+  .level-C2 { color: #8B5CF6; }
+
+  /* Word count */
+  .word-count { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+  /* Saved toast */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff; padding: 10px 20px;
+    border-radius: 30px; font-size: 13px; font-weight: 500;
+    opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Loading */
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 12px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+  /* Utils */
+  .flex { display: flex; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-6 { gap: 6px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .grid-gap { display: grid; gap: 8px; }
+  .text-muted { color: var(--text2); font-size: 13px; line-height: 1.5; }
+  .hidden { display: none !important; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 420px) {
+    .content { padding: 12px; }
+    .header { padding: 12px 14px 0; }
+    .stats-row { gap: 8px; }
+    .stat-card-val { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <p style="color: var(--text2); font-size: 14px;">Loading your data…</p>
+</div>
+
+<div id="app" class="app hidden">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <div class="logo-title">English C1</div>
+          <div class="logo-sub">B2 → C1 · Refold 2025 &nbsp;<span class="sync-dot syncing" id="syncDot"></span> <span id="syncLabel" style="font-size:10px;color:var(--text3)">Syncing…</span></div>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat">
+          <div class="stat-val">🔥 <span id="streakVal">0</span></div>
+          <div class="stat-label">streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" style="color:var(--blue)">📚 <span id="cardsVal">0</span></div>
+          <div class="stat-label">cards</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="setTab('dashboard')" id="nav-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-btn" onclick="setTab('practice')" id="nav-practice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Practice
+      </button>
+      <button class="nav-btn" onclick="setTab('review')" id="nav-review">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Review
+        <span class="nav-badge hidden" id="reviewBadge">0</span>
+      </button>
+      <button class="nav-btn" onclick="setTab('cards')" id="nav-cards">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        My Cards
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="content" id="tab-dashboard">
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#EFF6FF"><svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-card-val" style="color:var(--blue)" id="weekVal">0/5</div>
+        <div class="stat-card-label">this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#FEF2F2"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="stat-card-val" id="dueVal" style="color:var(--red)">0</div>
+        <div class="stat-card-label">due today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background:#F5F3FF"><svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div>
+        <div class="stat-card-val" id="totalCardsVal" style="color:#8B5CF6">0</div>
+        <div class="stat-card-label">total cards</div>
+      </div>
+    </div>
+
+    <!-- Weekly check-ins -->
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:14px">
+        <div class="card-title" style="margin:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Weekly check-ins
+        </div>
+        <span class="tag tag-gray">30 min min.</span>
+      </div>
+      <div class="checkin-grid" id="checkinGrid"></div>
+      <div class="progress-bar"><div class="progress-fill" id="weekProgress" style="width:0%"></div></div>
+      <p style="margin-top:6px;font-size:12px;color:var(--text3);text-align:right" id="weekLabel">0 of 5 days complete</p>
+    </div>
+
+    <!-- Phase info -->
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:8px">
+        <div class="card-title" style="margin:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Current Phase
+        </div>
+        <span class="tag tag-blue">Phase 1 — Foundation</span>
+      </div>
+      <p class="text-muted">Establish daily habits, switch to native podcasts, and launch your free writing practice with AI feedback.</p>
+      <div class="phase-tags">
+        <span class="tag tag-gray">Native podcasts daily</span>
+        <span class="tag tag-gray">Free writing 3×/wk</span>
+        <span class="tag tag-gray">Sentence mining</span>
+        <span class="tag tag-gray">iTalki 2×/wk</span>
+      </div>
+    </div>
+
+    <!-- Due alert -->
+    <div class="alert-banner hidden" id="dueAlert" onclick="setTab('review')">
+      <div>
+        <div class="alert-text" id="dueAlertText">0 cards due for review</div>
+        <div class="alert-sub">Don't break your streak — review now →</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+
+  <!-- ── PRACTICE ── -->
+  <div class="content hidden" id="tab-practice">
+    <!-- Lesson selector -->
+    <div id="lessonList"></div>
+
+    <!-- Prompt -->
+    <div class="prompt-box">
+      <div class="prompt-label">Your prompt</div>
+      <div class="prompt-text" id="activePrompt"></div>
+    </div>
+
+    <!-- Text input -->
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:10px">
+        <div style="font-size:14px;font-weight:600">Your response</div>
+        <button class="btn" id="micBtn" onclick="toggleListening()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          Speak
+        </button>
+      </div>
+      <div class="listening-bar hidden" id="listeningBar">
+        <div class="pulse-dot"></div>
+        <span class="listening-text">Listening… speak in English</span>
+      </div>
+      <textarea id="responseText" placeholder="Write your response here, or click Speak to dictate in English…" oninput="updateWordCount()"></textarea>
+      <div class="flex-between mt-8">
+        <span class="word-count" id="wordCount">0 words</span>
+        <button class="btn btn-primary" id="analyzeBtn" onclick="handleAnalyze()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Analyze & Level Up
+        </button>
+      </div>
+    </div>
+
+    <!-- Analysis loading -->
+    <div class="card hidden" id="analyzeLoading" style="text-align:center;padding:24px">
+      <div class="spinner" style="margin:0 auto 12px"></div>
+      <p style="color:var(--text2);font-size:14px">Analyzing with AI…</p>
+    </div>
+
+    <!-- Analysis results -->
+    <div class="hidden" id="analysisResults"></div>
+  </div>
+
+  <!-- ── REVIEW ── -->
+  <div class="content hidden" id="tab-review">
+    <div class="flex-between">
+      <div style="font-size:15px;font-weight:600">Daily Review</div>
+      <span class="word-count" id="dueCount">0 due today</span>
+    </div>
+    <div id="reviewContent"></div>
+  </div>
+
+  <!-- ── MY CARDS ── -->
+  <div class="content hidden" id="tab-cards">
+    <div class="flex-between">
+      <div style="font-size:15px;font-weight:600">My Vocabulary Cards</div>
+      <span class="word-count" id="cardsCount">0 total</span>
+    </div>
+    <div id="cardsList"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ─── FIREBASE SETUP ───────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",
+  authDomain: "b1-c1-80aa1.firebaseapp.com",
+  databaseURL: "https://b1-c1-80aa1-default-rtdb.firebaseio.com",
+  projectId: "b1-c1-80aa1",
+  storageBucket: "b1-c1-80aa1.firebasestorage.app",
+  messagingSenderId: "204603766052",
+  appId: "1:204603766052:web:c78deb4be6b0a48cc7efb1"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Anonymous user ID (persisted in localStorage)
+function getUserId() {
+  let uid = localStorage.getItem('c1-uid');
+  if (!uid) { uid = 'user_' + Math.random().toString(36).slice(2,10); localStorage.setItem('c1-uid', uid); }
+  return uid;
+}
+const UID = getUserId();
+const CHECKINS_REF = db.ref(`users/${UID}/checkins`);
+const CARDS_REF    = db.ref(`users/${UID}/cards`);
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let checkins = {};
+let cards = [];
+let activeLesson = null;
+let listening = false;
+let recognition = null;
+let currentTab = 'dashboard';
+let flashIdx = 0;
+let flipped = false;
+const today = new Date().toISOString().split('T')[0];
+
+// ─── SM-2 INTERVALS ───────────────────────────────────────────────────────────
+const INTERVALS = [1, 3, 7, 30];
+function nextReview(quality, intervalIdx = 0) {
+  const idx = Math.min(intervalIdx + (quality >= 3 ? 1 : 0), INTERVALS.length - 1);
+  const days = quality < 3 ? INTERVALS[0] : INTERVALS[idx];
+  const d = new Date(); d.setDate(d.getDate() + days); d.setHours(0,0,0,0);
+  return { date: d.toISOString().split('T')[0], intervalIdx: idx };
+}
+
+// ─── LESSONS ─────────────────────────────────────────────────────────────────
+const LESSONS = [
+  { id:'l1', title:'Advanced Rhetoric in TED Talks', level:'C1', url:'https://www.ted.com/talks', tags:['Speaking','Rhetoric'], desc:'Study how expert speakers use ethos, pathos, and logos to move audiences.', prompt:'Analyze the use of persuasion in the video. Identify rhetorical devices, emotional appeals, and how the speaker builds credibility.' },
+  { id:'l2', title:'BBC World Service — Global Debates', level:'C1', url:'https://www.bbc.co.uk/worldservice', tags:['Listening','Argumentation'], desc:'Develop your ability to follow fast, complex native speech on global topics.', prompt:'Listen to the debate and summarize the main arguments. Which position was more persuasive and why?' },
+  { id:'l3', title:'The Economist — Opinion Writing', level:'C1', url:'https://www.economist.com', tags:['Reading','Writing'], desc:'Master the formal register and precise vocabulary of quality journalism.', prompt:'Read the editorial and analyze how the author hedges claims. Note formal connectors used.' },
+];
+
+// ─── FIREBASE LOAD ────────────────────────────────────────────────────────────
+let ciLoaded = false, caLoaded = false;
+
+function tryShow() {
+  if (ciLoaded && caLoaded) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    setSyncStatus('online');
+    render();
+  }
+}
+
+CHECKINS_REF.on('value', snap => {
+  checkins = snap.val() || {};
+  ciLoaded = true;
+  tryShow();
+  if (currentTab === 'dashboard') renderDashboard();
+});
+
+CARDS_REF.on('value', snap => {
+  const val = snap.val();
+  cards = val ? Object.values(val) : [];
+  caLoaded = true;
+  tryShow();
+  render();
+});
+
+// Timeout fallback (5s)
+setTimeout(() => {
+  if (!ciLoaded || !caLoaded) {
+    checkins = JSON.parse(localStorage.getItem('c1-checkins') || '{}');
+    cards = JSON.parse(localStorage.getItem('c1-cards') || '[]');
+    ciLoaded = caLoaded = true;
+    setSyncStatus('offline');
+    tryShow();
+  }
+}, 5000);
+
+// ─── FIREBASE SAVE ────────────────────────────────────────────────────────────
+function saveCheckins() {
+  localStorage.setItem('c1-checkins', JSON.stringify(checkins));
+  CHECKINS_REF.set(checkins || null).catch(console.warn);
+}
+
+function saveCards() {
+  localStorage.setItem('c1-cards', JSON.stringify(cards));
+  const obj = cards.reduce((a,c) => { a[c.id]=c; return a; }, {});
+  CARDS_REF.set(Object.keys(obj).length ? obj : null).catch(console.warn);
+}
+
+function setSyncStatus(status) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  dot.className = 'sync-dot ' + (status === 'online' ? '' : status === 'offline' ? 'offline' : 'syncing');
+  label.textContent = status === 'online' ? 'Synced' : status === 'offline' ? 'Local only' : 'Syncing…';
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function dueCards() { return cards.filter(c => c.nextReview <= today); }
+function weekDays() {
+  const days = []; const now = new Date(); const dow = now.getDay();
+  const mon = new Date(now); mon.setDate(now.getDate() - (dow===0?6:dow-1));
+  for (let i=0; i<5; i++) {
+    const d = new Date(mon); d.setDate(mon.getDate()+i);
+    days.push({ key: d.toISOString().split('T')[0], label:['Mon','Tue','Wed','Thu','Fri'][i], isToday: d.toISOString().split('T')[0]===today });
+  }
+  return days;
+}
+function calcStreak() {
+  let s=0; const d=new Date();
+  while(true){ const k=d.toISOString().split('T')[0]; if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break; }
+  return s;
+}
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function setTab(tab) {
+  currentTab = tab;
+  ['dashboard','practice','review','cards'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('hidden', t!==tab);
+    document.getElementById('nav-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab==='dashboard') renderDashboard();
+  if (tab==='practice') renderPractice();
+  if (tab==='review') renderReview();
+  if (tab==='cards') renderCards();
+}
+
+function render() {
+  // Update header stats
+  document.getElementById('streakVal').textContent = calcStreak();
+  document.getElementById('cardsVal').textContent = cards.length;
+  // Review badge
+  const due = dueCards().length;
+  const badge = document.getElementById('reviewBadge');
+  badge.textContent = due; badge.classList.toggle('hidden', due===0);
+  // Re-render current tab
+  if (currentTab==='dashboard') renderDashboard();
+  else if (currentTab==='review') renderReview();
+  else if (currentTab==='cards') renderCards();
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const days = weekDays();
+  const done = days.filter(d => checkins[d.key]).length;
+  const due = dueCards();
+
+  document.getElementById('streakVal').textContent = calcStreak();
+  document.getElementById('cardsVal').textContent = cards.length;
+  document.getElementById('weekVal').textContent = done+'/5';
+  document.getElementById('dueVal').textContent = due.length;
+  document.getElementById('dueVal').style.color = due.length > 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('totalCardsVal').textContent = cards.length;
+  document.getElementById('weekProgress').style.width = (done/5*100)+'%';
+  document.getElementById('weekLabel').textContent = done+' of 5 days complete';
+
+  // Checkin grid
+  const grid = document.getElementById('checkinGrid'); grid.innerHTML='';
+  days.forEach(d => {
+    const isDone = !!checkins[d.key];
+    const btn = document.createElement('button');
+    btn.className = 'checkin-btn' + (isDone?' done':d.isToday?' today':'');
+    btn.onclick = () => toggleCheckin(d.key);
+    btn.innerHTML = `
+      <span class="day-label">${d.label}</span>
+      <div class="checkin-icon ${isDone?'done':''}">
+        ${isDone ? '<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+      </div>
+      ${d.isToday && !isDone ? '<span class="today-tag">today</span>' : ''}
+    `;
+    grid.appendChild(btn);
+  });
+
+  // Due alert
+  const alert = document.getElementById('dueAlert');
+  if (due.length > 0) {
+    alert.classList.remove('hidden');
+    document.getElementById('dueAlertText').textContent = due.length+' card'+(due.length>1?'s':'')+' due for review';
+    document.getElementById('dueCount').textContent = due.length+' due today';
+  } else { alert.classList.add('hidden'); }
+}
+
+function toggleCheckin(key) {
+  if (checkins[key]) { delete checkins[key]; } else { checkins[key] = true; }
+  saveCheckins(); renderDashboard();
+}
+
+// ─── PRACTICE ─────────────────────────────────────────────────────────────────
+function renderPractice() {
+  if (!activeLesson) activeLesson = LESSONS[0];
+  document.getElementById('activePrompt').textContent = activeLesson.prompt;
+
+  const list = document.getElementById('lessonList'); list.innerHTML='';
+  LESSONS.forEach(l => {
+    const div = document.createElement('div');
+    div.className = 'lesson-card' + (activeLesson.id===l.id?' active':'');
+    div.onclick = () => { activeLesson=l; renderPractice(); };
+    div.innerHTML = `
+      <div style="flex:1">
+        <div class="lesson-title">${l.title} <span class="tag tag-gray" style="font-size:10px">${l.level}</span></div>
+        <div class="lesson-desc">${l.desc}</div>
+        <div class="lesson-tags">${l.tags.map(t=>`<span class="tag tag-gray">${t}</span>`).join('')}</div>
+      </div>
+      <a href="${l.url}" target="_blank" onclick="event.stopPropagation()" class="ext-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>`;
+    list.appendChild(div);
+  });
+}
+
+function updateWordCount() {
+  const txt = document.getElementById('responseText').value;
+  const words = txt.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wordCount').textContent = words+' words';
+  document.getElementById('analyzeBtn').disabled = words < 2;
+}
+
+// Speech recognition
+function toggleListening() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Speech recognition not supported. Please use Chrome on desktop or Android.'); return;
+  }
+  if (listening) { recognition && recognition.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang='en-US';
+  recognition.onresult = e => {
+    let t=''; for(let i=e.resultIndex;i<e.results.length;i++) t+=e.results[i][0].transcript;
+    document.getElementById('responseText').value += t; updateWordCount();
+  };
+  recognition.onend = () => { listening=false; updateMicBtn(); };
+  recognition.onerror = () => { listening=false; updateMicBtn(); };
+  recognition.start(); listening=true; updateMicBtn();
+}
+function updateMicBtn() {
+  const btn=document.getElementById('micBtn'); const bar=document.getElementById('listeningBar');
+  if (listening) {
+    btn.className='btn btn-danger';
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .81-.15 1.59-.43 2.31"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Stop`;
+    bar.classList.remove('hidden');
+  } else {
+    btn.className='btn';
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak`;
+    bar.classList.add('hidden');
+  }
+}
+
+// AI Analysis
+async function handleAnalyze() {
+  const text = document.getElementById('responseText').value.trim();
+  if (!text) return;
+  document.getElementById('analyzeLoading').classList.remove('hidden');
+  document.getElementById('analysisResults').classList.add('hidden');
+  document.getElementById('analysisResults').innerHTML='';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        messages:[{ role:'user', content:`You are an expert English language coach helping a Brazilian learner reach C1 level.\n\nLesson context: ${activeLesson.prompt}\n\nStudent's text:\n"${text}"\n\nRespond ONLY with a JSON object (no markdown, no preamble):\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}` }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.[0]?.text || '{}';
+    const result = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderAnalysis(result);
+  } catch(e) {
+    renderAnalysis({ corrections:[], c1_upgrades:[], overall_feedback:'Could not connect to AI. Please check your connection and try again.', level_estimate:'—' });
+  }
+
+  document.getElementById('analyzeLoading').classList.add('hidden');
+}
+
+function renderAnalysis(r) {
+  const container = document.getElementById('analysisResults');
+  const levelColors = { B1:'var(--yellow)', B2:'var(--blue)', C1:'var(--green)', C2:'#8B5CF6' };
+  let html = `
+    <div class="card flex-between" style="align-items:flex-start">
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Estimated level</div>
+        <div class="level-badge" style="color:${levelColors[r.level_estimate]||'var(--blue)'}">${r.level_estimate}</div>
+      </div>
+      <div style="max-width:60%;text-align:right;font-size:13px;color:var(--text2);line-height:1.5">${r.overall_feedback}</div>
+    </div>`;
+
+  if (r.corrections?.length) {
+    html += `<div class="card"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar corrections</div><div class="grid-gap">`;
+    r.corrections.forEach(c => {
+      html += `<div class="correction-item">
+        <div class="correction-wrong">✗ &nbsp;${c.original}</div>
+        <div class="correction-right">✓ &nbsp;${c.corrected}</div>
+        <div class="correction-why">${c.explanation}</div>
+      </div>`;
+    });
+    html += '</div></div>';
+  }
+
+  if (r.c1_upgrades?.length) {
+    html += `<div class="card"><div class="flex-between" style="margin-bottom:12px"><div class="card-title" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>C1 vocabulary upgrades</div></div><div class="grid-gap">`;
+    r.c1_upgrades.forEach((u,i) => {
+      html += `<div class="upgrade-item">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:4px">
+            <span class="upgrade-simple">${u.simple}</span>
+            <span class="upgrade-arrow">→</span>
+            <span class="upgrade-c1">${u.c1}</span>
+          </div>
+          <div class="upgrade-example">"${u.example}"</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveCard('${u.simple.replace(/'/g,"\\'")}','${u.c1.replace(/'/g,"\\'")}','${u.example.replace(/'/g,"\\'")}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Save to SRS
+        </button>
+      </div>`;
+    });
+    html += '</div></div>';
+  }
+
+  container.innerHTML = html;
+  container.classList.remove('hidden');
+}
+
+function saveCard(simple, c1, example) {
+  if (cards.find(c => c.simple===simple)) { showToast('Already saved!'); return; }
+  const { date, intervalIdx } = nextReview(2, -1);
+  cards.unshift({ id: Date.now().toString(), simple, c1, example, nextReview: date, intervalIdx, created: today });
+  saveCards(); showToast('Saved to SRS! 🎉'); render();
+}
+
+// ─── REVIEW ───────────────────────────────────────────────────────────────────
+function renderReview() {
+  const due = dueCards();
+  document.getElementById('dueCount').textContent = due.length+' due today';
+  const container = document.getElementById('reviewContent');
+
+  if (due.length===0) {
+    container.innerHTML = `<div class="card empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <div class="empty-title">All caught up! 🎉</div>
+      <div class="empty-sub">No cards due today. Keep practicing to build your deck.</div>
+    </div>`; return;
+  }
+
+  if (flashIdx >= due.length) flashIdx=0;
+  const card = due[flashIdx];
+
+  let progressDots = '<div class="progress-dots">';
+  due.forEach((_,i) => progressDots += `<div class="progress-dot ${i<flashIdx?'done':i===flashIdx?'current':''}"></div>`);
+  progressDots += '</div>';
+
+  let cardHtml = '';
+  if (!flipped) {
+    cardHtml = `<div class="flashcard" onclick="flipCard()">
+      <div class="flashcard-hint">Simple version</div>
+      <div class="flashcard-word">${card.simple}</div>
+      <div class="flashcard-tap">Tap to reveal C1 expression →</div>
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${flashIdx+1} / ${due.length}</p>`;
+  } else {
+    cardHtml = `<div class="flashcard" onclick="flipCard()">
+      <div class="flashcard-hint" style="color:var(--blue)">C1 expression</div>
+      <div class="flashcard-word blue">${card.c1}</div>
+      <div class="flashcard-example">"${card.example}"</div>
+      <div class="flashcard-tap" style="margin-top:4px">← ${card.simple}</div>
+    </div>
+    <div class="review-btns">
+      <button class="review-btn hard" onclick="handleReview(1)"><div class="rb-label">Hard</div><div class="rb-sub">+1 day</div></button>
+      <button class="review-btn good" onclick="handleReview(3)"><div class="rb-label">Good</div><div class="rb-sub">+3 days</div></button>
+      <button class="review-btn easy" onclick="handleReview(5)"><div class="rb-label">Easy</div><div class="rb-sub">+7 days</div></button>
+    </div>`;
+  }
+
+  container.innerHTML = progressDots + cardHtml;
+}
+
+function flipCard() { flipped = !flipped; renderReview(); }
+
+function handleReview(quality) {
+  const due = dueCards();
+  const card = due[flashIdx];
+  if (!card) return;
+  const { date, intervalIdx } = nextReview(quality, card.intervalIdx);
+  const idx = cards.findIndex(c => c.id===card.id);
+  if (idx>=0) { cards[idx].nextReview=date; cards[idx].intervalIdx=intervalIdx; }
+  saveCards();
+  flipped=false;
+  setTimeout(() => {
+    const newDue = dueCards();
+    if (newDue.length===0) flashIdx=0;
+    else flashIdx = Math.min(flashIdx, newDue.length-1);
+    renderReview(); render();
+  }, 150);
+}
+
+// ─── MY CARDS ─────────────────────────────────────────────────────────────────
+function renderCards() {
+  document.getElementById('cardsCount').textContent = cards.length+' total';
+  const list = document.getElementById('cardsList');
+  if (cards.length===0) {
+    list.innerHTML = `<div class="card empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      <div class="empty-title">No cards yet</div>
+      <div class="empty-sub">Analyze your writing in the Practice tab and save C1 upgrades to build your deck.</div>
+      <button class="btn btn-primary" onclick="setTab('practice')">Go to Practice →</button>
+    </div>`; return;
+  }
+
+  list.innerHTML = '<div class="grid-gap">' + cards.map(c => {
+    const isDue = c.nextReview <= today;
+    return `<div class="card-item ${isDue?'due':''}">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">
+          <span class="card-item-simple">${c.simple}</span>
+          <span style="color:var(--text3);font-size:12px">→</span>
+          <span class="card-item-c1">${c.c1}</span>
+        </div>
+        <div class="card-item-example">"${c.example}"</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="tag ${isDue?'tag-red':'tag-green'}">${isDue?'Due today':'Next: '+c.nextReview}</span>
+          <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${INTERVALS[Math.min(c.intervalIdx||0,INTERVALS.length-1)]}d interval</span>
+        </div>
+      </div>
+      <button onclick="deleteCard('${c.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function deleteCard(id) {
+  cards = cards.filter(c => c.id !== id);
+  saveCards(); renderCards(); render();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Render practice on first tab switch
+document.getElementById('tab-practice').addEventListener('click', () => {
+  if (!activeLesson) renderPractice();
+}, { once: true });
+
+</script>
+</body>
+</html>
