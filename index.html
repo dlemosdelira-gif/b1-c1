@@ -7,8 +7,6 @@
 <title>English C1 — v3.2 Roadmap Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -707,25 +705,12 @@ html,body{overflow-x:hidden;width:100%}
 
 <script>
 // ════════════════════════════════════════════════════════
-// FIREBASE
+// STATE & CONSTANTS (no Firebase here — loaded separately)
 // ════════════════════════════════════════════════════════
-firebase.initializeApp({
-  apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",
-  authDomain:"b1-c1-80aa1.firebaseapp.com",
-  databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",
-  projectId:"b1-c1-80aa1",
-  storageBucket:"b1-c1-80aa1.firebasestorage.app",
-  messagingSenderId:"204603766052",
-  appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"
-});
-const db=firebase.database();
+let db=null, REF_CI=null, REF_CARDS=null, REF_STATS=null, REF_CUSTOM=null, REF_MONTH=null;
+
 function uid(){let u=localStorage.getItem('c1-uid');if(!u){u='user_'+Math.random().toString(36).slice(2,10);localStorage.setItem('c1-uid',u);}return u;}
 const UID=uid();
-const REF_CI     = db.ref(`users/${UID}/checkins`);
-const REF_CARDS  = db.ref(`users/${UID}/cards`);
-const REF_STATS  = db.ref(`users/${UID}/stats`);
-const REF_CUSTOM = db.ref(`users/${UID}/customLessons`);
-const REF_MONTH  = db.ref(`users/${UID}/activeMonth`);
 
 // ════════════════════════════════════════════════════════
 // STATE
@@ -882,6 +867,25 @@ function revealApp(){
 // 3. Firebase sincroniza em background (chamado após revealApp)
 function startFirebaseSync(){
   try{
+    if(typeof firebase==='undefined')return;
+    if(!firebase.apps||!firebase.apps.length){
+      firebase.initializeApp({
+        apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",
+        authDomain:"b1-c1-80aa1.firebaseapp.com",
+        databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",
+        projectId:"b1-c1-80aa1",
+        storageBucket:"b1-c1-80aa1.firebasestorage.app",
+        messagingSenderId:"204603766052",
+        appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"
+      });
+    }
+    db=firebase.database();
+    REF_CI     = db.ref(`users/${UID}/checkins`);
+    REF_CARDS  = db.ref(`users/${UID}/cards`);
+    REF_STATS  = db.ref(`users/${UID}/stats`);
+    REF_CUSTOM = db.ref(`users/${UID}/customLessons`);
+    REF_MONTH  = db.ref(`users/${UID}/activeMonth`);
+
     REF_CI.on('value',s=>{
       const v=s.val();if(!v)return;
       checkins=v;
@@ -928,9 +932,9 @@ function startFirebaseSync(){
   }
 }
 
-function saveCI(){localStorage.setItem('c1-ci',JSON.stringify(checkins));REF_CI.set(checkins||null).catch(()=>{});}
-function saveCards(){localStorage.setItem('c1-cards',JSON.stringify(cards));const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});REF_CARDS.set(Object.keys(o).length?o:null).catch(()=>{});}
-function saveStats(){localStorage.setItem('c1-stats',JSON.stringify(stats));REF_STATS.set(stats).catch(()=>{});}
+function saveCI(){localStorage.setItem('c1-ci',JSON.stringify(checkins));if(REF_CI)REF_CI.set(checkins||null).catch(()=>{});}
+function saveCards(){localStorage.setItem('c1-cards',JSON.stringify(cards));if(REF_CARDS){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});REF_CARDS.set(Object.keys(o).length?o:null).catch(()=>{});}}
+function saveStats(){localStorage.setItem('c1-stats',JSON.stringify(stats));if(REF_STATS)REF_STATS.set(stats).catch(()=>{});}
 function setSyncStatus(s){const d=document.getElementById('syncDot'),l=document.getElementById('syncLbl');if(!d||!l)return;d.className='sync-dot'+(s==='online'?'':s==='offline'?' off':' sync');l.textContent=s==='online'?'Synced':s==='offline'?'Local only':'Syncing…';}
 
 // ════════════════════════════════════════════════════════
@@ -1003,7 +1007,7 @@ function buildMonthRail(){
 
 function setActiveMonth(n){
   activeMonth=n;
-  REF_MONTH.set(n).catch(()=>{});
+  if(REF_MONTH)REF_MONTH.set(n).catch(()=>{});
   localStorage.setItem('c1-month',n);
   // reset active lesson to first of new month
   const ls=getLessonsForMonth(n);activeLesson=ls[0]||null;
@@ -1232,8 +1236,9 @@ function saveCustomLesson(){
     isCustom:true,
     created:today
   };
-  REF_CUSTOM.child(lesson.id).set(lesson).catch(()=>{});
+  if(REF_CUSTOM)REF_CUSTOM.child(lesson.id).set(lesson).catch(()=>{});
   customLessons.push(lesson);
+  localStorage.setItem('c1-custom',JSON.stringify(customLessons));
   closeModal('modalCustom');
   document.getElementById('customTitle').value='';
   document.getElementById('customUrl').value='';
@@ -1242,8 +1247,9 @@ function saveCustomLesson(){
   renderPractice();
 }
 function deleteCustomLesson(id){
-  REF_CUSTOM.child(id).remove().catch(()=>{});
+  if(REF_CUSTOM)REF_CUSTOM.child(id).remove().catch(()=>{});
   customLessons=customLessons.filter(l=>l.id!==id);
+  localStorage.setItem('c1-custom',JSON.stringify(customLessons));
   if(activeLesson&&activeLesson.id===id){const ls=getLessonsForMonth(activeMonth);activeLesson=ls[0]||null;}
   renderPractice();showToast('Lesson removed');
 }
@@ -1612,10 +1618,21 @@ const a=document.createElement(‘a’);a.href=URL.createObjectURL(new Blob([con
 
 // ════════════════════════════════════════════════════════
 // STARTUP — runs after ALL functions are defined
+// Firebase loads separately after this and calls startFirebaseSync()
 // ════════════════════════════════════════════════════════
 loadFromLocal();
 revealApp();
-startFirebaseSync();
+</script>
+
+<!-- Firebase loaded AFTER app renders — never blocks the UI -->
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// Firebase available now — start sync
+if(typeof firebase !== 'undefined') startFirebaseSync();
 </script>
 
 </body>
