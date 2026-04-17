@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English C1 — v3.7</title>
+<title>English C1 — v3.8</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -163,49 +163,34 @@ textarea{min-height:120px}
 .fl{display:flex;align-items:center}
 .gg{display:grid;gap:8px}
 
-/* ── EMPTY & ICONS (CORREÇÃO DE TAMANHO) ── */
+/* ── EMPTY & ICONS ── */
 .empty{text-align:center;padding:32px 20px}
 .eico{width:48px !important;height:48px !important;max-width:48px;display:block;margin:0 auto 16px auto;color:#94A3B8}
 .etit{font-size:15px;font-weight:600;margin-bottom:6px;color:#0F172A}
 .esub{font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5}
 
-
-/* ── 📱 MEDIA QUERIES (A CORREÇÃO DO VAZAMENTO) ── */
+/* ── 📱 MEDIA QUERIES ── */
 @media(max-width:768px){
   .pg{padding:10px;gap:12px; width:100%;}
   .hdr{padding:10px 10px 0;}
-  
-  /* Reduzir textos no header */
   .hs-l { display: none; } 
   .hs-v { font-size: 16px; }
   .hst { gap: 14px; }
   .logo-name { font-size: 13px; }
-  
   .top-grid{grid-template-columns:1fr; gap:12px;}
-  
-  /* ROADMAP: Transforma o grid de 6 em um Carrossel Deslizante */
   .rm-sel { display: flex; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
   .rm-sel::-webkit-scrollbar { display: none; }
   .rm-btn { flex: 0 0 22%; min-width: 60px; padding: 6px 2px; }
-
-  /* CHECK-INS: Transforma o grid de 5 em um Carrossel Deslizante */
   .ci-row { display: flex; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
   .ci-row::-webkit-scrollbar { display: none; }
   .ci-btn { flex: 0 0 28%; min-width: 75px; }
-
   .stat-row{gap:8px}
   .sc { padding: 12px 4px; }
   .sc-v{font-size:16px}
-  
-  /* Ajustes Heatmap */
   .hm-c{width:10px;height:10px}
   .flt-h{font-size:24px}
-
-  /* Melhorar área de toque (dedos) */
   .btn { min-height: 40px; justify-content: center; }
   .btn.bsm { min-height: 34px; }
-
-  /* Evitar Zoom do iOS em inputs */
   textarea, input[type=text] { font-size: 16px !important; }
 }
 </style>
@@ -218,7 +203,7 @@ textarea{min-height:120px}
     <div class="logo">
       <div class="logo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
-        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v3.7</span></div>
+        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v3.8</span></div>
         <div class="logo-sub"><span class="sdot sy" id="sdot"></span><span id="slbl">Loading…</span></div>
       </div>
     </div>
@@ -484,23 +469,6 @@ const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null;
 
-// ── NOVO SISTEMA DE SYNC ──
-function uid(){
-  // 1. Checa se tem um ID na URL (ex: ?id=meu_codigo)
-  const params = new URLSearchParams(window.location.search);
-  const urlId = params.get('id');
-  if(urlId) { localStorage.setItem('c1u', urlId); } // Força o ID da URL
-  
-  // 2. Pega o ID salvo ou cria um novo
-  let u=localStorage.getItem('c1u');
-  if(!u){u='u'+Math.random().toString(36).slice(2,9);localStorage.setItem('c1u',u);}
-  
-  // Mostra o seu ID no console para você copiar
-  console.log("SEU CÓDIGO DE SYNC É:", u);
-  return u;
-}
-const UID=uid();
-
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
   {n:1,lb:'Jan',th:'Foundation',ic:'🌱',ph:'Phase 1',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'Build daily habits, natural vocabulary and grammatical precision.',sk:['Natural Grammar','Core Vocabulary','Sentence Mining','Daily Writing'],dc:'',dl:'📘 Month 1 — Grammar & Natural Vocab',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 1: Correct grammar clearly. Suggest natural C1 vocabulary. Prioritize phrases that sound native.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
@@ -566,8 +534,17 @@ function startSync(){
     if(!firebase.apps||!firebase.apps.length){
       firebase.initializeApp({apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",authDomain:"b1-c1-80aa1.firebaseapp.com",databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",projectId:"b1-c1-80aa1",storageBucket:"b1-c1-80aa1.firebasestorage.app",messagingSenderId:"204603766052",appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"});
     }
+    // Autenticação anônima, como no exemplo de Orçamento, para permitir escrita nas regras padrão
+    firebase.auth().signInAnonymously().catch(e => console.warn(e));
     db=firebase.database();
-    RCI=db.ref('u/'+UID+'/ci');RCA=db.ref('u/'+UID+'/ca');RST=db.ref('u/'+UID+'/st');RCU=db.ref('u/'+UID+'/cu');RMO=db.ref('u/'+UID+'/mo');
+    
+    // Caminhos globais fixos na raiz do DB, sem separar por usuário
+    RCI=db.ref('checkins');
+    RCA=db.ref('cards');
+    RST=db.ref('stats');
+    RCU=db.ref('customLessons');
+    RMO=db.ref('activeMonth');
+    
     RCI.on('value',s=>{const v=s.val();if(!v)return;checkins=v;localStorage.setItem('c1ci',JSON.stringify(v));setSS('online');if(curTab==='dash')renderDash();},()=>setSS('offline'));
     RCA.on('value',s=>{const v=s.val();if(v===null)return;cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[];localStorage.setItem('c1ca',JSON.stringify(cards));setSS('online');render();},()=>setSS('offline'));
     RST.on('value',s=>{const v=s.val();if(!v)return;stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);localStorage.setItem('c1st',JSON.stringify(stats));setSS('online');renderMeters();renderFlight();},()=>setSS('offline'));
@@ -1095,6 +1072,7 @@ initSesTimer();
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" onload="startSync()" onerror="setSS('offline')"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 </body>
