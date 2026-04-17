@@ -859,9 +859,15 @@ function nextReview(quality,intervalIdx=0,easiness=2.5){
 // ════════════════════════════════════════════════════════
 // FIREBASE LOAD
 // ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// FIREBASE LOAD — each listener is independent, app reveals as soon as all resolve
+// ════════════════════════════════════════════════════════
 let ciOk=false,caOk=false,stOk=false,cuOk=false,moOk=false;
+let _revealed=false;
 function tryReveal(){
+  if(_revealed)return;
   if(ciOk&&caOk&&stOk&&cuOk&&moOk){
+    _revealed=true;
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     setSyncStatus('online');
@@ -870,12 +876,46 @@ function tryReveal(){
     render();
   }
 }
-REF_CI.on('value',s=>{checkins=s.val()||{};ciOk=true;tryReveal();if(currentTab==='dashboard')renderDashboard();});
-REF_CARDS.on('value',s=>{const v=s.val();cards=v?Object.values(v):[];caOk=true;tryReveal();render();});
-REF_STATS.on('value',s=>{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},s.val()||{});stOk=true;tryReveal();renderOutputMeters();});
-REF_CUSTOM.on('value',s=>{const v=s.val();customLessons=v?Object.values(v):[];cuOk=true;tryReveal();if(currentTab==='practice')renderPractice();});
-REF_MONTH.once('value',s=>{activeMonth=s.val()||1;moOk=true;tryReveal();});
-setTimeout(()=>{if(!ciOk||!caOk||!stOk||!cuOk||!moOk){checkins=JSON.parse(localStorage.getItem('c1-ci')||'{}');cards=JSON.parse(localStorage.getItem('c1-cards')||'[]');customLessons=[];ciOk=caOk=stOk=cuOk=moOk=true;setSyncStatus('offline');tryReveal();}},6000);
+
+// Each listener marks its own flag and always calls tryReveal
+REF_CI.on('value',s=>{
+  try{checkins=s.val()||{};}catch(e){checkins={};}
+  ciOk=true;tryReveal();
+  if(_revealed&&currentTab==='dashboard')renderDashboard();
+});
+REF_CARDS.on('value',s=>{
+  try{const v=s.val();cards=v?Object.values(v):[];}catch(e){cards=[];}
+  caOk=true;tryReveal();
+  if(_revealed)render();
+});
+REF_STATS.on('value',s=>{
+  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},s.val()||{});}catch(e){}
+  stOk=true;tryReveal();
+  if(_revealed)renderOutputMeters();
+});
+REF_CUSTOM.on('value',s=>{
+  try{const v=s.val();customLessons=v?Object.values(v):[];}catch(e){customLessons=[];}
+  cuOk=true;tryReveal();
+  if(_revealed&&currentTab==='practice')renderPractice();
+});
+
+// activeMonth: try Firebase, fall back to localStorage immediately on any error
+REF_MONTH.once('value',
+  s=>{activeMonth=s.val()||parseInt(localStorage.getItem('c1-month')||'1',10);moOk=true;tryReveal();},
+  _err=>{activeMonth=parseInt(localStorage.getItem('c1-month')||'1',10);moOk=true;tryReveal();}
+);
+
+// Hard fallback: if any listener hasn't resolved within 2.5s, use localStorage and show app
+setTimeout(()=>{
+  if(_revealed)return;
+  if(!ciOk){try{checkins=JSON.parse(localStorage.getItem('c1-ci')||'{}');}catch(e){checkins={};} ciOk=true;}
+  if(!caOk){try{cards=JSON.parse(localStorage.getItem('c1-cards')||'[]');}catch(e){cards=[];} caOk=true;}
+  if(!stOk){stOk=true;}
+  if(!cuOk){customLessons=[];cuOk=true;}
+  if(!moOk){activeMonth=parseInt(localStorage.getItem('c1-month')||'1',10);moOk=true;}
+  setSyncStatus('offline');
+  tryReveal();
+},2500);
 
 function saveCI(){localStorage.setItem('c1-ci',JSON.stringify(checkins));REF_CI.set(checkins||null).catch(()=>{});}
 function saveCards(){localStorage.setItem('c1-cards',JSON.stringify(cards));const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});REF_CARDS.set(Object.keys(o).length?o:null).catch(()=>{});}
