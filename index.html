@@ -4,440 +4,313 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English C1 — v3.2 Roadmap Edition</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+<title>English C1 — v3.2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F4F7FF;--surface:#fff;--surface2:#EEF2FF;--surface3:#F8FAFF;
-  --border:#DDE3F5;--border2:#C7D0EE;
-  --blue:#2563EB;--blue-l:#EFF6FF;--blue-m:#BFDBFE;--blue-t:#1D4ED8;
-  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
-  --green:#16A34A;--green-l:#F0FDF4;--green-b:#BBF7D0;
-  --red:#DC2626;--red-l:#FEF2F2;--red-b:#FECACA;
-  --yellow:#D97706;--yellow-l:#FFFBEB;--yellow-b:#FDE68A;
-  --purple:#7C3AED;--purple-l:#F5F3FF;--purple-b:#DDD6FE;
-  --teal:#0D9488;--teal-l:#F0FDFA;--teal-b:#99F6E4;
+  --bg:#F4F7FF;--sur:#fff;--sur2:#EEF2FF;--bor:#DDE3F5;--bor2:#C7D0EE;
+  --bl:#2563EB;--bl-l:#EFF6FF;--bl-m:#BFDBFE;--bl-t:#1D4ED8;
+  --tx:#0F172A;--tx2:#475569;--tx3:#94A3B8;
+  --gr:#16A34A;--gr-l:#F0FDF4;--gr-b:#BBF7D0;
+  --rd:#DC2626;--rd-l:#FEF2F2;--rd-b:#FECACA;
+  --yw:#D97706;--yw-l:#FFFBEB;--yw-b:#FDE68A;
+  --pu:#7C3AED;--pu-l:#F5F3FF;--pu-b:#DDD6FE;
+  --te:#0D9488;--te-l:#F0FDFA;--te-b:#99F6E4;
   --r:12px;--rs:8px;
-  --sh:0 1px 3px rgba(15,23,42,.07),0 1px 2px rgba(15,23,42,.04);
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;overflow-x:hidden}
-.app{max-width:700px;margin:0 auto;padding-bottom:90px;overflow-x:hidden;width:100%}
+html,body{overflow-x:hidden;width:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;min-height:100vh}
+.app{max-width:700px;margin:0 auto;padding-bottom:90px;overflow-x:hidden}
 
-/* ── HEADER ── */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 0;position:sticky;top:0;z-index:100}
+/* HEADER */
+.hdr{background:var(–sur);border-bottom:1px solid var(–bor);padding:12px 16px 0;position:sticky;top:0;z-index:100}
 .hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
-.logo{display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:1}
-.logo-icon{width:32px;height:32px;flex-shrink:0;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo{display:flex;align-items:center;gap:8px;min-width:0}
+.logo-icon{width:32px;height:32px;background:var(–bl);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
-.logo-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.logo-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:5px;margin-top:1px;white-space:nowrap}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
-.sync-dot.off{background:var(--text3)}.sync-dot.sync{background:var(--yellow);animation:pulse 1s infinite}
-.hdr-stats{display:flex;gap:10px;flex-shrink:0}
+.logo-name{font-size:14px;font-weight:600;white-space:nowrap}
+.logo-sub{font-size:10px;color:var(–tx3);font-family:‘DM Mono’,monospace;display:flex;align-items:center;gap:4px;margin-top:1px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(–gr)}
+.sdot.off{background:var(–tx3)}.sdot.sy{background:var(–yw);animation:pulse 1s infinite}
+.hdr-st{display:flex;gap:10px;flex-shrink:0}
 .hs{text-align:center}
-.hs-val{font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center;white-space:nowrap}
-.hs-lbl{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
-.nav{display:flex;gap:0;width:100%}
-.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 8px 10px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;position:relative;flex:1;min-width:0}
-.nb svg{width:16px;height:16px}
-.nb.active{color:var(--blue);border-bottom-color:var(--blue)}
-.nb-badge{position:absolute;top:4px;right:4px;background:var(--red);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;line-height:1.4;display:none}
-.nb-badge.show{display:block}
+.hs-v{font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center}
+.hs-l{font-size:9px;color:var(–tx3);font-family:‘DM Mono’,monospace}
+.nav{display:flex;width:100%}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:var(–tx3);font-family:‘DM Sans’,sans-serif;font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative}
+.nb svg{width:15px;height:15px}
+.nb.on{color:var(–bl);border-bottom-color:var(–bl)}
+.nbdg{position:absolute;top:4px;right:4px;background:var(–rd);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;display:none}
+.nbdg.on{display:block}
 
-/* ── CONTENT ── */
-.content{padding:14px;display:grid;gap:12px;width:100%;overflow-x:hidden}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--sh);min-width:0;overflow:hidden}
-.card-sm{padding:11px 13px}
-.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:11px;display:flex;align-items:center;gap:7px}
-.card-title svg{width:13px;height:13px}
+/* CONTENT */
+.pg{padding:14px;display:grid;gap:12px;overflow-x:hidden}
+.card{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:14px;min-width:0;overflow:hidden}
+.csm{padding:11px 13px}
+.ctit{font-size:11px;font-weight:600;color:var(–tx2);text-transform:uppercase;letter-spacing:.5px;font-family:‘DM Mono’,monospace;margin-bottom:11px;display:flex;align-items:center;gap:7px}
 
-/* ── MONTH THEME SELECTOR ── */
-.month-rail{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
-.month-rail::-webkit-scrollbar{display:none}
-.month-btn{flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 9px;border-radius:9px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-width:56px;max-width:70px}
-.month-btn:hover{border-color:var(--blue-m);background:var(--blue-l)}
-.month-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
-.month-btn .mn{font-size:11px;font-weight:600}
-.month-btn .mtheme{font-size:8px;opacity:.7;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center}
-.month-btn.locked{opacity:.4;cursor:not-allowed}
-.month-btn.locked:hover{background:transparent;border-color:var(--border)}
+/* MONTH RAIL */
+.mrl{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mrl::-webkit-scrollbar{display:none}
+.mbt{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 9px;border-radius:9px;border:1px solid var(–bor);background:transparent;cursor:pointer;font-family:‘DM Sans’,sans-serif;transition:all .15s;min-width:54px}
+.mbt:hover{border-color:var(–bl-m);background:var(–bl-l)}
+.mbt.on{background:var(–bl);border-color:var(–bl);color:#fff}
+.mbt .mn{font-size:11px;font-weight:600}
+.mbt .mt{font-size:8px;opacity:.7;font-family:‘DM Mono’,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px;text-align:center}
 
-/* ── THEME BANNER ── */
-.theme-banner{border-radius:var(--r);padding:13px 14px;display:flex;align-items:flex-start;gap:10px;width:100%;overflow:hidden;word-break:break-word}
-.tb-icon{font-size:20px;flex-shrink:0;margin-top:1px}
-.tb-phase{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:3px}
-.tb-title{font-size:14px;font-weight:600;margin-bottom:3px}
-.tb-desc{font-size:12px;line-height:1.5;opacity:.85;word-break:break-word}
-.tb-skills{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+/* THEME BANNER */
+.tbanner{border-radius:var(–r);padding:13px 14px;display:flex;gap:10px;overflow:hidden;word-break:break-word}
+.tbi{font-size:20px;flex-shrink:0}
+.tbph{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:‘DM Mono’,monospace;margin-bottom:3px}
+.tbtit{font-size:14px;font-weight:600;margin-bottom:3px}
+.tbdsc{font-size:12px;line-height:1.5;opacity:.85}
+.tbsk{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 
-/* ── STATS ── */
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 8px;text-align:center;box-shadow:var(--sh)}
-.sc-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 5px}
-.sc-icon svg{width:14px;height:14px}
-.sc-val{font-size:19px;font-weight:700;margin-bottom:2px}
-.sc-lbl{font-size:10px;color:var(--text3)}
+/* STATS */
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sc{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:12px 8px;text-align:center}
+.sc-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin:0 auto 5px}
+.sc-ic svg{width:13px;height:13px}
+.sc-v{font-size:18px;font-weight:700;margin-bottom:2px}
+.sc-l{font-size:10px;color:var(–tx3)}
 
-/* ── HEATMAP ── */
-.heatmap-wrap{overflow-x:auto;padding-bottom:2px}
-.heatmap-grid{display:flex;gap:3px;padding:4px 0}
-.hm-col{display:flex;flex-direction:column;gap:3px}
-.hm-cell{width:11px;height:11px;border-radius:2px;background:#E2E8F0;cursor:default;transition:opacity .1s}
-.hm-cell:hover{opacity:.75}
-.hm-cell.l1{background:#BFDBFE}.hm-cell.l2{background:#93C5FD}.hm-cell.l3{background:#3B82F6}.hm-cell.l4{background:#1D4ED8}
-.hm-months{display:flex;gap:3px;padding:0 0 3px}
-.hm-month-lbl{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
+/* FLIGHT */
+.fcard{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:var(–r);padding:14px 16px;color:#fff;overflow:hidden}
+.fh{font-size:28px;font-weight:700;font-family:‘DM Mono’,monospace;margin:4px 0 2px}
+.fm{display:flex;gap:10px 16px;margin-top:8px;flex-wrap:wrap}
+.fmi{font-size:11px;opacity:.8}
+.fmv{font-size:13px;font-weight:600;display:block}
 
-/* ── CHECKIN ── */
-.checkin-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
-.ci-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
-.ci-btn.done{background:var(--green-l);border-color:var(--green-b)}
-.ci-btn.today{background:var(--blue-l);border-color:var(--blue-m)}
-.ci-label{font-size:11px;color:var(--text2);font-weight:500}
-.ci-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center}
-.ci-check.done{background:var(--green);border-color:var(--green)}
-.ci-check svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
-.today-tag{font-size:9px;color:var(--blue);font-family:'DM Mono',monospace}
-.prog-bar{height:5px;background:var(--surface2);border-radius:4px;overflow:hidden}
-.prog-fill{height:100%;border-radius:4px;transition:width .4s;background:var(--green)}
+/* OUTPUT */
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.om{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:12px;min-width:0;overflow:hidden}
+.omv{font-size:20px;font-weight:700;font-family:‘DM Mono’,monospace;margin:4px 0 2px}
+.oml{font-size:10px;color:var(–tx3)}
+.omb{height:4px;background:var(–sur2);border-radius:4px;margin-top:6px;overflow:hidden}
+.omf{height:100%;border-radius:4px;transition:width .4s}
 
-/* ── TAGS ── */
-.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px;font-weight:500}
-.tag-blue{background:var(--blue-l);color:var(--blue-t)}
-.tag-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
-.tag-green{background:var(--green-l);color:var(--green)}
-.tag-red{background:var(--red-l);color:var(--red)}
-.tag-yellow{background:var(--yellow-l);color:var(--yellow)}
-.tag-purple{background:var(--purple-l);color:var(--purple)}
-.tag-teal{background:var(--teal-l);color:var(--teal)}
-.tag-custom{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+/* HEATMAP */
+.hmwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.hmgrid{display:flex;gap:3px;padding:4px 0}
+.hmcol{display:flex;flex-direction:column;gap:3px}
+.hmc{width:10px;height:10px;border-radius:2px;background:#E2E8F0}
+.hmc.l1{background:#BFDBFE}.hmc.l2{background:#93C5FD}.hmc.l3{background:#3B82F6}.hmc.l4{background:#1D4ED8}
+.hmml{display:flex;gap:3px;padding:0 0 3px}
+.hmlbl{font-size:9px;color:var(–tx3);font-family:‘DM Mono’,monospace}
 
-/* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--rs);border:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:var(--surface);color:var(--text2)}
-.btn:hover{background:var(--surface2)}
+/* CHECKIN */
+.cigrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.cibtn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border-radius:10px;border:1px solid var(–bor);background:transparent;cursor:pointer;transition:all .15s;font-family:‘DM Sans’,sans-serif}
+.cibtn.dn{background:var(–gr-l);border-color:var(–gr-b)}
+.cibtn.td{background:var(–bl-l);border-color:var(–bl-m)}
+.cilbl{font-size:11px;color:var(–tx2);font-weight:500}
+.cick{width:22px;height:22px;border-radius:50%;border:2px solid var(–bor2);display:flex;align-items:center;justify-content:center}
+.cick.dn{background:var(–gr);border-color:var(–gr)}
+.cick svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
+.tdtag{font-size:9px;color:var(–bl);font-family:‘DM Mono’,monospace}
+.pbar{height:5px;background:var(–sur2);border-radius:4px;overflow:hidden}
+.pfil{height:100%;border-radius:4px;transition:width .4s;background:var(–gr)}
+
+/* TAGS */
+.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-family:‘DM Mono’,monospace;display:inline-flex;align-items:center;font-weight:500}
+.tbl{background:var(–bl-l);color:var(–bl-t)}
+.tgr{background:var(–sur2);color:var(–tx2);border:1px solid var(–bor)}
+.tgg{background:var(–gr-l);color:var(–gr)}
+.trd{background:var(–rd-l);color:var(–rd)}
+.tyw{background:var(–yw-l);color:var(–yw)}
+.tpu{background:var(–pu-l);color:var(–pu)}
+.tcu{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(–rs);border:1px solid var(–bor);font-family:‘DM Sans’,sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:var(–sur);color:var(–tx2)}
+.btn:hover{background:var(–sur2)}
 .btn:active{transform:scale(.97)}
 .btn svg{width:14px;height:14px;flex-shrink:0}
-.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn-primary:hover{background:var(--blue-t)}
-.btn-danger{background:var(--red-l);color:var(--red);border-color:var(--red-b)}
-.btn-purple{background:var(--purple-l);color:var(--purple);border-color:var(--purple-b)}
-.btn-teal{background:var(--teal-l);color:var(--teal);border-color:var(--teal-b)}
-.btn-sm{padding:5px 10px;font-size:11px}
+.bpr{background:var(–bl);color:#fff;border-color:var(–bl)}
+.bpr:hover{background:var(–bl-t)}
+.bdn{background:var(–rd-l);color:var(–rd);border-color:var(–rd-b)}
+.bpu{background:var(–pu-l);color:var(–pu);border-color:var(–pu-b)}
+.bte{background:var(–te-l);color:var(–te);border-color:var(–te-b)}
+.bsm{padding:5px 10px;font-size:11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-icon{padding:6px;border-radius:6px}
 
-/* ── LESSONS ── */
-.lesson-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s;box-shadow:var(--sh);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.lesson-card:hover{border-color:var(--blue-m)}
-.lesson-card.active{background:var(--blue-l);border-color:var(--blue)}
-.lesson-card.custom-lesson{border-left:3px solid #F97316}
-.lc-title{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.lc-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px}
-.lc-tags{display:flex;gap:5px;flex-wrap:wrap}
+/* LESSONS */
+.lcard{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:13px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;overflow:hidden}
+.lcard:hover{border-color:var(–bl-m)}
+.lcard.on{background:var(–bl-l);border-color:var(–bl)}
+.lcard.custom{border-left:3px solid #F97316}
+.ltit{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ldsc{font-size:12px;color:var(–tx2);line-height:1.5;margin-bottom:6px}
 
-/* ── PROMPT BOX ── */
-.prompt-box{border-radius:var(--rs);padding:12px 14px}
-.prompt-box.m1{background:var(--blue-l);border:1px solid var(--blue-m);border-left:3px solid var(--blue)}
-.prompt-box.m2{background:#F0FDF4;border:1px solid #BBF7D0;border-left:3px solid var(--green)}
-.prompt-box.m3{background:var(--purple-l);border:1px solid var(--purple-b);border-left:3px solid var(--purple)}
-.prompt-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px}
-.prompt-box.m1 .prompt-lbl{color:var(--blue)}
-.prompt-box.m2 .prompt-lbl{color:var(--green)}
-.prompt-box.m3 .prompt-lbl{color:var(--purple)}
-.diff-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px}
-.diff-badge.m1{background:var(--blue-l);color:var(--blue-t)}
-.diff-badge.m2{background:var(--green-l);color:var(--green)}
-.diff-badge.m3{background:var(--purple-l);color:var(--purple)}
+/* PROMPT */
+.pbox{border-radius:var(–rs);padding:12px 14px}
+.pbox.m1{background:var(–bl-l);border:1px solid var(–bl-m);border-left:3px solid var(–bl)}
+.pbox.m2{background:#F0FDF4;border:1px solid #BBF7D0;border-left:3px solid var(–gr)}
+.pbox.m3{background:var(–pu-l);border:1px solid var(–pu-b);border-left:3px solid var(–pu)}
+.plbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:‘DM Mono’,monospace;margin-bottom:4px}
+.pbox.m1 .plbl{color:var(–bl)}.pbox.m2 .plbl{color:var(–gr)}.pbox.m3 .plbl{color:var(–pu)}
+.dbadge{font-size:10px;padding:2px 8px;border-radius:20px;font-family:‘DM Mono’,monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px}
+.dbadge.m1{background:var(–bl-l);color:var(–bl-t)}
+.dbadge.m2{background:var(–gr-l);color:var(–gr)}
+.dbadge.m3{background:var(–pu-l);color:var(–pu)}
 
-/* ── INPUT ── */
-textarea,input[type=text]{width:100%;border:1px solid var(--border);border-radius:var(--rs);padding:11px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;background:var(--surface2);color:var(--text);resize:vertical;transition:border-color .15s}
-textarea:focus,input[type=text]:focus{outline:none;border-color:var(--blue);background:var(--surface)}
+/* INPUTS */
+textarea,input[type=text]{width:100%;border:1px solid var(–bor);border-radius:var(–rs);padding:11px;font-family:‘DM Sans’,sans-serif;font-size:14px;line-height:1.6;background:var(–sur2);color:var(–tx);resize:vertical;transition:border-color .15s}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(–bl);background:var(–sur)}
 textarea{min-height:120px}
 
-/* ── SHADOWING ── */
-.shadow-timer{background:linear-gradient(135deg,var(--purple-l),var(--blue-l));border:1px solid var(--purple-b);border-radius:var(--r);padding:18px;text-align:center}
-.timer-display{font-size:44px;font-weight:700;font-family:'DM Mono',monospace;color:var(--purple);margin:8px 0}
-.timer-tips{display:grid;gap:6px;text-align:left;margin-top:12px}
-.timer-tip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text2);background:rgba(255,255,255,.7);padding:8px 10px;border-radius:8px;line-height:1.4}
-.listening-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--red-l);border-radius:var(--rs);margin-bottom:8px}
-.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 1s infinite}
-.transcript-word{padding:1px 2px;border-radius:3px;display:inline}
-.transcript-word.low{background:var(--yellow-b);color:#92400E}
-.transcript-word.very-low{background:var(--red-b);color:var(--red)}
+/* SHADOW TIMER */
+.stimer{background:linear-gradient(135deg,var(–pu-l),var(–bl-l));border:1px solid var(–pu-b);border-radius:var(–r);padding:18px;text-align:center}
+.stdsp{font-size:44px;font-weight:700;font-family:‘DM Mono’,monospace;color:var(–pu);margin:8px 0}
+.sttips{display:grid;gap:6px;text-align:left;margin-top:12px}
+.sttip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(–tx2);background:rgba(255,255,255,.7);padding:8px 10px;border-radius:8px;line-height:1.4}
+.lisbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(–rd-l);border-radius:var(–rs);margin-bottom:8px}
+.pdot{width:8px;height:8px;border-radius:50%;background:var(–rd);animation:pulse 1s infinite}
+.tword{padding:1px 2px;border-radius:3px;display:inline}
+.tword.lo{background:var(–yw-b);color:#92400E}
+.tword.vlo{background:var(–rd-b);color:var(–rd)}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:var(--surface);border-radius:var(--r);max-width:560px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
-.modal-hdr{padding:18px 18px 0;display:flex;justify-content:space-between;align-items:center}
-.modal-title{font-size:15px;font-weight:600}
-.modal-body{padding:14px 18px 18px;display:grid;gap:12px}
-.modal-step{display:flex;gap:10px;align-items:flex-start}
-.step-num{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.step-text{font-size:13px;color:var(--text2);line-height:1.5}
-.copied-badge{display:none;font-size:12px;color:var(--green);font-weight:500;align-items:center;gap:4px}
-.copied-badge.show{display:flex}
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(–sur);border-radius:var(–r);width:calc(100vw - 32px);max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
+.mhdr{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center}
+.mtit{font-size:15px;font-weight:600}
+.mbdy{padding:12px 16px 16px;display:grid;gap:12px}
+.mstep{display:flex;gap:10px;align-items:flex-start}
+.mnum{width:22px;height:22px;border-radius:50%;background:var(–bl);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.cbadge{display:none;font-size:12px;color:var(–gr);font-weight:500;align-items:center;gap:4px}
+.cbadge.on{display:flex}
 
-/* ── FLASHCARD ── */
-.flashcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;min-height:200px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:var(--sh);transition:all .15s}
-.flashcard:hover{border-color:var(--blue-m)}
-.fc-hint{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
-.fc-word{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.3}
-.fc-word.blue{color:var(--blue-t)}
-.fc-cloze{font-size:16px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.7}
-.fc-blank{display:inline-block;background:var(--blue-m);border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
-.fc-example{font-size:12px;color:var(--text2);font-style:italic;margin-bottom:6px}
-.fc-tap{font-size:11px;color:var(--text3)}
-.review-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.rb{padding:10px 6px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;background:var(--surface);text-align:center}
+/* FLASHCARD */
+.fcard2{background:var(–sur);border:1px solid var(–bor);border-radius:16px;min-height:200px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .15s}
+.fcard2:hover{border-color:var(–bl-m)}
+.fhint{font-size:10px;color:var(–tx3);letter-spacing:1px;text-transform:uppercase;font-family:‘DM Mono’,monospace;margin-bottom:10px}
+.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.3}
+.fword.bl{color:var(–bl-t)}
+.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7}
+.fblank{display:inline-block;background:var(–bl-m);border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
+.fex{font-size:12px;color:var(–tx2);font-style:italic;margin-bottom:6px}
+.ftap{font-size:11px;color:var(–tx3)}
+.rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rb{padding:10px 6px;border-radius:10px;border:1px solid var(–bor);cursor:pointer;font-family:‘DM Sans’,sans-serif;transition:all .15s;text-align:center}
 .rb:active{transform:scale(.97)}
-.rb-label{font-size:13px;font-weight:600;margin-bottom:2px}
-.rb-sub{font-size:10px;opacity:.75;font-family:'DM Mono',monospace}
-.rb.hard{background:var(--red-l);border-color:var(--red-b);color:var(--red)}
-.rb.good{background:var(--yellow-l);border-color:var(--yellow-b);color:var(--yellow)}
-.rb.easy{background:var(--green-l);border-color:var(--green-b);color:var(--green)}
-.prog-dots{display:flex;gap:4px;margin-bottom:10px}
-.prog-dot{flex:1;height:4px;border-radius:4px;background:var(--border);transition:background .2s}
-.prog-dot.done{background:var(--green)}.prog-dot.cur{background:var(--blue)}
+.rbl{font-size:13px;font-weight:600;margin-bottom:2px}
+.rbs{font-size:10px;opacity:.75;font-family:‘DM Mono’,monospace}
+.rb.hard{background:var(–rd-l);border-color:var(–rd-b);color:var(–rd)}
+.rb.good{background:var(–yw-l);border-color:var(–yw-b);color:var(–yw)}
+.rb.easy{background:var(–gr-l);border-color:var(–gr-b);color:var(–gr)}
+.pdots{display:flex;gap:4px;margin-bottom:10px}
+.pdot2{flex:1;height:4px;border-radius:4px;background:var(–bor);transition:background .2s}
+.pdot2.dn{background:var(–gr)}.pdot2.cu{background:var(–bl)}
 
-/* ── CARDS TAB ── */
-.card-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;box-shadow:var(--sh)}
-.card-item.due{border-color:var(--red-b);background:var(--red-l)}
-.ci-simple{font-size:12px;color:var(--text3);text-decoration:line-through}
-.ci-c1{font-size:13px;font-weight:600;color:var(--blue-t)}
-.ci-chunk{font-size:12px;color:var(--purple);font-weight:500;font-family:'DM Mono',monospace}
+/* CARD ITEMS */
+.citem{background:var(–sur);border:1px solid var(–bor);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start}
+.citem.due{border-color:var(–rd-b);background:var(–rd-l)}
+.cisim{font-size:12px;color:var(–tx3);text-decoration:line-through}
+.cic1{font-size:13px;font-weight:600;color:var(–bl-t)}
 
-/* ── FLIGHT HOURS ── */
-.flight-card{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:var(--r);padding:14px 16px;color:#fff;box-shadow:var(--sh);width:100%;overflow:hidden}
-.flight-hours{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;margin:4px 0 2px;word-break:break-all}
-.flight-meta{display:flex;gap:10px 16px;margin-top:8px;flex-wrap:wrap}
-.fm-item{font-size:11px;opacity:.8}
-.fm-val{font-size:13px;font-weight:600;display:block}
+/* ALERT */
+.alert{background:var(–rd-l);border:1px solid var(–rd-b);border-radius:var(–r);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 
-/* ── OUTPUT METERS ── */
-.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-.output-meter{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;box-shadow:var(--sh);min-width:0;overflow:hidden}
-.om-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;margin:4px 0 2px}
-.om-lbl{font-size:10px;color:var(--text3)}
-.om-bar{height:4px;background:var(--surface2);border-radius:4px;margin-top:6px;overflow:hidden}
-.om-fill{height:100%;border-radius:4px;transition:width .4s}
+/* CORRECTIONS */
+.corr{border:1px solid var(–bor);border-radius:var(–rs);overflow:hidden}
+.cwrong{padding:8px 12px;background:var(–rd-l);font-size:12px;color:var(–rd)}
+.cright{padding:8px 12px;background:var(–gr-l);font-size:12px;color:var(–gr);font-weight:500}
+.cwhy{padding:8px 12px;font-size:12px;color:var(–tx2);line-height:1.5}
+.upitem{border:1px solid var(–bor);border-radius:var(–rs);padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 
-/* ── ALERT BANNER ── */
-.alert-banner{background:var(--red-l);border:1px solid var(--red-b);border-radius:var(--r);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;box-shadow:var(--sh)}
-
-/* ── EMPTY ── */
+/* EMPTY */
 .empty{text-align:center;padding:32px 20px}
-.empty-icon{width:36px;height:36px;margin:0 auto 12px;color:var(--text3)}
-.empty-title{font-size:15px;font-weight:600;margin-bottom:6px}
-.empty-sub{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5}
+.eico{width:36px;height:36px;margin:0 auto 12px;color:var(–tx3)}
+.etit{font-size:15px;font-weight:600;margin-bottom:6px}
+.esub{font-size:13px;color:var(–tx2);margin-bottom:14px;line-height:1.5}
 
-/* ── CORRECTION ── */
-.correction-item{border:1px solid var(--border);border-radius:var(--rs);overflow:hidden}
-.corr-wrong{padding:8px 12px;background:var(--red-l);font-size:12px;color:var(--red)}
-.corr-right{padding:8px 12px;background:var(--green-l);font-size:12px;color:var(--green);font-weight:500}
-.corr-why{padding:8px 12px;font-size:12px;color:var(--text2);line-height:1.5}
-.upgrade-item{border:1px solid var(--border);border-radius:var(--rs);padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+/* TOAST */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(–tx);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.on{opacity:1}
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
-.toast.show{opacity:1}
-
-/* ── LOADING ── */
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:12px}
-.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
-
-.wc{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
 .fb{display:flex;justify-content:space-between;align-items:center}
-.flex{display:flex;align-items:center}
-.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}
-.mt-8{margin-top:8px}.mt-10{margin-top:10px}.mt-12{margin-top:12px}
-.grid-gap{display:grid;gap:8px}
-.hidden{display:none!important}
+.fl{display:flex;align-items:center}
+.g6{gap:6px}.g8{gap:8px}
+.mt8{margin-top:8px}
+.gg{display:grid;gap:8px}
+.wc{font-size:11px;color:var(–tx3);font-family:‘DM Mono’,monospace}
+.hid{display:none!important}
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── CORE OVERFLOW FIX — applies everywhere ── */
-html,body{overflow-x:hidden;width:100%}
-.app{width:100%;overflow-x:hidden}
-.content{width:100%;overflow-x:hidden}
-.card{min-width:0;overflow:hidden}
-
-/* ── FLIGHT CARD — prevent overflow ── */
-.flight-card{width:100%;overflow:hidden}
-.flight-hours{word-break:break-all}
-.flight-meta{flex-wrap:wrap;gap:10px 16px}
-
-/* ── OUTPUT METERS — ensure they fit ── */
-.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-.output-meter{min-width:0;overflow:hidden}
-
-/* ── THEME BANNER — no overflow ── */
-.theme-banner{width:100%;overflow:hidden}
-.tb-desc{word-break:break-word;white-space:normal}
-.tb-skills{flex-wrap:wrap}
-
-/* ── MONTH RAIL — horizontal scroll, never wrap ── */
-.month-rail{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory}
-.month-rail::-webkit-scrollbar{display:none}
-.month-btn{flex-shrink:0;scroll-snap-align:start;min-width:58px;max-width:72px}
-
-/* ── HEADER — tighter on small screens ── */
-.hdr-stats{gap:8px}
-.hs-val{font-size:13px}
-.logo-name{font-size:14px}
-
-/* ── NAV — spread evenly ── */
-.nav{width:100%}
-.nb{flex:1;min-width:0;padding:7px 4px 10px;font-size:9px}
-.nb svg{width:15px;height:15px}
-
-/* ── STAT ROW ── */
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sc-val{font-size:17px}
-
-/* ── LESSON CARDS — text doesn't overflow ── */
-.lesson-card{width:100%;overflow:hidden}
-.lc-title{word-break:break-word}
-
-/* ── MODAL — full width on mobile ── */
-.modal{width:calc(100vw - 32px);max-width:560px}
-.modal-body{padding:12px 14px 16px}
-
-/* ── HEATMAP ── */
-.heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-
-/* ── SMALL PHONE (≤390px) ── */
 @media(max-width:390px){
-  .content{padding:10px;gap:10px}
-  .hdr{padding:10px 12px 0}
-  .hdr-top{margin-bottom:10px}
-  .logo-icon{width:30px;height:30px;border-radius:8px}
-  .logo-icon svg{width:15px;height:15px}
-  .logo-name{font-size:13px}
-  .logo-sub{font-size:9px}
-  .hs-val{font-size:12px}
-  .hs-lbl{font-size:9px}
-  .hdr-stats{gap:6px}
-
-  .month-btn{min-width:50px;padding:6px 7px}
-  .month-btn .mn{font-size:10px}
-  .month-btn .mtheme{font-size:8px}
-
-  .flight-hours{font-size:24px}
-  .fm-val{font-size:12px}
-  .fm-item{font-size:10px}
-
-  .om-val{font-size:18px}
-
-  .sc-val{font-size:16px}
-  .sc-icon{width:24px;height:24px}
-
-  .hm-cell{width:9px;height:9px}
-  .hm-months{gap:2px}
-
-  .card{padding:12px}
-  .card-sm{padding:10px 12px}
-  .card-title{font-size:11px}
-
-  .tb-icon{font-size:18px}
-  .tb-title{font-size:14px}
-  .tb-desc{font-size:11px}
-  .tb-phase{font-size:9px}
-
-  .nb{font-size:9px;padding:6px 2px 9px}
-
-  .stat-row{gap:6px}
-  .stat-card{padding:10px 6px}
+.pg{padding:10px;gap:10px}
+.hdr{padding:10px 12px 0}
+.mbt{min-width:48px;padding:6px 7px}
+.mbt .mn{font-size:10px}
+.fh{font-size:22px}
+.omv{font-size:17px}
+.sc-v{font-size:15px}
+.hmc{width:8px;height:8px}
 }
-
-/* ── STANDARD MOBILE (≤480px) ── */
 @media(max-width:480px){
-  .content{padding:12px;gap:11px}
-  .hdr{padding:12px 14px 0}
-  .flight-hours{font-size:26px}
-  .hm-cell{width:10px;height:10px}
-  .modal{width:calc(100vw - 28px)}
-  .output-meter{padding:11px}
-  .om-val{font-size:20px}
-  .nb{padding:7px 6px 10px}
+.fh{font-size:25px}
+.sc-v{font-size:17px}
 }
 </style>
 
 </head>
 <body>
+<div class="app">
 
-<div id="loading" class="loading">
-  <div class="spinner"></div>
-  <p style="color:var(--text2);font-size:14px">Loading v3.2…</p>
-</div>
-
-<div id="app" class="app hidden">
-
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 
 <div class="hdr">
   <div class="hdr-top">
     <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-      </div>
+      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
-        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:var(--text3);font-family:'DM Mono',monospace">v3.2</span></div>
-        <div class="logo-sub">Roadmap Edition &nbsp;<span class="sync-dot sync" id="syncDot"></span><span id="syncLbl">Syncing</span></div>
+        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:var(--tx3);font-family:'DM Mono',monospace">v3.2</span></div>
+        <div class="logo-sub"><span class="sdot sy" id="sdot"></span><span id="slbl">Loading…</span></div>
       </div>
     </div>
-    <div class="hdr-stats">
-      <div class="hs"><div class="hs-val">🔥<span id="hStreak">0</span></div><div class="hs-lbl">streak</div></div>
-      <div class="hs"><div class="hs-val" style="color:var(--blue)">📚<span id="hCards">0</span></div><div class="hs-lbl">cards</div></div>
-      <div class="hs"><div class="hs-val" style="color:var(--purple)">✈<span id="hHours">0h</span></div><div class="hs-lbl">flight</div></div>
+    <div class="hdr-st">
+      <div class="hs"><div class="hs-v">🔥<span id="hstr">0</span></div><div class="hs-l">streak</div></div>
+      <div class="hs"><div class="hs-v" style="color:var(--bl)">📚<span id="hcards">0</span></div><div class="hs-l">cards</div></div>
+      <div class="hs"><div class="hs-v" style="color:var(--pu)">✈<span id="hhours">0h</span></div><div class="hs-l">flight</div></div>
     </div>
   </div>
   <div class="nav">
-    <button class="nb active" onclick="goTab('dashboard')" id="nav-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-    <button class="nb" onclick="goTab('practice')" id="nav-practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Practice</button>
-    <button class="nb" onclick="goTab('review')" id="nav-review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nb-badge" id="reviewBadge">0</span></button>
+    <button class="nb on" onclick="goTab('dash')" id="nav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
+    <button class="nb" onclick="goTab('prac')" id="nav-prac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Practice</button>
+    <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards</button>
   </div>
 </div>
 
-<!-- TOAST -->
-
 <div class="toast" id="toast"></div>
 
-<!-- ── MODAL: AI Bridge ── -->
+<!-- MODAL AI -->
 
-<div class="modal-overlay hidden" id="modalAI" onclick="if(event.target===this)closeModal('modalAI')">
+<div class="moverlay hid" id="mAI" onclick="if(event.target===this)closeM('mAI')">
   <div class="modal">
-    <div class="modal-hdr">
-      <div class="modal-title">🤖 AI Analysis Bridge</div>
-      <button class="btn btn-sm btn-icon" onclick="closeModal('modalAI')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-step">
-        <div class="step-num">1</div>
+    <div class="mhdr"><div class="mtit">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
+    <div class="mbdy">
+      <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
-          <div class="step-text" style="font-weight:500;color:var(--text);margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--text2);line-height:1.6;max-height:100px;overflow-y:auto" id="modalPromptBox"></div>
-          <div class="flex gap-6 mt-8">
-            <button class="btn btn-primary btn-sm" onclick="copyFullPrompt()">Copy Full Prompt</button>
-            <span class="copied-badge" id="copiedBadge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Copied!</span>
+          <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
+          <div style="background:var(--sur2);border:1px solid var(--bor);border-radius:var(--rs);padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--tx2);line-height:1.6;max-height:100px;overflow-y:auto" id="mpbox"></div>
+          <div class="fl g6 mt8">
+            <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
+            <span class="cbadge" id="cpbdg">✓ Copied!</span>
           </div>
         </div>
       </div>
-      <div class="modal-step">
-        <div class="step-num">2</div>
+      <div class="mstep"><div class="mnum">2</div>
         <div style="width:100%">
-          <div class="step-text" style="font-weight:500;color:var(--text);margin-bottom:8px">Paste Claude's JSON response here:</div>
-          <textarea id="jsonInput" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}' style="min-height:90px;font-family:'DM Mono',monospace;font-size:11px"></textarea>
-          <div class="flex gap-8 mt-8" style="justify-content:flex-end">
-            <button class="btn btn-sm" onclick="closeModal('modalAI')">Cancel</button>
-            <button class="btn btn-primary btn-sm" onclick="processJSON()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              Process Analysis
-            </button>
+          <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:8px">Paste Claude's JSON response here:</div>
+          <textarea id="jsonin" style="min-height:90px;font-family:'DM Mono',monospace;font-size:11px" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
+          <div class="fl g8 mt8" style="justify-content:flex-end">
+            <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>
+            <button class="btn bpr bsm" onclick="processJSON()">⚡ Process Analysis</button>
           </div>
         </div>
       </div>
@@ -445,1195 +318,728 @@ html,body{overflow-x:hidden;width:100%}
   </div>
 </div>
 
-<!-- ── MODAL: Add Custom Lesson ── -->
+<!-- MODAL CUSTOM LESSON -->
 
-<div class="modal-overlay hidden" id="modalCustom" onclick="if(event.target===this)closeModal('modalCustom')">
+<div class="moverlay hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
-    <div class="modal-hdr">
-      <div class="modal-title">➕ Add Custom Lesson</div>
-      <button class="btn btn-sm btn-icon" onclick="closeModal('modalCustom')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="modal-body">
+    <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
+    <div class="mbdy">
+      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>
+      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
       <div>
-        <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Title *</label>
-        <input type="text" id="customTitle" placeholder="e.g. Lex Fridman — AI episode">
+        <label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Category</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div>
       </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">URL *</label>
-        <input type="text" id="customUrl" placeholder="https://...">
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Category</label>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="customTagGrid">
-          <!-- filled by JS -->
-        </div>
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Your Study Prompt (optional)</label>
-        <textarea id="customPrompt" style="min-height:70px" placeholder="What do you want to focus on when using this resource?"></textarea>
-      </div>
-      <div class="flex gap-8" style="justify-content:flex-end">
-        <button class="btn btn-sm" onclick="closeModal('modalCustom')">Cancel</button>
-        <button class="btn btn-primary btn-sm" onclick="saveCustomLesson()">Save Lesson</button>
+      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>
+        <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════ DASHBOARD ══════════════ -->
+<!-- MODAL EDIT CARD -->
 
-<div class="content" id="tab-dashboard">
-
-  <!-- Month Theme Selector -->
-
-  <div class="card card-sm">
-    <div class="card-title" style="margin-bottom:10px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-      Study Roadmap — Select Month
+<div class="moverlay hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
+  <div class="modal">
+    <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
+    <div class="mbdy">
+      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Simple / Original</label><input type="text" id="ec_sim"></div>
+      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">C1 Expression</label><input type="text" id="ec_c1"></div>
+      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Example sentence</label><textarea id="ec_ex" style="min-height:70px"></textarea></div>
+      <div class="fb" style="flex-wrap:wrap;gap:8px">
+        <button class="btn bdn bsm" onclick="confirmDel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>
+        <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
+      </div>
     </div>
-    <div class="month-rail" id="monthRail"></div>
   </div>
+</div>
 
-  <!-- Theme Banner -->
+<!-- DASHBOARD -->
 
-  <div id="themeBanner"></div>
-
-  <!-- Flight Hours -->
-
-  <div class="flight-card">
+<div class="pg" id="pg-dash">
+  <!-- Month selector -->
+  <div class="card csm">
+    <div class="ctit" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Study Roadmap</div>
+    <div class="mrl" id="mrl"></div>
+  </div>
+  <!-- Theme banner -->
+  <div id="thbanner"></div>
+  <!-- Flight hours -->
+  <div class="fcard">
     <div style="font-size:10px;opacity:.65;font-family:'DM Mono',monospace;letter-spacing:1.5px">✈ TOTAL FLIGHT HOURS</div>
-    <div class="flight-hours" id="flightHours">0h 00m</div>
-    <div style="font-size:11px;opacity:.7;margin-bottom:6px">Total accumulated study time</div>
-    <div class="flight-meta">
-      <div class="fm-item"><span class="fm-val" id="fmDays">0</span>study days</div>
-      <div class="fm-item"><span class="fm-val" id="fmAvg">0m</span>avg/day</div>
-      <div class="fm-item"><span class="fm-val" id="fmStreak">0</span>streak</div>
+    <div class="fh" id="fhours">0h 00m</div>
+    <div style="font-size:11px;opacity:.7;margin-bottom:6px">Accumulated study time</div>
+    <div class="fm">
+      <div class="fmi"><span class="fmv" id="fdays">0</span>study days</div>
+      <div class="fmi"><span class="fmv" id="favg">0m</span>avg/day</div>
+      <div class="fmi"><span class="fmv" id="fstrk">0</span>streak</div>
     </div>
   </div>
-
-  <!-- Output Meters -->
-
-  <div class="output-grid">
-    <div class="output-meter">
-      <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">WORDS TODAY</div>
-      <div class="om-val" id="wordsToday" style="color:var(--blue)">0</div>
-      <div class="om-lbl">goal: 150 words</div>
-      <div class="om-bar"><div class="om-fill" id="wordsProg" style="background:var(--blue);width:0%"></div></div>
-    </div>
-    <div class="output-meter">
-      <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">MINUTES SPOKEN</div>
-      <div class="om-val" id="minsSpoken" style="color:var(--purple)">0</div>
-      <div class="om-lbl">goal: 10 minutes</div>
-      <div class="om-bar"><div class="om-fill" id="minsProg" style="background:var(--purple);width:0%"></div></div>
-    </div>
+  <!-- Output meters -->
+  <div class="ogrid">
+    <div class="om"><div style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">WORDS TODAY</div><div class="omv" id="wtoday" style="color:var(--bl)">0</div><div class="oml">goal: 150 words</div><div class="omb"><div class="omf" id="wprog" style="background:var(--bl);width:0%"></div></div></div>
+    <div class="om"><div style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">MINS SPOKEN</div><div class="omv" id="mspoken" style="color:var(--pu)">0</div><div class="oml">goal: 10 minutes</div><div class="omb"><div class="omf" id="mprog" style="background:var(--pu);width:0%"></div></div></div>
   </div>
-
-  <!-- Stats Row -->
-
-  <div class="stat-row">
-    <div class="stat-card">
-      <div class="sc-icon" style="background:var(--blue-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div class="sc-val" id="scWeek" style="color:var(--blue)">0/5</div>
-      <div class="sc-lbl">this week</div>
-    </div>
-    <div class="stat-card">
-      <div class="sc-icon" style="background:var(--red-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="sc-val" id="scDue" style="color:var(--red)">0</div>
-      <div class="sc-lbl">due today</div>
-    </div>
-    <div class="stat-card">
-      <div class="sc-icon" style="background:var(--purple-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div>
-      <div class="sc-val" id="scCards" style="color:var(--purple)">0</div>
-      <div class="sc-lbl">total cards</div>
-    </div>
+  <!-- Stats -->
+  <div class="srow">
+    <div class="sc"><div class="sc-ic" style="background:var(--bl-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--bl)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-v" id="scwk" style="color:var(--bl)">0/5</div><div class="sc-l">this week</div></div>
+    <div class="sc"><div class="sc-ic" style="background:var(--rd-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sc-v" id="scdue" style="color:var(--rd)">0</div><div class="sc-l">due today</div></div>
+    <div class="sc"><div class="sc-ic" style="background:var(--pu-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div><div class="sc-v" id="sctot" style="color:var(--pu)">0</div><div class="sc-l">total cards</div></div>
   </div>
-
   <!-- Heatmap -->
-
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div class="card-title" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity Heatmap 2025</div>
-      <div class="flex gap-6" style="align-items:center">
-        <span style="font-size:10px;color:var(--text3)">Less</span>
-        <div style="display:flex;gap:3px">
-          <div style="width:9px;height:9px;border-radius:2px;background:#E2E8F0"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#BFDBFE"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#93C5FD"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#3B82F6"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#1D4ED8"></div>
-        </div>
-        <span style="font-size:10px;color:var(--text3)">More</span>
+      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity 2025</div>
+      <div class="fl" style="gap:3px;align-items:center">
+        <span style="font-size:10px;color:var(--tx3)">Less</span>
+        <div style="display:flex;gap:2px"><div style="width:9px;height:9px;border-radius:2px;background:#E2E8F0"></div><div style="width:9px;height:9px;border-radius:2px;background:#BFDBFE"></div><div style="width:9px;height:9px;border-radius:2px;background:#3B82F6"></div><div style="width:9px;height:9px;border-radius:2px;background:#1D4ED8"></div></div>
+        <span style="font-size:10px;color:var(--tx3)">More</span>
       </div>
     </div>
-    <div class="heatmap-wrap">
-      <div id="heatmapMonths" class="hm-months"></div>
-      <div id="heatmapGrid" class="heatmap-grid"></div>
-    </div>
+    <div class="hmwrap"><div id="hmml" class="hmml"></div><div id="hmg" class="hmgrid"></div></div>
   </div>
-
-  <!-- Weekly Check-ins -->
-
+  <!-- Check-ins -->
   <div class="card">
     <div class="fb" style="margin-bottom:14px">
-      <div class="card-title" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
-      <button class="btn btn-sm" onclick="logSession()">Log +30 min</button>
+      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
+      <button class="btn bsm" onclick="logSession()">Log +30 min</button>
     </div>
-    <div class="checkin-grid" id="checkinGrid"></div>
-    <div class="prog-bar"><div class="prog-fill" id="weekProg" style="width:0%"></div></div>
-    <p style="margin-top:6px;font-size:11px;color:var(--text3);text-align:right;font-family:'DM Mono',monospace" id="weekLabel">0 of 5 complete</p>
+    <div class="cigrid" id="cigrid"></div>
+    <div class="pbar"><div class="pfil" id="wpbar" style="width:0%"></div></div>
+    <p style="margin-top:6px;font-size:11px;color:var(--tx3);text-align:right;font-family:'DM Mono',monospace" id="wklbl">0 of 5</p>
   </div>
-
-  <!-- Due Alert -->
-
-  <div class="alert-banner hidden" id="dueAlert" onclick="goTab('review')">
-    <div>
-      <div style="font-size:14px;font-weight:600;color:var(--red)" id="dueAlertTxt">0 cards due</div>
-      <div style="font-size:12px;color:var(--red);opacity:.8">Review now — don't break your streak →</div>
-    </div>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  <!-- Due alert -->
+  <div class="alert hid" id="dalert" onclick="goTab('rev')">
+    <div><div style="font-size:14px;font-weight:600;color:var(--rd)" id="dalerttxt">Cards due</div><div style="font-size:12px;color:var(--rd);opacity:.8">Review now →</div></div>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
   </div>
 </div>
 
-<!-- ══════════════ PRACTICE ══════════════ -->
+<!-- PRACTICE -->
 
-<div class="content hidden" id="tab-practice">
-
-  <!-- Session timer -->
-
-  <div class="card card-sm" style="background:var(--surface2)">
+<div class="pg hid" id="pg-prac">
+  <div class="card csm" style="background:var(--sur2)">
     <div class="fb">
-      <div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px">
+      <div style="font-size:12px;color:var(--tx2);display:flex;align-items:center;gap:6px">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Session: <span id="sessionTimer" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--blue)">00:00</span>
+        Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--bl)">00:00</span>
       </div>
-      <div class="flex gap-6">
-        <button class="btn btn-teal btn-sm" onclick="openModal('modalCustom')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Custom
-        </button>
-      </div>
+      <button class="btn bte bsm" onclick="openM('mCL')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom</button>
     </div>
   </div>
-
-  <!-- Active month context -->
-
-  <div id="practiceMonthCtx"></div>
-
-  <!-- Lesson list -->
-
-  <div id="lessonList"></div>
-
-  <!-- Prompt box -->
-
-  <div id="promptBox" class="prompt-box m1">
-    <div class="diff-badge m1" id="diffBadge">📘 Month 1 — Grammar & Natural Vocab</div>
-    <div class="prompt-lbl">Your Prompt</div>
-    <div id="activePrompt" style="font-size:13px;color:var(--text);line-height:1.6"></div>
+  <div id="pmctx"></div>
+  <div id="lessonlist"></div>
+  <div id="promptbox" class="pbox m1">
+    <div class="dbadge m1" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>
+    <div class="plbl">Your Prompt</div>
+    <div id="activeprompt" style="font-size:13px;color:var(--tx);line-height:1.6"></div>
   </div>
-
   <!-- Shadowing -->
-
-  <div class="card card-sm">
+  <div class="card csm">
     <div class="fb">
-      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Shadowing Mode
-      </div>
-      <button class="btn btn-purple btn-sm" onclick="toggleShadow()" id="shadowBtn">▶ Start 5-min</button>
+      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Shadowing Mode</div>
+      <button class="btn bpu bsm" onclick="toggleShadow()" id="shbtn">▶ Start 5-min</button>
     </div>
-    <div class="shadow-timer hidden" id="shadowTimer" style="margin-top:12px">
-      <div style="font-size:10px;color:var(--purple);font-family:'DM Mono',monospace;letter-spacing:1px">SHADOWING SESSION</div>
-      <div class="timer-display" id="shadowDisplay">5:00</div>
-      <div class="timer-tips">
-        <div class="timer-tip"><span style="font-size:13px">🎯</span><span><strong>Match rhythm:</strong> Mirror the speaker's pace exactly, word by word.</span></div>
-        <div class="timer-tip"><span style="font-size:13px">🎵</span><span><strong>Intonation:</strong> Rise on questions, fall on statements. Exaggerate at first.</span></div>
-        <div class="timer-tip"><span style="font-size:13px">🔗</span><span><strong>Connected speech:</strong> "want to" → "wanna", "going to" → "gonna".</span></div>
-        <div class="timer-tip"><span style="font-size:13px">💨</span><span><strong>Breath groups:</strong> Pause where the speaker pauses — not mid-phrase.</span></div>
+    <div class="stimer hid" id="shtimer" style="margin-top:12px">
+      <div style="font-size:10px;color:var(--pu);font-family:'DM Mono',monospace;letter-spacing:1px">SHADOWING SESSION</div>
+      <div class="stdsp" id="shdsp">5:00</div>
+      <div class="sttips">
+        <div class="sttip"><span style="font-size:13px">🎯</span><span><strong>Match rhythm:</strong> Mirror the speaker's pace exactly, word by word.</span></div>
+        <div class="sttip"><span style="font-size:13px">🎵</span><span><strong>Intonation:</strong> Rise on questions, fall on statements. Exaggerate at first.</span></div>
+        <div class="sttip"><span style="font-size:13px">🔗</span><span><strong>Connected speech:</strong> "want to" → "wanna", "going to" → "gonna".</span></div>
+        <div class="sttip"><span style="font-size:13px">💨</span><span><strong>Breath groups:</strong> Pause where the speaker pauses — not mid-phrase.</span></div>
       </div>
     </div>
   </div>
-
-  <!-- Response area -->
-
+  <!-- Response -->
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:600">Your Response</div>
-      <button class="btn" id="micBtn" onclick="toggleListening()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        Speak
-      </button>
+      <button class="btn bsm" id="micbtn" onclick="toggleListen()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak</button>
     </div>
-    <div class="listening-bar hidden" id="listeningBar">
-      <div class="pulse-dot"></div>
-      <span style="font-size:12px;color:var(--red);font-weight:500">Listening… speak clearly in English</span>
-    </div>
-    <div id="transcriptDisplay" class="hidden" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;font-size:13px;line-height:1.8;min-height:36px"></div>
-    <textarea id="responseText" placeholder="Write your response here, or click Speak to dictate…" oninput="onTextInput()"></textarea>
-    <div class="fb mt-8">
-      <span class="wc" id="wordCount">0 words</span>
-      <button class="btn btn-primary" id="analyzeBtn" onclick="openAnalysisModal()" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Analyze & Level Up
-      </button>
+    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:12px;color:var(--rd);font-weight:500">Listening… speak clearly in English</span></div>
+    <div id="trdsp" class="hid" style="background:var(--sur2);border:1px solid var(--bor);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;font-size:13px;line-height:1.8;min-height:36px"></div>
+    <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()"></textarea>
+    <div class="fb mt8">
+      <span class="wc" id="wcount">0 words</span>
+      <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up</button>
     </div>
   </div>
-
-  <div class="hidden" id="analysisResults"></div>
+  <div class="hid" id="anlres"></div>
 </div>
 
-<!-- ══════════════ REVIEW ══════════════ -->
+<!-- REVIEW -->
 
-<div class="content hidden" id="tab-review">
-  <div class="fb"><div style="font-size:15px;font-weight:600">Daily Review</div><span class="wc" id="dueCount">0 due</span></div>
-  <div id="reviewContent"></div>
+<div class="pg hid" id="pg-rev">
+  <div class="fb"><div style="font-size:15px;font-weight:600">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
+  <div id="revcontent"></div>
 </div>
 
-<!-- ══════════════ MY CARDS ══════════════ -->
+<!-- CARDS -->
 
-<div class="content hidden" id="tab-cards">
+<div class="pg hid" id="pg-cards">
   <div class="fb">
-    <div style="font-size:15px;font-weight:600">My Vocabulary Cards</div>
-    <div class="flex gap-6">
-      <button class="btn btn-sm" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
-      <button class="btn btn-sm btn-purple" onclick="exportAnki()">Anki</button>
+    <div style="font-size:15px;font-weight:600">My Cards</div>
+    <div class="fl g6">
+      <button class="btn bsm" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
+      <button class="btn bsm bpu" onclick="exportAnki()">Anki</button>
     </div>
   </div>
-  <div id="cardsList"></div>
+  <div id="cardslist"></div>
 </div>
 
 </div><!-- /app -->
 
 <script>
-// ════════════════════════════════════════════════════════
-// STATE & CONSTANTS (no Firebase here — loaded separately)
-// ════════════════════════════════════════════════════════
-let db=null, REF_CI=null, REF_CARDS=null, REF_STATS=null, REF_CUSTOM=null, REF_MONTH=null;
-
-function uid(){let u=localStorage.getItem('c1-uid');if(!u){u='user_'+Math.random().toString(36).slice(2,10);localStorage.setItem('c1-uid',u);}return u;}
-const UID=uid();
-
-// ════════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════════
+// ── DATA ──────────────────────────────────────────────────────────────────────
 let checkins={}, cards=[], customLessons=[], stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}};
-let activeMonth=1, activeLesson=null, currentTab='dashboard';
+let activeMonth=1, activeLesson=null, curTab='dash';
 let flashIdx=0, flipped=false;
 let listening=false, recognition=null;
-let shadowActive=false, shadowInterval=null, shadowSecs=300;
-let sessionStart=null;
-let currentAnalysisText='';
-let selectedCustomTags=[];
+let shadowOn=false, shadowIv=null, shadowSecs=300;
+let sesStart=null, editCardId=null, selTags=[];
+let pendingUpgrades=[];
+let curText='';
 const today=new Date().toISOString().split('T')[0];
-const INTERVALS=[1,3,7,14,30,60,90];
+const IVLS=[1,3,7,14,30,60,90];
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null;
 
-// ════════════════════════════════════════════════════════
-// MONTHLY ROADMAP DATA
-// ════════════════════════════════════════════════════════
+function uid(){let u=localStorage.getItem('c1u');if(!u){u='u'+Math.random().toString(36).slice(2,9);localStorage.setItem('c1u',u);}return u;}
+const UID=uid();
+
+// ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
-  {n:1, label:'Jan', theme:'Foundation', icon:'🌱', phase:'Phase 1',
-   color:'#2563EB', bg:'var(--blue-l)', border:'var(--blue-m)',
-   desc:'Build daily habits, natural vocabulary and grammatical precision.',
-   skills:['Natural Grammar','Core Vocabulary','Sentence Mining','Daily Writing'],
-   diffClass:'m1', diffLabel:'📘 Grammar & Natural Vocab',
-   aiPrompt:`You are an expert English coach for a Brazilian B2 learner targeting C1.
-FOCUS FOR MONTH 1: Correct grammar errors clearly. Suggest natural, everyday C1 vocabulary. Prioritize phrases that sound native over complex academic terms.
-Return ONLY valid JSON:
-{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}
-Student text: "{{TEXT}}"`},
-
-  {n:2, label:'Feb', theme:'Systems', icon:'⚙️', phase:'Phase 1',
-   color:'#16A34A', bg:'var(--green-l)', border:'var(--green-b)',
-   desc:'Develop logical argumentation and technical language comprehension.',
-   skills:['Logic & Structure','Technical Reading','Cause & Effect','Complex Sentences'],
-   diffClass:'m2', diffLabel:'⚙️ Logic & Technical Language',
-   aiPrompt:`You are an expert English coach for a Brazilian B2 learner targeting C1.
-FOCUS FOR MONTH 2: Identify logical connectors and structural issues. Suggest technical and precise vocabulary. Flag when arguments lack clarity or logical flow.
-Return ONLY valid JSON:
-{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}
-Student text: "{{TEXT}}"`},
-
-  {n:3, label:'Mar', theme:'Argumentation', icon:'🎯', phase:'Phase 2',
-   color:'#7C3AED', bg:'var(--purple-l)', border:'var(--purple-b)',
-   desc:'Master rhetoric, hedging language and academic register at C1 level.',
-   skills:['Hedging Language','Academic Register','Rhetoric','Nuance & Precision'],
-   diffClass:'m3', diffLabel:'🎯 Rhetoric & Academic Hedging',
-   aiPrompt:`You are an expert English coach for a Brazilian B2 learner targeting C1.
-FOCUS FOR MONTH 3: Identify missing hedging ("it could be argued that...", "there is a tendency to..."). Push vocabulary toward sophisticated academic collocations. Flag informal register in formal contexts. Evaluate rhetorical effectiveness.
-Return ONLY valid JSON:
-{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}
-Student text: "{{TEXT}}"`},
-
-  {n:4, label:'Apr', theme:'Fluency', icon:'🚀', phase:'Phase 2',locked:false,
-   color:'#0D9488', bg:'var(--teal-l)', border:'var(--teal-b)',
-   desc:'Prioritize speaking speed, naturalness and spontaneous output.',
-   skills:['Speed Speaking','Spontaneous Output','Idiomatic Language','Register Switching'],
-   diffClass:'m3', diffLabel:'🚀 Fluency & Spontaneous Output',
-   aiPrompt:`You are an expert English coach for a Brazilian B2 learner targeting C1.
-FOCUS FOR MONTH 4: Prioritize naturalness and idiomaticity. Suggest idiomatic alternatives. Flag any robotic or over-translated phrasing. Evaluate whether the text sounds spontaneous.
-Return ONLY valid JSON:
-{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}
-Student text: "{{TEXT}}"`},
-
-  {n:5,label:'May',theme:'Deep Input',icon:'📖',phase:'Phase 2',locked:false,color:'#D97706',bg:'var(--yellow-l)',border:'var(--yellow-b)',desc:'Intensive native input across multiple registers.',skills:['Dense Listening','Speed Reading','Collocations','Discourse Markers'],diffClass:'m3',diffLabel:'📖 Dense Input & Collocations',aiPrompt:`Focus on collocations and discourse markers. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:6,label:'Jun',theme:'Output Sprint',icon:'✍️',phase:'Phase 3',locked:false,color:'#DC2626',bg:'var(--red-l)',border:'var(--red-b)',desc:'Maximum writing output and structured speaking practice.',skills:['Essays 300+','Debate Practice','Complex Arguments','C1 Collocations'],diffClass:'m3',diffLabel:'✍️ Output Sprint — Max Production',aiPrompt:`Focus on output quality and argumentative structure. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:7,label:'Jul',theme:'Academic',icon:'🎓',phase:'Phase 3',locked:false,color:'#1D4ED8',bg:'var(--blue-l)',border:'var(--blue-m)',desc:'Academic writing, citation language and formal register mastery.',skills:['Academic Writing','Hedging Mastery','Nominalization','Passive Constructions'],diffClass:'m3',diffLabel:'🎓 Academic Register',aiPrompt:`Focus on academic register and nominalization. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:8,label:'Aug',theme:'Gap Analysis',icon:'🔍',phase:'Phase 3',locked:false,color:'#9333EA',bg:'var(--purple-l)',border:'var(--purple-b)',desc:'Mid-year assessment and targeted weak-area improvement.',skills:['Self-Assessment','Error Patterns','Targeted Drilling','C1 Mock Tasks'],diffClass:'m3',diffLabel:'🔍 Gap Analysis & Targeting',aiPrompt:`Perform a detailed gap analysis for C1. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:9,label:'Sep',theme:'Precision',icon:'⚡',phase:'Phase 4',locked:false,color:'#0D9488',bg:'var(--teal-l)',border:'var(--teal-b)',desc:'Near-native precision in word choice, tone and register.',skills:['Near-native Tone','Connotation Awareness','Register Perfection','Nuance Control'],diffClass:'m3',diffLabel:'⚡ Precision & Near-Native Tone',aiPrompt:`Focus on near-native precision and connotation. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:10,label:'Oct',theme:'C1 Mock',icon:'📋',phase:'Phase 4',locked:false,color:'#B45309',bg:'var(--yellow-l)',border:'var(--yellow-b)',desc:'Full C1-level practice tasks across all four skills.',skills:['C1 Writing Tasks','Long Turn Speaking','Complex Listening','C1 Vocabulary'],diffClass:'m3',diffLabel:'📋 C1 Mock Tasks',aiPrompt:`Evaluate strictly at C1 level. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:11,label:'Nov',theme:'Consolidation',icon:'🏆',phase:'Phase 4',locked:false,color:'#16A34A',bg:'var(--green-l)',border:'var(--green-b)',desc:'Consolidate all C1 skills and build portfolio of best work.',skills:['Portfolio Review','Error-Free Writing','Natural Fluency','Final Polish'],diffClass:'m3',diffLabel:'🏆 C1 Consolidation',aiPrompt:`Consolidate C1 skills. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
-  {n:12,label:'Dec',theme:'C1 Achieved',icon:'🎉',phase:'Phase 4',locked:false,color:'#DC2626',bg:'var(--red-l)',border:'var(--red-b)',desc:'Final assessment, celebration and 2026 vision planning.',skills:['Final Self-Assessment','2026 Planning','Portfolio Complete','Celebrate 🎉'],diffClass:'m3',diffLabel:'🎉 C1 Achieved — Final Assessment',aiPrompt:`Final comprehensive C1 assessment. Return ONLY valid JSON: {"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"} Student text: "{{TEXT}}"`},
+  {n:1,lb:'Jan',th:'Foundation',ic:'🌱',ph:'Phase 1',co:'#2563EB',bg:'var(--bl-l)',bd:'var(--bl-m)',ds:'Build daily habits, natural vocabulary and grammatical precision.',sk:['Natural Grammar','Core Vocabulary','Sentence Mining','Daily Writing'],dc:'m1',dl:'📘 Grammar & Natural Vocab',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 1: Correct grammar errors clearly. Suggest natural C1 vocabulary. Prioritize phrases that sound native.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:2,lb:'Feb',th:'Systems',ic:'⚙️',ph:'Phase 1',co:'#16A34A',bg:'var(--gr-l)',bd:'var(--gr-b)',ds:'Develop logical argumentation and technical language.',sk:['Logic & Structure','Technical Reading','Cause & Effect','Complex Sentences'],dc:'m2',dl:'⚙️ Logic & Technical Language',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 2: Identify logical connector issues. Suggest technical vocabulary. Flag unclear arguments.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:3,lb:'Mar',th:'Argumentation',ic:'🎯',ph:'Phase 2',co:'#7C3AED',bg:'var(--pu-l)',bd:'var(--pu-b)',ds:'Master rhetoric, hedging language and academic register.',sk:['Hedging Language','Academic Register','Rhetoric','Nuance & Precision'],dc:'m3',dl:'🎯 Rhetoric & Academic Hedging',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 3: Flag missing hedging. Push toward sophisticated academic collocations. Evaluate rhetorical effectiveness.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:4,lb:'Apr',th:'Fluency',ic:'🚀',ph:'Phase 2',co:'#0D9488',bg:'var(--te-l)',bd:'var(--te-b)',ds:'Prioritize speaking speed, naturalness and spontaneous output.',sk:['Speed Speaking','Spontaneous Output','Idiomatic Language','Register Switching'],dc:'m3',dl:'🚀 Fluency & Spontaneous Output',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 4: Prioritize naturalness and idiomaticity. Suggest idiomatic alternatives. Flag robotic phrasing.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:5,lb:'May',th:'Deep Input',ic:'📖',ph:'Phase 2',co:'#D97706',bg:'var(--yw-l)',bd:'var(--yw-b)',ds:'Intensive native input across multiple registers.',sk:['Dense Listening','Speed Reading','Collocations','Discourse Markers'],dc:'m3',dl:'📖 Dense Input & Collocations',ai:'Focus on collocations and discourse markers.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:6,lb:'Jun',th:'Output Sprint',ic:'✍️',ph:'Phase 3',co:'#DC2626',bg:'var(--rd-l)',bd:'var(--rd-b)',ds:'Maximum writing and structured speaking practice.',sk:['Essays 300+','Debate Practice','Complex Arguments','C1 Collocations'],dc:'m3',dl:'✍️ Output Sprint',ai:'Focus on output quality and argumentative structure.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:7,lb:'Jul',th:'Academic',ic:'🎓',ph:'Phase 3',co:'#1D4ED8',bg:'var(--bl-l)',bd:'var(--bl-m)',ds:'Academic writing, citation language and formal register.',sk:['Academic Writing','Hedging Mastery','Nominalization','Passive Constructions'],dc:'m3',dl:'🎓 Academic Register',ai:'Focus on academic register and nominalization.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:8,lb:'Aug',th:'Gap Analysis',ic:'🔍',ph:'Phase 3',co:'#9333EA',bg:'var(--pu-l)',bd:'var(--pu-b)',ds:'Mid-year assessment and targeted improvement.',sk:['Self-Assessment','Error Patterns','Targeted Drilling','C1 Mock Tasks'],dc:'m3',dl:'🔍 Gap Analysis',ai:'Perform a detailed C1 gap analysis.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:9,lb:'Sep',th:'Precision',ic:'⚡',ph:'Phase 4',co:'#0D9488',bg:'var(--te-l)',bd:'var(--te-b)',ds:'Near-native precision in word choice, tone and register.',sk:['Near-native Tone','Connotation','Register Perfection','Nuance Control'],dc:'m3',dl:'⚡ Precision & Near-Native Tone',ai:'Focus on near-native precision and connotation.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:10,lb:'Oct',th:'C1 Mock',ic:'📋',ph:'Phase 4',co:'#B45309',bg:'var(--yw-l)',bd:'var(--yw-b)',ds:'Full C1-level practice tasks across all four skills.',sk:['C1 Writing Tasks','Long Turn Speaking','Complex Listening','C1 Vocabulary'],dc:'m3',dl:'📋 C1 Mock Tasks',ai:'Evaluate strictly at C1 level.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:11,lb:'Nov',th:'Consolidation',ic:'🏆',ph:'Phase 4',co:'#16A34A',bg:'var(--gr-l)',bd:'var(--gr-b)',ds:'Consolidate all C1 skills and build your portfolio.',sk:['Portfolio Review','Error-Free Writing','Natural Fluency','Final Polish'],dc:'m3',dl:'🏆 C1 Consolidation',ai:'Consolidate C1 skills.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:12,lb:'Dec',th:'C1 Achieved',ic:'🎉',ph:'Phase 4',co:'#DC2626',bg:'var(--rd-l)',bd:'var(--rd-b)',ds:'Final assessment, celebration and 2026 planning.',sk:['Final Assessment','2026 Planning','Portfolio Complete','Celebrate 🎉'],dc:'m3',dl:'🎉 C1 Achieved',ai:'Final comprehensive C1 assessment.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
 ];
 
-// ════════════════════════════════════════════════════════
-// BUILT-IN LESSONS (keyed by month)
-// ════════════════════════════════════════════════════════
-const BUILTIN_LESSONS={
-  1:[
-    {id:'m1l1',month:1,title:'Aeon: The Psychology of Habit',level:'C1',url:'https://aeon.co/essays',tags:['Reading','C1'],desc:'Explore how habits form and how language shapes our understanding of behaviour change.',prompt:'Read the essay. Identify the central argument, 3 rhetorical devices, and write a 150-word response using new vocabulary from the text.'},
-    {id:'m1l2',month:1,title:'TED: The Power of Vulnerability',level:'C1',url:'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',tags:['Speaking','Rhetoric'],desc:'A masterclass in authentic rhetoric — study how emotion and structure work together.',prompt:'Watch the talk. Analyze the speaker\'s use of personal narrative, humour, and emotional appeal. Write 150 words on which technique was most persuasive and why.'},
-    {id:'m1l3',month:1,title:'BBC News: Global Tech Trends',level:'B2+',url:'https://www.bbc.com/news/technology',tags:['Listening','News'],desc:'Native-speed news delivery — train your ear for British English pacing and intonation.',prompt:'Listen to a BBC tech segment. Summarize 3 key points in your own words. Identify 2 expressions that sound particularly formal or journalistic.'},
-  ],
-  2:[
-    {id:'m2l1',month:2,title:'Vox: How the Internet Works',level:'B2+',url:'https://www.vox.com/explainers',tags:['Explainer','Logic'],desc:'Clear explanatory writing with logical cause-and-effect structure — ideal for learning academic connectors.',prompt:'Read the explainer. Map the logical flow: identify cause→effect chains and the connectors used (therefore, consequently, as a result…). Rewrite 2 paragraphs using different connectors.'},
-    {id:'m2l2',month:2,title:'Scientific American: AI and the Future of Work',level:'C1',url:'https://www.scientificamerican.com',tags:['Technical','Reading'],desc:'Dense technical prose requiring strong academic vocabulary and sustained attention.',prompt:'Read the article. Explain the central argument in your own words (no copying). Identify 5 technical collocations and write one original sentence for each.'},
-    {id:'m2l3',month:2,title:'BBC Ideas: What is Game Theory?',level:'B2+',url:'https://www.bbc.com/ideas',tags:['Concept','Listening'],desc:'Short, high-quality explainer videos — excellent for training conceptual listening comprehension.',prompt:'Watch the video. Without looking at any transcript, write a 120-word explanation of game theory as if explaining to a friend. What was the most surprising idea?'},
-  ],
-  3:[
-    {id:'m3l1',month:3,title:'The Economist: Global Economic Outlook',level:'C1',url:'https://www.economist.com/podcasts',tags:['Formal','Listening'],desc:'The gold standard for dense, sophisticated English — packed with hedging and formal discourse markers.',prompt:'Listen to the podcast. Identify at least 5 instances of hedging language ("it remains to be seen", "there is a tendency to…"). Write a 200-word summary using the same formal register.'},
-    {id:'m3l2',month:3,title:'The Atlantic: The Ethics of Social Media',level:'C1',url:'https://www.theatlantic.com',tags:['Nuance','Reading'],desc:'Long-form journalism requiring sophisticated reading — nuanced arguments with multiple perspectives.',prompt:'Read the article. Identify the author\'s implicit assumptions and where they hedge vs. assert. Write a counter-argument of 200 words using academic hedging language throughout.'},
-    {id:'m3l3',month:3,title:'Intelligence Squared: Is Tech Making Us Lonely?',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Rhetoric'],desc:'Formal British debate format — exceptional for studying formal argumentation and rebuttal structure.',prompt:'Listen to or read a debate transcript. Analyze the rhetorical strategies of both sides. Write 200 words arguing the position you disagree with — use formal connectors and hedging throughout.'},
-  ],
-  4:[
-    {id:'m4l1',month:4,title:'NPR Hidden Brain: Social Psychology',level:'C1',url:'https://hiddenbrain.org',tags:['Listening','Psychology'],desc:'Explore unconscious patterns that drive human behaviour.',prompt:'Listen to an episode. Summarize the main insight and provide 3 supporting examples. Argue whether you agree with the conclusion.'},
-    {id:'m4l2',month:4,title:'The Guardian Opinion: Politics & Society',level:'C1',url:'https://www.theguardian.com/opinion',tags:['Reading','Argumentation'],desc:'Sharp opinion pieces rich in hedging and formal discourse.',prompt:'Read an opinion column. Identify hedging language and discourse markers. Write a 200-word counter-argument.'},
-  ],
-  5:[
-    {id:'m5l1',month:5,title:'Scientific American — Advanced Science',level:'C1',url:'https://www.scientificamerican.com',tags:['Reading','Science'],desc:'Complex scientific writing requiring strong academic vocabulary.',prompt:'Read an article. Identify 5 technical collocations. Discuss the most significant implication of the research.'},
-    {id:'m5l2',month:5,title:'MIT Technology Review',level:'C1',url:'https://www.technologyreview.com',tags:['Reading','Tech'],desc:'In-depth analysis of emerging technologies and societal impact.',prompt:'Read a feature article. Analyze how the author balances technical detail with accessibility.'},
-  ],
-  6:[
-    {id:'m6l1',month:6,title:'Aeon Essays — Philosophy & Culture',level:'C1',url:'https://aeon.co/essays',tags:['Reading','Philosophy'],desc:'Long-form essays exploring big ideas across culture, science, and society.',prompt:'Read an essay. Identify the central argument and rhetorical strategies. Write a 300-word critical response.'},
-  ],
-  7:[
-    {id:'m7l1',month:7,title:'The Economist Podcasts',level:'C1',url:'https://www.economist.com/podcasts',tags:['Listening','Economics'],desc:'Dense analysis with sophisticated vocabulary and formal register.',prompt:'Listen to a full episode. Write a 200-word summary using the same formal register. Identify 5 formal connectors.'},
-  ],
-  8:[
-    {id:'m8l1',month:8,title:'TED Talks — Advanced Rhetoric',level:'C1',url:'https://www.ted.com/talks',tags:['Speaking','Rhetoric'],desc:'Study world-class speakers and master the architecture of persuasion.',prompt:'Watch a TED Talk. Analyze the rhetorical structure: hook, ethos/pathos/logos, narrative arc, call to action.'},
-  ],
-  9:[{id:'m9l1',month:9,title:'Intelligence Squared Debates',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Formal'],desc:'Formal British debates — study precision and rebuttal technique.',prompt:'Listen to a full debate. Identify the strongest rhetorical moves from each side. Write a 250-word analysis.'}],
-  10:[{id:'m10l1',month:10,title:'Foreign Affairs — International Policy',level:'C1',url:'https://www.foreignaffairs.com',tags:['Academic','Policy'],desc:'Top-tier academic policy writing — the pinnacle of formal English.',prompt:'Read an article. Identify nominalization and passive constructions. Rewrite 2 paragraphs in a less formal register — what changes?'}],
-  11:[{id:'m11l1',month:11,title:'Longform.org — Best Essays',level:'C1',url:'https://longform.org',tags:['Reading','Literary'],desc:'Curated long-form journalism — the best English writing on the internet.',prompt:'Read an essay. Write a 300-word response that matches the author\'s register and tone. Submit to Claude for C1-level analysis.'}],
-  12:[{id:'m12l1',month:12,title:'Your Best Work — Portfolio Review',level:'C1',url:'https://aeon.co/essays',tags:['Review','Portfolio'],desc:'Revisit your best pieces and measure how far you\'ve come since Month 1.',prompt:'Rewrite your Month 1 first writing from memory. Compare the two versions. What has improved? Write a 200-word reflection on your C1 journey.'}],
+// ── LESSONS ───────────────────────────────────────────────────────────────────
+const BL={
+  1:[{id:'m1l1',month:1,title:'Aeon: The Psychology of Habit',level:'C1',url:'https://aeon.co/essays',tags:['Reading','C1'],desc:'Explore how habits form and how language shapes behaviour change.',prompt:'Read the essay. Identify the central argument, 3 rhetorical devices, and write a 150-word response using new vocabulary from the text.'},
+     {id:'m1l2',month:1,title:'TED: The Power of Vulnerability',level:'C1',url:'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',tags:['Speaking','Rhetoric'],desc:'A masterclass in authentic rhetoric — emotion and structure working together.',prompt:'Watch the talk. Analyze the speaker\'s use of personal narrative, humour, and emotional appeal. Write 150 words on which technique was most persuasive.'},
+     {id:'m1l3',month:1,title:'BBC News: Global Tech Trends',level:'B2+',url:'https://www.bbc.com/news/technology',tags:['Listening','News'],desc:'Native-speed news — train your ear for British English pacing.',prompt:'Listen to a BBC tech segment. Summarize 3 key points. Identify 2 formal/journalistic expressions.'}],
+  2:[{id:'m2l1',month:2,title:'Vox: How the Internet Works',level:'B2+',url:'https://www.vox.com/explainers',tags:['Explainer','Logic'],desc:'Clear explanatory writing with logical cause-and-effect structure.',prompt:'Read the explainer. Map the logical flow using connectors (therefore, consequently…). Rewrite 2 paragraphs with different connectors.'},
+     {id:'m2l2',month:2,title:'Scientific American: AI and Work',level:'C1',url:'https://www.scientificamerican.com',tags:['Technical','Reading'],desc:'Dense technical prose requiring strong academic vocabulary.',prompt:'Explain the central argument in your own words. Identify 5 technical collocations and write one sentence for each.'},
+     {id:'m2l3',month:2,title:'BBC Ideas: What is Game Theory?',level:'B2+',url:'https://www.bbc.com/ideas',tags:['Concept','Listening'],desc:'Short explainer videos for conceptual listening.',prompt:'Watch the video. Write a 120-word explanation of game theory as if explaining to a friend.'}],
+  3:[{id:'m3l1',month:3,title:'The Economist: Global Economic Outlook',level:'C1',url:'https://www.economist.com/podcasts',tags:['Formal','Listening'],desc:'Dense, sophisticated English packed with hedging and formal discourse.',prompt:'Listen. Identify 5 hedging expressions. Write a 200-word summary in the same formal register.'},
+     {id:'m3l2',month:3,title:'The Atlantic: Ethics of Social Media',level:'C1',url:'https://www.theatlantic.com',tags:['Nuance','Reading'],desc:'Long-form journalism with nuanced arguments and multiple perspectives.',prompt:'Read the article. Write a 200-word counter-argument using academic hedging language throughout.'},
+     {id:'m3l3',month:3,title:'Intelligence Squared: Is Tech Making Us Lonely?',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Rhetoric'],desc:'Formal British debate — study formal argumentation and rebuttal.',prompt:'Write 200 words arguing the position you disagree with. Use formal connectors and hedging throughout.'}],
+  4:[{id:'m4l1',month:4,title:'NPR Hidden Brain',level:'C1',url:'https://hiddenbrain.org',tags:['Listening','Psychology'],desc:'Explore unconscious patterns driving human behaviour.',prompt:'Summarize the main insight and provide 3 supporting examples. Argue whether you agree with the conclusion.'},
+     {id:'m4l2',month:4,title:'The Guardian Opinion',level:'C1',url:'https://www.theguardian.com/opinion',tags:['Reading','Argumentation'],desc:'Sharp opinion pieces rich in hedging and formal discourse.',prompt:'Identify hedging language and discourse markers. Write a 200-word counter-argument.'}],
+  5:[{id:'m5l1',month:5,title:'Scientific American',level:'C1',url:'https://www.scientificamerican.com',tags:['Reading','Science'],desc:'Complex scientific writing with strong academic vocabulary.',prompt:'Identify 5 technical collocations. Discuss the most significant research implication.'},
+     {id:'m5l2',month:5,title:'MIT Technology Review',level:'C1',url:'https://www.technologyreview.com',tags:['Reading','Tech'],desc:'In-depth analysis of emerging technologies.',prompt:'Analyze how the author balances technical detail with accessibility.'}],
+  6:[{id:'m6l1',month:6,title:'Aeon Essays',level:'C1',url:'https://aeon.co/essays',tags:['Reading','Philosophy'],desc:'Long-form essays exploring big ideas.',prompt:'Write a 300-word critical response to an essay.'}],
+  7:[{id:'m7l1',month:7,title:'The Economist Podcasts',level:'C1',url:'https://www.economist.com/podcasts',tags:['Listening','Economics'],desc:'Dense analysis with sophisticated vocabulary.',prompt:'Write a 200-word summary in the same formal register. Identify 5 formal connectors.'}],
+  8:[{id:'m8l1',month:8,title:'TED Talks — Advanced Rhetoric',level:'C1',url:'https://www.ted.com/talks',tags:['Speaking','Rhetoric'],desc:'Study world-class speakers and master persuasion.',prompt:'Analyze the rhetorical structure: hook, ethos/pathos/logos, narrative arc, call to action.'}],
+  9:[{id:'m9l1',month:9,title:'Intelligence Squared Debates',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Formal'],desc:'Formal British debates — study precision and rebuttal.',prompt:'Identify the strongest rhetorical moves from each side. Write a 250-word analysis.'}],
+  10:[{id:'m10l1',month:10,title:'Foreign Affairs',level:'C1',url:'https://www.foreignaffairs.com',tags:['Academic','Policy'],desc:'Top-tier academic policy writing.',prompt:'Identify nominalization and passive constructions. Rewrite 2 paragraphs in a less formal register.'}],
+  11:[{id:'m11l1',month:11,title:'Longform.org — Best Essays',level:'C1',url:'https://longform.org',tags:['Reading','Literary'],desc:'Curated long-form journalism.',prompt:'Write a 300-word response matching the author\'s register and tone.'}],
+  12:[{id:'m12l1',month:12,title:'Portfolio Review',level:'C1',url:'https://aeon.co/essays',tags:['Review','Portfolio'],desc:'Revisit your best pieces and measure growth.',prompt:'Rewrite your Month 1 first writing from memory. Write a 200-word reflection on your C1 journey.'}],
 };
 
-// ════════════════════════════════════════════════════════
-// SM-2 IMPROVED
-// ════════════════════════════════════════════════════════
-function nextReview(quality,intervalIdx=0,easiness=2.5){
-  let ei=Math.max(1.3,easiness+0.1-(5-quality)*(0.08+(5-quality)*0.02));
+// ── SM-2 ──────────────────────────────────────────────────────────────────────
+function nxtRev(q,idx=0,ef=2.5){
+  let ei=Math.max(1.3,ef+0.1-(5-q)*(0.08+(5-q)*0.02));
   let ni;
-  if(quality<3)ni=1;
-  else if(intervalIdx===0)ni=1;
-  else if(intervalIdx===1)ni=3;
-  else ni=Math.round(INTERVALS[Math.min(intervalIdx-1,INTERVALS.length-1)]*ei);
-  const idx=Math.min(intervalIdx+(quality>=3?1:0),INTERVALS.length-1);
+  if(q<3)ni=1;
+  else if(idx===0)ni=1;
+  else if(idx===1)ni=3;
+  else ni=Math.round(IVLS[Math.min(idx-1,IVLS.length-1)]*ei);
+  const ni2=Math.min(idx+(q>=3?1:0),IVLS.length-1);
   const d=new Date();d.setDate(d.getDate()+ni);d.setHours(0,0,0,0);
-  return{date:d.toISOString().split('T')[0],intervalIdx:idx,easiness:ei};
+  return{date:d.toISOString().split('T')[0],intervalIdx:ni2,easiness:ei};
 }
 
-// ════════════════════════════════════════════════════════
-// FIREBASE LOAD — mostra app imediatamente do localStorage,
-// sincroniza Firebase em background
-// ════════════════════════════════════════════════════════
-
-// 1. Carregar dados do localStorage instantaneamente
-function loadFromLocal(){
-  try{checkins=JSON.parse(localStorage.getItem('c1-ci')||'{}');}catch(e){checkins={};}
-  try{cards=JSON.parse(localStorage.getItem('c1-cards')||'[]');}catch(e){cards=[];}
-  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1-stats')||'{}'));}catch(e){}
-  try{customLessons=JSON.parse(localStorage.getItem('c1-custom')||'[]');}catch(e){customLessons=[];}
-  activeMonth=parseInt(localStorage.getItem('c1-month')||'1',10);
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+function load(){
+  try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}
+  try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
+  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
+  try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
+  activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
 }
+function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
+function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
+function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}
+function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
+function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 
-// 2. Mostrar app imediatamente
-function revealApp(){
-  document.getElementById('loading').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  initSessionTimer();
-  buildMonthRail();
-  render();
-}
-
-// 3. Firebase sincroniza em background (chamado após revealApp)
-function startFirebaseSync(){
+// ── FIREBASE SYNC (background only, never blocks) ─────────────────────────────
+function startSync(){
   try{
     if(typeof firebase==='undefined')return;
     if(!firebase.apps||!firebase.apps.length){
-      firebase.initializeApp({
-        apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",
-        authDomain:"b1-c1-80aa1.firebaseapp.com",
-        databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",
-        projectId:"b1-c1-80aa1",
-        storageBucket:"b1-c1-80aa1.firebasestorage.app",
-        messagingSenderId:"204603766052",
-        appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"
-      });
+      firebase.initializeApp({apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",authDomain:"b1-c1-80aa1.firebaseapp.com",databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",projectId:"b1-c1-80aa1",storageBucket:"b1-c1-80aa1.firebasestorage.app",messagingSenderId:"204603766052",appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"});
     }
     db=firebase.database();
-    REF_CI     = db.ref(`users/${UID}/checkins`);
-    REF_CARDS  = db.ref(`users/${UID}/cards`);
-    REF_STATS  = db.ref(`users/${UID}/stats`);
-    REF_CUSTOM = db.ref(`users/${UID}/customLessons`);
-    REF_MONTH  = db.ref(`users/${UID}/activeMonth`);
-
-    REF_CI.on('value',s=>{
-      const v=s.val();if(!v)return;
-      checkins=v;
-      localStorage.setItem('c1-ci',JSON.stringify(checkins));
-      setSyncStatus('online');
-      if(currentTab==='dashboard')renderDashboard();
-    },()=>setSyncStatus('offline'));
-
-    REF_CARDS.on('value',s=>{
-      const v=s.val();if(v===null)return;
-      const arr=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v;
-      cards=arr||[];
-      localStorage.setItem('c1-cards',JSON.stringify(cards));
-      setSyncStatus('online');
-      render();
-    },()=>setSyncStatus('offline'));
-
-    REF_STATS.on('value',s=>{
-      const v=s.val();if(!v)return;
-      stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);
-      localStorage.setItem('c1-stats',JSON.stringify(stats));
-      setSyncStatus('online');
-      renderOutputMeters();renderFlightHours();
-    },()=>setSyncStatus('offline'));
-
-    REF_CUSTOM.on('value',s=>{
-      const v=s.val();
-      customLessons=v?Object.values(v):[];
-      localStorage.setItem('c1-custom',JSON.stringify(customLessons));
-      setSyncStatus('online');
-      if(currentTab==='practice')renderPractice();
-    },()=>setSyncStatus('offline'));
-
-    REF_MONTH.once('value',s=>{
-      const v=s.val();if(!v)return;
-      activeMonth=v;
-      localStorage.setItem('c1-month',v);
-      buildMonthRail();renderThemeBanner();
-      if(currentTab==='practice')renderPractice();
-    });
-  }catch(e){
-    setSyncStatus('offline');
-    console.warn('Firebase sync error:',e);
-  }
+    RCI=db.ref(`u/${UID}/ci`);RCA=db.ref(`u/${UID}/ca`);RST=db.ref(`u/${UID}/st`);RCU=db.ref(`u/${UID}/cu`);RMO=db.ref(`u/${UID}/mo`);
+    RCI.on('value',s=>{const v=s.val();if(!v)return;checkins=v;localStorage.setItem('c1ci',JSON.stringify(v));setSS('online');if(curTab==='dash')renderDash();},()=>setSS('offline'));
+    RCA.on('value',s=>{const v=s.val();if(v===null)return;cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[];localStorage.setItem('c1ca',JSON.stringify(cards));setSS('online');render();},()=>setSS('offline'));
+    RST.on('value',s=>{const v=s.val();if(!v)return;stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);localStorage.setItem('c1st',JSON.stringify(stats));setSS('online');renderMeters();renderFlight();},()=>setSS('offline'));
+    RCU.on('value',s=>{const v=s.val();customLessons=v?Object.values(v):[];localStorage.setItem('c1cu',JSON.stringify(customLessons));setSS('online');if(curTab==='prac')renderPrac();},()=>setSS('offline'));
+    RMO.once('value',s=>{const v=s.val();if(!v||v===activeMonth)return;activeMonth=v;localStorage.setItem('c1mo',v);buildRail();renderBanner();if(curTab==='prac')renderPrac();});
+    setSS('online');
+  }catch(e){setSS('offline');}
+}
+function setSS(s){
+  const d=document.getElementById('sdot'),l=document.getElementById('slbl');
+  if(!d||!l)return;
+  d.className='sdot'+(s==='online'?'':s==='offline'?' off':' sy');
+  l.textContent=s==='online'?'Synced':s==='offline'?'Local only':'Syncing…';
 }
 
-function saveCI(){localStorage.setItem('c1-ci',JSON.stringify(checkins));if(REF_CI)REF_CI.set(checkins||null).catch(()=>{});}
-function saveCards(){localStorage.setItem('c1-cards',JSON.stringify(cards));if(REF_CARDS){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});REF_CARDS.set(Object.keys(o).length?o:null).catch(()=>{});}}
-function saveStats(){localStorage.setItem('c1-stats',JSON.stringify(stats));if(REF_STATS)REF_STATS.set(stats).catch(()=>{});}
-function setSyncStatus(s){const d=document.getElementById('syncDot'),l=document.getElementById('syncLbl');if(!d||!l)return;d.className='sync-dot'+(s==='online'?'':s==='offline'?' off':' sync');l.textContent=s==='online'?'Synced':s==='offline'?'Local only':'Syncing…';}
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const due=()=>cards.filter(c=>c.nextReview<=today);
+function wkDays(){
+  const a=[],n=new Date(),dw=n.getDay(),m=new Date(n);
+  m.setDate(n.getDate()-(dw===0?6:dw-1));
+  for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);a.push({key:d.toISOString().split('T')[0],lb:['Mon','Tue','Wed','Thu','Fri'][i],td:d.toISOString().split('T')[0]===today});}
+  return a;
+}
+function streak(){let s=0,d=new Date();while(true){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
+function f2(n){return n.toString().padStart(2,'0');}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function mdata(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}
+function lessons(n){
+  const b=(BL[n]||[]).map(l=>({...l,isCustom:false}));
+  const c=customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}));
+  return [...b,...c];
+}
+function openM(id){document.getElementById(id).classList.remove('hid');}
+function closeM(id){document.getElementById(id).classList.add('hid');}
 
-// ════════════════════════════════════════════════════════
-// SESSION TIMER
-// ════════════════════════════════════════════════════════
-function initSessionTimer(){
-  sessionStart=Date.now();
-  setInterval(()=>{
-    const el=document.getElementById('sessionTimer');if(!el)return;
-    const e=Math.floor((Date.now()-sessionStart)/1000);
-    el.textContent=fmt2(Math.floor(e/60))+':'+fmt2(e%60);
-  },1000);
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function goTab(t){
+  curTab=t;
+  ['dash','prac','rev','cards'].forEach(x=>{
+    document.getElementById('pg-'+x).classList.toggle('hid',x!==t);
+    document.getElementById('nav-'+x).classList.toggle('on',x===t);
+  });
+  if(t==='dash')renderDash();
+  else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+  else if(t==='rev')renderRev();
+  else if(t==='cards')renderCards();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const s=streak(),dv=due().length,tm=stats.totalMins||0;
+  document.getElementById('hstr').textContent=s;
+  document.getElementById('hcards').textContent=cards.length;
+  document.getElementById('hhours').textContent=Math.floor(tm/60)+'h';
+  const b=document.getElementById('revbdg');b.textContent=dv;b.classList.toggle('on',dv>0);
+  renderMeters();renderFlight();
+  if(curTab==='dash')renderDash();
+  else if(curTab==='rev')renderRev();
+  else if(curTab==='cards')renderCards();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDash(){
+  const days=wkDays(),dn=days.filter(d=>checkins[d.key]).length,dv=due();
+  document.getElementById('scwk').textContent=dn+'/5';
+  document.getElementById('scdue').textContent=dv.length;
+  document.getElementById('scdue').style.color=dv.length>0?'var(--rd)':'var(--gr)';
+  document.getElementById('sctot').textContent=cards.length;
+  document.getElementById('wpbar').style.width=(dn/5*100)+'%';
+  document.getElementById('wklbl').textContent=dn+' of 5 complete';
+  // checkin grid
+  const g=document.getElementById('cigrid');g.innerHTML='';
+  days.forEach(d=>{
+    const ok=!!checkins[d.key];
+    const b=document.createElement('button');
+    b.className='cibtn'+(ok?' dn':d.td?' td':'');
+    b.onclick=()=>toggleCI(d.key);
+    b.innerHTML=`<span class="cilbl">${d.lb}</span><div class="cick${ok?' dn':''}">${ok?'<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>${d.td&&!ok?'<span class="tdtag">today</span>':''}`;
+    g.appendChild(b);
+  });
+  document.getElementById('dalert').classList.toggle('hid',dv.length===0);
+  if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
+  renderBanner();renderHeatmap();renderFlight();renderMeters();
+}
+
+function toggleCI(k){
+  if(checkins[k])delete checkins[k];
+  else{checkins[k]=true;stats.totalMins=(stats.totalMins||0)+30;if(!stats.studyDays)stats.studyDays={};stats.studyDays[k]=(stats.studyDays[k]||0)+30;saveST();}
+  saveCI();renderDash();
 }
 function logSession(){
   stats.totalMins=(stats.totalMins||0)+30;
-  if(!stats.studyDays)stats.studyDays={};
-  stats.studyDays[today]=(stats.studyDays[today]||0)+30;
-  saveStats();showToast('✈ +30 min logged!');renderFlightHours();
+  if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+30;
+  saveST();toast('✈ +30 min logged!');renderFlight();
 }
 
-// ════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════
-function dueCards(){return cards.filter(c=>c.nextReview<=today);}
-function weekDays(){
-  const days=[],now=new Date(),dow=now.getDay(),mon=new Date(now);
-  mon.setDate(now.getDate()-(dow===0?6:dow-1));
-  for(let i=0;i<5;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push({key:d.toISOString().split('T')[0],label:['Mon','Tue','Wed','Thu','Fri'][i],isToday:d.toISOString().split('T')[0]===today});}
-  return days;
-}
-function calcStreak(){let s=0,d=new Date();while(true){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-function fmt2(n){return n.toString().padStart(2,'0');}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function q(s){return JSON.stringify(s||'');}
-function openModal(id){document.getElementById(id).classList.remove('hidden');}
-function closeModal(id){document.getElementById(id).classList.add('hidden');}
-function getMonthData(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}
-
-// ════════════════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════════════════
-function goTab(tab){
-  currentTab=tab;
-  ['dashboard','practice','review','cards'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('hidden',t!==tab);
-    document.getElementById('nav-'+t).classList.toggle('active',t===tab);
-  });
-  if(tab==='dashboard')renderDashboard();
-  else if(tab==='practice'){if(!activeLesson){const ls=getLessonsForMonth(activeMonth);activeLesson=ls[0]||null;}renderPractice();}
-  else if(tab==='review')renderReview();
-  else if(tab==='cards')renderCards();
-}
-
-// ════════════════════════════════════════════════════════
-// MONTH RAIL
-// ════════════════════════════════════════════════════════
-function buildMonthRail(){
-  const rail=document.getElementById('monthRail');rail.innerHTML='';
+// ── MONTH RAIL ────────────────────────────────────────────────────────────────
+function buildRail(){
+  const r=document.getElementById('mrl');r.innerHTML='';
   MONTHS.forEach(m=>{
-    const btn=document.createElement('button');
-    btn.className='month-btn'+(m.n===activeMonth?' active':'')+(m.locked?' locked':'');
-    btn.innerHTML=`<span class="mn">${m.label}</span><span class="mtheme">${m.icon} ${m.theme}</span>`;
-    btn.onclick=()=>{if(!m.locked)setActiveMonth(m.n);};
-    rail.appendChild(btn);
+    const b=document.createElement('button');
+    b.className='mbt'+(m.n===activeMonth?' on':'');
+    b.innerHTML=`<span class="mn">${m.lb}</span><span class="mt">${m.ic} ${m.th}</span>`;
+    b.onclick=()=>setMonth(m.n);
+    r.appendChild(b);
   });
-  // scroll to active
-  setTimeout(()=>{const active=rail.querySelector('.active');if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},100);
+  setTimeout(()=>{const a=r.querySelector('.on');if(a)a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},100);
 }
-
-function setActiveMonth(n){
-  activeMonth=n;
-  if(REF_MONTH)REF_MONTH.set(n).catch(()=>{});
-  localStorage.setItem('c1-month',n);
-  // reset active lesson to first of new month
-  const ls=getLessonsForMonth(n);activeLesson=ls[0]||null;
-  buildMonthRail();
-  renderThemeBanner();
-  if(currentTab==='practice')renderPractice();
-  showToast(`📅 Month ${n}: ${getMonthData(n).theme}`);
+function setMonth(n){
+  activeMonth=n;saveMO();
+  const ls=lessons(n);activeLesson=ls[0]||null;
+  buildRail();renderBanner();
+  if(curTab==='prac')renderPrac();
+  toast('📅 Month '+n+': '+mdata(n).th);
 }
-
-function renderThemeBanner(){
-  const m=getMonthData(activeMonth);
-  const el=document.getElementById('themeBanner');
-  el.innerHTML=`<div class="theme-banner" style="background:${m.bg};border:1px solid ${m.border}">
-    <div class="tb-icon">${m.icon}</div>
-    <div style="flex:1">
-      <div class="tb-phase" style="color:${m.color}">${m.phase} · Month ${m.n}</div>
-      <div class="tb-title">${m.theme}</div>
-      <div class="tb-desc">${m.desc}</div>
-      <div class="tb-skills">${m.skills.map(s=>`<span class="tag tag-gray">${s}</span>`).join('')}</div>
+function renderBanner(){
+  const m=mdata(activeMonth);
+  document.getElementById('thbanner').innerHTML=`<div class="tbanner" style="background:${m.bg};border:1px solid ${m.bd}">
+    <div class="tbi">${m.ic}</div>
+    <div style="flex:1;min-width:0">
+      <div class="tbph" style="color:${m.co}">${m.ph} · Month ${m.n}</div>
+      <div class="tbtit">${m.th}</div>
+      <div class="tbdsc">${m.ds}</div>
+      <div class="tbsk">${m.sk.map(s=>`<span class="tag tgr">${s}</span>`).join('')}</div>
     </div>
   </div>`;
 }
 
-// ════════════════════════════════════════════════════════
-// LESSONS
-// ════════════════════════════════════════════════════════
-function getLessonsForMonth(n){
-  const builtin=(BUILTIN_LESSONS[n]||[]).map(l=>({...l,isCustom:false}));
-  const custom=customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}));
-  return [...builtin,...custom];
-}
-
-// ════════════════════════════════════════════════════════
-// RENDER GLOBAL
-// ════════════════════════════════════════════════════════
-function render(){
-  const streak=calcStreak(),due=dueCards().length,tm=stats.totalMins||0;
-  document.getElementById('hStreak').textContent=streak;
-  document.getElementById('hCards').textContent=cards.length;
-  document.getElementById('hHours').textContent=Math.floor(tm/60)+'h';
-  const badge=document.getElementById('reviewBadge');badge.textContent=due;badge.classList.toggle('show',due>0);
-  renderOutputMeters();renderFlightHours();
-  if(currentTab==='dashboard')renderDashboard();
-  else if(currentTab==='review')renderReview();
-  else if(currentTab==='cards')renderCards();
-}
-
-// ════════════════════════════════════════════════════════
-// DASHBOARD
-// ════════════════════════════════════════════════════════
-function renderDashboard(){
-  const days=weekDays(),done=days.filter(d=>checkins[d.key]).length,due=dueCards();
-  document.getElementById('scWeek').textContent=done+'/5';
-  document.getElementById('scDue').textContent=due.length;
-  document.getElementById('scDue').style.color=due.length>0?'var(--red)':'var(--green)';
-  document.getElementById('scCards').textContent=cards.length;
-  document.getElementById('weekProg').style.width=(done/5*100)+'%';
-  document.getElementById('weekLabel').textContent=done+' of 5 complete';
-
-  // Checkin grid
-  const grid=document.getElementById('checkinGrid');grid.innerHTML='';
-  days.forEach(d=>{
-    const isDone=!!checkins[d.key];
-    const btn=document.createElement('button');
-    btn.className='ci-btn'+(isDone?' done':d.isToday?' today':'');
-    btn.onclick=()=>toggleCheckin(d.key);
-    btn.innerHTML=`<span class="ci-label">${d.label}</span><div class="ci-check${isDone?' done':''}">${isDone?'<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>${d.isToday&&!isDone?'<span class="today-tag">today</span>':''}`;
-    grid.appendChild(btn);
-  });
-
-  const al=document.getElementById('dueAlert');
-  al.classList.toggle('hidden',due.length===0);
-  if(due.length>0)document.getElementById('dueAlertTxt').textContent=due.length+' card'+(due.length>1?'s':'')+' due for review';
-
-  renderThemeBanner();
-  renderHeatmap();
-  renderFlightHours();
-  renderOutputMeters();
-}
-
-function toggleCheckin(key){
-  if(checkins[key])delete checkins[key];
-  else{checkins[key]=true;stats.totalMins=(stats.totalMins||0)+30;if(!stats.studyDays)stats.studyDays={};stats.studyDays[key]=(stats.studyDays[key]||0)+30;saveStats();}
-  saveCI();renderDashboard();
-}
-
-// ════════════════════════════════════════════════════════
-// HEATMAP
-// ════════════════════════════════════════════════════════
+// ── HEATMAP ───────────────────────────────────────────────────────────────────
 function renderHeatmap(){
-  const grid=document.getElementById('heatmapGrid'),monthsEl=document.getElementById('heatmapMonths');
-  grid.innerHTML='';monthsEl.innerHTML='';
-  const now=new Date(2025,11,31),start=new Date(2025,0,1);
-  const firstSun=new Date(start);firstSun.setDate(start.getDate()-start.getDay());
-  const weeks=[];let cur=new Date(firstSun);
-  while(cur<=now){const w=[];for(let i=0;i<7;i++){w.push(new Date(cur));cur.setDate(cur.getDate()+1);}weeks.push(w);}
-  let lastM=-1;
-  weeks.forEach((week,wi)=>{
-    const m=week[0].getMonth();
-    if(m!==lastM&&week[0].getFullYear()===2025){lastM=m;const l=document.createElement('div');l.className='hm-month-lbl';l.style.cssText=`min-width:${Math.max(12,(weeks.slice(wi,wi+5).length)*14)}px`;l.textContent=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];monthsEl.appendChild(l);}
+  const g=document.getElementById('hmg'),ml=document.getElementById('hmml');
+  g.innerHTML='';ml.innerHTML='';
+  const end=new Date(2025,11,31),start=new Date(2025,0,1);
+  const fs=new Date(start);fs.setDate(start.getDate()-start.getDay());
+  const wks=[];let c=new Date(fs);
+  while(c<=end){const w=[];for(let i=0;i<7;i++){w.push(new Date(c));c.setDate(c.getDate()+1);}wks.push(w);}
+  let lm=-1;
+  wks.forEach((wk,wi)=>{
+    const mo=wk[0].getMonth();
+    if(mo!==lm&&wk[0].getFullYear()===2025){lm=mo;const l=document.createElement('div');l.className='hmlbl';l.style.minWidth=Math.max(12,(wks.slice(wi,wi+5).length)*13)+'px';l.textContent=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mo];ml.appendChild(l);}
   });
-  weeks.forEach(week=>{
-    const col=document.createElement('div');col.className='hm-col';
-    week.forEach(d=>{
-      const cell=document.createElement('div');cell.className='hm-cell';
-      const key=d.toISOString().split('T')[0];
-      if(d.getFullYear()===2025&&d<=new Date()&&checkins[key])cell.classList.add('l4');
-      cell.title=key;col.appendChild(cell);
+  wks.forEach(wk=>{
+    const col=document.createElement('div');col.className='hmcol';
+    wk.forEach(d=>{
+      const cell=document.createElement('div');cell.className='hmc';
+      const k=d.toISOString().split('T')[0];
+      if(d.getFullYear()===2025&&d<=new Date()&&checkins[k])cell.classList.add('l4');
+      cell.title=k;col.appendChild(cell);
     });
-    grid.appendChild(col);
+    g.appendChild(col);
   });
 }
 
-// ════════════════════════════════════════════════════════
-// FLIGHT HOURS & OUTPUT
-// ════════════════════════════════════════════════════════
-function renderFlightHours(){
+// ── FLIGHT & METERS ───────────────────────────────────────────────────────────
+function renderFlight(){
   const tm=stats.totalMins||0,h=Math.floor(tm/60),m=tm%60;
-  const el=document.getElementById('flightHours');if(el)el.textContent=h+'h '+fmt2(m)+'m';
-  const days=Object.keys(stats.studyDays||{}).length,avg=days>0?Math.round(tm/days):0;
-  const fe=document.getElementById('fmDays');if(fe)fe.textContent=days;
-  const fa=document.getElementById('fmAvg');if(fa)fa.textContent=avg+'m';
-  const fs=document.getElementById('fmStreak');if(fs)fs.textContent=calcStreak();
-  const hh=document.getElementById('hHours');if(hh)hh.textContent=Math.floor(tm/60)+'h';
+  const e=document.getElementById('fhours');if(e)e.textContent=h+'h '+f2(m)+'m';
+  const ds=Object.keys(stats.studyDays||{}).length,av=ds>0?Math.round(tm/ds):0;
+  const fd=document.getElementById('fdays');if(fd)fd.textContent=ds;
+  const fa=document.getElementById('favg');if(fa)fa.textContent=av+'m';
+  const fs=document.getElementById('fstrk');if(fs)fs.textContent=streak();
+  const hh=document.getElementById('hhours');if(hh)hh.textContent=Math.floor(tm/60)+'h';
 }
-function renderOutputMeters(){
-  const lastDay=localStorage.getItem('c1-lastday');
-  if(lastDay&&lastDay!==today){stats.wordsToday=0;stats.minsSpoken=0;saveStats();}
-  localStorage.setItem('c1-lastday',today);
+function renderMeters(){
+  const last=localStorage.getItem('c1ld');
+  if(last&&last!==today){stats.wordsToday=0;stats.minsSpoken=0;saveST();}
+  localStorage.setItem('c1ld',today);
   const w=stats.wordsToday||0,m=stats.minsSpoken||0;
-  const we=document.getElementById('wordsToday');if(we)we.textContent=w;
-  const me=document.getElementById('minsSpoken');if(me)me.textContent=m;
-  const wp=document.getElementById('wordsProg');if(wp)wp.style.width=Math.min(w/150*100,100)+'%';
-  const mp=document.getElementById('minsProg');if(mp)mp.style.width=Math.min(m/10*100,100)+'%';
+  const we=document.getElementById('wtoday');if(we)we.textContent=w;
+  const me=document.getElementById('mspoken');if(me)me.textContent=m;
+  const wp=document.getElementById('wprog');if(wp)wp.style.width=Math.min(w/150*100,100)+'%';
+  const mp=document.getElementById('mprog');if(mp)mp.style.width=Math.min(m/10*100,100)+'%';
 }
 
-// ════════════════════════════════════════════════════════
-// PRACTICE
-// ════════════════════════════════════════════════════════
-function renderPractice(){
-  const m=getMonthData(activeMonth);
-  const lessons=getLessonsForMonth(activeMonth);
-  if(!activeLesson||!lessons.find(l=>l.id===activeLesson.id))activeLesson=lessons[0]||null;
-
-  // Month context pill
-  const ctx=document.getElementById('practiceMonthCtx');
-  ctx.innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:8px 0">
-    <span class="tag tag-blue">${m.icon} Month ${m.n}: ${m.theme}</span>
-    <span style="font-size:12px;color:var(--text3)">${lessons.length} lesson${lessons.length!==1?'s':''} available</span>
-  </div>`;
-
-  // Lesson list
-  const list=document.getElementById('lessonList');list.innerHTML='';
-  if(lessons.length===0){
-    list.innerHTML=`<div class="card" style="text-align:center;padding:20px">
-      <p style="color:var(--text2);font-size:13px;margin-bottom:10px">No lessons for Month ${activeMonth} yet.</p>
-      <button class="btn btn-teal btn-sm" onclick="openModal('modalCustom')">Add Custom Lesson</button>
-    </div>`;
-  } else {
-    lessons.forEach(l=>{
-      const div=document.createElement('div');
-      div.className='lesson-card'+(activeLesson&&activeLesson.id===l.id?' active':'')+(l.isCustom?' custom-lesson':'');
-      div.onclick=()=>{activeLesson=l;renderPractice();};
-      const customBadge=l.isCustom?'<span class="tag tag-custom">custom</span>':'';
-      div.innerHTML=`<div style="flex:1">
-        <div class="lc-title">${esc(l.title)}<span class="tag tag-gray">${l.level||'C1'}</span>${customBadge}</div>
-        <div class="lc-desc">${esc(l.desc||'')}</div>
-        <div class="lc-tags">${(l.tags||[]).map(t=>`<span class="tag tag-gray">${t}</span>`).join('')}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-        <a href="${esc(l.url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
-        ${l.isCustom?`<button onclick="event.stopPropagation();deleteCustomLesson('${l.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}
-      </div>`;
-      list.appendChild(div);
-    });
-  }
-
-  // Prompt box — update with active lesson and month difficulty
-  const pb=document.getElementById('promptBox');
-  const db_el=document.getElementById('diffBadge');
-  const ap=document.getElementById('activePrompt');
-  pb.className=`prompt-box ${m.diffClass}`;
-  db_el.className=`diff-badge ${m.diffClass}`;
-  db_el.textContent=m.diffLabel;
+// ── PRACTICE ──────────────────────────────────────────────────────────────────
+function renderPrac(){
+  const m=mdata(activeMonth),ls=lessons(activeMonth);
+  if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
+  document.getElementById('pmctx').innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0"><span class="tag tbl">${m.ic} Month ${m.n}: ${m.th}</span><span style="font-size:12px;color:var(--tx3)">${ls.length} lesson${ls.length!==1?'s':''}</span></div>`;
+  const ll=document.getElementById('lessonlist');ll.innerHTML='';
+  if(ls.length===0){ll.innerHTML=`<div class="card" style="text-align:center;padding:20px"><p style="color:var(--tx2);font-size:13px;margin-bottom:10px">No lessons for Month ${activeMonth}.</p><button class="btn bte bsm" onclick="openM('mCL')">Add Custom Lesson</button></div>`;}
+  else{ls.forEach(l=>{
+    const div=document.createElement('div');
+    div.className='lcard'+(activeLesson&&activeLesson.id===l.id?' on':'')+(l.isCustom?' custom':'');
+    div.onclick=()=>{activeLesson=l;renderPrac();};
+    div.innerHTML=`<div style="flex:1;min-width:0"><div class="ltit">${esc(l.title)}<span class="tag tgr">${l.level||'C1'}</span>${l.isCustom?'<span class="tag tcu">custom</span>':''}</div><div class="ldsc">${esc(l.desc||'')}</div><div style="display:flex;gap:5px;flex-wrap:wrap">${(l.tags||[]).map(t=>`<span class="tag tgr">${t}</span>`).join('')}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><a href="${esc(l.url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--bl)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>${l.isCustom?`<button onclick="event.stopPropagation();delCustom('${l.id}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}</div>`;
+    ll.appendChild(div);
+  });}
+  const pb=document.getElementById('promptbox'),db=document.getElementById('dbadge'),ap=document.getElementById('activeprompt');
+  pb.className=`pbox ${m.dc}`;db.className=`dbadge ${m.dc}`;db.textContent=m.dl;
   ap.textContent=activeLesson?activeLesson.prompt:'Select a lesson above.';
 }
-
-function onTextInput(){
-  const txt=document.getElementById('responseText').value;
-  const words=txt.trim().split(/\s+/).filter(Boolean).length;
-  document.getElementById('wordCount').textContent=words+' words';
-  document.getElementById('analyzeBtn').disabled=words<2;
+function onInput(){
+  const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wcount').textContent=w+' words';
+  document.getElementById('anlbtn').disabled=w<2;
 }
 
-// ════════════════════════════════════════════════════════
-// CUSTOM LESSONS
-// ════════════════════════════════════════════════════════
-const CUSTOM_TAG_OPTIONS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Debate','Science','Tech','Philosophy','Culture','Business','Other'];
-let selectedTags=[];
-
-function openModal(id){
-  document.getElementById(id).classList.remove('hidden');
-  if(id==='modalCustom'){
-    selectedTags=[];
-    const grid=document.getElementById('customTagGrid');
-    grid.innerHTML=CUSTOM_TAG_OPTIONS.map(t=>`<button onclick="toggleCustomTag('${t}',this)" style="padding:5px 8px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s">${t}</button>`).join('');
-  }
-}
-function toggleCustomTag(tag,btn){
-  if(selectedTags.includes(tag)){selectedTags=selectedTags.filter(t=>t!==tag);btn.style.background='transparent';btn.style.borderColor='var(--border)';btn.style.color='var(--text2)';}
-  else{selectedTags.push(tag);btn.style.background='var(--blue)';btn.style.borderColor='var(--blue)';btn.style.color='#fff';}
-}
-function saveCustomLesson(){
-  const title=document.getElementById('customTitle').value.trim();
-  const url=document.getElementById('customUrl').value.trim();
-  const prompt=document.getElementById('customPrompt').value.trim();
-  if(!title||!url){showToast('⚠️ Title and URL are required');return;}
-  const lesson={
-    id:'custom_'+Date.now(),
-    month:activeMonth,
-    title,url,
-    desc:'Custom lesson added by you.',
-    tags:selectedTags.length?selectedTags:['Custom'],
-    level:'C1',
-    prompt:prompt||`Study this resource. Write a 150-200 word response focusing on the vocabulary and language structures you encounter. Aim to use at least 3 new expressions naturally.`,
-    isCustom:true,
-    created:today
-  };
-  if(REF_CUSTOM)REF_CUSTOM.child(lesson.id).set(lesson).catch(()=>{});
-  customLessons.push(lesson);
-  localStorage.setItem('c1-custom',JSON.stringify(customLessons));
-  closeModal('modalCustom');
-  document.getElementById('customTitle').value='';
-  document.getElementById('customUrl').value='';
-  document.getElementById('customPrompt').value='';
-  showToast('✅ Custom lesson saved!');
-  renderPractice();
-}
-function deleteCustomLesson(id){
-  if(REF_CUSTOM)REF_CUSTOM.child(id).remove().catch(()=>{});
-  customLessons=customLessons.filter(l=>l.id!==id);
-  localStorage.setItem('c1-custom',JSON.stringify(customLessons));
-  if(activeLesson&&activeLesson.id===id){const ls=getLessonsForMonth(activeMonth);activeLesson=ls[0]||null;}
-  renderPractice();showToast('Lesson removed');
+// ── SESSION TIMER ─────────────────────────────────────────────────────────────
+function initSesTimer(){
+  sesStart=Date.now();
+  setInterval(()=>{
+    const el=document.getElementById('sestimer');if(!el)return;
+    const e=Math.floor((Date.now()-sesStart)/1000);
+    el.textContent=f2(Math.floor(e/60))+':'+f2(e%60);
+  },1000);
 }
 
-// ════════════════════════════════════════════════════════
-// SHADOWING TIMER
-// ════════════════════════════════════════════════════════
+// ── SHADOW ────────────────────────────────────────────────────────────────────
 function toggleShadow(){
-  const timer=document.getElementById('shadowTimer'),btn=document.getElementById('shadowBtn');
-  if(!shadowActive){
-    shadowActive=true;shadowSecs=300;timer.classList.remove('hidden');
-    btn.textContent='⏹ Stop';btn.className='btn btn-danger btn-sm';
-    shadowInterval=setInterval(()=>{
+  const t=document.getElementById('shtimer'),b=document.getElementById('shbtn');
+  if(!shadowOn){
+    shadowOn=true;shadowSecs=300;t.classList.remove('hid');
+    b.textContent='⏹ Stop';b.className='btn bdn bsm';
+    shadowIv=setInterval(()=>{
       shadowSecs--;
-      document.getElementById('shadowDisplay').textContent=Math.floor(shadowSecs/60)+':'+fmt2(shadowSecs%60);
+      document.getElementById('shdsp').textContent=Math.floor(shadowSecs/60)+':'+f2(shadowSecs%60);
       if(shadowSecs<=0){
-        clearInterval(shadowInterval);shadowActive=false;
-        btn.textContent='▶ Start 5-min';btn.className='btn btn-purple btn-sm';
+        clearInterval(shadowIv);shadowOn=false;
+        b.textContent='▶ Start 5-min';b.className='btn bpu bsm';
         stats.minsSpoken=(stats.minsSpoken||0)+5;stats.totalMins=(stats.totalMins||0)+5;
         if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+5;
-        saveStats();showToast('🎙 5 min shadowing logged!');renderOutputMeters();
+        saveST();toast('🎙 5 min shadowing logged!');renderMeters();
       }
     },1000);
-  } else {
-    clearInterval(shadowInterval);shadowActive=false;timer.classList.add('hidden');
-    btn.textContent='▶ Start 5-min';btn.className='btn btn-purple btn-sm';
-  }
+  }else{clearInterval(shadowIv);shadowOn=false;t.classList.add('hid');b.textContent='▶ Start 5-min';b.className='btn bpu bsm';}
 }
 
-// ════════════════════════════════════════════════════════
-// SPEECH RECOGNITION
-// ════════════════════════════════════════════════════════
-function toggleListening(){
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Speech recognition requires Chrome (desktop or Android).');return;}
+// ── SPEECH ────────────────────────────────────────────────────────────────────
+function toggleListen(){
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Speech recognition requires Chrome.');return;}
   if(listening){recognition&&recognition.stop();return;}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR();
-  recognition.continuous=true;
-  recognition.interimResults=true;
-  recognition.lang='en-US';
-  const spokenStart=Date.now();
-
-  // Track what's already been committed to the textarea
-  // so we never re-append the same final result
-  let committedText='';
-
+  recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
+  const t0=Date.now();
+  let committed='';
   recognition.onresult=e=>{
-    const display=document.getElementById('transcriptDisplay');
-    display.classList.remove('hidden');
-
-    // Rebuild display from resultIndex onward (not from 0)
-    // This prevents duplicating previous final results in the visual display
-    let interimHtml='';
-
+    const d=document.getElementById('trdsp');d.classList.remove('hid');
+    let ihtml='';
     for(let i=e.resultIndex;i<e.results.length;i++){
-      const r=e.results[i];
-      const conf=r[0].confidence;
-      const words=r[0].transcript.trim().split(' ');
-
-      words.forEach(w=>{
-        if(!w)return;
-        let cls='';
-        if(conf>0&&conf<0.6)cls='very-low';
-        else if(conf>0&&conf<0.8)cls='low';
-        interimHtml+=`<span class="transcript-word ${cls}">${w} </span>`;
-      });
-
-      // Only append to textarea when result is final AND not yet committed
-      if(r.isFinal){
-        const newText=r[0].transcript.trim();
-        committedText+=(committedText?' ':'')+newText;
-        const ta=document.getElementById('responseText');
-        ta.value=committedText;
-        onTextInput();
-      }
+      const r=e.results[i],cf=r[0].confidence;
+      r[0].transcript.trim().split(' ').forEach(w=>{if(!w)return;let cl='';if(cf>0&&cf<0.6)cl='vlo';else if(cf>0&&cf<0.8)cl='lo';ihtml+=`<span class="tword ${cl}">${w} </span>`;});
+      if(r.isFinal){committed+=(committed?' ':'')+r[0].transcript.trim();document.getElementById('rtxt').value=committed;onInput();}
     }
-
-    // Show committed text (normal) + latest interim (slightly muted)
-    const committedHtml=committedText
-      ? committedText.split(' ').map(w=>`<span class="transcript-word">${w} </span>`).join('')
-      : '';
-    display.innerHTML=(committedHtml+interimHtml)||'<span style="color:var(--text3)">Listening…</span>';
+    const ch=committed.split(' ').map(w=>`<span class="tword">${w} </span>`).join('');
+    d.innerHTML=(ch+ihtml)||'<span style="color:var(--tx3)">Listening…</span>';
   };
-
   recognition.onend=()=>{
-    listening=false;updateMicBtn();
-    const mins=Math.round((Date.now()-spokenStart)/60000);
-    if(mins>0){
-      stats.minsSpoken=(stats.minsSpoken||0)+mins;
-      stats.totalMins=(stats.totalMins||0)+mins;
-      if(!stats.studyDays)stats.studyDays={};
-      stats.studyDays[today]=(stats.studyDays[today]||0)+mins;
-      saveStats();renderOutputMeters();
-    }
+    listening=false;updMic();
+    const mn=Math.round((Date.now()-t0)/60000);
+    if(mn>0){stats.minsSpoken=(stats.minsSpoken||0)+mn;stats.totalMins=(stats.totalMins||0)+mn;if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+mn;saveST();renderMeters();}
   };
-  recognition.onerror=()=>{listening=false;updateMicBtn();};
-  recognition.start();listening=true;updateMicBtn();
+  recognition.onerror=()=>{listening=false;updMic();};
+  recognition.start();listening=true;updMic();
 }
-function updateMicBtn(){
-  const btn=document.getElementById('micBtn'),bar=document.getElementById('listeningBar');
-  if(listening){btn.className='btn btn-danger';btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Stop`;bar.classList.remove('hidden');}
-  else{btn.className='btn';btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak`;bar.classList.add('hidden');}
+function updMic(){
+  const b=document.getElementById('micbtn'),bar=document.getElementById('lisbar');
+  if(listening){b.className='btn bdn bsm';b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Stop`;bar.classList.remove('hid');}
+  else{b.className='btn bsm';b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak`;bar.classList.add('hid');}
 }
 
-// ════════════════════════════════════════════════════════
-// AI BRIDGE MODAL
-// ════════════════════════════════════════════════════════
-function openAnalysisModal(){
-  const text=document.getElementById('responseText').value.trim();if(!text)return;
-  currentAnalysisText=text;
-  const m=getMonthData(activeMonth);
-  const fullPrompt=m.aiPrompt.replace('{{TEXT}}',text);
-  navigator.clipboard.writeText(text).catch(()=>{});
-  document.getElementById('modalPromptBox').textContent=fullPrompt;
-  document.getElementById('jsonInput').value='';
-  document.getElementById('copiedBadge').classList.remove('show');
-  openModal('modalAI');
+// ── AI BRIDGE ─────────────────────────────────────────────────────────────────
+function openAIModal(){
+  const t=document.getElementById('rtxt').value.trim();if(!t)return;
+  curText=t;
+  const m=mdata(activeMonth);
+  const fp=m.ai.replace('{{T}}',t);
+  navigator.clipboard.writeText(t).catch(()=>{});
+  document.getElementById('mpbox').textContent=fp;
+  document.getElementById('jsonin').value='';
+  document.getElementById('cpbdg').classList.remove('on');
+  openM('mAI');
 }
-function copyFullPrompt(){
-  const text=document.getElementById('responseText').value.trim();
-  const m=getMonthData(activeMonth);
-  const fullPrompt=m.aiPrompt.replace('{{TEXT}}',text);
-  navigator.clipboard.writeText(fullPrompt).then(()=>{document.getElementById('copiedBadge').classList.add('show');});
+function copyPrompt(){
+  const t=document.getElementById('rtxt').value.trim();
+  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
+  navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
 }
 function processJSON(){
-  const raw=document.getElementById('jsonInput').value.trim();
-  if(!raw){showToast('⚠️ Paste Claude\'s JSON first');return;}
-  let result;
-  try{result=JSON.parse(raw.replace(/```json|```/g,'').trim());}
-  catch(e){showToast('⚠️ Invalid JSON — copy Claude\'s full response');return;}
-  closeModal('modalAI');
-  const words=currentAnalysisText.trim().split(/\s+/).filter(Boolean).length;
-  stats.wordsToday=(stats.wordsToday||0)+words;stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(words/100)*5);
-  if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(words/100)*5);
-  saveStats();renderOutputMeters();
-  renderAnalysis(result);
+  const raw=document.getElementById('jsonin').value.trim();
+  if(!raw){toast('⚠️ Paste Claude\'s JSON first');return;}
+  let r;
+  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+  catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  closeM('mAI');
+  const w=curText.trim().split(/\s+/).filter(Boolean).length;
+  stats.wordsToday=(stats.wordsToday||0)+w;stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
+  if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(w/100)*5);
+  saveST();renderMeters();
+  renderAnalysis(r);
 }
 function renderAnalysis(r){
-  const lc={B1:'var(--yellow)',B2:'var(--blue)',C1:'var(--green)',C2:'var(--purple)'};
-  let html=`<div class="card fb" style="align-items:flex-start">
-    <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">Estimated Level</div>
-    <div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:${lc[r.level_estimate]||'var(--blue)'}">${r.level_estimate||'—'}</div></div>
-    <div style="max-width:60%;text-align:right;font-size:13px;color:var(--text2);line-height:1.5">${esc(r.overall_feedback||'')}</div>
-  </div>`;
+  const lc={B1:'var(--yw)',B2:'var(--bl)',C1:'var(--gr)',C2:'var(--pu)'};
+  let h=`<div class="card fb" style="align-items:flex-start"><div><div style="font-size:11px;color:var(--tx3);margin-bottom:4px">Estimated Level</div><div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:${lc[r.level_estimate]||'var(--bl)'}">${r.level_estimate||'—'}</div></div><div style="max-width:60%;text-align:right;font-size:13px;color:var(--tx2);line-height:1.5">${esc(r.overall_feedback||'')}</div></div>`;
   if(r.corrections?.length){
-    html+=`<div class="card"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="grid-gap">`;
-    r.corrections.forEach(c=>{html+=`<div class="correction-item"><div class="corr-wrong">✗ ${esc(c.original)}</div><div class="corr-right">✓ ${esc(c.corrected)}</div><div class="corr-why">${esc(c.explanation)}</div></div>`;});
-    html+='</div></div>';
+    h+=`<div class="card"><div class="ctit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="gg">`;
+    r.corrections.forEach(c=>{h+=`<div class="corr"><div class="cwrong">✗ ${esc(c.original)}</div><div class="cright">✓ ${esc(c.corrected)}</div><div class="cwhy">${esc(c.explanation)}</div></div>`;});
+    h+='</div></div>';
   }
   if(r.c1_upgrades?.length){
-    // Store upgrades in a temp global so buttons can reference by index — avoids HTML attribute escaping issues
-    window._pendingUpgrades=r.c1_upgrades;
-    html+=`<div class="card"><div class="fb" style="margin-bottom:12px"><div class="card-title" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>C1 Vocabulary Upgrades</div></div><div class="grid-gap">`;
+    pendingUpgrades=r.c1_upgrades;
+    h+=`<div class="card"><div class="fb" style="margin-bottom:12px"><div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>C1 Vocabulary Upgrades</div></div><div class="gg">`;
     r.c1_upgrades.forEach((u,i)=>{
-      html+=`<div class="upgrade-item"><div style="flex:1">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">
-          <span style="font-size:12px;color:var(--text3);text-decoration:line-through">${esc(u.simple)}</span>
-          <span style="color:var(--text3)">→</span>
-          <span style="font-size:13px;font-weight:600;color:var(--blue-t)">${esc(u.c1)}</span>
-        </div>
-        <div style="font-size:12px;color:var(--text2);font-style:italic">"${esc(u.example)}"</div>
-      </div>
-      <button class="btn btn-primary btn-sm" id="saveUpgradeBtn${i}" onclick="saveUpgrade(${i})">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save
-      </button></div>`;
+      h+=`<div class="upitem"><div style="flex:1"><div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px"><span style="font-size:12px;color:var(--tx3);text-decoration:line-through">${esc(u.simple)}</span><span style="color:var(--tx3)">→</span><span style="font-size:13px;font-weight:600;color:var(--bl-t)">${esc(u.c1)}</span></div><div style="font-size:12px;color:var(--tx2);font-style:italic">"${esc(u.example)}"</div></div><button class="btn bpr bsm" id="sub${i}" onclick="saveUpgrade(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save</button></div>`;
     });
-    html+='</div></div>';
+    h+='</div></div>';
   }
-  const el=document.getElementById('analysisResults');el.innerHTML=html;el.classList.remove('hidden');
+  const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
 }
-
-// Safe save from analysis results — reads from temp global, no HTML attribute escaping issues
 function saveUpgrade(i){
-  const u=window._pendingUpgrades&&window._pendingUpgrades[i];
-  if(!u)return;
-  const btn=document.getElementById('saveUpgradeBtn'+i);
+  const u=pendingUpgrades[i];if(!u)return;
   saveCard(u.simple,u.c1,u.example,'upgrade');
-  if(btn){btn.textContent='✓ Saved';btn.disabled=true;btn.style.background='var(--green-l)';btn.style.color='var(--green)';btn.style.borderColor='var(--green-b)';}
+  const b=document.getElementById('sub'+i);
+  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:var(--gr-l);color:var(--gr);border-color:var(--gr-b);padding:5px 10px;font-size:11px;border-radius:var(--rs);border:1px solid;cursor:default';}
 }
 
-// ════════════════════════════════════════════════════════
-// SAVE CARD
-// ════════════════════════════════════════════════════════
-function saveCard(simple,c1,example,type='upgrade',chunk=''){
-  if(cards.find(c=>c.simple===simple)){showToast('Already saved!');return;}
-  const{date,intervalIdx,easiness}=nextReview(2,-1,2.5);
-  cards.unshift({id:Date.now().toString(),simple,c1,example,type,chunk,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today});
-  saveCards();showToast('Saved to SRS! 🎉');render();
+// ── CARDS ─────────────────────────────────────────────────────────────────────
+function saveCard(simple,c1,example,type='upgrade'){
+  if(cards.find(c=>c.simple===simple)){toast('Already saved!');return;}
+  const{date,intervalIdx,easiness}=nxtRev(2,-1,2.5);
+  cards.unshift({id:Date.now().toString(),simple,c1,example,type,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today});
+  saveCA();toast('Saved to SRS! 🎉');render();
 }
 function saveChunk(){
-  const kw=document.getElementById('chunkKw')?.value.trim();
-  const ex=document.getElementById('chunkEx')?.value.trim();
-  if(!kw||!ex){showToast('Fill in both fields');return;}
-  saveCard(kw,'(collocation)',ex,'chunk',ex);
-  document.getElementById('chunkKw').value='';document.getElementById('chunkEx').value='';
+  const k=document.getElementById('chkw')?.value.trim(),e=document.getElementById('chex')?.value.trim();
+  if(!k||!e){toast('Fill both fields');return;}
+  saveCard(k,'(collocation)',e,'chunk');
+  document.getElementById('chkw').value='';document.getElementById('chex').value='';
 }
 
-// ════════════════════════════════════════════════════════
-// EDIT CARD MODAL (inline in page, no separate HTML needed)
-// ════════════════════════════════════════════════════════
-function openEditCard(id){
-  const card=cards.find(c=>c.id===id);if(!card)return;
-  // Build modal HTML dynamically and inject into body
-  const existing=document.getElementById('editCardModal');
-  if(existing)existing.remove();
-  const overlay=document.createElement('div');
-  overlay.id='editCardModal';
-  overlay.className='modal-overlay';
-  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
-  overlay.innerHTML=`
-    <div class="modal">
-      <div class="modal-hdr">
-        <div class="modal-title">✏️ Edit Card</div>
-        <button class="btn btn-sm btn-icon" onclick="document.getElementById('editCardModal').remove()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Simple / Original</label>
-          <input type="text" id="editSimple" value="${esc(card.simple)}">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">C1 Expression</label>
-          <input type="text" id="editC1" value="${esc(card.c1)}">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Example sentence</label>
-          <textarea id="editExample" style="min-height:70px">${esc(card.example||'')}</textarea>
-
-```
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap">
-      <button class="btn btn-danger btn-sm" onclick="confirmDeleteCard('${id}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        Delete
-      </button>
-      <div class="flex gap-8">
-        <button class="btn btn-sm" onclick="document.getElementById('editCardModal').remove()">Cancel</button>
-        <button class="btn btn-primary btn-sm" onclick="saveEditCard('${id}')">Save Changes</button>
-      </div>
-    </div>
-  </div>
-</div>`;
-```
-
-document.body.appendChild(overlay);
+// ── EDIT CARD ─────────────────────────────────────────────────────────────────
+function openEdit(id){
+  const c=cards.find(x=>x.id===id);if(!c)return;
+  editCardId=id;
+  document.getElementById('ec_sim').value=c.simple||'';
+  document.getElementById('ec_c1').value=c.c1||'';
+  document.getElementById('ec_ex').value=c.example||'';
+  openM('mEC');
+}
+function saveEdit(){
+  const s=document.getElementById('ec_sim').value.trim();
+  const c=document.getElementById('ec_c1').value.trim();
+  const e=document.getElementById('ec_ex').value.trim();
+  if(!s||!c){toast('⚠️ Simple and C1 are required');return;}
+  const i=cards.findIndex(x=>x.id===editCardId);
+  if(i>=0){cards[i].simple=s;cards[i].c1=c;cards[i].example=e;}
+  saveCA();closeM('mEC');toast('✅ Card updated!');renderCards();render();
+}
+function confirmDel(){
+  const c=cards.find(x=>x.id===editCardId);if(!c)return;
+  if(confirm(`Delete "${c.simple} → ${c.c1}"?`)){
+    closeM('mEC');
+    cards=cards.filter(x=>x.id!==editCardId);
+    saveCA();toast('Deleted');renderCards();render();
+  }
 }
 
-function saveEditCard(id){
-const simple=document.getElementById(‘editSimple’).value.trim();
-const c1=document.getElementById(‘editC1’).value.trim();
-const example=document.getElementById(‘editExample’).value.trim();
-if(!simple||!c1){showToast(‘⚠️ Simple and C1 fields are required’);return;}
-const idx=cards.findIndex(c=>c.id===id);
-if(idx>=0){cards[idx].simple=simple;cards[idx].c1=c1;cards[idx].example=example;}
-saveCards();
-document.getElementById(‘editCardModal’).remove();
-showToast(‘✅ Card updated!’);
-renderCards();render();
+// ── REVIEW ────────────────────────────────────────────────────────────────────
+function renderRev(){
+  const dv=due();
+  document.getElementById('duecnt').textContent=dv.length+' due today';
+  const c=document.getElementById('revcontent');
+  if(dv.length===0){c.innerHTML=`<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>`;return;}
+  if(flashIdx>=dv.length)flashIdx=0;
+  const card=dv[flashIdx];
+  let dots='<div class="pdots">';
+  dv.forEach((_,i)=>dots+=`<div class="pdot2${i<flashIdx?' dn':i===flashIdx?' cu':''}"></div>`);
+  dots+='</div>';
+  let ch='';
+  if(!flipped){
+    const isCloze=card.type==='chunk';
+    const front=isCloze&&card.example?card.example.replace(card.simple,'<span class="fblank"></span>'):card.simple;
+    ch=`<div class="fcard2" onclick="flipCard()"><div class="fhint">${isCloze?'Cloze — fill the blank':'Simple version'}</div><div class="${isCloze?'fcloze':'fword'}">${front}</div>${!isCloze?`<div style="font-size:11px;color:var(--tx3);margin-top:8px">What's the C1 version?</div>`:''}<div class="ftap">Tap to reveal →</div></div><p style="text-align:center;font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace;margin-top:8px">${flashIdx+1} / ${dv.length}</p>`;
+  }else{
+    ch=`<div class="fcard2" onclick="flipCard()"><div class="fhint" style="color:var(--bl)">C1 expression</div><div class="fword bl">${esc(card.c1)}</div>${card.example?`<div class="fex">"${esc(card.example)}"</div>`:''}<div class="ftap">← ${esc(card.simple)}</div></div><div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>`;
+  }
+  c.innerHTML=dots+ch;
+}
+function flipCard(){flipped=!flipped;renderRev();}
+function handleRev(q){
+  const dv=due(),card=dv[flashIdx];if(!card)return;
+  const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
+  const i=cards.findIndex(c=>c.id===card.id);
+  if(i>=0){cards[i].nextReview=date;cards[i].intervalIdx=intervalIdx;cards[i].easiness=easiness;}
+  saveCA();flipped=false;
+  setTimeout(()=>{const nd=due();flashIdx=nd.length===0?0:Math.min(flashIdx,nd.length-1);renderRev();render();},150);
 }
 
-function confirmDeleteCard(id){
-const card=cards.find(c=>c.id===id);
-if(!card)return;
-if(confirm(`Delete "${card.simple} → ${card.c1}"?\nThis cannot be undone.`)){
-document.getElementById(‘editCardModal’)?.remove();
-deleteCard(id);
-}
-}
-
-// ════════════════════════════════════════════════════════
-// REVIEW
-// ════════════════════════════════════════════════════════
-function renderReview(){
-const due=dueCards();
-document.getElementById(‘dueCount’).textContent=due.length+’ due today’;
-const c=document.getElementById(‘reviewContent’);
-if(due.length===0){c.innerHTML=`<div class="card empty"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="empty-title">All caught up! 🎉</div><div class="empty-sub">No cards due today.</div></div>`;return;}
-if(flashIdx>=due.length)flashIdx=0;
-const card=due[flashIdx];
-const isCloze=card.type===‘chunk’;
-let dots=’<div class="prog-dots">’;
-due.forEach((_,i)=>dots+=`<div class="prog-dot${i<flashIdx?' done':i===flashIdx?' cur':''}"></div>`);
-dots+=’</div>’;
-let cardHtml=’’;
-if(!flipped){
-const front=isCloze&&card.example?card.example.replace(card.simple,`<span class="fc-blank"></span>`):card.simple;
-cardHtml=`<div class="flashcard" onclick="flipCard()"> <div class="fc-hint">${isCloze?'Cloze — fill the blank':'Simple version'}</div> <div class="${isCloze?'fc-cloze':'fc-word'}">${front}</div> ${!isCloze?`<div style="font-size:11px;color:var(--text3);margin-top:8px">What’s the C1 version?</div>`:''} <div class="fc-tap">Tap to reveal →</div> </div> <p style="text-align:center;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:8px">${flashIdx+1} / ${due.length}</p>`;
-} else {
-cardHtml=`<div class="flashcard" onclick="flipCard()"> <div class="fc-hint" style="color:var(--blue)">C1 expression</div> <div class="fc-word blue">${esc(card.c1)}</div> ${card.example?`<div class="fc-example">”${esc(card.example)}”</div>`:''} <div class="fc-tap">← ${esc(card.simple)}</div> </div> <div class="review-btns"> <button class="rb hard" onclick="handleReview(1)"><div class="rb-label">Hard</div><div class="rb-sub">+1d</div></button> <button class="rb good" onclick="handleReview(3)"><div class="rb-label">Good</div><div class="rb-sub">+3d</div></button> <button class="rb easy" onclick="handleReview(5)"><div class="rb-label">Easy</div><div class="rb-sub">+7d</div></button> </div>`;
-}
-c.innerHTML=dots+cardHtml;
-}
-function flipCard(){flipped=!flipped;renderReview();}
-function handleReview(quality){
-const due=dueCards(),card=due[flashIdx];if(!card)return;
-const{date,intervalIdx,easiness}=nextReview(quality,card.intervalIdx||0,card.easiness||2.5);
-const idx=cards.findIndex(c=>c.id===card.id);
-if(idx>=0){cards[idx].nextReview=date;cards[idx].intervalIdx=intervalIdx;cards[idx].easiness=easiness;}
-saveCards();flipped=false;
-setTimeout(()=>{const nd=dueCards();flashIdx=nd.length===0?0:Math.min(flashIdx,nd.length-1);renderReview();render();},150);
-}
-
-// ════════════════════════════════════════════════════════
-// MY CARDS
-// ════════════════════════════════════════════════════════
+// ── MY CARDS ──────────────────────────────────────────────────────────────────
 function renderCards(){
-const el=document.getElementById(‘cardsList’);
-if(cards.length===0){el.innerHTML=`<div class="card empty"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="empty-title">No cards yet</div><div class="empty-sub">Analyze your writing in Practice and save C1 upgrades.</div><button class="btn btn-primary" onclick="goTab('practice')">Go to Practice →</button></div>`;return;}
-let html=`<div class="card card-sm" style="background:var(--surface2);margin-bottom:4px">
-<div class="card-title" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Collocation / Chunk</div>
-<div style="display:grid;gap:8px">
-<input type="text" id="chunkKw" placeholder="Keyword (e.g. reach)" style="min-height:unset;height:38px;resize:none">
-<input type="text" id="chunkEx" placeholder="Full collocation (e.g. To reach a consensus)" style="min-height:unset;height:38px;resize:none">
-<button class="btn btn-purple btn-sm" onclick="saveChunk()" style="justify-self:end">Save Chunk</button>
-</div>
-
-  </div>`;
-  html+='<div class="grid-gap">'+cards.map(c=>{
-    const isDue=c.nextReview<=today;
-    const tTag=c.type==='chunk'?'<span class="tag tag-purple">chunk</span>':'';
-    return `<div class="card-item ${isDue?'due':''}">
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">
-          <span class="ci-simple">${esc(c.simple)}</span>
-          <span style="color:var(--text3);font-size:12px">→</span>
-          <span class="ci-c1">${esc(c.c1)}</span>${tTag}
-        </div>
-        ${c.example?`<div style="font-size:12px;color:var(--text2);font-style:italic;margin:2px 0 5px;word-break:break-word">"${esc(c.example)}"</div>`:''}
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span class="tag ${isDue?'tag-red':'tag-green'}">${isDue?'Due today':'Next: '+c.nextReview}</span>
-          <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">EF ${(c.easiness||2.5).toFixed(1)}</span>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px">
-        <button onclick="openEditCard('${c.id}')" title="Edit" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center;justify-content:center">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-        <button onclick="confirmDeleteCard('${c.id}')" title="Delete" style="background:var(--red-l);border:1px solid var(--red-b);border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center;justify-content:center">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        </button>
-      </div>
-    </div>`;
+  const el=document.getElementById('cardslist');
+  if(cards.length===0){el.innerHTML=`<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Analyze your writing and save C1 upgrades.</div><button class="btn bpr" onclick="goTab('prac')">Go to Practice →</button></div>`;return;}
+  let h=`<div class="card csm" style="background:var(--sur2);margin-bottom:4px"><div class="ctit" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Collocation / Chunk</div><div style="display:grid;gap:8px"><input type="text" id="chkw" placeholder="Keyword (e.g. reach)" style="min-height:unset;height:38px;resize:none"><input type="text" id="chex" placeholder="Full collocation (e.g. To reach a consensus)" style="min-height:unset;height:38px;resize:none"><button class="btn bpu bsm" onclick="saveChunk()" style="justify-self:end">Save Chunk</button></div></div>`;
+  h+='<div class="gg">'+cards.map(c=>{
+    const id=c.nextReview<=today;
+    const tt=c.type==='chunk'?'<span class="tag tpu">chunk</span>':'';
+    return `<div class="citem${id?' due':''}"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px"><span class="cisim">${esc(c.simple)}</span><span style="color:var(--tx3);font-size:12px">→</span><span class="cic1">${esc(c.c1)}</span>${tt}</div>${c.example?`<div style="font-size:12px;color:var(--tx2);font-style:italic;margin:2px 0 5px;word-break:break-word">"${esc(c.example)}"</div>`:''}<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag ${id?'trd':'tgg'}">${id?'Due today':'Next: '+c.nextReview}</span><span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">EF ${(c.easiness||2.5).toFixed(1)}</span></div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px"><button onclick="openEdit('${c.id}')" title="Edit" style="background:var(--sur2);border:1px solid var(--bor);border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--bl)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button onclick="editCardId='${c.id}';confirmDel()" title="Delete" style="background:var(--rd-l);border:1px solid var(--rd-b);border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></div>`;
   }).join('')+'</div>';
-  el.innerHTML=html;
+  el.innerHTML=h;
 }
-function deleteCard(id){cards=cards.filter(c=>c.id!==id);saveCards();renderCards();render();}
 
-// ════════════════════════════════════════════════════════
-// EXPORT
-// ════════════════════════════════════════════════════════
+// ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
+const CTAGS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Science','Tech','Philosophy','Culture','Business'];
+function openM(id){
+  document.getElementById(id).classList.remove('hid');
+  if(id==='mCL'){
+    selTags=[];
+    const g=document.getElementById('cltaggrid');
+    g.innerHTML=CTAGS.map(t=>`<button onclick="toggleTag('${t}',this)" style="padding:5px 9px;border-radius:20px;border:1px solid var(--bor);background:transparent;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s">${t}</button>`).join('');
+  }
+}
+function toggleTag(t,b){
+  if(selTags.includes(t)){selTags=selTags.filter(x=>x!==t);b.style.cssText='padding:5px 9px;border-radius:20px;border:1px solid var(--bor);background:transparent;font-size:11px;font-family:DM Mono,monospace;cursor:pointer';}
+  else{selTags.push(t);b.style.cssText='padding:5px 9px;border-radius:20px;border:none;background:var(--bl);color:#fff;font-size:11px;font-family:DM Mono,monospace;cursor:pointer';}
+}
+function saveCustomLesson(){
+  const tit=document.getElementById('cltit').value.trim();
+  const url=document.getElementById('clurl').value.trim();
+  const prom=document.getElementById('clprompt').value.trim();
+  if(!tit||!url){toast('⚠️ Title and URL required');return;}
+  const l={id:'cl'+Date.now(),month:activeMonth,title:tit,url,desc:'Custom lesson.',tags:selTags.length?selTags:['Custom'],level:'C1',prompt:prom||'Study this resource. Write a 150-200 word response using new vocabulary naturally.',isCustom:true,created:today};
+  customLessons.push(l);saveCU();
+  document.getElementById('cltit').value='';document.getElementById('clurl').value='';document.getElementById('clprompt').value='';
+  closeM('mCL');toast('✅ Custom lesson saved!');renderPrac();
+}
+function delCustom(id){
+  customLessons=customLessons.filter(l=>l.id!==id);saveCU();
+  if(activeLesson&&activeLesson.id===id){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}
+  renderPrac();toast('Lesson removed');
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
 function exportCSV(){
-const rows=[[‘Simple’,‘C1 Expression’,‘Example’,‘Type’,‘Next Review’,‘Easiness Factor’,‘Created’]];
-cards.forEach(c=>rows.push([c.simple,c.c1,c.example,c.type||‘upgrade’,c.nextReview,(c.easiness||2.5).toFixed(2),c.created||’’]));
-const csv=rows.map(r=>r.map(v=>’”’+(v||’’).replace(/”/g,’””’)+’”’).join(’,’)).join(’\n’);
-dl(csv,‘english-c1-cards.csv’,‘text/csv’);
+  const rows=[['Simple','C1','Example','Type','Next Review','EF','Created']];
+  cards.forEach(c=>rows.push([c.simple,c.c1,c.example,c.type||'upgrade',c.nextReview,(c.easiness||2.5).toFixed(2),c.created||'']));
+  dl(rows.map(r=>r.map(v=>'"'+(v||'').replace(/"/g,'""')+'"').join(',')).join('\n'),'c1-cards.csv','text/csv');
 }
-function exportAnki(){
-const txt=cards.map(c=>`${c.simple}\t${c.c1}\t${c.example||''}`).join(’\n’);
-dl(txt,‘english-c1-anki.txt’,‘text/plain’);
-}
-function dl(content,filename,mime){
-const a=document.createElement(‘a’);a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=filename;a.click();
-}
+function exportAnki(){dl(cards.map(c=>`${c.simple}\t${c.c1}\t${c.example||''}`).join('\n'),'c1-anki.txt','text/plain');}
+function dl(ct,fn,mt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ct],{type:mt}));a.download=fn;a.click();}
 
-// ════════════════════════════════════════════════════════
-// STARTUP — runs after ALL functions are defined
-// Firebase loads separately after this and calls startFirebaseSync()
-// ════════════════════════════════════════════════════════
-loadFromLocal();
-revealApp();
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+load();
+setSS('offline');
+buildRail();
+renderDash();
+render();
+initSesTimer();
 </script>
 
-<!-- Firebase loaded AFTER app renders — never blocks the UI -->
+<!-- Firebase loads AFTER app is visible — never blocks render -->
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" onload="startSync()" onerror="setSS('offline')"></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<script>
-// Firebase available now — start sync
-if(typeof firebase !== 'undefined') startFirebaseSync();
-</script>
 
 </body>
 </html>
