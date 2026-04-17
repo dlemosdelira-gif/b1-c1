@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English C1 — v3.3</title>
+<title>English C1 — v3.6</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
-.app{max-width:760px;margin:0 auto;padding-bottom:80px}
+html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;color:#0F172A;font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh; -webkit-tap-highlight-color: transparent;}
+.app{width:100%; max-width:860px;margin:0 auto;padding-bottom:80px; overflow-x:hidden;}
 
 /* ── HEADER ── */
-.hdr{background:#fff;border-bottom:1px solid #DDE3F5;padding:11px 18px 0;position:sticky;top:0;z-index:100}
+.hdr{background:#fff;border-bottom:1px solid #DDE3F5;padding:11px 18px 0;position:sticky;top:0;z-index:100;width:100%;max-width:100vw;}
 .hdr-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
 .logo{display:flex;align-items:center;gap:9px;min-width:0}
 .logo-ic{width:32px;height:32px;background:#2563EB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-ic svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
-.logo-name{font-size:14px;font-weight:600}
+.logo-name{font-size:14px;font-weight:600; white-space: nowrap;}
 .logo-sub{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px;margin-top:1px}
 .sdot{width:6px;height:6px;border-radius:50%;background:#16A34A;flex-shrink:0}
 .sdot.off{background:#94A3B8}.sdot.sy{background:#D97706;animation:pulse 1s infinite}
@@ -24,28 +24,29 @@ html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-fam
 .hs{text-align:center}
 .hs-v{font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center}
 .hs-l{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
-.nav{display:flex;width:100%}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:#94A3B8;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative}
+.nav{display:flex;width:100%; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;}
+.nav::-webkit-scrollbar { display: none; }
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:#94A3B8;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative; min-width: 65px;}
 .nb svg{width:15px;height:15px}
 .nb.on{color:#2563EB;border-bottom-color:#2563EB}
 .nbdg{position:absolute;top:4px;right:4px;background:#DC2626;color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;display:none}
 .nbdg.on{display:block}
 
 /* ── PAGE ── */
-.pg{padding:14px;display:grid;gap:12px}
+.pg{padding:14px;display:grid;gap:12px; width:100%; max-width:100vw; overflow-x:hidden;}
 .hid{display:none!important}
 
-/* ── CARDS ── */
-.card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px}
+/* ── CARDS (Travar Vazamento) ── */
+.card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px; width:100%; overflow:hidden;}
 .csm{padding:11px 13px}
 .ctit{font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 
 /* ── TOP GRID ── */
-.top-grid{display:grid;grid-template-columns:1.2fr 1fr 1.3fr;gap:10px}
+.top-grid{display:grid;grid-template-columns:1.2fr 1fr 1.3fr;gap:10px; width:100%;}
 @media(max-width:600px){.top-grid{grid-template-columns:1fr}}
 
 /* ── FLIGHT CARD ── */
-.flt{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:12px;padding:14px;color:#fff}
+.flt{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:12px;padding:14px;color:#fff; width:100%;}
 .flt-lbl{font-size:9px;letter-spacing:1.5px;font-family:'DM Mono',monospace;opacity:.7;margin-bottom:4px}
 .flt-h{font-size:26px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:2px;color:#fff}
 .flt-sub{font-size:11px;opacity:.7;margin-bottom:10px;color:#fff}
@@ -54,7 +55,7 @@ html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-fam
 .flt-mv{font-size:13px;font-weight:600;color:#fff;display:block}
 
 /* ── OUTPUT CARD ── */
-.out-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.out-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px; width:100%; overflow:hidden;}
 .out-row{display:flex;flex-direction:column;gap:2px}
 .out-lbl{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace;letter-spacing:1px}
 .out-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace}
@@ -64,30 +65,30 @@ html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-fam
 .out-log{display:flex;align-items:center;gap:5px;margin-top:4px}
 
 /* ── ROADMAP CARD ── */
-.rm-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
-.rm-sel{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.rm-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px; width:100%; overflow:hidden;}
+.rm-sel{display:grid;grid-template-columns:repeat(6,1fr);gap:3px; width:100%;}
 .rm-btn{padding:4px 2px;border-radius:6px;border:1px solid #DDE3F5;background:transparent;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:#475569;text-align:center;transition:all .15s;line-height:1.3}
 .rm-btn:hover{border-color:#BFDBFE;background:#EFF6FF}
 .rm-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
 .rm-theme{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:8px;margin-top:2px}
 .rm-icon{font-size:16px;flex-shrink:0}
-.rm-info{}
 .rm-ph{font-size:9px;font-weight:600;letter-spacing:1px;font-family:'DM Mono',monospace;margin-bottom:1px}
 .rm-name{font-size:12px;font-weight:600;color:#0F172A}
 .rm-desc{font-size:11px;color:#475569;line-height:1.4;margin-top:1px}
 
 /* ── HEATMAP ── */
-.hm-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.hm-grid{display:flex;gap:3px;padding:4px 0}
+.hm-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; width:100%; padding-bottom:4px;}
+.hm-wrap::-webkit-scrollbar { display: none; }
+.hm-grid{display:flex;gap:3px;}
 .hm-col{display:flex;flex-direction:column;gap:3px}
-.hm-c{width:11px;height:11px;border-radius:2px;background:#CBD5E1}
+.hm-c{width:11px;height:11px;border-radius:2px;background:#CBD5E1; flex-shrink:0;}
 .hm-c.l1{background:#93C5FD}.hm-c.l2{background:#3B82F6}.hm-c.l3{background:#2563EB}.hm-c.l4{background:#1D4ED8}
 .hm-months{display:flex;gap:3px;padding:0 0 3px}
 .hm-ml{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
 
 /* ── CHECKINS ── */
-.ci-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.ci-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 4px;border-radius:10px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;min-height:80px}
+.ci-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px; width:100%;}
+.ci-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 4px;border-radius:10px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;min-height:70px}
 .ci-btn.dn{background:#F0FDF4;border-color:#BBF7D0}
 .ci-btn.td{background:#EFF6FF;border-color:#BFDBFE}
 .ci-lbl{font-size:11px;color:#475569;font-weight:500}
@@ -98,18 +99,16 @@ html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-fam
 .pbar{height:5px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-top:8px}
 .pfil{height:100%;border-radius:4px;transition:width .4s;background:#16A34A}
 
-/* ── STAT ROW (below heatmap) ── */
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+/* ── STAT ROW ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px; width:100%;}
 .sc{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:12px 8px;text-align:center}
 .sc-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin:0 auto 5px}
 .sc-ic svg{width:13px;height:13px;stroke-width:2}
 .sc-v{font-size:17px;font-weight:700;margin-bottom:2px;color:#0F172A}
 .sc-l{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace}
 
-/* ── ALERT ── */
+/* ── BUTTONS & OTHERS ── */
 .alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-
-/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid #DDE3F5;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:#fff;color:#475569}
 .btn:hover{background:#F1F5F9}
 .btn:active{transform:scale(.97)}
@@ -122,138 +121,97 @@ html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-fam
 .bsm{padding:4px 10px;font-size:11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* ── TAGS ── */
+/* ── TAGS & LESSONS ── */
 .tag{font-size:10px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:inline-flex;align-items:center;font-weight:500}
 .tgr{background:#F1F5F9;color:#475569;border:1px solid #DDE3F5}
 .tbl{background:#EFF6FF;color:#1D4ED8}
 .tpu{background:#F5F3FF;color:#7C3AED}
 .trd{background:#FEF2F2;color:#DC2626}
 .tgg{background:#F0FDF4;color:#16A34A}
-.tyw{background:#FFFBEB;color:#D97706}
 .tcu{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
 
-/* ── LESSONS ── */
-.lcard{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:13px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lcard{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:13px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:10px; width:100%;}
 .lcard:hover{border-color:#BFDBFE}
 .lcard.on{background:#EFF6FF;border-color:#2563EB}
 .lcard.custom{border-left:3px solid #F97316}
 .ltit{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#0F172A}
 .ldsc{font-size:12px;color:#475569;line-height:1.5;margin-bottom:6px}
 
-/* ── PROMPT BOX ── */
-.pbox{border-radius:8px;padding:12px 14px;border-left:3px solid #2563EB;background:#EFF6FF;border:1px solid #BFDBFE;border-left:3px solid #2563EB}
+.pbox{border-radius:8px;padding:12px 14px;border-left:3px solid #2563EB;background:#EFF6FF;border:1px solid #BFDBFE}
 .pbox.m2{background:#F0FDF4;border-color:#BBF7D0;border-left-color:#16A34A}
 .pbox.m3{background:#F5F3FF;border-color:#DDD6FE;border-left-color:#7C3AED}
 .plbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;color:#2563EB}
-.pbox.m2 .plbl{color:#16A34A}.pbox.m3 .plbl{color:#7C3AED}
-.dbadge{font-size:10px;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;background:#EFF6FF;color:#1D4ED8}
-.dbadge.m2{background:#F0FDF4;color:#16A34A}
-.dbadge.m3{background:#F5F3FF;color:#7C3AED}
 
 /* ── INPUTS ── */
-textarea,input[type=text]{width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;background:#F8FAFF;color:#0F172A;resize:vertical;transition:border-color .15s}
+textarea,input[type=text]{width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;background:#F8FAFF;color:#0F172A;resize:vertical;}
 textarea:focus,input[type=text]:focus{outline:none;border-color:#2563EB;background:#fff}
 textarea{min-height:120px}
 
-/* ── SHADOWING ── */
+/* ── MODALS & OTHERS ── */
 .stimer{background:linear-gradient(135deg,#F5F3FF,#EFF6FF);border:1px solid #DDD6FE;border-radius:12px;padding:16px;text-align:center}
-.stdsp{font-size:40px;font-weight:700;font-family:'DM Mono',monospace;color:#7C3AED;margin:8px 0}
-.sttips{display:grid;gap:5px;text-align:left;margin-top:10px}
-.sttip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4}
-.lisbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FEF2F2;border-radius:8px;margin-bottom:8px}
-.pdot{width:8px;height:8px;border-radius:50%;background:#DC2626;animation:pulse 1s infinite}
-.tword{padding:1px 2px;border-radius:3px;display:inline}
-.tword.lo{background:#FDE68A;color:#92400E}
-.tword.vlo{background:#FECACA;color:#DC2626}
-
-/* ── MODAL ── */
 .mov{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:#fff;border-radius:12px;width:calc(100vw - 32px);max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
-.mhdr{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.mhdr{padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .mtit{font-size:15px;font-weight:600;color:#0F172A}
 .mbdy{padding:0 16px 16px;display:grid;gap:12px}
-.mstep{display:flex;gap:10px;align-items:flex-start}
-.mnum{width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.cbdg{display:none;font-size:12px;color:#16A34A;font-weight:500;align-items:center;gap:4px}
-.cbdg.on{display:flex}
 
-/* ── FLASHCARD ── */
-.fcard{background:#fff;border:1px solid #DDE3F5;border-radius:16px;min-height:200px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .15s}
-.fcard:hover{border-color:#BFDBFE}
-.fhint{font-size:10px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
-.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.3;color:#0F172A}
-.fword.bl{color:#1D4ED8}
-.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A}
-.fblank{display:inline-block;background:#BFDBFE;border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
-.fex{font-size:12px;color:#475569;font-style:italic;margin-bottom:6px}
-.ftap{font-size:11px;color:#94A3B8}
-.rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.rb{padding:10px 6px;border-radius:10px;border:1px solid #DDE3F5;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center;background:#fff}
-.rb:active{transform:scale(.97)}
-.rbl{font-size:13px;font-weight:600;margin-bottom:2px}
-.rbs{font-size:10px;opacity:.75;font-family:'DM Mono',monospace}
-.rb.hard{background:#FEF2F2;border-color:#FECACA;color:#DC2626}
-.rb.good{background:#FFFBEB;border-color:#FDE68A;color:#D97706}
-.rb.easy{background:#F0FDF4;border-color:#BBF7D0;color:#16A34A}
-.pdots{display:flex;gap:4px;margin-bottom:10px}
-.pdot2{flex:1;height:4px;border-radius:4px;background:#DDE3F5;transition:background .2s}
-.pdot2.dn{background:#16A34A}.pdot2.cu{background:#2563EB}
-
-/* ── CARD ITEMS ── */
-.citem{background:#fff;border:1px solid #DDE3F5;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start}
-.citem.due{border-color:#FECACA;background:#FEF2F2}
-.cisim{font-size:12px;color:#94A3B8;text-decoration:line-through}
-.cic1{font-size:13px;font-weight:600;color:#1D4ED8}
-
-/* ── CORRECTIONS ── */
-.corr{border:1px solid #DDE3F5;border-radius:8px;overflow:hidden}
-.cwrong{padding:8px 12px;background:#FEF2F2;font-size:12px;color:#DC2626}
-.cright{padding:8px 12px;background:#F0FDF4;font-size:12px;color:#16A34A;font-weight:500}
-.cwhy{padding:8px 12px;font-size:12px;color:#475569;line-height:1.5}
-.upitem{border:1px solid #DDE3F5;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;background:#fff}
-
-/* ── EMPTY ── */
-.empty{text-align:center;padding:32px 20px}
-.eico{width:36px;height:36px;margin:0 auto 12px;color:#94A3B8}
-.etit{font-size:15px;font-weight:600;margin-bottom:6px;color:#0F172A}
-.esub{font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5}
-
-/* ── TOAST ── */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
+.fcard{background:#fff;border:1px solid #DDE3F5;border-radius:16px;min-height:200px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;width:100%;}
+.rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px; width:100%;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;}
 .toast.on{opacity:1}
-
-/* ── UTILS ── */
 .fb{display:flex;justify-content:space-between;align-items:center}
 .fl{display:flex;align-items:center}
-.g6{gap:6px}.g8{gap:8px}
-.mt8{margin-top:8px}.mt10{margin-top:10px}
 .gg{display:grid;gap:8px}
-.wc{font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace}
-.section-lbl{font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:8px}
 
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ── 📱 MEDIA QUERIES (A CORREÇÃO DO VAZAMENTO) ── */
+@media(max-width:768px){
+  .pg{padding:10px;gap:12px; width:100%;}
+  .hdr{padding:10px 10px 0;}
+  
+  /* Reduzir textos no header */
+  .hs-l { display: none; } 
+  .hs-v { font-size: 16px; }
+  .hst { gap: 14px; }
+  .logo-name { font-size: 13px; }
+  
+  .top-grid{grid-template-columns:1fr; gap:12px;}
+  
+  /* ROADMAP: Transforma o grid de 6 em um Carrossel Deslizante */
+  .rm-sel { display: flex; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+  .rm-sel::-webkit-scrollbar { display: none; }
+  .rm-btn { flex: 0 0 22%; min-width: 60px; padding: 6px 2px; }
 
-@media(max-width:540px){
-  .pg{padding:10px;gap:10px}
-  .hdr{padding:10px 13px 0}
-  .top-grid{grid-template-columns:1fr}
-  .stat-row{gap:6px}
-  .sc-v{font-size:15px}
-  .hm-c{width:9px;height:9px}
-  .flt-h{font-size:22px}
+  /* CHECK-INS: Transforma o grid de 5 em um Carrossel Deslizante */
+  .ci-row { display: flex; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+  .ci-row::-webkit-scrollbar { display: none; }
+  .ci-btn { flex: 0 0 28%; min-width: 75px; }
+
+  .stat-row{gap:8px}
+  .sc { padding: 12px 4px; }
+  .sc-v{font-size:16px}
+  
+  /* Ajustes Heatmap */
+  .hm-c{width:10px;height:10px}
+  .flt-h{font-size:24px}
+
+  /* Melhorar área de toque (dedos) */
+  .btn { min-height: 40px; justify-content: center; }
+  .btn.bsm { min-height: 34px; }
+
+  /* Evitar Zoom do iOS em inputs */
+  textarea, input[type=text] { font-size: 16px !important; }
 }
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-row">
     <div class="logo">
       <div class="logo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
-        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v3.3</span></div>
+        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v3.6</span></div>
         <div class="logo-sub"><span class="sdot sy" id="sdot"></span><span id="slbl">Loading…</span></div>
       </div>
     </div>
@@ -273,26 +231,27 @@ textarea{min-height:120px}
 
 <div class="toast" id="toast"></div>
 
-<!-- MODAL AI -->
 <div class="mov hid" id="mAI" onclick="if(event.target===this)closeM('mAI')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
     <div class="mbdy">
-      <div class="mstep"><div class="mnum">1</div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
           <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:100px;overflow-y:auto" id="mpbox"></div>
-          <div class="fl g6 mt8">
+          <div class="fl" style="gap:6px; margin-top:8px">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
             <span class="cbdg" id="cpbdg">✓ Copied!</span>
           </div>
         </div>
       </div>
-      <div class="mstep"><div class="mnum">2</div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div class="mnum">2</div>
         <div style="width:100%">
           <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
           <textarea id="jsonin" style="min-height:90px;font-family:'DM Mono',monospace;font-size:11px" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
-          <div class="fl g8 mt8" style="justify-content:flex-end">
+          <div class="fl" style="gap:8px; margin-top:8px; justify-content:flex-end">
             <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>
             <button class="btn bpr bsm" onclick="processJSON()">⚡ Process Analysis</button>
           </div>
@@ -302,7 +261,6 @@ textarea{min-height:120px}
   </div>
 </div>
 
-<!-- MODAL CUSTOM LESSON -->
 <div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
@@ -311,7 +269,7 @@ textarea{min-height:120px}
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div></div>
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
-      <div class="fl g8" style="justify-content:flex-end">
+      <div class="fl" style="gap:8px; justify-content:flex-end">
         <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>
         <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>
       </div>
@@ -319,7 +277,6 @@ textarea{min-height:120px}
   </div>
 </div>
 
-<!-- MODAL EDIT CARD -->
 <div class="mov hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
@@ -329,19 +286,15 @@ textarea{min-height:120px}
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Example sentence</label><textarea id="ec_ex" style="min-height:70px"></textarea></div>
       <div class="fb" style="flex-wrap:wrap;gap:8px">
         <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
-        <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
+        <div class="fl" style="gap:8px"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ DASHBOARD ══ -->
 <div class="pg" id="pg-dash">
 
-  <!-- Top 3-column grid -->
   <div class="top-grid">
-
-    <!-- Col 1: Flight Hours -->
     <div class="flt">
       <div class="flt-lbl">✈ TOTAL FLIGHT HOURS</div>
       <div class="flt-h" id="fhours">0h 00m</div>
@@ -353,8 +306,7 @@ textarea{min-height:120px}
       </div>
     </div>
 
-    <!-- Col 2: Daily Output -->
-    <div class="out-card" style="overflow:hidden">
+    <div class="out-card">
       <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Daily Output</div>
       <div class="out-row">
         <div class="out-lbl">WORDS TODAY</div>
@@ -375,7 +327,6 @@ textarea{min-height:120px}
       </div>
     </div>
 
-    <!-- Col 3: Roadmap -->
     <div class="rm-card">
       <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Roadmap</div>
       <div class="rm-sel" id="rmsel"></div>
@@ -383,10 +334,9 @@ textarea{min-height:120px}
     </div>
   </div>
 
-  <!-- Heatmap -->
   <div class="card">
     <div class="fb" style="margin-bottom:8px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity 2025</div>
+      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity <span id="curYear">2026</span></div>
       <div class="fl" style="gap:3px;align-items:center">
         <span style="font-size:10px;color:#94A3B8">Less</span>
         <div style="display:flex;gap:2px;align-items:center">
@@ -404,7 +354,6 @@ textarea{min-height:120px}
     </div>
   </div>
 
-  <!-- Stats row -->
   <div class="stat-row">
     <div class="sc">
       <div class="sc-ic" style="background:#EFF6FF"><svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
@@ -423,18 +372,16 @@ textarea{min-height:120px}
     </div>
   </div>
 
-  <!-- Weekly check-ins -->
   <div class="card">
     <div class="fb" style="margin-bottom:12px">
       <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
-      <span style="font-size:11px;color:#94A3B8">Tap to toggle · 30 min each</span>
+      <span style="font-size:11px;color:#94A3B8">Tap to toggle · 30 min</span>
     </div>
     <div class="ci-row" id="cigrid" style="margin-bottom:12px"></div>
     <div class="pbar"><div class="pfil" id="wpbar" style="width:0%"></div></div>
     <p style="margin-top:6px;font-size:11px;color:#94A3B8;text-align:right;font-family:'DM Mono',monospace" id="wklbl">0 of 5 complete</p>
   </div>
 
-  <!-- Due alert -->
   <div class="alert hid" id="dalert" onclick="goTab('rev')">
     <div>
       <div style="font-size:14px;font-weight:600;color:#DC2626" id="dalerttxt">Cards due</div>
@@ -444,7 +391,6 @@ textarea{min-height:120px}
   </div>
 </div>
 
-<!-- ══ PRACTICE ══ -->
 <div class="pg hid" id="pg-prac">
   <div class="card csm" style="background:#F8FAFF">
     <div class="fb">
@@ -464,7 +410,7 @@ textarea{min-height:120px}
     <div class="plbl">Your Prompt</div>
     <div id="activeprompt" style="font-size:13px;color:#0F172A;line-height:1.6"></div>
   </div>
-  <!-- Shadowing -->
+  
   <div class="card csm">
     <div class="fb">
       <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;color:#0F172A">
@@ -475,15 +421,14 @@ textarea{min-height:120px}
     <div class="stimer hid" id="shtimer" style="margin-top:12px">
       <div style="font-size:10px;color:#7C3AED;font-family:'DM Mono',monospace;letter-spacing:1px">SHADOWING SESSION</div>
       <div class="stdsp" id="shdsp">5:00</div>
-      <div class="sttips">
-        <div class="sttip"><span style="font-size:13px">🎯</span><span><strong>Match rhythm:</strong> Mirror the speaker's pace exactly, word by word.</span></div>
-        <div class="sttip"><span style="font-size:13px">🎵</span><span><strong>Intonation:</strong> Rise on questions, fall on statements. Exaggerate at first.</span></div>
-        <div class="sttip"><span style="font-size:13px">🔗</span><span><strong>Connected speech:</strong> "want to" → "wanna", "going to" → "gonna".</span></div>
-        <div class="sttip"><span style="font-size:13px">💨</span><span><strong>Breath groups:</strong> Pause where the speaker pauses — not mid-phrase.</span></div>
+      <div style="display:grid;gap:5px;text-align:left;margin-top:10px">
+        <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4"><span style="font-size:13px">🎯</span><span><strong>Match rhythm:</strong> Mirror the speaker's pace exactly, word by word.</span></div>
+        <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4"><span style="font-size:13px">🎵</span><span><strong>Intonation:</strong> Rise on questions, fall on statements. Exaggerate at first.</span></div>
+        <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4"><span style="font-size:13px">🔗</span><span><strong>Connected speech:</strong> "want to" → "wanna".</span></div>
       </div>
     </div>
   </div>
-  <!-- Response area -->
+
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
@@ -491,26 +436,24 @@ textarea{min-height:120px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
       </button>
     </div>
-    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:12px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
+    <div class="hid" id="lisbar" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FEF2F2;border-radius:8px;margin-bottom:8px"><div style="width:8px;height:8px;border-radius:50%;background:#DC2626;animation:pulse 1s infinite"></div><span style="font-size:12px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
     <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;line-height:1.8;min-height:36px;color:#0F172A"></div>
     <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
     <div class="fb mt8">
       <span class="wc" id="wcount">0 words</span>
       <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze
       </button>
     </div>
   </div>
   <div class="hid" id="anlres"></div>
 </div>
 
-<!-- ══ REVIEW ══ -->
 <div class="pg hid" id="pg-rev">
   <div class="fb"><div style="font-size:15px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
   <div id="revcontent"></div>
 </div>
 
-<!-- ══ CARDS ══ -->
 <div class="pg hid" id="pg-cards">
   <div class="fb">
     <div style="font-size:15px;font-weight:600;color:#0F172A">My Cards</div>
@@ -522,8 +465,7 @@ textarea{min-height:120px}
   <div id="cardslist"></div>
 </div>
 
-</div><!-- /app -->
-<script>
+</div><script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}};
 let activeMonth=1,activeLesson=null,curTab='dash';
@@ -570,17 +512,6 @@ const BL={
     {id:'m3l2',month:3,title:'The Atlantic: Ethics of Social Media',level:'C1',url:'https://www.theatlantic.com',tags:['Nuance','Reading'],desc:'Long-form journalism with nuanced arguments and multiple perspectives.',prompt:'Read the article. Write a 200-word counter-argument using academic hedging language throughout.'},
     {id:'m3l3',month:3,title:'Intelligence Squared: Is Tech Making Us Lonely?',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Rhetoric'],desc:'Formal British debate — study formal argumentation and rebuttal.',prompt:'Write 200 words arguing the position you disagree with. Use formal connectors and hedging throughout.'},
   ],
-  4:[{id:'m4l1',month:4,title:'NPR Hidden Brain',level:'C1',url:'https://hiddenbrain.org',tags:['Listening','Psychology'],desc:'Explore unconscious patterns driving human behaviour.',prompt:'Summarize the main insight and provide 3 supporting examples. Argue whether you agree with the conclusion.'},
-     {id:'m4l2',month:4,title:'The Guardian Opinion',level:'C1',url:'https://www.theguardian.com/opinion',tags:['Reading','Argumentation'],desc:'Sharp opinion pieces rich in hedging and formal discourse.',prompt:'Identify hedging language and discourse markers. Write a 200-word counter-argument.'}],
-  5:[{id:'m5l1',month:5,title:'Scientific American',level:'C1',url:'https://www.scientificamerican.com',tags:['Reading','Science'],desc:'Complex scientific writing with strong academic vocabulary.',prompt:'Identify 5 technical collocations. Discuss the most significant research implication.'},
-     {id:'m5l2',month:5,title:'MIT Technology Review',level:'C1',url:'https://www.technologyreview.com',tags:['Reading','Tech'],desc:'In-depth analysis of emerging technologies.',prompt:'Analyze how the author balances technical detail with accessibility.'}],
-  6:[{id:'m6l1',month:6,title:'Aeon Essays',level:'C1',url:'https://aeon.co/essays',tags:['Reading','Philosophy'],desc:'Long-form essays exploring big ideas.',prompt:'Write a 300-word critical response to an essay.'}],
-  7:[{id:'m7l1',month:7,title:'The Economist Podcasts',level:'C1',url:'https://www.economist.com/podcasts',tags:['Listening','Economics'],desc:'Dense analysis with sophisticated vocabulary.',prompt:'Write a 200-word summary in the same formal register. Identify 5 formal connectors.'}],
-  8:[{id:'m8l1',month:8,title:'TED Talks — Advanced Rhetoric',level:'C1',url:'https://www.ted.com/talks',tags:['Speaking','Rhetoric'],desc:'Study world-class speakers and master persuasion.',prompt:'Analyze the rhetorical structure: hook, ethos/pathos/logos, narrative arc, call to action.'}],
-  9:[{id:'m9l1',month:9,title:'Intelligence Squared Debates',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Formal'],desc:'Formal British debates — precision and rebuttal.',prompt:'Identify the strongest rhetorical moves from each side. Write a 250-word analysis.'}],
-  10:[{id:'m10l1',month:10,title:'Foreign Affairs',level:'C1',url:'https://www.foreignaffairs.com',tags:['Academic','Policy'],desc:'Top-tier academic policy writing.',prompt:'Identify nominalization and passive constructions. Rewrite 2 paragraphs in a less formal register.'}],
-  11:[{id:'m11l1',month:11,title:'Longform.org — Best Essays',level:'C1',url:'https://longform.org',tags:['Reading','Literary'],desc:'Curated long-form journalism.',prompt:'Write a 300-word response matching the author\'s register and tone.'}],
-  12:[{id:'m12l1',month:12,title:'Portfolio Review',level:'C1',url:'https://aeon.co/essays',tags:['Review','Portfolio'],desc:'Revisit your best pieces and measure growth.',prompt:'Rewrite your Month 1 first writing from memory. Write a 200-word reflection on your C1 journey.'}],
 };
 
 // ── SM-2 ──────────────────────────────────────────────────────────────────────
@@ -690,7 +621,7 @@ function renderDash(){
     b.className='ci-btn'+(ok?' dn':d.td?' td':'');
     b.onclick=()=>toggleCI(d.key);
     b.innerHTML='<span class="ci-lbl">'+d.lb+'</span>'
-      +'<div class="ci-dot'+(ok?' dn':'')+'">'+( ok?'<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
+      +'<div class="ci-dot'+(ok?' dn':'')+'">'+( ok?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
       +(d.td&&!ok?'<span class="tdtag">today</span>':'');
     g.appendChild(b);
   });
@@ -749,10 +680,10 @@ function buildRoadmap(){
   const md=mdata(activeMonth);
   document.getElementById('rmtheme').innerHTML=
     '<div class="rm-icon">'+md.ic+'</div>'
-    +'<div class="rm-info">'
+    +'<div style="flex:1;min-width:0;">'
     +'<div class="rm-ph" style="color:'+md.thco+'">'+md.ph+' · Month '+md.n+'</div>'
     +'<div class="rm-name">'+md.th+'</div>'
-    +'<div class="rm-desc">'+md.ds+'</div>'
+    +'<div class="rm-desc" style="white-space:normal;">'+md.ds+'</div>'
     +'</div>';
   document.getElementById('rmtheme').style.cssText='display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;background:'+md.thbg+';border:1px solid '+md.thbd+';margin-top:4px';
 }
@@ -765,11 +696,16 @@ function setMonth(n){
   toast('📅 Month '+n+': '+mdata(n).th);
 }
 
-// ── HEATMAP ───────────────────────────────────────────────────────────────────
+// ── HEATMAP (CORRIGIDO PARA 2026/FUTURO) ──────────────────────────────────────
 function renderHeatmap(){
   const g=document.getElementById('hmg'),ml=document.getElementById('hmml');
   g.innerHTML='';ml.innerHTML='';
+  
+  // ANO DINÂMICO
   const yr=new Date().getFullYear();
+  const yrEl = document.getElementById('curYear');
+  if(yrEl) yrEl.textContent = yr;
+  
   const end=new Date(yr,11,31);
   const start=new Date(yr,0,1);
   const fs=new Date(start);fs.setDate(start.getDate()-start.getDay());
@@ -786,6 +722,7 @@ function renderHeatmap(){
       l.textContent=months[mo];ml.appendChild(l);
     }
   });
+  
   const now=new Date();
   wks.forEach(wk=>{
     const col=document.createElement('div');col.className='hm-col';
@@ -794,11 +731,11 @@ function renderHeatmap(){
       const k=d.toISOString().split('T')[0];
       if(d.getFullYear()===yr){
         if(d<=now){
-          if(checkins[k])cell.classList.add('l4');
-          // else stays gray #CBD5E1
+          if(checkins[k]) cell.classList.add('l4');
+          // se for passado mas sem checkin, fica o cinza base do CSS (#CBD5E1)
         }else{
-          // future: lighter gray
-          cell.style.background='#E8EDF5';
+          // FUTURO: Cinza sólido e elegante para não parecer "transparente"
+          cell.style.background='#F1F5F9';
         }
       }
       cell.title=k;
@@ -1135,7 +1072,6 @@ render();
 initSesTimer();
 </script>
 
-<!-- Firebase loads after app is visible -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" onload="startSync()" onerror="setSS('offline')"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
