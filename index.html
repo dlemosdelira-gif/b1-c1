@@ -1,282 +1,266 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English C1 — v3.2</title>
+<title>English C1 — v3.3</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#F4F7FF;--sur:#fff;--sur2:#EEF2FF;--bor:#DDE3F5;--bor2:#C7D0EE;
-  --bl:#2563EB;--bl-l:#EFF6FF;--bl-m:#BFDBFE;--bl-t:#1D4ED8;
-  --tx:#0F172A;--tx2:#475569;--tx3:#94A3B8;
-  --gr:#16A34A;--gr-l:#F0FDF4;--gr-b:#BBF7D0;
-  --rd:#DC2626;--rd-l:#FEF2F2;--rd-b:#FECACA;
-  --yw:#D97706;--yw-l:#FFFBEB;--yw-b:#FDE68A;
-  --pu:#7C3AED;--pu-l:#F5F3FF;--pu-b:#DDD6FE;
-  --te:#0D9488;--te-l:#F0FDFA;--te-b:#99F6E4;
-  --r:12px;--rs:8px;
-}
-html,body{overflow-x:hidden;width:100%}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;min-height:100vh}
-.app{max-width:700px;margin:0 auto;padding-bottom:90px;overflow-x:hidden}
+html,body{overflow-x:hidden;width:100%;background:#F0F4FF;color:#0F172A;font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
+.app{max-width:760px;margin:0 auto;padding-bottom:80px}
 
-/* HEADER */
-.hdr{background:var(–sur);border-bottom:1px solid var(–bor);padding:12px 16px 0;position:sticky;top:0;z-index:100}
-.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
-.logo{display:flex;align-items:center;gap:8px;min-width:0}
-.logo-icon{width:32px;height:32px;background:var(–bl);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
-.logo-name{font-size:14px;font-weight:600;white-space:nowrap}
-.logo-sub{font-size:10px;color:var(–tx3);font-family:‘DM Mono’,monospace;display:flex;align-items:center;gap:4px;margin-top:1px}
-.sdot{width:6px;height:6px;border-radius:50%;background:var(–gr)}
-.sdot.off{background:var(–tx3)}.sdot.sy{background:var(–yw);animation:pulse 1s infinite}
-.hdr-st{display:flex;gap:10px;flex-shrink:0}
+/* ── HEADER ── */
+.hdr{background:#fff;border-bottom:1px solid #DDE3F5;padding:11px 18px 0;position:sticky;top:0;z-index:100}
+.hdr-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.logo{display:flex;align-items:center;gap:9px;min-width:0}
+.logo-ic{width:32px;height:32px;background:#2563EB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-ic svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.logo-name{font-size:14px;font-weight:600}
+.logo-sub{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px;margin-top:1px}
+.sdot{width:6px;height:6px;border-radius:50%;background:#16A34A;flex-shrink:0}
+.sdot.off{background:#94A3B8}.sdot.sy{background:#D97706;animation:pulse 1s infinite}
+.hst{display:flex;gap:10px;flex-shrink:0}
 .hs{text-align:center}
 .hs-v{font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center}
-.hs-l{font-size:9px;color:var(–tx3);font-family:‘DM Mono’,monospace}
+.hs-l{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
 .nav{display:flex;width:100%}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:var(–tx3);font-family:‘DM Sans’,sans-serif;font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:#94A3B8;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative}
 .nb svg{width:15px;height:15px}
-.nb.on{color:var(–bl);border-bottom-color:var(–bl)}
-.nbdg{position:absolute;top:4px;right:4px;background:var(–rd);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;display:none}
+.nb.on{color:#2563EB;border-bottom-color:#2563EB}
+.nbdg{position:absolute;top:4px;right:4px;background:#DC2626;color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;display:none}
 .nbdg.on{display:block}
 
-/* CONTENT */
-.pg{padding:14px;display:grid;gap:12px;overflow-x:hidden}
-.card{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:14px;min-width:0;overflow:hidden}
+/* ── PAGE ── */
+.pg{padding:14px;display:grid;gap:12px}
+.hid{display:none!important}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px}
 .csm{padding:11px 13px}
-.ctit{font-size:11px;font-weight:600;color:var(–tx2);text-transform:uppercase;letter-spacing:.5px;font-family:‘DM Mono’,monospace;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.ctit{font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 
-/* MONTH RAIL */
-.mrl{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.mrl::-webkit-scrollbar{display:none}
-.mbt{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 9px;border-radius:9px;border:1px solid var(–bor);background:transparent;cursor:pointer;font-family:‘DM Sans’,sans-serif;transition:all .15s;min-width:54px}
-.mbt:hover{border-color:var(–bl-m);background:var(–bl-l)}
-.mbt.on{background:var(–bl);border-color:var(–bl);color:#fff}
-.mbt .mn{font-size:11px;font-weight:600}
-.mbt .mt{font-size:8px;opacity:.7;font-family:‘DM Mono’,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64px;text-align:center}
+/* ── TOP GRID ── */
+.top-grid{display:grid;grid-template-columns:1.2fr 1fr 1.3fr;gap:10px}
+@media(max-width:600px){.top-grid{grid-template-columns:1fr}}
 
-/* THEME BANNER */
-.tbanner{border-radius:var(–r);padding:13px 14px;display:flex;gap:10px;overflow:hidden;word-break:break-word}
-.tbi{font-size:20px;flex-shrink:0}
-.tbph{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:‘DM Mono’,monospace;margin-bottom:3px}
-.tbtit{font-size:14px;font-weight:600;margin-bottom:3px;color:var(–tx)}
-.tbdsc{font-size:12px;line-height:1.5;color:var(–tx2)}
-.tbsk{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+/* ── FLIGHT CARD ── */
+.flt{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:12px;padding:14px;color:#fff}
+.flt-lbl{font-size:9px;letter-spacing:1.5px;font-family:'DM Mono',monospace;opacity:.7;margin-bottom:4px}
+.flt-h{font-size:26px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:2px;color:#fff}
+.flt-sub{font-size:11px;opacity:.7;margin-bottom:10px;color:#fff}
+.flt-meta{display:flex;gap:12px;flex-wrap:wrap}
+.flt-mi{font-size:10px;color:rgba(255,255,255,.75)}
+.flt-mv{font-size:13px;font-weight:600;color:#fff;display:block}
 
-/* STATS */
-.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sc{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:12px 8px;text-align:center}
+/* ── OUTPUT CARD ── */
+.out-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.out-row{display:flex;flex-direction:column;gap:2px}
+.out-lbl{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace;letter-spacing:1px}
+.out-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace}
+.out-goal{font-size:10px;color:#94A3B8}
+.out-bar{height:4px;background:#E2E8F0;border-radius:4px;margin-top:4px;overflow:hidden}
+.out-fill{height:100%;border-radius:4px;transition:width .4s}
+.out-log{display:flex;align-items:center;gap:5px;margin-top:4px}
+
+/* ── ROADMAP CARD ── */
+.rm-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.rm-sel{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.rm-btn{padding:4px 2px;border-radius:6px;border:1px solid #DDE3F5;background:transparent;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:#475569;text-align:center;transition:all .15s;line-height:1.3}
+.rm-btn:hover{border-color:#BFDBFE;background:#EFF6FF}
+.rm-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
+.rm-theme{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:8px;margin-top:2px}
+.rm-icon{font-size:16px;flex-shrink:0}
+.rm-info{}
+.rm-ph{font-size:9px;font-weight:600;letter-spacing:1px;font-family:'DM Mono',monospace;margin-bottom:1px}
+.rm-name{font-size:12px;font-weight:600;color:#0F172A}
+.rm-desc{font-size:11px;color:#475569;line-height:1.4;margin-top:1px}
+
+/* ── HEATMAP ── */
+.hm-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hm-grid{display:flex;gap:3px;padding:4px 0}
+.hm-col{display:flex;flex-direction:column;gap:3px}
+.hm-c{width:11px;height:11px;border-radius:2px;background:#CBD5E1}
+.hm-c.l1{background:#93C5FD}.hm-c.l2{background:#3B82F6}.hm-c.l3{background:#2563EB}.hm-c.l4{background:#1D4ED8}
+.hm-months{display:flex;gap:3px;padding:0 0 3px}
+.hm-ml{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
+
+/* ── CHECKINS ── */
+.ci-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ci-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 4px;border-radius:10px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;min-height:80px}
+.ci-btn.dn{background:#F0FDF4;border-color:#BBF7D0}
+.ci-btn.td{background:#EFF6FF;border-color:#BFDBFE}
+.ci-lbl{font-size:11px;color:#475569;font-weight:500}
+.ci-dot{width:22px;height:22px;border-radius:50%;border:2px solid #CBD5E1;display:flex;align-items:center;justify-content:center}
+.ci-dot.dn{background:#16A34A;border-color:#16A34A}
+.ci-dot svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
+.tdtag{font-size:9px;color:#2563EB;font-family:'DM Mono',monospace}
+.pbar{height:5px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-top:8px}
+.pfil{height:100%;border-radius:4px;transition:width .4s;background:#16A34A}
+
+/* ── STAT ROW (below heatmap) ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.sc{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:12px 8px;text-align:center}
 .sc-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin:0 auto 5px}
 .sc-ic svg{width:13px;height:13px;stroke-width:2}
-.sc-v{font-size:18px;font-weight:700;margin-bottom:2px;color:var(–tx)}
-.sc-l{font-size:10px;color:var(–tx3);font-family:‘DM Mono’,monospace}
+.sc-v{font-size:17px;font-weight:700;margin-bottom:2px;color:#0F172A}
+.sc-l{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace}
 
-/* FLIGHT */
-.fcard{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:var(–r);padding:14px 16px;color:#fff!important;overflow:hidden}
-.fcard *{color:#fff!important}
-.fh{font-size:28px;font-weight:700;font-family:‘DM Mono’,monospace;margin:4px 0 2px;color:#fff}
-.fm{display:flex;gap:10px 16px;margin-top:8px;flex-wrap:wrap}
-.fmi{font-size:11px;opacity:.8}
-.fmv{font-size:13px;font-weight:600;display:block}
+/* ── ALERT ── */
+.alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 
-/* OUTPUT */
-.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.om{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:12px;min-width:0;overflow:hidden}
-.omv{font-size:20px;font-weight:700;font-family:‘DM Mono’,monospace;margin:4px 0 2px}
-.oml{font-size:10px;color:var(–tx2)}
-.omb{height:4px;background:var(–sur2);border-radius:4px;margin-top:6px;overflow:hidden}
-.omf{height:100%;border-radius:4px;transition:width .4s}
-
-/* HEATMAP */
-.hmwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
-.hmgrid{display:flex;gap:3px;padding:4px 0}
-.hmcol{display:flex;flex-direction:column;gap:3px}
-.hmc{width:10px;height:10px;border-radius:2px;background:#CBD5E1}
-.hmc.l1{background:#93C5FD}.hmc.l2{background:#3B82F6}.hmc.l3{background:#2563EB}.hmc.l4{background:#1D4ED8}
-.hmml{display:flex;gap:3px;padding:0 0 3px}
-.hmlbl{font-size:9px;color:var(–tx3);font-family:‘DM Mono’,monospace}
-
-/* CHECKIN */
-.cigrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
-.cibtn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border-radius:10px;border:1px solid var(–bor);background:transparent;cursor:pointer;transition:all .15s;font-family:‘DM Sans’,sans-serif}
-.cibtn.dn{background:var(–gr-l);border-color:var(–gr-b)}
-.cibtn.td{background:var(–bl-l);border-color:var(–bl-m)}
-.cilbl{font-size:11px;color:var(–tx2);font-weight:500}
-.cick{width:22px;height:22px;border-radius:50%;border:2px solid var(–bor2);display:flex;align-items:center;justify-content:center}
-.cick.dn{background:var(–gr);border-color:var(–gr)}
-.cick svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
-.tdtag{font-size:9px;color:var(–bl);font-family:‘DM Mono’,monospace}
-.pbar{height:5px;background:var(–sur2);border-radius:4px;overflow:hidden}
-.pfil{height:100%;border-radius:4px;transition:width .4s;background:var(–gr)}
-
-/* TAGS */
-.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-family:‘DM Mono’,monospace;display:inline-flex;align-items:center;font-weight:500}
-.tbl{background:var(–bl-l);color:var(–bl-t)}
-.tgr{background:var(–sur2);color:var(–tx2);border:1px solid var(–bor)}
-.tgg{background:var(–gr-l);color:var(–gr)}
-.trd{background:var(–rd-l);color:var(–rd)}
-.tyw{background:var(–yw-l);color:var(–yw)}
-.tpu{background:var(–pu-l);color:var(–pu)}
-.tcu{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(–rs);border:1px solid var(–bor);font-family:‘DM Sans’,sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:var(–sur);color:var(–tx2)}
-.btn:hover{background:var(–sur2)}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid #DDE3F5;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:#fff;color:#475569}
+.btn:hover{background:#F1F5F9}
 .btn:active{transform:scale(.97)}
-.btn svg{width:14px;height:14px;flex-shrink:0}
-.bpr{background:var(–bl);color:#fff;border-color:var(–bl)}
-.bpr:hover{background:var(–bl-t)}
-.bdn{background:var(–rd-l);color:var(–rd);border-color:var(–rd-b)}
-.bpu{background:var(–pu-l);color:var(–pu);border-color:var(–pu-b)}
-.bte{background:var(–te-l);color:var(–te);border-color:var(–te-b)}
-.bsm{padding:5px 10px;font-size:11px}
+.btn svg{width:13px;height:13px;flex-shrink:0}
+.bpr{background:#2563EB;color:#fff;border-color:#2563EB}
+.bpr:hover{background:#1D4ED8}
+.bdn{background:#FEF2F2;color:#DC2626;border-color:#FECACA}
+.bpu{background:#F5F3FF;color:#7C3AED;border-color:#DDD6FE}
+.bte{background:#F0FDFA;color:#0D9488;border-color:#99F6E4}
+.bsm{padding:4px 10px;font-size:11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* LESSONS */
-.lcard{background:var(–sur);border:1px solid var(–bor);border-radius:var(–r);padding:13px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;overflow:hidden}
-.lcard:hover{border-color:var(–bl-m)}
-.lcard.on{background:var(–bl-l);border-color:var(–bl)}
+/* ── TAGS ── */
+.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:inline-flex;align-items:center;font-weight:500}
+.tgr{background:#F1F5F9;color:#475569;border:1px solid #DDE3F5}
+.tbl{background:#EFF6FF;color:#1D4ED8}
+.tpu{background:#F5F3FF;color:#7C3AED}
+.trd{background:#FEF2F2;color:#DC2626}
+.tgg{background:#F0FDF4;color:#16A34A}
+.tyw{background:#FFFBEB;color:#D97706}
+.tcu{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+
+/* ── LESSONS ── */
+.lcard{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:13px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lcard:hover{border-color:#BFDBFE}
+.lcard.on{background:#EFF6FF;border-color:#2563EB}
 .lcard.custom{border-left:3px solid #F97316}
-.ltit{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.ldsc{font-size:12px;color:var(–tx2);line-height:1.5;margin-bottom:6px}
+.ltit{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#0F172A}
+.ldsc{font-size:12px;color:#475569;line-height:1.5;margin-bottom:6px}
 
-/* PROMPT */
-.pbox{border-radius:var(–rs);padding:12px 14px}
-.pbox.m1{background:var(–bl-l);border:1px solid var(–bl-m);border-left:3px solid var(–bl)}
-.pbox.m2{background:#F0FDF4;border:1px solid #BBF7D0;border-left:3px solid var(–gr)}
-.pbox.m3{background:var(–pu-l);border:1px solid var(–pu-b);border-left:3px solid var(–pu)}
-.plbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:‘DM Mono’,monospace;margin-bottom:4px}
-.pbox.m1 .plbl{color:var(–bl)}.pbox.m2 .plbl{color:var(–gr)}.pbox.m3 .plbl{color:var(–pu)}
-.dbadge{font-size:10px;padding:2px 8px;border-radius:20px;font-family:‘DM Mono’,monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px}
-.dbadge.m1{background:var(–bl-l);color:var(–bl-t)}
-.dbadge.m2{background:var(–gr-l);color:var(–gr)}
-.dbadge.m3{background:var(–pu-l);color:var(–pu)}
+/* ── PROMPT BOX ── */
+.pbox{border-radius:8px;padding:12px 14px;border-left:3px solid #2563EB;background:#EFF6FF;border:1px solid #BFDBFE;border-left:3px solid #2563EB}
+.pbox.m2{background:#F0FDF4;border-color:#BBF7D0;border-left-color:#16A34A}
+.pbox.m3{background:#F5F3FF;border-color:#DDD6FE;border-left-color:#7C3AED}
+.plbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;color:#2563EB}
+.pbox.m2 .plbl{color:#16A34A}.pbox.m3 .plbl{color:#7C3AED}
+.dbadge{font-size:10px;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;background:#EFF6FF;color:#1D4ED8}
+.dbadge.m2{background:#F0FDF4;color:#16A34A}
+.dbadge.m3{background:#F5F3FF;color:#7C3AED}
 
-/* INPUTS */
-textarea,input[type=text]{width:100%;border:1px solid var(–bor);border-radius:var(–rs);padding:11px;font-family:‘DM Sans’,sans-serif;font-size:14px;line-height:1.6;background:var(–sur2);color:var(–tx);resize:vertical;transition:border-color .15s}
-textarea:focus,input[type=text]:focus{outline:none;border-color:var(–bl);background:var(–sur)}
+/* ── INPUTS ── */
+textarea,input[type=text]{width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;background:#F8FAFF;color:#0F172A;resize:vertical;transition:border-color .15s}
+textarea:focus,input[type=text]:focus{outline:none;border-color:#2563EB;background:#fff}
 textarea{min-height:120px}
 
-/* SHADOW TIMER */
-.stimer{background:linear-gradient(135deg,var(–pu-l),var(–bl-l));border:1px solid var(–pu-b);border-radius:var(–r);padding:18px;text-align:center}
-.stdsp{font-size:44px;font-weight:700;font-family:‘DM Mono’,monospace;color:var(–pu);margin:8px 0}
-.sttips{display:grid;gap:6px;text-align:left;margin-top:12px}
-.sttip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(–tx2);background:rgba(255,255,255,.7);padding:8px 10px;border-radius:8px;line-height:1.4}
-.lisbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(–rd-l);border-radius:var(–rs);margin-bottom:8px}
-.pdot{width:8px;height:8px;border-radius:50%;background:var(–rd);animation:pulse 1s infinite}
+/* ── SHADOWING ── */
+.stimer{background:linear-gradient(135deg,#F5F3FF,#EFF6FF);border:1px solid #DDD6FE;border-radius:12px;padding:16px;text-align:center}
+.stdsp{font-size:40px;font-weight:700;font-family:'DM Mono',monospace;color:#7C3AED;margin:8px 0}
+.sttips{display:grid;gap:5px;text-align:left;margin-top:10px}
+.sttip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4}
+.lisbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FEF2F2;border-radius:8px;margin-bottom:8px}
+.pdot{width:8px;height:8px;border-radius:50%;background:#DC2626;animation:pulse 1s infinite}
 .tword{padding:1px 2px;border-radius:3px;display:inline}
-.tword.lo{background:var(–yw-b);color:#92400E}
-.tword.vlo{background:var(–rd-b);color:var(–rd)}
+.tword.lo{background:#FDE68A;color:#92400E}
+.tword.vlo{background:#FECACA;color:#DC2626}
 
-/* MODAL */
-.moverlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:var(–sur);border-radius:var(–r);width:calc(100vw - 32px);max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
-.mhdr{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center}
-.mtit{font-size:15px;font-weight:600}
-.mbdy{padding:12px 16px 16px;display:grid;gap:12px}
+/* ── MODAL ── */
+.mov{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:12px;width:calc(100vw - 32px);max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
+.mhdr{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mtit{font-size:15px;font-weight:600;color:#0F172A}
+.mbdy{padding:0 16px 16px;display:grid;gap:12px}
 .mstep{display:flex;gap:10px;align-items:flex-start}
-.mnum{width:22px;height:22px;border-radius:50%;background:var(–bl);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.cbadge{display:none;font-size:12px;color:var(–gr);font-weight:500;align-items:center;gap:4px}
-.cbadge.on{display:flex}
+.mnum{width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.cbdg{display:none;font-size:12px;color:#16A34A;font-weight:500;align-items:center;gap:4px}
+.cbdg.on{display:flex}
 
-/* FLASHCARD */
-.fcard2{background:var(–sur);border:1px solid var(–bor);border-radius:16px;min-height:200px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .15s}
-.fcard2:hover{border-color:var(–bl-m)}
-.fhint{font-size:10px;color:var(–tx3);letter-spacing:1px;text-transform:uppercase;font-family:‘DM Mono’,monospace;margin-bottom:10px}
-.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.3}
-.fword.bl{color:var(–bl-t)}
-.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7}
-.fblank{display:inline-block;background:var(–bl-m);border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
-.fex{font-size:12px;color:var(–tx2);font-style:italic;margin-bottom:6px}
-.ftap{font-size:11px;color:var(–tx3)}
+/* ── FLASHCARD ── */
+.fcard{background:#fff;border:1px solid #DDE3F5;border-radius:16px;min-height:200px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .15s}
+.fcard:hover{border-color:#BFDBFE}
+.fhint{font-size:10px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
+.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.3;color:#0F172A}
+.fword.bl{color:#1D4ED8}
+.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A}
+.fblank{display:inline-block;background:#BFDBFE;border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
+.fex{font-size:12px;color:#475569;font-style:italic;margin-bottom:6px}
+.ftap{font-size:11px;color:#94A3B8}
 .rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.rb{padding:10px 6px;border-radius:10px;border:1px solid var(–bor);cursor:pointer;font-family:‘DM Sans’,sans-serif;transition:all .15s;text-align:center}
+.rb{padding:10px 6px;border-radius:10px;border:1px solid #DDE3F5;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center;background:#fff}
 .rb:active{transform:scale(.97)}
 .rbl{font-size:13px;font-weight:600;margin-bottom:2px}
-.rbs{font-size:10px;opacity:.75;font-family:‘DM Mono’,monospace}
-.rb.hard{background:var(–rd-l);border-color:var(–rd-b);color:var(–rd)}
-.rb.good{background:var(–yw-l);border-color:var(–yw-b);color:var(–yw)}
-.rb.easy{background:var(–gr-l);border-color:var(–gr-b);color:var(–gr)}
+.rbs{font-size:10px;opacity:.75;font-family:'DM Mono',monospace}
+.rb.hard{background:#FEF2F2;border-color:#FECACA;color:#DC2626}
+.rb.good{background:#FFFBEB;border-color:#FDE68A;color:#D97706}
+.rb.easy{background:#F0FDF4;border-color:#BBF7D0;color:#16A34A}
 .pdots{display:flex;gap:4px;margin-bottom:10px}
-.pdot2{flex:1;height:4px;border-radius:4px;background:var(–bor);transition:background .2s}
-.pdot2.dn{background:var(–gr)}.pdot2.cu{background:var(–bl)}
+.pdot2{flex:1;height:4px;border-radius:4px;background:#DDE3F5;transition:background .2s}
+.pdot2.dn{background:#16A34A}.pdot2.cu{background:#2563EB}
 
-/* CARD ITEMS */
-.citem{background:var(–sur);border:1px solid var(–bor);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start}
-.citem.due{border-color:var(–rd-b);background:var(–rd-l)}
-.cisim{font-size:12px;color:var(–tx3);text-decoration:line-through}
-.cic1{font-size:13px;font-weight:600;color:var(–bl-t)}
+/* ── CARD ITEMS ── */
+.citem{background:#fff;border:1px solid #DDE3F5;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start}
+.citem.due{border-color:#FECACA;background:#FEF2F2}
+.cisim{font-size:12px;color:#94A3B8;text-decoration:line-through}
+.cic1{font-size:13px;font-weight:600;color:#1D4ED8}
 
-/* ALERT */
-.alert{background:var(–rd-l);border:1px solid var(–rd-b);border-radius:var(–r);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+/* ── CORRECTIONS ── */
+.corr{border:1px solid #DDE3F5;border-radius:8px;overflow:hidden}
+.cwrong{padding:8px 12px;background:#FEF2F2;font-size:12px;color:#DC2626}
+.cright{padding:8px 12px;background:#F0FDF4;font-size:12px;color:#16A34A;font-weight:500}
+.cwhy{padding:8px 12px;font-size:12px;color:#475569;line-height:1.5}
+.upitem{border:1px solid #DDE3F5;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;background:#fff}
 
-/* CORRECTIONS */
-.corr{border:1px solid var(–bor);border-radius:var(–rs);overflow:hidden}
-.cwrong{padding:8px 12px;background:var(–rd-l);font-size:12px;color:var(–rd)}
-.cright{padding:8px 12px;background:var(–gr-l);font-size:12px;color:var(–gr);font-weight:500}
-.cwhy{padding:8px 12px;font-size:12px;color:var(–tx2);line-height:1.5}
-.upitem{border:1px solid var(–bor);border-radius:var(–rs);padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-
-/* EMPTY */
+/* ── EMPTY ── */
 .empty{text-align:center;padding:32px 20px}
-.eico{width:36px;height:36px;margin:0 auto 12px;color:var(–tx3)}
-.etit{font-size:15px;font-weight:600;margin-bottom:6px}
-.esub{font-size:13px;color:var(–tx2);margin-bottom:14px;line-height:1.5}
+.eico{width:36px;height:36px;margin:0 auto 12px;color:#94A3B8}
+.etit{font-size:15px;font-weight:600;margin-bottom:6px;color:#0F172A}
+.esub{font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5}
 
-/* TOAST */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(–tx);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
 .toast.on{opacity:1}
 
+/* ── UTILS ── */
 .fb{display:flex;justify-content:space-between;align-items:center}
 .fl{display:flex;align-items:center}
 .g6{gap:6px}.g8{gap:8px}
-.mt8{margin-top:8px}
+.mt8{margin-top:8px}.mt10{margin-top:10px}
 .gg{display:grid;gap:8px}
-.wc{font-size:11px;color:var(–tx3);font-family:‘DM Mono’,monospace}
-.hid{display:none!important}
+.wc{font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace}
+.section-lbl{font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:8px}
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-@media(max-width:390px){
-.pg{padding:10px;gap:10px}
-.hdr{padding:10px 12px 0}
-.mbt{min-width:48px;padding:6px 7px}
-.mbt .mn{font-size:10px}
-.fh{font-size:22px}
-.omv{font-size:17px}
-.sc-v{font-size:15px}
-.hmc{width:8px;height:8px}
-}
-@media(max-width:480px){
-.fh{font-size:25px}
-.sc-v{font-size:17px}
+@media(max-width:540px){
+  .pg{padding:10px;gap:10px}
+  .hdr{padding:10px 13px 0}
+  .top-grid{grid-template-columns:1fr}
+  .stat-row{gap:6px}
+  .sc-v{font-size:15px}
+  .hm-c{width:9px;height:9px}
+  .flt-h{font-size:22px}
 }
 </style>
-
 </head>
 <body>
 <div class="app">
 
 <!-- HEADER -->
-
 <div class="hdr">
-  <div class="hdr-top">
+  <div class="hdr-row">
     <div class="logo">
-      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="logo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
-        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:var(--tx3);font-family:'DM Mono',monospace">v3.2</span></div>
+        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v3.3</span></div>
         <div class="logo-sub"><span class="sdot sy" id="sdot"></span><span id="slbl">Loading…</span></div>
       </div>
     </div>
-    <div class="hdr-st">
+    <div class="hst">
       <div class="hs"><div class="hs-v">🔥<span id="hstr">0</span></div><div class="hs-l">streak</div></div>
-      <div class="hs"><div class="hs-v" style="color:var(--bl)">📚<span id="hcards">0</span></div><div class="hs-l">cards</div></div>
-      <div class="hs"><div class="hs-v" style="color:var(--pu)">✈<span id="hhours">0h</span></div><div class="hs-l">flight</div></div>
+      <div class="hs"><div class="hs-v" style="color:#2563EB">📚<span id="hcards">0</span></div><div class="hs-l">cards</div></div>
+      <div class="hs"><div class="hs-v" style="color:#7C3AED">✈<span id="hhours">0h</span></div><div class="hs-l">flight</div></div>
     </div>
   </div>
   <div class="nav">
@@ -290,24 +274,23 @@ textarea{min-height:120px}
 <div class="toast" id="toast"></div>
 
 <!-- MODAL AI -->
-
-<div class="moverlay hid" id="mAI" onclick="if(event.target===this)closeM('mAI')">
+<div class="mov hid" id="mAI" onclick="if(event.target===this)closeM('mAI')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
     <div class="mbdy">
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
-          <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
-          <div style="background:var(--sur2);border:1px solid var(--bor);border-radius:var(--rs);padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:var(--tx2);line-height:1.6;max-height:100px;overflow-y:auto" id="mpbox"></div>
+          <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
+          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:100px;overflow-y:auto" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
-            <span class="cbadge" id="cpbdg">✓ Copied!</span>
+            <span class="cbdg" id="cpbdg">✓ Copied!</span>
           </div>
         </div>
       </div>
       <div class="mstep"><div class="mnum">2</div>
         <div style="width:100%">
-          <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:8px">Paste Claude's JSON response here:</div>
+          <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
           <textarea id="jsonin" style="min-height:90px;font-family:'DM Mono',monospace;font-size:11px" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
           <div class="fl g8 mt8" style="justify-content:flex-end">
             <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>
@@ -320,18 +303,14 @@ textarea{min-height:120px}
 </div>
 
 <!-- MODAL CUSTOM LESSON -->
-
-<div class="moverlay hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
+<div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
     <div class="mbdy">
-      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>
-      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Category</label>
-        <div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div>
-      </div>
-      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
       <div class="fl g8" style="justify-content:flex-end">
         <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>
         <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>
@@ -341,114 +320,160 @@ textarea{min-height:120px}
 </div>
 
 <!-- MODAL EDIT CARD -->
-
-<div class="moverlay hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
+<div class="mov hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
     <div class="mbdy">
-      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Simple / Original</label><input type="text" id="ec_sim"></div>
-      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">C1 Expression</label><input type="text" id="ec_c1"></div>
-      <div><label style="font-size:12px;font-weight:600;color:var(--tx2);display:block;margin-bottom:5px">Example sentence</label><textarea id="ec_ex" style="min-height:70px"></textarea></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Simple / Original</label><input type="text" id="ec_sim"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">C1 Expression</label><input type="text" id="ec_c1"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Example sentence</label><textarea id="ec_ex" style="min-height:70px"></textarea></div>
       <div class="fb" style="flex-wrap:wrap;gap:8px">
-        <button class="btn bdn bsm" onclick="confirmDel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>
+        <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
         <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-
+<!-- ══ DASHBOARD ══ -->
 <div class="pg" id="pg-dash">
-  <!-- Month selector -->
-  <div class="card csm">
-    <div class="ctit" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Study Roadmap</div>
-    <div class="mrl" id="mrl"></div>
-  </div>
-  <!-- Theme banner -->
-  <div id="thbanner"></div>
-  <!-- Flight hours -->
-  <div class="fcard">
-    <div style="font-size:10px;opacity:.65;font-family:'DM Mono',monospace;letter-spacing:1.5px">✈ TOTAL FLIGHT HOURS</div>
-    <div class="fh" id="fhours">0h 00m</div>
-    <div style="font-size:11px;opacity:.7;margin-bottom:6px">Accumulated study time</div>
-    <div class="fm">
-      <div class="fmi"><span class="fmv" id="fdays">0</span>study days</div>
-      <div class="fmi"><span class="fmv" id="favg">0m</span>avg/day</div>
-      <div class="fmi"><span class="fmv" id="fstrk">0</span>streak</div>
+
+  <!-- Top 3-column grid -->
+  <div class="top-grid">
+
+    <!-- Col 1: Flight Hours -->
+    <div class="flt">
+      <div class="flt-lbl">✈ TOTAL FLIGHT HOURS</div>
+      <div class="flt-h" id="fhours">0h 00m</div>
+      <div class="flt-sub">Accumulated study time</div>
+      <div class="flt-meta">
+        <div class="flt-mi"><span class="flt-mv" id="fdays">0</span>study days</div>
+        <div class="flt-mi"><span class="flt-mv" id="favg">0m</span>avg/day</div>
+        <div class="flt-mi"><span class="flt-mv" id="fstrk">0</span>streak</div>
+      </div>
+    </div>
+
+    <!-- Col 2: Daily Output -->
+    <div class="out-card" style="overflow:hidden">
+      <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Daily Output</div>
+      <div class="out-row">
+        <div class="out-lbl">WORDS TODAY</div>
+        <div class="out-val" id="wtoday" style="color:#2563EB">0</div>
+        <div class="out-goal">goal: 150 words</div>
+        <div class="out-bar"><div class="out-fill" id="wprog" style="background:#2563EB;width:0%"></div></div>
+      </div>
+      <div class="out-row">
+        <div class="out-lbl">MINS SPOKEN</div>
+        <div class="out-val" id="mspoken" style="color:#7C3AED">0</div>
+        <div class="out-goal">goal: 10 minutes</div>
+        <div class="out-bar"><div class="out-fill" id="mprog" style="background:#7C3AED;width:0%"></div></div>
+      </div>
+      <div class="out-log">
+        <span style="font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace" id="sesminlbl">0 min logged</span>
+        <button class="btn bsm" id="logminus" onclick="logSession(-1)" style="display:none;padding:3px 8px;font-size:13px;line-height:1">−</button>
+        <button class="btn bpr bsm" onclick="logSession(1)" style="padding:3px 10px">+ 30 min</button>
+      </div>
+    </div>
+
+    <!-- Col 3: Roadmap -->
+    <div class="rm-card">
+      <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Roadmap</div>
+      <div class="rm-sel" id="rmsel"></div>
+      <div class="rm-theme" id="rmtheme"></div>
     </div>
   </div>
-  <!-- Output meters -->
-  <div class="ogrid">
-    <div class="om"><div style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">WORDS TODAY</div><div class="omv" id="wtoday" style="color:var(--bl)">0</div><div class="oml">goal: 150 words</div><div class="omb"><div class="omf" id="wprog" style="background:var(--bl);width:0%"></div></div></div>
-    <div class="om"><div style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">MINS SPOKEN</div><div class="omv" id="mspoken" style="color:var(--pu)">0</div><div class="oml">goal: 10 minutes</div><div class="omb"><div class="omf" id="mprog" style="background:var(--pu);width:0%"></div></div></div>
-  </div>
-  <!-- Stats -->
-  <div class="srow">
-    <div class="sc"><div class="sc-ic" style="background:var(--bl-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--bl)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-v" id="scwk" style="color:var(--bl)">0/5</div><div class="sc-l">this week</div></div>
-    <div class="sc"><div class="sc-ic" style="background:var(--rd-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sc-v" id="scdue" style="color:var(--rd)">0</div><div class="sc-l">due today</div></div>
-    <div class="sc"><div class="sc-ic" style="background:var(--pu-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div><div class="sc-v" id="sctot" style="color:var(--pu)">0</div><div class="sc-l">total cards</div></div>
-  </div>
+
   <!-- Heatmap -->
   <div class="card">
-    <div class="fb" style="margin-bottom:10px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity 2025</div>
+    <div class="fb" style="margin-bottom:8px">
+      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity 2025</div>
       <div class="fl" style="gap:3px;align-items:center">
-        <span style="font-size:10px;color:var(--tx3)">Less</span>
-        <div style="display:flex;gap:2px"><div style="width:9px;height:9px;border-radius:2px;background:#E2E8F0"></div><div style="width:9px;height:9px;border-radius:2px;background:#BFDBFE"></div><div style="width:9px;height:9px;border-radius:2px;background:#3B82F6"></div><div style="width:9px;height:9px;border-radius:2px;background:#1D4ED8"></div></div>
-        <span style="font-size:10px;color:var(--tx3)">More</span>
+        <span style="font-size:10px;color:#94A3B8">Less</span>
+        <div style="display:flex;gap:2px;align-items:center">
+          <div style="width:9px;height:9px;border-radius:2px;background:#CBD5E1"></div>
+          <div style="width:9px;height:9px;border-radius:2px;background:#93C5FD"></div>
+          <div style="width:9px;height:9px;border-radius:2px;background:#3B82F6"></div>
+          <div style="width:9px;height:9px;border-radius:2px;background:#1D4ED8"></div>
+        </div>
+        <span style="font-size:10px;color:#94A3B8">More</span>
       </div>
     </div>
-    <div class="hmwrap"><div id="hmml" class="hmml"></div><div id="hmg" class="hmgrid"></div></div>
+    <div class="hm-wrap">
+      <div id="hmml" class="hm-months"></div>
+      <div id="hmg" class="hm-grid"></div>
+    </div>
   </div>
-  <!-- Check-ins -->
+
+  <!-- Stats row -->
+  <div class="stat-row">
+    <div class="sc">
+      <div class="sc-ic" style="background:#EFF6FF"><svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="sc-v" id="scwk">0/5</div>
+      <div class="sc-l">this week</div>
+    </div>
+    <div class="sc">
+      <div class="sc-ic" style="background:#FEF2F2"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="sc-v" id="scdue" style="color:#DC2626">0</div>
+      <div class="sc-l">due today</div>
+    </div>
+    <div class="sc">
+      <div class="sc-ic" style="background:#F5F3FF"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div>
+      <div class="sc-v" id="sctot" style="color:#7C3AED">0</div>
+      <div class="sc-l">total cards</div>
+    </div>
+  </div>
+
+  <!-- Weekly check-ins -->
   <div class="card">
-    <div class="fb" style="margin-bottom:14px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace" id="sesminlbl">0 min logged</span>
-        <button class="btn bsm" onclick="logSession(-1)" id="logminus" style="padding:4px 8px;font-size:14px;line-height:1;display:none">−</button>
-        <button class="btn bpr bsm" onclick="logSession(1)">+ 30 min</button>
-      </div>
+    <div class="fb" style="margin-bottom:12px">
+      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
+      <span style="font-size:11px;color:#94A3B8">Tap to toggle · 30 min each</span>
     </div>
-    <div class="cigrid" id="cigrid"></div>
+    <div class="ci-row" id="cigrid" style="margin-bottom:12px"></div>
     <div class="pbar"><div class="pfil" id="wpbar" style="width:0%"></div></div>
-    <p style="margin-top:6px;font-size:11px;color:var(--tx3);text-align:right;font-family:'DM Mono',monospace" id="wklbl">0 of 5</p>
+    <p style="margin-top:6px;font-size:11px;color:#94A3B8;text-align:right;font-family:'DM Mono',monospace" id="wklbl">0 of 5 complete</p>
   </div>
+
   <!-- Due alert -->
   <div class="alert hid" id="dalert" onclick="goTab('rev')">
-    <div><div style="font-size:14px;font-weight:600;color:var(--rd)" id="dalerttxt">Cards due</div><div style="font-size:12px;color:var(--rd);opacity:.8">Review now →</div></div>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    <div>
+      <div style="font-size:14px;font-weight:600;color:#DC2626" id="dalerttxt">Cards due</div>
+      <div style="font-size:12px;color:#DC2626;opacity:.8">Review now to keep your streak →</div>
+    </div>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
   </div>
 </div>
 
-<!-- PRACTICE -->
-
+<!-- ══ PRACTICE ══ -->
 <div class="pg hid" id="pg-prac">
-  <div class="card csm" style="background:var(--sur2)">
+  <div class="card csm" style="background:#F8FAFF">
     <div class="fb">
-      <div style="font-size:12px;color:var(--tx2);display:flex;align-items:center;gap:6px">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:var(--bl)">00:00</span>
+      <div style="font-size:12px;color:#475569;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:#2563EB">00:00</span>
       </div>
-      <button class="btn bte bsm" onclick="openM('mCL')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom</button>
+      <button class="btn bte bsm" onclick="openM('mCL')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom
+      </button>
     </div>
   </div>
   <div id="pmctx"></div>
   <div id="lessonlist"></div>
-  <div id="promptbox" class="pbox m1">
-    <div class="dbadge m1" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>
+  <div id="promptbox" class="pbox">
+    <div class="dbadge" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>
     <div class="plbl">Your Prompt</div>
-    <div id="activeprompt" style="font-size:13px;color:var(--tx);line-height:1.6"></div>
+    <div id="activeprompt" style="font-size:13px;color:#0F172A;line-height:1.6"></div>
   </div>
   <!-- Shadowing -->
   <div class="card csm">
     <div class="fb">
-      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pu)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Shadowing Mode</div>
+      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;color:#0F172A">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Shadowing Mode
+      </div>
       <button class="btn bpu bsm" onclick="toggleShadow()" id="shbtn">▶ Start 5-min</button>
     </div>
     <div class="stimer hid" id="shtimer" style="margin-top:12px">
-      <div style="font-size:10px;color:var(--pu);font-family:'DM Mono',monospace;letter-spacing:1px">SHADOWING SESSION</div>
+      <div style="font-size:10px;color:#7C3AED;font-family:'DM Mono',monospace;letter-spacing:1px">SHADOWING SESSION</div>
       <div class="stdsp" id="shdsp">5:00</div>
       <div class="sttips">
         <div class="sttip"><span style="font-size:13px">🎯</span><span><strong>Match rhythm:</strong> Mirror the speaker's pace exactly, word by word.</span></div>
@@ -458,35 +483,37 @@ textarea{min-height:120px}
       </div>
     </div>
   </div>
-  <!-- Response -->
+  <!-- Response area -->
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600">Your Response</div>
-      <button class="btn bsm" id="micbtn" onclick="toggleListen()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak</button>
+      <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
+      <button class="btn bsm" id="micbtn" onclick="toggleListen()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
+      </button>
     </div>
-    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:12px;color:var(--rd);font-weight:500">Listening… speak clearly in English</span></div>
-    <div id="trdsp" class="hid" style="background:var(--sur2);border:1px solid var(--bor);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;font-size:13px;line-height:1.8;min-height:36px"></div>
-    <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()"></textarea>
+    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:12px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
+    <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;line-height:1.8;min-height:36px;color:#0F172A"></div>
+    <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
     <div class="fb mt8">
       <span class="wc" id="wcount">0 words</span>
-      <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up</button>
+      <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up
+      </button>
     </div>
   </div>
   <div class="hid" id="anlres"></div>
 </div>
 
-<!-- REVIEW -->
-
+<!-- ══ REVIEW ══ -->
 <div class="pg hid" id="pg-rev">
-  <div class="fb"><div style="font-size:15px;font-weight:600">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
+  <div class="fb"><div style="font-size:15px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
   <div id="revcontent"></div>
 </div>
 
-<!-- CARDS -->
-
+<!-- ══ CARDS ══ -->
 <div class="pg hid" id="pg-cards">
   <div class="fb">
-    <div style="font-size:15px;font-weight:600">My Cards</div>
+    <div style="font-size:15px;font-weight:600;color:#0F172A">My Cards</div>
     <div class="fl g6">
       <button class="btn bsm" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
       <button class="btn bsm bpu" onclick="exportAnki()">Anki</button>
@@ -496,51 +523,53 @@ textarea{min-height:120px}
 </div>
 
 </div><!-- /app -->
-
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-let checkins={}, cards=[], customLessons=[], stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}};
-let activeMonth=1, activeLesson=null, curTab='dash';
-let flashIdx=0, flipped=false;
-let listening=false, recognition=null;
-let shadowOn=false, shadowIv=null, shadowSecs=300;
-let sesStart=null, editCardId=null, selTags=[];
-let pendingUpgrades=[];
+let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}};
+let activeMonth=1,activeLesson=null,curTab='dash';
+let flashIdx=0,flipped=false,listening=false,recognition=null;
+let shadowOn=false,shadowIv=null,shadowSecs=300;
+let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[];
 let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null;
-
 function uid(){let u=localStorage.getItem('c1u');if(!u){u='u'+Math.random().toString(36).slice(2,9);localStorage.setItem('c1u',u);}return u;}
 const UID=uid();
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
-  {n:1,lb:'Jan',th:'Foundation',ic:'🌱',ph:'Phase 1',co:'#2563EB',bg:'var(--bl-l)',bd:'var(--bl-m)',ds:'Build daily habits, natural vocabulary and grammatical precision.',sk:['Natural Grammar','Core Vocabulary','Sentence Mining','Daily Writing'],dc:'m1',dl:'📘 Grammar & Natural Vocab',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 1: Correct grammar errors clearly. Suggest natural C1 vocabulary. Prioritize phrases that sound native.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:2,lb:'Feb',th:'Systems',ic:'⚙️',ph:'Phase 1',co:'#16A34A',bg:'var(--gr-l)',bd:'var(--gr-b)',ds:'Develop logical argumentation and technical language.',sk:['Logic & Structure','Technical Reading','Cause & Effect','Complex Sentences'],dc:'m2',dl:'⚙️ Logic & Technical Language',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 2: Identify logical connector issues. Suggest technical vocabulary. Flag unclear arguments.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:3,lb:'Mar',th:'Argumentation',ic:'🎯',ph:'Phase 2',co:'#7C3AED',bg:'var(--pu-l)',bd:'var(--pu-b)',ds:'Master rhetoric, hedging language and academic register.',sk:['Hedging Language','Academic Register','Rhetoric','Nuance & Precision'],dc:'m3',dl:'🎯 Rhetoric & Academic Hedging',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 3: Flag missing hedging. Push toward sophisticated academic collocations. Evaluate rhetorical effectiveness.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:4,lb:'Apr',th:'Fluency',ic:'🚀',ph:'Phase 2',co:'#0D9488',bg:'var(--te-l)',bd:'var(--te-b)',ds:'Prioritize speaking speed, naturalness and spontaneous output.',sk:['Speed Speaking','Spontaneous Output','Idiomatic Language','Register Switching'],dc:'m3',dl:'🚀 Fluency & Spontaneous Output',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 4: Prioritize naturalness and idiomaticity. Suggest idiomatic alternatives. Flag robotic phrasing.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:5,lb:'May',th:'Deep Input',ic:'📖',ph:'Phase 2',co:'#D97706',bg:'var(--yw-l)',bd:'var(--yw-b)',ds:'Intensive native input across multiple registers.',sk:['Dense Listening','Speed Reading','Collocations','Discourse Markers'],dc:'m3',dl:'📖 Dense Input & Collocations',ai:'Focus on collocations and discourse markers.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:6,lb:'Jun',th:'Output Sprint',ic:'✍️',ph:'Phase 3',co:'#DC2626',bg:'var(--rd-l)',bd:'var(--rd-b)',ds:'Maximum writing and structured speaking practice.',sk:['Essays 300+','Debate Practice','Complex Arguments','C1 Collocations'],dc:'m3',dl:'✍️ Output Sprint',ai:'Focus on output quality and argumentative structure.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:7,lb:'Jul',th:'Academic',ic:'🎓',ph:'Phase 3',co:'#1D4ED8',bg:'var(--bl-l)',bd:'var(--bl-m)',ds:'Academic writing, citation language and formal register.',sk:['Academic Writing','Hedging Mastery','Nominalization','Passive Constructions'],dc:'m3',dl:'🎓 Academic Register',ai:'Focus on academic register and nominalization.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:8,lb:'Aug',th:'Gap Analysis',ic:'🔍',ph:'Phase 3',co:'#9333EA',bg:'var(--pu-l)',bd:'var(--pu-b)',ds:'Mid-year assessment and targeted improvement.',sk:['Self-Assessment','Error Patterns','Targeted Drilling','C1 Mock Tasks'],dc:'m3',dl:'🔍 Gap Analysis',ai:'Perform a detailed C1 gap analysis.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:9,lb:'Sep',th:'Precision',ic:'⚡',ph:'Phase 4',co:'#0D9488',bg:'var(--te-l)',bd:'var(--te-b)',ds:'Near-native precision in word choice, tone and register.',sk:['Near-native Tone','Connotation','Register Perfection','Nuance Control'],dc:'m3',dl:'⚡ Precision & Near-Native Tone',ai:'Focus on near-native precision and connotation.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:10,lb:'Oct',th:'C1 Mock',ic:'📋',ph:'Phase 4',co:'#B45309',bg:'var(--yw-l)',bd:'var(--yw-b)',ds:'Full C1-level practice tasks across all four skills.',sk:['C1 Writing Tasks','Long Turn Speaking','Complex Listening','C1 Vocabulary'],dc:'m3',dl:'📋 C1 Mock Tasks',ai:'Evaluate strictly at C1 level.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:11,lb:'Nov',th:'Consolidation',ic:'🏆',ph:'Phase 4',co:'#16A34A',bg:'var(--gr-l)',bd:'var(--gr-b)',ds:'Consolidate all C1 skills and build your portfolio.',sk:['Portfolio Review','Error-Free Writing','Natural Fluency','Final Polish'],dc:'m3',dl:'🏆 C1 Consolidation',ai:'Consolidate C1 skills.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
-  {n:12,lb:'Dec',th:'C1 Achieved',ic:'🎉',ph:'Phase 4',co:'#DC2626',bg:'var(--rd-l)',bd:'var(--rd-b)',ds:'Final assessment, celebration and 2026 planning.',sk:['Final Assessment','2026 Planning','Portfolio Complete','Celebrate 🎉'],dc:'m3',dl:'🎉 C1 Achieved',ai:'Final comprehensive C1 assessment.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:1,lb:'Jan',th:'Foundation',ic:'🌱',ph:'Phase 1',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'Build daily habits, natural vocabulary and grammatical precision.',sk:['Natural Grammar','Core Vocabulary','Sentence Mining','Daily Writing'],dc:'',dl:'📘 Month 1 — Grammar & Natural Vocab',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 1: Correct grammar clearly. Suggest natural C1 vocabulary. Prioritize phrases that sound native.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:2,lb:'Feb',th:'Systems',ic:'⚙️',ph:'Phase 1',thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',ds:'Develop logical argumentation and technical language comprehension.',sk:['Logic & Structure','Technical Reading','Cause & Effect','Complex Sentences'],dc:'m2',dl:'⚙️ Month 2 — Logic & Technical Language',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 2: Identify logical connector issues. Suggest technical and precise vocabulary. Flag unclear arguments.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:3,lb:'Mar',th:'Argumentation',ic:'🎯',ph:'Phase 2',thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',ds:'Master rhetoric, hedging language and academic register at C1 level.',sk:['Hedging Language','Academic Register','Rhetoric','Nuance & Precision'],dc:'m3',dl:'🎯 Month 3 — Rhetoric & Hedging',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 3: Flag missing hedging. Push toward sophisticated academic collocations. Evaluate rhetorical effectiveness.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:4,lb:'Apr',th:'Fluency',ic:'🚀',ph:'Phase 2',thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',ds:'Prioritize speaking speed, naturalness and spontaneous output.',sk:['Speed Speaking','Spontaneous Output','Idiomatic Language','Register Switching'],dc:'m3',dl:'🚀 Month 4 — Fluency & Idiomaticity',ai:'You are an expert English coach for a Brazilian B2 learner targeting C1.\nFOCUS MONTH 4: Prioritize naturalness and idiomaticity. Suggest idiomatic alternatives. Flag robotic phrasing.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:5,lb:'May',th:'Deep Input',ic:'📖',ph:'Phase 2',thbg:'#FFFBEB',thbd:'#FDE68A',thco:'#D97706',ds:'Intensive native input across multiple registers.',sk:['Dense Listening','Speed Reading','Collocations','Discourse Markers'],dc:'m3',dl:'📖 Month 5 — Dense Input & Collocations',ai:'Focus on collocations and discourse markers.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:6,lb:'Jun',th:'Output',ic:'✍️',ph:'Phase 3',thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',ds:'Maximum writing output and structured speaking practice.',sk:['Essays 300+','Debate Practice','C1 Collocations','Speed Output'],dc:'m3',dl:'✍️ Month 6 — Output Sprint',ai:'Focus on output quality and argumentative structure.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:7,lb:'Jul',th:'Academic',ic:'🎓',ph:'Phase 3',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'Academic writing, citation language and formal register mastery.',sk:['Academic Writing','Hedging Mastery','Nominalization','Passive Constructions'],dc:'m3',dl:'🎓 Month 7 — Academic Register',ai:'Focus on academic register and nominalization.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:8,lb:'Aug',th:'Gap Analysis',ic:'🔍',ph:'Phase 3',thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',ds:'Mid-year assessment and targeted weak-area improvement.',sk:['Self-Assessment','Error Patterns','Targeted Drilling','C1 Mock Tasks'],dc:'m3',dl:'🔍 Month 8 — Gap Analysis',ai:'Perform a detailed C1 gap analysis.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:9,lb:'Sep',th:'Precision',ic:'⚡',ph:'Phase 4',thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',ds:'Near-native precision in word choice, tone and register.',sk:['Near-native Tone','Connotation','Register Perfection','Nuance Control'],dc:'m3',dl:'⚡ Month 9 — Precision',ai:'Focus on near-native precision.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:10,lb:'Oct',th:'C1 Mock',ic:'📋',ph:'Phase 4',thbg:'#FFFBEB',thbd:'#FDE68A',thco:'#D97706',ds:'Full C1-level practice tasks across all four skills.',sk:['C1 Writing Tasks','Long Turn Speaking','Complex Listening','C1 Vocabulary'],dc:'m3',dl:'📋 Month 10 — C1 Mock',ai:'Evaluate strictly at C1 level.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:11,lb:'Nov',th:'Consolidation',ic:'🏆',ph:'Phase 4',thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',ds:'Consolidate all C1 skills and build your portfolio.',sk:['Portfolio Review','Error-Free Writing','Natural Fluency','Final Polish'],dc:'m3',dl:'🏆 Month 11 — Consolidation',ai:'Consolidate C1 skills.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
+  {n:12,lb:'Dec',th:'C1 Achieved',ic:'🎉',ph:'Phase 4',thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',ds:'Final assessment, celebration and 2026 planning.',sk:['Final Assessment','2026 Planning','Portfolio Complete','Celebrate 🎉'],dc:'m3',dl:'🎉 Month 12 — C1 Achieved',ai:'Final comprehensive C1 assessment.\nReturn ONLY valid JSON:\n{"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"...","level_estimate":"B1|B2|C1|C2"}\nStudent text: "{{T}}"'},
 ];
 
 // ── LESSONS ───────────────────────────────────────────────────────────────────
 const BL={
-  1:[{id:'m1l1',month:1,title:'Aeon: The Psychology of Habit',level:'C1',url:'https://aeon.co/essays',tags:['Reading','C1'],desc:'Explore how habits form and how language shapes behaviour change.',prompt:'Read the essay. Identify the central argument, 3 rhetorical devices, and write a 150-word response using new vocabulary from the text.'},
-     {id:'m1l2',month:1,title:'TED: The Power of Vulnerability',level:'C1',url:'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',tags:['Speaking','Rhetoric'],desc:'A masterclass in authentic rhetoric — emotion and structure working together.',prompt:'Watch the talk. Analyze the speaker\'s use of personal narrative, humour, and emotional appeal. Write 150 words on which technique was most persuasive.'},
-     {id:'m1l3',month:1,title:'BBC News: Global Tech Trends',level:'B2+',url:'https://www.bbc.com/news/technology',tags:['Listening','News'],desc:'Native-speed news — train your ear for British English pacing.',prompt:'Listen to a BBC tech segment. Summarize 3 key points. Identify 2 formal/journalistic expressions.'}],
-  2:[{id:'m2l1',month:2,title:'Vox: How the Internet Works',level:'B2+',url:'https://www.vox.com/explainers',tags:['Explainer','Logic'],desc:'Clear explanatory writing with logical cause-and-effect structure.',prompt:'Read the explainer. Map the logical flow using connectors (therefore, consequently…). Rewrite 2 paragraphs with different connectors.'},
-     {id:'m2l2',month:2,title:'Scientific American: AI and Work',level:'C1',url:'https://www.scientificamerican.com',tags:['Technical','Reading'],desc:'Dense technical prose requiring strong academic vocabulary.',prompt:'Explain the central argument in your own words. Identify 5 technical collocations and write one sentence for each.'},
-     {id:'m2l3',month:2,title:'BBC Ideas: What is Game Theory?',level:'B2+',url:'https://www.bbc.com/ideas',tags:['Concept','Listening'],desc:'Short explainer videos for conceptual listening.',prompt:'Watch the video. Write a 120-word explanation of game theory as if explaining to a friend.'}],
-  3:[{id:'m3l1',month:3,title:'The Economist: Global Economic Outlook',level:'C1',url:'https://www.economist.com/podcasts',tags:['Formal','Listening'],desc:'Dense, sophisticated English packed with hedging and formal discourse.',prompt:'Listen. Identify 5 hedging expressions. Write a 200-word summary in the same formal register.'},
-     {id:'m3l2',month:3,title:'The Atlantic: Ethics of Social Media',level:'C1',url:'https://www.theatlantic.com',tags:['Nuance','Reading'],desc:'Long-form journalism with nuanced arguments and multiple perspectives.',prompt:'Read the article. Write a 200-word counter-argument using academic hedging language throughout.'},
-     {id:'m3l3',month:3,title:'Intelligence Squared: Is Tech Making Us Lonely?',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Rhetoric'],desc:'Formal British debate — study formal argumentation and rebuttal.',prompt:'Write 200 words arguing the position you disagree with. Use formal connectors and hedging throughout.'}],
+  1:[
+    {id:'m1l1',month:1,title:'Aeon: The Psychology of Habit',level:'C1',url:'https://aeon.co/essays',tags:['Reading','C1'],desc:'Explore how habits form and how language shapes behaviour change.',prompt:'Read an essay. Identify the central argument, 3 rhetorical devices, and write a 150-word response using new vocabulary from the text.'},
+    {id:'m1l2',month:1,title:'TED: The Power of Vulnerability',level:'C1',url:'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',tags:['Speaking','Rhetoric'],desc:'A masterclass in authentic rhetoric — emotion and structure working together.',prompt:'Watch the talk. Analyze the speaker\'s use of personal narrative, humour, and emotional appeal. Write 150 words on which technique was most persuasive.'},
+    {id:'m1l3',month:1,title:'BBC News: Global Tech Trends',level:'B2+',url:'https://www.bbc.com/news/technology',tags:['Listening','News'],desc:'Native-speed news — train your ear for British English pacing.',prompt:'Listen to a BBC tech segment. Summarize 3 key points. Identify 2 formal or journalistic expressions.'},
+  ],
+  2:[
+    {id:'m2l1',month:2,title:'Vox: How the Internet Works',level:'B2+',url:'https://www.vox.com/explainers',tags:['Explainer','Logic'],desc:'Clear explanatory writing with logical cause-and-effect structure — ideal for learning academic connectors.',prompt:'Read the explainer. Map the logical flow: identify cause→effect chains and the connectors used (therefore, consequently…). Rewrite 2 paragraphs using different connectors.'},
+    {id:'m2l2',month:2,title:'Scientific American: AI and the Future of Work',level:'C1',url:'https://www.scientificamerican.com',tags:['Technical','Reading'],desc:'Dense technical prose requiring strong academic vocabulary and sustained attention.',prompt:'Explain the central argument in your own words (no copying). Identify 5 technical collocations and write one original sentence for each.'},
+    {id:'m2l3',month:2,title:'BBC Ideas: What is Game Theory?',level:'B2+',url:'https://www.bbc.com/ideas',tags:['Concept','Listening'],desc:'Short, high-quality explainer videos — excellent for training conceptual listening.',prompt:'Watch the video. Without looking at any transcript, write a 120-word explanation of game theory as if explaining to a friend. What was the most surprising idea?'},
+  ],
+  3:[
+    {id:'m3l1',month:3,title:'The Economist: Global Economic Outlook',level:'C1',url:'https://www.economist.com/podcasts',tags:['Formal','Listening'],desc:'Dense, sophisticated English packed with hedging and formal discourse markers.',prompt:'Listen. Identify 5 hedging expressions ("it remains to be seen…", "there is a tendency to…"). Write a 200-word summary in the same formal register.'},
+    {id:'m3l2',month:3,title:'The Atlantic: Ethics of Social Media',level:'C1',url:'https://www.theatlantic.com',tags:['Nuance','Reading'],desc:'Long-form journalism with nuanced arguments and multiple perspectives.',prompt:'Read the article. Write a 200-word counter-argument using academic hedging language throughout.'},
+    {id:'m3l3',month:3,title:'Intelligence Squared: Is Tech Making Us Lonely?',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Rhetoric'],desc:'Formal British debate — study formal argumentation and rebuttal.',prompt:'Write 200 words arguing the position you disagree with. Use formal connectors and hedging throughout.'},
+  ],
   4:[{id:'m4l1',month:4,title:'NPR Hidden Brain',level:'C1',url:'https://hiddenbrain.org',tags:['Listening','Psychology'],desc:'Explore unconscious patterns driving human behaviour.',prompt:'Summarize the main insight and provide 3 supporting examples. Argue whether you agree with the conclusion.'},
      {id:'m4l2',month:4,title:'The Guardian Opinion',level:'C1',url:'https://www.theguardian.com/opinion',tags:['Reading','Argumentation'],desc:'Sharp opinion pieces rich in hedging and formal discourse.',prompt:'Identify hedging language and discourse markers. Write a 200-word counter-argument.'}],
   5:[{id:'m5l1',month:5,title:'Scientific American',level:'C1',url:'https://www.scientificamerican.com',tags:['Reading','Science'],desc:'Complex scientific writing with strong academic vocabulary.',prompt:'Identify 5 technical collocations. Discuss the most significant research implication.'},
@@ -548,7 +577,7 @@ const BL={
   6:[{id:'m6l1',month:6,title:'Aeon Essays',level:'C1',url:'https://aeon.co/essays',tags:['Reading','Philosophy'],desc:'Long-form essays exploring big ideas.',prompt:'Write a 300-word critical response to an essay.'}],
   7:[{id:'m7l1',month:7,title:'The Economist Podcasts',level:'C1',url:'https://www.economist.com/podcasts',tags:['Listening','Economics'],desc:'Dense analysis with sophisticated vocabulary.',prompt:'Write a 200-word summary in the same formal register. Identify 5 formal connectors.'}],
   8:[{id:'m8l1',month:8,title:'TED Talks — Advanced Rhetoric',level:'C1',url:'https://www.ted.com/talks',tags:['Speaking','Rhetoric'],desc:'Study world-class speakers and master persuasion.',prompt:'Analyze the rhetorical structure: hook, ethos/pathos/logos, narrative arc, call to action.'}],
-  9:[{id:'m9l1',month:9,title:'Intelligence Squared Debates',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Formal'],desc:'Formal British debates — study precision and rebuttal.',prompt:'Identify the strongest rhetorical moves from each side. Write a 250-word analysis.'}],
+  9:[{id:'m9l1',month:9,title:'Intelligence Squared Debates',level:'C1',url:'https://intelligencesquared.com',tags:['Debate','Formal'],desc:'Formal British debates — precision and rebuttal.',prompt:'Identify the strongest rhetorical moves from each side. Write a 250-word analysis.'}],
   10:[{id:'m10l1',month:10,title:'Foreign Affairs',level:'C1',url:'https://www.foreignaffairs.com',tags:['Academic','Policy'],desc:'Top-tier academic policy writing.',prompt:'Identify nominalization and passive constructions. Rewrite 2 paragraphs in a less formal register.'}],
   11:[{id:'m11l1',month:11,title:'Longform.org — Best Essays',level:'C1',url:'https://longform.org',tags:['Reading','Literary'],desc:'Curated long-form journalism.',prompt:'Write a 300-word response matching the author\'s register and tone.'}],
   12:[{id:'m12l1',month:12,title:'Portfolio Review',level:'C1',url:'https://aeon.co/essays',tags:['Review','Portfolio'],desc:'Revisit your best pieces and measure growth.',prompt:'Rewrite your Month 1 first writing from memory. Write a 200-word reflection on your C1 journey.'}],
@@ -557,18 +586,14 @@ const BL={
 // ── SM-2 ──────────────────────────────────────────────────────────────────────
 function nxtRev(q,idx=0,ef=2.5){
   let ei=Math.max(1.3,ef+0.1-(5-q)*(0.08+(5-q)*0.02));
-  let ni;
-  if(q<3)ni=1;
-  else if(idx===0)ni=1;
-  else if(idx===1)ni=3;
-  else ni=Math.round(IVLS[Math.min(idx-1,IVLS.length-1)]*ei);
+  let ni=q<3?1:idx===0?1:idx===1?3:Math.round(IVLS[Math.min(idx-1,IVLS.length-1)]*ei);
   const ni2=Math.min(idx+(q>=3?1:0),IVLS.length-1);
   const d=new Date();d.setDate(d.getDate()+ni);d.setHours(0,0,0,0);
   return{date:d.toISOString().split('T')[0],intervalIdx:ni2,easiness:ei};
 }
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
-function load(){
+function loadLocal(){
   try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}
   try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
   try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
@@ -581,7 +606,7 @@ function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.
 function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 
-// ── FIREBASE SYNC (background only, never blocks) ─────────────────────────────
+// ── FIREBASE ──────────────────────────────────────────────────────────────────
 function startSync(){
   try{
     if(typeof firebase==='undefined')return;
@@ -589,12 +614,12 @@ function startSync(){
       firebase.initializeApp({apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",authDomain:"b1-c1-80aa1.firebaseapp.com",databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",projectId:"b1-c1-80aa1",storageBucket:"b1-c1-80aa1.firebasestorage.app",messagingSenderId:"204603766052",appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"});
     }
     db=firebase.database();
-    RCI=db.ref(`u/${UID}/ci`);RCA=db.ref(`u/${UID}/ca`);RST=db.ref(`u/${UID}/st`);RCU=db.ref(`u/${UID}/cu`);RMO=db.ref(`u/${UID}/mo`);
+    RCI=db.ref('u/'+UID+'/ci');RCA=db.ref('u/'+UID+'/ca');RST=db.ref('u/'+UID+'/st');RCU=db.ref('u/'+UID+'/cu');RMO=db.ref('u/'+UID+'/mo');
     RCI.on('value',s=>{const v=s.val();if(!v)return;checkins=v;localStorage.setItem('c1ci',JSON.stringify(v));setSS('online');if(curTab==='dash')renderDash();},()=>setSS('offline'));
     RCA.on('value',s=>{const v=s.val();if(v===null)return;cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[];localStorage.setItem('c1ca',JSON.stringify(cards));setSS('online');render();},()=>setSS('offline'));
     RST.on('value',s=>{const v=s.val();if(!v)return;stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);localStorage.setItem('c1st',JSON.stringify(stats));setSS('online');renderMeters();renderFlight();},()=>setSS('offline'));
     RCU.on('value',s=>{const v=s.val();customLessons=v?Object.values(v):[];localStorage.setItem('c1cu',JSON.stringify(customLessons));setSS('online');if(curTab==='prac')renderPrac();},()=>setSS('offline'));
-    RMO.once('value',s=>{const v=s.val();if(!v||v===activeMonth)return;activeMonth=v;localStorage.setItem('c1mo',v);buildRail();renderBanner();if(curTab==='prac')renderPrac();});
+    RMO.once('value',s=>{const v=s.val();if(!v||v===activeMonth)return;activeMonth=v;localStorage.setItem('c1mo',v);buildRoadmap();if(curTab==='prac')renderPrac();});
     setSS('online');
   }catch(e){setSS('offline');}
 }
@@ -613,16 +638,12 @@ function wkDays(){
   for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);a.push({key:d.toISOString().split('T')[0],lb:['Mon','Tue','Wed','Thu','Fri'][i],td:d.toISOString().split('T')[0]===today});}
   return a;
 }
-function streak(){let s=0,d=new Date();while(true){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+function streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
-function f2(n){return n.toString().padStart(2,'0');}
+function f2(n){return String(n).padStart(2,'0');}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function mdata(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}
-function lessons(n){
-  const b=(BL[n]||[]).map(l=>({...l,isCustom:false}));
-  const c=customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}));
-  return [...b,...c];
-}
+function lessons(n){return[...(BL[n]||[]).map(l=>({...l,isCustom:false})),...customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}))];}
 function openM(id){document.getElementById(id).classList.remove('hid');}
 function closeM(id){document.getElementById(id).classList.add('hid');}
 
@@ -657,7 +678,7 @@ function renderDash(){
   const days=wkDays(),dn=days.filter(d=>checkins[d.key]).length,dv=due();
   document.getElementById('scwk').textContent=dn+'/5';
   document.getElementById('scdue').textContent=dv.length;
-  document.getElementById('scdue').style.color=dv.length>0?'var(--rd)':'var(--gr)';
+  document.getElementById('scdue').style.color=dv.length>0?'#DC2626':'#16A34A';
   document.getElementById('sctot').textContent=cards.length;
   document.getElementById('wpbar').style.width=(dn/5*100)+'%';
   document.getElementById('wklbl').textContent=dn+' of 5 complete';
@@ -666,101 +687,122 @@ function renderDash(){
   days.forEach(d=>{
     const ok=!!checkins[d.key];
     const b=document.createElement('button');
-    b.className='cibtn'+(ok?' dn':d.td?' td':'');
+    b.className='ci-btn'+(ok?' dn':d.td?' td':'');
     b.onclick=()=>toggleCI(d.key);
-    b.innerHTML=`<span class="cilbl">${d.lb}</span><div class="cick${ok?' dn':''}">${ok?'<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>${d.td&&!ok?'<span class="tdtag">today</span>':''}`;
+    b.innerHTML='<span class="ci-lbl">'+d.lb+'</span>'
+      +'<div class="ci-dot'+(ok?' dn':'')+'">'+( ok?'<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
+      +(d.td&&!ok?'<span class="tdtag">today</span>':'');
     g.appendChild(b);
   });
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
-  renderBanner();renderHeatmap();renderFlight();renderMeters();updateLogBtn();
+  renderFlight();renderMeters();renderHeatmap();updateLogBtn();
 }
 
 function toggleCI(k){
   if(checkins[k]){
     delete checkins[k];
     stats.totalMins=Math.max(0,(stats.totalMins||0)-30);
-    if(stats.studyDays&&stats.studyDays[k]){stats.studyDays[k]=Math.max(0,(stats.studyDays[k]||0)-30);if(stats.studyDays[k]===0)delete stats.studyDays[k];}
+    if(stats.studyDays&&stats.studyDays[k]){
+      stats.studyDays[k]=Math.max(0,(stats.studyDays[k]||0)-30);
+      if(stats.studyDays[k]===0)delete stats.studyDays[k];
+    }
     saveST();toast('↩ Check-in removed');
   }else{
-    checkins[k]=true;stats.totalMins=(stats.totalMins||0)+30;
-    if(!stats.studyDays)stats.studyDays={};stats.studyDays[k]=(stats.studyDays[k]||0)+30;
+    checkins[k]=true;
+    stats.totalMins=(stats.totalMins||0)+30;
+    if(!stats.studyDays)stats.studyDays={};
+    stats.studyDays[k]=(stats.studyDays[k]||0)+30;
     saveST();
   }
   saveCI();renderDash();
 }
+
 function logSession(dir){
-  // dir: 1 = add 30min, -1 = remove 30min
-  const delta=dir*30;
-  stats.totalMins=Math.max(0,(stats.totalMins||0)+delta);
+  stats.totalMins=Math.max(0,(stats.totalMins||0)+dir*30);
   if(!stats.studyDays)stats.studyDays={};
-  stats.studyDays[today]=Math.max(0,(stats.studyDays[today]||0)+delta);
+  stats.studyDays[today]=Math.max(0,(stats.studyDays[today]||0)+dir*30);
   if(stats.studyDays[today]===0)delete stats.studyDays[today];
-  saveST();
-  toast(dir>0?'✈ +30 min logged!':'↩ 30 min removed');
-  renderFlight();
-  updateLogBtn();
+  saveST();toast(dir>0?'✈ +30 min logged!':'↩ 30 min removed');
+  renderFlight();updateLogBtn();
 }
 function updateLogBtn(){
-  const mins=stats.studyDays&&stats.studyDays[today]?stats.studyDays[today]:0;
+  const mins=(stats.studyDays&&stats.studyDays[today])||0;
   const lbl=document.getElementById('sesminlbl');
   const minus=document.getElementById('logminus');
   if(lbl)lbl.textContent=mins>0?mins+' min logged today':'0 min logged';
   if(minus)minus.style.display=mins>0?'':'none';
 }
 
-// ── MONTH RAIL ────────────────────────────────────────────────────────────────
-function buildRail(){
-  const r=document.getElementById('mrl');r.innerHTML='';
+// ── ROADMAP ───────────────────────────────────────────────────────────────────
+function buildRoadmap(){
+  // Selector (12 month buttons in 2 rows of 6)
+  const sel=document.getElementById('rmsel');sel.innerHTML='';
   MONTHS.forEach(m=>{
     const b=document.createElement('button');
-    b.className='mbt'+(m.n===activeMonth?' on':'');
-    b.innerHTML=`<span class="mn">${m.lb}</span><span class="mt">${m.ic} ${m.th}</span>`;
+    b.className='rm-btn'+(m.n===activeMonth?' on':'');
+    b.innerHTML=m.ic+'<br>'+m.lb;
     b.onclick=()=>setMonth(m.n);
-    r.appendChild(b);
+    sel.appendChild(b);
   });
-  setTimeout(()=>{const a=r.querySelector('.on');if(a)a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},100);
+  // Theme display
+  const md=mdata(activeMonth);
+  document.getElementById('rmtheme').innerHTML=
+    '<div class="rm-icon">'+md.ic+'</div>'
+    +'<div class="rm-info">'
+    +'<div class="rm-ph" style="color:'+md.thco+'">'+md.ph+' · Month '+md.n+'</div>'
+    +'<div class="rm-name">'+md.th+'</div>'
+    +'<div class="rm-desc">'+md.ds+'</div>'
+    +'</div>';
+  document.getElementById('rmtheme').style.cssText='display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;background:'+md.thbg+';border:1px solid '+md.thbd+';margin-top:4px';
 }
+
 function setMonth(n){
   activeMonth=n;saveMO();
   const ls=lessons(n);activeLesson=ls[0]||null;
-  buildRail();renderBanner();
+  buildRoadmap();
   if(curTab==='prac')renderPrac();
   toast('📅 Month '+n+': '+mdata(n).th);
-}
-function renderBanner(){
-  const m=mdata(activeMonth);
-  document.getElementById('thbanner').innerHTML=`<div class="tbanner" style="background:${m.bg};border:1px solid ${m.bd}">
-    <div class="tbi">${m.ic}</div>
-    <div style="flex:1;min-width:0">
-      <div class="tbph" style="color:${m.co}">${m.ph} · Month ${m.n}</div>
-      <div class="tbtit">${m.th}</div>
-      <div class="tbdsc">${m.ds}</div>
-      <div class="tbsk">${m.sk.map(s=>`<span class="tag tgr">${s}</span>`).join('')}</div>
-    </div>
-  </div>`;
 }
 
 // ── HEATMAP ───────────────────────────────────────────────────────────────────
 function renderHeatmap(){
   const g=document.getElementById('hmg'),ml=document.getElementById('hmml');
   g.innerHTML='';ml.innerHTML='';
-  const end=new Date(2025,11,31),start=new Date(2025,0,1);
+  const yr=new Date().getFullYear();
+  const end=new Date(yr,11,31);
+  const start=new Date(yr,0,1);
   const fs=new Date(start);fs.setDate(start.getDate()-start.getDay());
   const wks=[];let c=new Date(fs);
   while(c<=end){const w=[];for(let i=0;i<7;i++){w.push(new Date(c));c.setDate(c.getDate()+1);}wks.push(w);}
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   let lm=-1;
   wks.forEach((wk,wi)=>{
     const mo=wk[0].getMonth();
-    if(mo!==lm&&wk[0].getFullYear()===2025){lm=mo;const l=document.createElement('div');l.className='hmlbl';l.style.minWidth=Math.max(12,(wks.slice(wi,wi+5).length)*13)+'px';l.textContent=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mo];ml.appendChild(l);}
+    if(mo!==lm&&wk[0].getFullYear()===yr){
+      lm=mo;
+      const l=document.createElement('div');l.className='hm-ml';
+      l.style.minWidth=Math.max(12,(wks.slice(wi,wi+5).length)*14)+'px';
+      l.textContent=months[mo];ml.appendChild(l);
+    }
   });
+  const now=new Date();
   wks.forEach(wk=>{
-    const col=document.createElement('div');col.className='hmcol';
+    const col=document.createElement('div');col.className='hm-col';
     wk.forEach(d=>{
-      const cell=document.createElement('div');cell.className='hmc';
+      const cell=document.createElement('div');cell.className='hm-c';
       const k=d.toISOString().split('T')[0];
-      if(d.getFullYear()===2025&&d<=new Date()&&checkins[k])cell.classList.add('l4');
-      cell.title=k;col.appendChild(cell);
+      if(d.getFullYear()===yr){
+        if(d<=now){
+          if(checkins[k])cell.classList.add('l4');
+          // else stays gray #CBD5E1
+        }else{
+          // future: lighter gray
+          cell.style.background='#E8EDF5';
+        }
+      }
+      cell.title=k;
+      col.appendChild(cell);
     });
     g.appendChild(col);
   });
@@ -771,9 +813,10 @@ function renderFlight(){
   const tm=stats.totalMins||0,h=Math.floor(tm/60),m=tm%60;
   const e=document.getElementById('fhours');if(e)e.textContent=h+'h '+f2(m)+'m';
   const ds=Object.keys(stats.studyDays||{}).length,av=ds>0?Math.round(tm/ds):0;
-  const fd=document.getElementById('fdays');if(fd)fd.textContent=ds;
-  const fa=document.getElementById('favg');if(fa)fa.textContent=av+'m';
-  const fs=document.getElementById('fstrk');if(fs)fs.textContent=streak();
+  ['fdays','favg','fstrk'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=[ds,av+'m',streak()][i];
+  });
   const hh=document.getElementById('hhours');if(hh)hh.textContent=Math.floor(tm/60)+'h';
 }
 function renderMeters(){
@@ -791,18 +834,33 @@ function renderMeters(){
 function renderPrac(){
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
-  document.getElementById('pmctx').innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0"><span class="tag tbl">${m.ic} Month ${m.n}: ${m.th}</span><span style="font-size:12px;color:var(--tx3)">${ls.length} lesson${ls.length!==1?'s':''}</span></div>`;
+  // Month context
+  document.getElementById('pmctx').innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span class="tag tbl">'+m.ic+' Month '+m.n+': '+m.th+'</span><span style="font-size:12px;color:#94A3B8">'+ls.length+' lesson'+(ls.length!==1?'s':'')+'</span></div>';
+  // Lessons
   const ll=document.getElementById('lessonlist');ll.innerHTML='';
-  if(ls.length===0){ll.innerHTML=`<div class="card" style="text-align:center;padding:20px"><p style="color:var(--tx2);font-size:13px;margin-bottom:10px">No lessons for Month ${activeMonth}.</p><button class="btn bte bsm" onclick="openM('mCL')">Add Custom Lesson</button></div>`;}
-  else{ls.forEach(l=>{
-    const div=document.createElement('div');
-    div.className='lcard'+(activeLesson&&activeLesson.id===l.id?' on':'')+(l.isCustom?' custom':'');
-    div.onclick=()=>{activeLesson=l;renderPrac();};
-    div.innerHTML=`<div style="flex:1;min-width:0"><div class="ltit">${esc(l.title)}<span class="tag tgr">${l.level||'C1'}</span>${l.isCustom?'<span class="tag tcu">custom</span>':''}</div><div class="ldsc">${esc(l.desc||'')}</div><div style="display:flex;gap:5px;flex-wrap:wrap">${(l.tags||[]).map(t=>`<span class="tag tgr">${t}</span>`).join('')}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><a href="${esc(l.url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--bl)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>${l.isCustom?`<button onclick="event.stopPropagation();delCustom('${l.id}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}</div>`;
-    ll.appendChild(div);
-  });}
-  const pb=document.getElementById('promptbox'),db=document.getElementById('dbadge'),ap=document.getElementById('activeprompt');
-  pb.className=`pbox ${m.dc}`;db.className=`dbadge ${m.dc}`;db.textContent=m.dl;
+  if(ls.length===0){
+    ll.innerHTML='<div class="card" style="text-align:center;padding:20px"><p style="color:#475569;font-size:13px;margin-bottom:10px">No lessons for Month '+activeMonth+'.</p><button class="btn bte bsm" onclick="openM(\'mCL\')">Add Custom Lesson</button></div>';
+  }else{
+    ls.forEach(l=>{
+      const div=document.createElement('div');
+      div.className='lcard'+(activeLesson&&activeLesson.id===l.id?' on':'')+(l.isCustom?' custom':'');
+      div.onclick=()=>{activeLesson=l;renderPrac();};
+      div.innerHTML='<div style="flex:1;min-width:0">'
+        +'<div class="ltit">'+esc(l.title)+'<span class="tag tgr">'+esc(l.level||'C1')+'</span>'+(l.isCustom?'<span class="tag tcu">custom</span>':'')+'</div>'
+        +'<div class="ldsc">'+esc(l.desc||'')+'</div>'
+        +'<div style="display:flex;gap:5px;flex-wrap:wrap">'+(l.tags||[]).map(t=>'<span class="tag tgr">'+t+'</span>').join('')+'</div></div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'
+        +'<a href="'+esc(l.url)+'" target="_blank" onclick="event.stopPropagation()" style="color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>'
+        +(l.isCustom?'<button onclick="event.stopPropagation();delCustom(\''+l.id+'\')" style="background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
+        +'</div>';
+      ll.appendChild(div);
+    });
+  }
+  // Prompt
+  const pb=document.getElementById('promptbox'),db2=document.getElementById('dbadge'),ap=document.getElementById('activeprompt');
+  pb.className='pbox'+(m.dc?' '+m.dc:'');
+  db2.className='dbadge'+(m.dc?' '+m.dc:'');
+  db2.textContent=m.dl;
   ap.textContent=activeLesson?activeLesson.prompt:'Select a lesson above.';
 }
 function onInput(){
@@ -821,7 +879,7 @@ function initSesTimer(){
   },1000);
 }
 
-// ── SHADOW ────────────────────────────────────────────────────────────────────
+// ── SHADOWING ─────────────────────────────────────────────────────────────────
 function toggleShadow(){
   const t=document.getElementById('shtimer'),b=document.getElementById('shbtn');
   if(!shadowOn){
@@ -847,18 +905,17 @@ function toggleListen(){
   if(listening){recognition&&recognition.stop();return;}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
-  const t0=Date.now();
-  let committed='';
+  const t0=Date.now();let committed='';
   recognition.onresult=e=>{
     const d=document.getElementById('trdsp');d.classList.remove('hid');
     let ihtml='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       const r=e.results[i],cf=r[0].confidence;
-      r[0].transcript.trim().split(' ').forEach(w=>{if(!w)return;let cl='';if(cf>0&&cf<0.6)cl='vlo';else if(cf>0&&cf<0.8)cl='lo';ihtml+=`<span class="tword ${cl}">${w} </span>`;});
+      r[0].transcript.trim().split(' ').forEach(w=>{if(!w)return;let cl='';if(cf>0&&cf<0.6)cl='vlo';else if(cf>0&&cf<0.8)cl='lo';ihtml+='<span class="tword '+cl+'">'+w+' </span>';});
       if(r.isFinal){committed+=(committed?' ':'')+r[0].transcript.trim();document.getElementById('rtxt').value=committed;onInput();}
     }
-    const ch=committed.split(' ').map(w=>`<span class="tword">${w} </span>`).join('');
-    d.innerHTML=(ch+ihtml)||'<span style="color:var(--tx3)">Listening…</span>';
+    const ch=committed.split(' ').filter(Boolean).map(w=>'<span class="tword">'+w+' </span>').join('');
+    d.innerHTML=(ch+ihtml)||'<span style="color:#94A3B8">Listening…</span>';
   };
   recognition.onend=()=>{
     listening=false;updMic();
@@ -870,16 +927,15 @@ function toggleListen(){
 }
 function updMic(){
   const b=document.getElementById('micbtn'),bar=document.getElementById('lisbar');
-  if(listening){b.className='btn bdn bsm';b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Stop`;bar.classList.remove('hid');}
-  else{b.className='btn bsm';b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak`;bar.classList.add('hid');}
+  if(listening){b.className='btn bdn bsm';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Stop';bar.classList.remove('hid');}
+  else{b.className='btn bsm';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';bar.classList.add('hid');}
 }
 
 // ── AI BRIDGE ─────────────────────────────────────────────────────────────────
 function openAIModal(){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
   curText=t;
-  const m=mdata(activeMonth);
-  const fp=m.ai.replace('{{T}}',t);
+  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
   navigator.clipboard.writeText(t).catch(()=>{});
   document.getElementById('mpbox').textContent=fp;
   document.getElementById('jsonin').value='';
@@ -887,8 +943,7 @@ function openAIModal(){
   openM('mAI');
 }
 function copyPrompt(){
-  const t=document.getElementById('rtxt').value.trim();
-  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
+  const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
   navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
 }
 function processJSON(){
@@ -899,24 +954,34 @@ function processJSON(){
   catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
   closeM('mAI');
   const w=curText.trim().split(/\s+/).filter(Boolean).length;
-  stats.wordsToday=(stats.wordsToday||0)+w;stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
+  stats.wordsToday=(stats.wordsToday||0)+w;
+  stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
   if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(w/100)*5);
-  saveST();renderMeters();
-  renderAnalysis(r);
+  saveST();renderMeters();renderAnalysis(r);
 }
 function renderAnalysis(r){
-  const lc={B1:'var(--yw)',B2:'var(--bl)',C1:'var(--gr)',C2:'var(--pu)'};
-  let h=`<div class="card fb" style="align-items:flex-start"><div><div style="font-size:11px;color:var(--tx3);margin-bottom:4px">Estimated Level</div><div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:${lc[r.level_estimate]||'var(--bl)'}">${r.level_estimate||'—'}</div></div><div style="max-width:60%;text-align:right;font-size:13px;color:var(--tx2);line-height:1.5">${esc(r.overall_feedback||'')}</div></div>`;
+  const lc={B1:'#D97706',B2:'#2563EB',C1:'#16A34A',C2:'#7C3AED'};
+  let h='<div class="card fb" style="align-items:flex-start">'
+    +'<div><div style="font-size:11px;color:#94A3B8;margin-bottom:4px">Estimated Level</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+(lc[r.level_estimate]||'#2563EB')+'">'+(r.level_estimate||'—')+'</div></div>'
+    +'<div style="max-width:60%;text-align:right;font-size:13px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
   if(r.corrections?.length){
-    h+=`<div class="card"><div class="ctit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="gg">`;
-    r.corrections.forEach(c=>{h+=`<div class="corr"><div class="cwrong">✗ ${esc(c.original)}</div><div class="cright">✓ ${esc(c.corrected)}</div><div class="cwhy">${esc(c.explanation)}</div></div>`;});
+    h+='<div class="card"><div class="ctit"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="gg">';
+    r.corrections.forEach(c=>{h+='<div class="corr"><div class="cwrong">✗ '+esc(c.original)+'</div><div class="cright">✓ '+esc(c.corrected)+'</div><div class="cwhy">'+esc(c.explanation)+'</div></div>';});
     h+='</div></div>';
   }
   if(r.c1_upgrades?.length){
     pendingUpgrades=r.c1_upgrades;
-    h+=`<div class="card"><div class="fb" style="margin-bottom:12px"><div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>C1 Vocabulary Upgrades</div></div><div class="gg">`;
+    h+='<div class="card"><div class="fb" style="margin-bottom:12px"><div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>C1 Vocabulary Upgrades</div></div><div class="gg">';
     r.c1_upgrades.forEach((u,i)=>{
-      h+=`<div class="upitem"><div style="flex:1"><div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px"><span style="font-size:12px;color:var(--tx3);text-decoration:line-through">${esc(u.simple)}</span><span style="color:var(--tx3)">→</span><span style="font-size:13px;font-weight:600;color:var(--bl-t)">${esc(u.c1)}</span></div><div style="font-size:12px;color:var(--tx2);font-style:italic">"${esc(u.example)}"</div></div><button class="btn bpr bsm" id="sub${i}" onclick="saveUpgrade(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save</button></div>`;
+      h+='<div class="upitem"><div style="flex:1">'
+        +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">'
+        +'<span style="font-size:12px;color:#94A3B8;text-decoration:line-through">'+esc(u.simple)+'</span>'
+        +'<span style="color:#94A3B8">→</span>'
+        +'<span style="font-size:13px;font-weight:600;color:#1D4ED8">'+esc(u.c1)+'</span></div>'
+        +'<div style="font-size:12px;color:#475569;font-style:italic">"'+esc(u.example)+'"</div></div>'
+        +'<button class="btn bpr bsm" id="sub'+i+'" onclick="saveUpgrade('+i+')">'
+        +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save</button></div>';
     });
     h+='</div></div>';
   }
@@ -926,7 +991,7 @@ function saveUpgrade(i){
   const u=pendingUpgrades[i];if(!u)return;
   saveCard(u.simple,u.c1,u.example,'upgrade');
   const b=document.getElementById('sub'+i);
-  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:var(--gr-l);color:var(--gr);border-color:var(--gr-b);padding:5px 10px;font-size:11px;border-radius:var(--rs);border:1px solid;cursor:default';}
+  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:11px;border-radius:8px;cursor:default';}
 }
 
 // ── CARDS ─────────────────────────────────────────────────────────────────────
@@ -942,8 +1007,6 @@ function saveChunk(){
   saveCard(k,'(collocation)',e,'chunk');
   document.getElementById('chkw').value='';document.getElementById('chex').value='';
 }
-
-// ── EDIT CARD ─────────────────────────────────────────────────────────────────
 function openEdit(id){
   const c=cards.find(x=>x.id===id);if(!c)return;
   editCardId=id;
@@ -953,9 +1016,7 @@ function openEdit(id){
   openM('mEC');
 }
 function saveEdit(){
-  const s=document.getElementById('ec_sim').value.trim();
-  const c=document.getElementById('ec_c1').value.trim();
-  const e=document.getElementById('ec_ex').value.trim();
+  const s=document.getElementById('ec_sim').value.trim(),c=document.getElementById('ec_c1').value.trim(),e=document.getElementById('ec_ex').value.trim();
   if(!s||!c){toast('⚠️ Simple and C1 are required');return;}
   const i=cards.findIndex(x=>x.id===editCardId);
   if(i>=0){cards[i].simple=s;cards[i].c1=c;cards[i].example=e;}
@@ -963,11 +1024,7 @@ function saveEdit(){
 }
 function confirmDel(){
   const c=cards.find(x=>x.id===editCardId);if(!c)return;
-  if(confirm(`Delete "${c.simple} → ${c.c1}"?`)){
-    closeM('mEC');
-    cards=cards.filter(x=>x.id!==editCardId);
-    saveCA();toast('Deleted');renderCards();render();
-  }
+  if(confirm('Delete "'+c.simple+' → '+c.c1+'"?')){closeM('mEC');cards=cards.filter(x=>x.id!==editCardId);saveCA();toast('Deleted');renderCards();render();}
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────────
@@ -975,19 +1032,21 @@ function renderRev(){
   const dv=due();
   document.getElementById('duecnt').textContent=dv.length+' due today';
   const c=document.getElementById('revcontent');
-  if(dv.length===0){c.innerHTML=`<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>`;return;}
+  if(dv.length===0){c.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>';return;}
   if(flashIdx>=dv.length)flashIdx=0;
   const card=dv[flashIdx];
   let dots='<div class="pdots">';
-  dv.forEach((_,i)=>dots+=`<div class="pdot2${i<flashIdx?' dn':i===flashIdx?' cu':''}"></div>`);
+  dv.forEach((_,i)=>dots+='<div class="pdot2'+(i<flashIdx?' dn':i===flashIdx?' cu':'')+'"></div>');
   dots+='</div>';
   let ch='';
   if(!flipped){
     const isCloze=card.type==='chunk';
     const front=isCloze&&card.example?card.example.replace(card.simple,'<span class="fblank"></span>'):card.simple;
-    ch=`<div class="fcard2" onclick="flipCard()"><div class="fhint">${isCloze?'Cloze — fill the blank':'Simple version'}</div><div class="${isCloze?'fcloze':'fword'}">${front}</div>${!isCloze?`<div style="font-size:11px;color:var(--tx3);margin-top:8px">What's the C1 version?</div>`:''}<div class="ftap">Tap to reveal →</div></div><p style="text-align:center;font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace;margin-top:8px">${flashIdx+1} / ${dv.length}</p>`;
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">'+(isCloze?'Cloze — fill the blank':'Simple version')+'</div><div class="'+(isCloze?'fcloze':'fword')+'">'+front+'</div>'+((!isCloze)?'<div style="font-size:11px;color:#94A3B8;margin-top:8px">What\'s the C1 version?</div>':'')+'<div class="ftap">Tap to reveal →</div></div>'
+      +'<p style="text-align:center;font-size:11px;color:#94A3B8;font-family:\'DM Mono\',monospace;margin-top:8px">'+(flashIdx+1)+' / '+dv.length+'</p>';
   }else{
-    ch=`<div class="fcard2" onclick="flipCard()"><div class="fhint" style="color:var(--bl)">C1 expression</div><div class="fword bl">${esc(card.c1)}</div>${card.example?`<div class="fex">"${esc(card.example)}"</div>`:''}<div class="ftap">← ${esc(card.simple)}</div></div><div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>`;
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">C1 expression</div><div class="fword bl">'+esc(card.c1)+'</div>'+(card.example?'<div class="fex">"'+esc(card.example)+'"</div>':'')+'<div class="ftap">← '+esc(card.simple)+'</div></div>'
+      +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>';
   }
   c.innerHTML=dots+ch;
 }
@@ -1004,12 +1063,29 @@ function handleRev(q){
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
 function renderCards(){
   const el=document.getElementById('cardslist');
-  if(cards.length===0){el.innerHTML=`<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Analyze your writing and save C1 upgrades.</div><button class="btn bpr" onclick="goTab('prac')">Go to Practice →</button></div>`;return;}
-  let h=`<div class="card csm" style="background:var(--sur2);margin-bottom:4px"><div class="ctit" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Collocation / Chunk</div><div style="display:grid;gap:8px"><input type="text" id="chkw" placeholder="Keyword (e.g. reach)" style="min-height:unset;height:38px;resize:none"><input type="text" id="chex" placeholder="Full collocation (e.g. To reach a consensus)" style="min-height:unset;height:38px;resize:none"><button class="btn bpu bsm" onclick="saveChunk()" style="justify-self:end">Save Chunk</button></div></div>`;
+  if(cards.length===0){el.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Analyze your writing and save C1 upgrades.</div><button class="btn bpr" onclick="goTab(\'prac\')">Go to Practice →</button></div>';return;}
+  let h='<div class="card csm" style="background:#F8FAFF;margin-bottom:4px">'
+    +'<div class="ctit" style="margin-bottom:10px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Collocation / Chunk</div>'
+    +'<div style="display:grid;gap:8px">'
+    +'<input type="text" id="chkw" placeholder="Keyword (e.g. reach)" style="min-height:unset;height:38px;resize:none">'
+    +'<input type="text" id="chex" placeholder="Full collocation (e.g. To reach a consensus)" style="min-height:unset;height:38px;resize:none">'
+    +'<button class="btn bpu bsm" onclick="saveChunk()" style="justify-self:end">Save Chunk</button>'
+    +'</div></div>';
   h+='<div class="gg">'+cards.map(c=>{
     const id=c.nextReview<=today;
-    const tt=c.type==='chunk'?'<span class="tag tpu">chunk</span>':'';
-    return `<div class="citem${id?' due':''}"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px"><span class="cisim">${esc(c.simple)}</span><span style="color:var(--tx3);font-size:12px">→</span><span class="cic1">${esc(c.c1)}</span>${tt}</div>${c.example?`<div style="font-size:12px;color:var(--tx2);font-style:italic;margin:2px 0 5px;word-break:break-word">"${esc(c.example)}"</div>`:''}<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag ${id?'trd':'tgg'}">${id?'Due today':'Next: '+c.nextReview}</span><span style="font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace">EF ${(c.easiness||2.5).toFixed(1)}</span></div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px"><button onclick="openEdit('${c.id}')" title="Edit" style="background:var(--sur2);border:1px solid var(--bor);border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--bl)" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button onclick="editCardId='${c.id}';confirmDel()" title="Delete" style="background:var(--rd-l);border:1px solid var(--rd-b);border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--rd)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div></div>`;
+    return '<div class="citem'+(id?' due':'')+'"><div style="flex:1;min-width:0">'
+      +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">'
+      +'<span class="cisim">'+esc(c.simple)+'</span><span style="color:#94A3B8;font-size:12px">→</span>'
+      +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+'</div>'
+      +(c.example?'<div style="font-size:12px;color:#475569;font-style:italic;margin:2px 0 5px;word-break:break-word">"'+esc(c.example)+'"</div>':'')
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+      +'<span class="tag '+(id?'trd':'tgg')+'">'+(id?'Due today':'Next: '+c.nextReview)+'</span>'
+      +'<span style="font-size:10px;color:#94A3B8;font-family:\'DM Mono\',monospace">EF '+(c.easiness||2.5).toFixed(1)+'</span>'
+      +'</div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px">'
+      +'<button onclick="openEdit(\''+c.id+'\')" title="Edit" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      +'<button onclick="editCardId=\''+c.id+'\';confirmDel()" title="Delete" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
+      +'</div></div>';
   }).join('')+'</div>';
   el.innerHTML=h;
 }
@@ -1020,18 +1096,15 @@ function openM(id){
   document.getElementById(id).classList.remove('hid');
   if(id==='mCL'){
     selTags=[];
-    const g=document.getElementById('cltaggrid');
-    g.innerHTML=CTAGS.map(t=>`<button onclick="toggleTag('${t}',this)" style="padding:5px 9px;border-radius:20px;border:1px solid var(--bor);background:transparent;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s">${t}</button>`).join('');
+    document.getElementById('cltaggrid').innerHTML=CTAGS.map(t=>'<button onclick="toggleTag(\''+t+'\',this)" style="padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:11px;font-family:\'DM Mono\',monospace;cursor:pointer;transition:all .15s;color:#475569">'+t+'</button>').join('');
   }
 }
 function toggleTag(t,b){
-  if(selTags.includes(t)){selTags=selTags.filter(x=>x!==t);b.style.cssText='padding:5px 9px;border-radius:20px;border:1px solid var(--bor);background:transparent;font-size:11px;font-family:DM Mono,monospace;cursor:pointer';}
-  else{selTags.push(t);b.style.cssText='padding:5px 9px;border-radius:20px;border:none;background:var(--bl);color:#fff;font-size:11px;font-family:DM Mono,monospace;cursor:pointer';}
+  if(selTags.includes(t)){selTags=selTags.filter(x=>x!==t);b.style.cssText='padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:11px;font-family:DM Mono,monospace;cursor:pointer;color:#475569';}
+  else{selTags.push(t);b.style.cssText='padding:4px 9px;border-radius:20px;border:none;background:#2563EB;color:#fff;font-size:11px;font-family:DM Mono,monospace;cursor:pointer';}
 }
 function saveCustomLesson(){
-  const tit=document.getElementById('cltit').value.trim();
-  const url=document.getElementById('clurl').value.trim();
-  const prom=document.getElementById('clprompt').value.trim();
+  const tit=document.getElementById('cltit').value.trim(),url=document.getElementById('clurl').value.trim(),prom=document.getElementById('clprompt').value.trim();
   if(!tit||!url){toast('⚠️ Title and URL required');return;}
   const l={id:'cl'+Date.now(),month:activeMonth,title:tit,url,desc:'Custom lesson.',tags:selTags.length?selTags:['Custom'],level:'C1',prompt:prom||'Study this resource. Write a 150-200 word response using new vocabulary naturally.',isCustom:true,created:today};
   customLessons.push(l);saveCU();
@@ -1050,22 +1123,20 @@ function exportCSV(){
   cards.forEach(c=>rows.push([c.simple,c.c1,c.example,c.type||'upgrade',c.nextReview,(c.easiness||2.5).toFixed(2),c.created||'']));
   dl(rows.map(r=>r.map(v=>'"'+(v||'').replace(/"/g,'""')+'"').join(',')).join('\n'),'c1-cards.csv','text/csv');
 }
-function exportAnki(){dl(cards.map(c=>`${c.simple}\t${c.c1}\t${c.example||''}`).join('\n'),'c1-anki.txt','text/plain');}
+function exportAnki(){dl(cards.map(c=>c.simple+'\t'+c.c1+'\t'+(c.example||'')).join('\n'),'c1-anki.txt','text/plain');}
 function dl(ct,fn,mt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ct],{type:mt}));a.download=fn;a.click();}
 
-// ── BOOT ─────────────────────────────────────────────────────────────────────
-load();
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+loadLocal();
 setSS('offline');
-buildRail();
+buildRoadmap();
 renderDash();
 render();
 initSesTimer();
 </script>
 
-<!-- Firebase loads AFTER app is visible — never blocks render -->
-
+<!-- Firebase loads after app is visible -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" onload="startSync()" onerror="setSS('offline')"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 </body>
