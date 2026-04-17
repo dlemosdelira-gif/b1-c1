@@ -879,55 +879,53 @@ function revealApp(){
   render();
 }
 
-// 3. Iniciar — carrega local e mostra imediatamente
-loadFromLocal();
-revealApp();
+// 3. Firebase sincroniza em background (chamado após revealApp)
+function startFirebaseSync(){
+  try{
+    REF_CI.on('value',s=>{
+      const v=s.val();if(!v)return;
+      checkins=v;
+      localStorage.setItem('c1-ci',JSON.stringify(checkins));
+      setSyncStatus('online');
+      if(currentTab==='dashboard')renderDashboard();
+    },()=>setSyncStatus('offline'));
 
-// 4. Firebase sincroniza em background (atualiza se tiver dados mais recentes)
-try{
-  REF_CI.on('value',s=>{
-    const v=s.val();if(!v)return;
-    checkins=v;
-    localStorage.setItem('c1-ci',JSON.stringify(checkins));
-    setSyncStatus('online');
-    if(document.getElementById('tab-dashboard')&&!document.getElementById('tab-dashboard').classList.contains('hidden'))renderDashboard();
-  },()=>setSyncStatus('offline'));
+    REF_CARDS.on('value',s=>{
+      const v=s.val();if(v===null)return;
+      const arr=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v;
+      cards=arr||[];
+      localStorage.setItem('c1-cards',JSON.stringify(cards));
+      setSyncStatus('online');
+      render();
+    },()=>setSyncStatus('offline'));
 
-  REF_CARDS.on('value',s=>{
-    const v=s.val();if(v===null)return;
-    const arr=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v;
-    cards=arr||[];
-    localStorage.setItem('c1-cards',JSON.stringify(cards));
-    setSyncStatus('online');
-    render();
-  },()=>setSyncStatus('offline'));
+    REF_STATS.on('value',s=>{
+      const v=s.val();if(!v)return;
+      stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);
+      localStorage.setItem('c1-stats',JSON.stringify(stats));
+      setSyncStatus('online');
+      renderOutputMeters();renderFlightHours();
+    },()=>setSyncStatus('offline'));
 
-  REF_STATS.on('value',s=>{
-    const v=s.val();if(!v)return;
-    stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);
-    localStorage.setItem('c1-stats',JSON.stringify(stats));
-    setSyncStatus('online');
-    renderOutputMeters();renderFlightHours();
-  },()=>setSyncStatus('offline'));
+    REF_CUSTOM.on('value',s=>{
+      const v=s.val();
+      customLessons=v?Object.values(v):[];
+      localStorage.setItem('c1-custom',JSON.stringify(customLessons));
+      setSyncStatus('online');
+      if(currentTab==='practice')renderPractice();
+    },()=>setSyncStatus('offline'));
 
-  REF_CUSTOM.on('value',s=>{
-    const v=s.val();
-    customLessons=v?Object.values(v):[];
-    localStorage.setItem('c1-custom',JSON.stringify(customLessons));
-    setSyncStatus('online');
-    if(document.getElementById('tab-practice')&&!document.getElementById('tab-practice').classList.contains('hidden'))renderPractice();
-  },()=>setSyncStatus('offline'));
-
-  REF_MONTH.once('value',s=>{
-    const v=s.val();if(!v)return;
-    activeMonth=v;
-    localStorage.setItem('c1-month',v);
-    buildMonthRail();renderThemeBanner();
-    if(document.getElementById('tab-practice')&&!document.getElementById('tab-practice').classList.contains('hidden'))renderPractice();
-  });
-}catch(e){
-  setSyncStatus('offline');
-  console.warn('Firebase error:',e);
+    REF_MONTH.once('value',s=>{
+      const v=s.val();if(!v)return;
+      activeMonth=v;
+      localStorage.setItem('c1-month',v);
+      buildMonthRail();renderThemeBanner();
+      if(currentTab==='practice')renderPractice();
+    });
+  }catch(e){
+    setSyncStatus('offline');
+    console.warn('Firebase sync error:',e);
+  }
 }
 
 function saveCI(){localStorage.setItem('c1-ci',JSON.stringify(checkins));REF_CI.set(checkins||null).catch(()=>{});}
@@ -1611,6 +1609,13 @@ dl(txt,‘english-c1-anki.txt’,‘text/plain’);
 function dl(content,filename,mime){
 const a=document.createElement(‘a’);a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=filename;a.click();
 }
+
+// ════════════════════════════════════════════════════════
+// STARTUP — runs after ALL functions are defined
+// ════════════════════════════════════════════════════════
+loadFromLocal();
+revealApp();
+startFirebaseSync();
 </script>
 
 </body>
