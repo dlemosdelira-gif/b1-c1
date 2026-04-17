@@ -857,70 +857,83 @@ function nextReview(quality,intervalIdx=0,easiness=2.5){
 }
 
 // ════════════════════════════════════════════════════════
-// FIREBASE LOAD
+// FIREBASE LOAD — mostra app imediatamente do localStorage,
+// sincroniza Firebase em background
 // ════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════
-// FIREBASE LOAD — each listener is independent, app reveals as soon as all resolve
-// ════════════════════════════════════════════════════════
-let ciOk=false,caOk=false,stOk=false,cuOk=false,moOk=false;
-let _revealed=false;
-function tryReveal(){
-  if(_revealed)return;
-  if(ciOk&&caOk&&stOk&&cuOk&&moOk){
-    _revealed=true;
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    setSyncStatus('online');
-    initSessionTimer();
-    buildMonthRail();
-    render();
-  }
+
+// 1. Carregar dados do localStorage instantaneamente
+function loadFromLocal(){
+  try{checkins=JSON.parse(localStorage.getItem('c1-ci')||'{}');}catch(e){checkins={};}
+  try{cards=JSON.parse(localStorage.getItem('c1-cards')||'[]');}catch(e){cards=[];}
+  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1-stats')||'{}'));}catch(e){}
+  try{customLessons=JSON.parse(localStorage.getItem('c1-custom')||'[]');}catch(e){customLessons=[];}
+  activeMonth=parseInt(localStorage.getItem('c1-month')||'1',10);
 }
 
-// Each listener marks its own flag and always calls tryReveal
-REF_CI.on('value',s=>{
-  try{checkins=s.val()||{};}catch(e){checkins={};}
-  ciOk=true;tryReveal();
-  if(_revealed&&currentTab==='dashboard')renderDashboard();
-});
-REF_CARDS.on('value',s=>{
-  try{const v=s.val();cards=v?Object.values(v):[];}catch(e){cards=[];}
-  caOk=true;tryReveal();
-  if(_revealed)render();
-});
-REF_STATS.on('value',s=>{
-  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},s.val()||{});}catch(e){}
-  stOk=true;tryReveal();
-  if(_revealed)renderOutputMeters();
-});
-REF_CUSTOM.on('value',s=>{
-  try{const v=s.val();customLessons=v?Object.values(v):[];}catch(e){customLessons=[];}
-  cuOk=true;tryReveal();
-  if(_revealed&&currentTab==='practice')renderPractice();
-});
+// 2. Mostrar app imediatamente
+function revealApp(){
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  initSessionTimer();
+  buildMonthRail();
+  render();
+}
 
-// activeMonth: try Firebase, fall back to localStorage immediately on any error
-REF_MONTH.once('value',
-  s=>{activeMonth=s.val()||parseInt(localStorage.getItem('c1-month')||'1',10);moOk=true;tryReveal();},
-  _err=>{activeMonth=parseInt(localStorage.getItem('c1-month')||'1',10);moOk=true;tryReveal();}
-);
+// 3. Iniciar — carrega local e mostra imediatamente
+loadFromLocal();
+revealApp();
 
-// Hard fallback: if any listener hasn't resolved within 2.5s, use localStorage and show app
-setTimeout(()=>{
-  if(_revealed)return;
-  if(!ciOk){try{checkins=JSON.parse(localStorage.getItem('c1-ci')||'{}');}catch(e){checkins={};} ciOk=true;}
-  if(!caOk){try{cards=JSON.parse(localStorage.getItem('c1-cards')||'[]');}catch(e){cards=[];} caOk=true;}
-  if(!stOk){stOk=true;}
-  if(!cuOk){customLessons=[];cuOk=true;}
-  if(!moOk){activeMonth=parseInt(localStorage.getItem('c1-month')||'1',10);moOk=true;}
+// 4. Firebase sincroniza em background (atualiza se tiver dados mais recentes)
+try{
+  REF_CI.on('value',s=>{
+    const v=s.val();if(!v)return;
+    checkins=v;
+    localStorage.setItem('c1-ci',JSON.stringify(checkins));
+    setSyncStatus('online');
+    if(document.getElementById('tab-dashboard')&&!document.getElementById('tab-dashboard').classList.contains('hidden'))renderDashboard();
+  },()=>setSyncStatus('offline'));
+
+  REF_CARDS.on('value',s=>{
+    const v=s.val();if(v===null)return;
+    const arr=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v;
+    cards=arr||[];
+    localStorage.setItem('c1-cards',JSON.stringify(cards));
+    setSyncStatus('online');
+    render();
+  },()=>setSyncStatus('offline'));
+
+  REF_STATS.on('value',s=>{
+    const v=s.val();if(!v)return;
+    stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v);
+    localStorage.setItem('c1-stats',JSON.stringify(stats));
+    setSyncStatus('online');
+    renderOutputMeters();renderFlightHours();
+  },()=>setSyncStatus('offline'));
+
+  REF_CUSTOM.on('value',s=>{
+    const v=s.val();
+    customLessons=v?Object.values(v):[];
+    localStorage.setItem('c1-custom',JSON.stringify(customLessons));
+    setSyncStatus('online');
+    if(document.getElementById('tab-practice')&&!document.getElementById('tab-practice').classList.contains('hidden'))renderPractice();
+  },()=>setSyncStatus('offline'));
+
+  REF_MONTH.once('value',s=>{
+    const v=s.val();if(!v)return;
+    activeMonth=v;
+    localStorage.setItem('c1-month',v);
+    buildMonthRail();renderThemeBanner();
+    if(document.getElementById('tab-practice')&&!document.getElementById('tab-practice').classList.contains('hidden'))renderPractice();
+  });
+}catch(e){
   setSyncStatus('offline');
-  tryReveal();
-},2500);
+  console.warn('Firebase error:',e);
+}
 
 function saveCI(){localStorage.setItem('c1-ci',JSON.stringify(checkins));REF_CI.set(checkins||null).catch(()=>{});}
 function saveCards(){localStorage.setItem('c1-cards',JSON.stringify(cards));const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});REF_CARDS.set(Object.keys(o).length?o:null).catch(()=>{});}
-function saveStats(){REF_STATS.set(stats).catch(()=>{});}
-function setSyncStatus(s){const d=document.getElementById('syncDot'),l=document.getElementById('syncLbl');d.className='sync-dot'+(s==='online'?'':s==='offline'?' off':' sync');l.textContent=s==='online'?'Synced':s==='offline'?'Local only':'Syncing…';}
+function saveStats(){localStorage.setItem('c1-stats',JSON.stringify(stats));REF_STATS.set(stats).catch(()=>{});}
+function setSyncStatus(s){const d=document.getElementById('syncDot'),l=document.getElementById('syncLbl');if(!d||!l)return;d.className='sync-dot'+(s==='online'?'':s==='offline'?' off':' sync');l.textContent=s==='online'?'Synced':s==='offline'?'Local only':'Syncing…';}
 
 // ════════════════════════════════════════════════════════
 // SESSION TIMER
