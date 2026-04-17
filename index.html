@@ -25,54 +25,54 @@
   --r:12px;--rs:8px;
   --sh:0 1px 3px rgba(15,23,42,.07),0 1px 2px rgba(15,23,42,.04);
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
-.app{max-width:700px;margin:0 auto;padding-bottom:90px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;overflow-x:hidden}
+.app{max-width:700px;margin:0 auto;padding-bottom:90px;overflow-x:hidden;width:100%}
 
 /* ── HEADER ── */
-.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px 0;position:sticky;top:0;z-index:100}
-.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:34px;height:34px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center}
-.logo-icon svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2}
-.logo-name{font-size:15px;font-weight:600}
-.logo-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:5px;margin-top:1px}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px 0;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.logo{display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:1}
+.logo-icon{width:32px;height:32px;flex-shrink:0;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.logo-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:5px;margin-top:1px;white-space:nowrap}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
 .sync-dot.off{background:var(--text3)}.sync-dot.sync{background:var(--yellow);animation:pulse 1s infinite}
-.hdr-stats{display:flex;gap:12px}
+.hdr-stats{display:flex;gap:10px;flex-shrink:0}
 .hs{text-align:center}
-.hs-val{font-size:14px;font-weight:600;display:flex;align-items:center;gap:3px;justify-content:center}
-.hs-lbl{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
-.nav{display:flex;gap:0;overflow-x:auto}
-.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 12px 10px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;position:relative}
+.hs-val{font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center;white-space:nowrap}
+.hs-lbl{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
+.nav{display:flex;gap:0;width:100%}
+.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 8px 10px;border:none;background:transparent;cursor:pointer;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;position:relative;flex:1;min-width:0}
 .nb svg{width:16px;height:16px}
 .nb.active{color:var(--blue);border-bottom-color:var(--blue)}
-.nb-badge{position:absolute;top:4px;right:6px;background:var(--red);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;line-height:1.4;display:none}
+.nb-badge{position:absolute;top:4px;right:4px;background:var(--red);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;line-height:1.4;display:none}
 .nb-badge.show{display:block}
 
 /* ── CONTENT ── */
-.content{padding:16px;display:grid;gap:12px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
-.card-sm{padding:12px 14px}
-.card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.content{padding:14px;display:grid;gap:12px;width:100%;overflow-x:hidden}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--sh);min-width:0;overflow:hidden}
+.card-sm{padding:11px 13px}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:11px;display:flex;align-items:center;gap:7px}
 .card-title svg{width:13px;height:13px}
 
 /* ── MONTH THEME SELECTOR ── */
-.month-rail{display:flex;gap:5px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.month-rail{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
 .month-rail::-webkit-scrollbar{display:none}
-.month-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 10px;border-radius:9px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-width:52px}
+.month-btn{flex-shrink:0;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 9px;border-radius:9px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-width:56px;max-width:70px}
 .month-btn:hover{border-color:var(--blue-m);background:var(--blue-l)}
 .month-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
 .month-btn .mn{font-size:11px;font-weight:600}
-.month-btn .mtheme{font-size:9px;opacity:.7;font-family:'DM Mono',monospace;white-space:nowrap}
+.month-btn .mtheme{font-size:8px;opacity:.7;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center}
 .month-btn.locked{opacity:.4;cursor:not-allowed}
 .month-btn.locked:hover{background:transparent;border-color:var(--border)}
 
 /* ── THEME BANNER ── */
-.theme-banner{border-radius:var(--r);padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
-.tb-icon{font-size:22px;flex-shrink:0;margin-top:1px}
-.tb-phase{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:3px}
-.tb-title{font-size:15px;font-weight:600;margin-bottom:4px}
-.tb-desc{font-size:12px;line-height:1.5;opacity:.85}
+.theme-banner{border-radius:var(--r);padding:13px 14px;display:flex;align-items:flex-start;gap:10px;width:100%;overflow:hidden;word-break:break-word}
+.tb-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.tb-phase{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:3px}
+.tb-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.tb-desc{font-size:12px;line-height:1.5;opacity:.85;word-break:break-word}
 .tb-skills{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 
 /* ── STATS ── */
@@ -212,18 +212,18 @@ textarea{min-height:120px}
 .ci-chunk{font-size:12px;color:var(--purple);font-weight:500;font-family:'DM Mono',monospace}
 
 /* ── FLIGHT HOURS ── */
-.flight-card{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:var(--r);padding:16px;color:#fff;box-shadow:var(--sh)}
-.flight-hours{font-size:32px;font-weight:700;font-family:'DM Mono',monospace;margin:4px 0 2px}
-.flight-meta{display:flex;gap:16px;margin-top:8px}
+.flight-card{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:var(--r);padding:14px 16px;color:#fff;box-shadow:var(--sh);width:100%;overflow:hidden}
+.flight-hours{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;margin:4px 0 2px;word-break:break-all}
+.flight-meta{display:flex;gap:10px 16px;margin-top:8px;flex-wrap:wrap}
 .fm-item{font-size:11px;opacity:.8}
-.fm-val{font-size:14px;font-weight:600;display:block}
+.fm-val{font-size:13px;font-weight:600;display:block}
 
 /* ── OUTPUT METERS ── */
-.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.output-meter{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;box-shadow:var(--sh)}
-.om-val{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;margin:5px 0 2px}
+.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.output-meter{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;box-shadow:var(--sh);min-width:0;overflow:hidden}
+.om-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;margin:4px 0 2px}
 .om-lbl{font-size:10px;color:var(--text3)}
-.om-bar{height:4px;background:var(--surface2);border-radius:4px;margin-top:7px;overflow:hidden}
+.om-bar{height:4px;background:var(--surface2);border-radius:4px;margin-top:6px;overflow:hidden}
 .om-fill{height:100%;border-radius:4px;transition:width .4s}
 
 /* ── ALERT BANNER ── */
@@ -261,12 +261,110 @@ textarea{min-height:120px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-@media(max-width:420px){
-  .content{padding:12px}.hdr{padding:12px 14px 0}
-  .stat-row{gap:8px}.sc-val{font-size:17px}
+/* ── CORE OVERFLOW FIX — applies everywhere ── */
+html,body{overflow-x:hidden;width:100%}
+.app{width:100%;overflow-x:hidden}
+.content{width:100%;overflow-x:hidden}
+.card{min-width:0;overflow:hidden}
+
+/* ── FLIGHT CARD — prevent overflow ── */
+.flight-card{width:100%;overflow:hidden}
+.flight-hours{word-break:break-all}
+.flight-meta{flex-wrap:wrap;gap:10px 16px}
+
+/* ── OUTPUT METERS — ensure they fit ── */
+.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.output-meter{min-width:0;overflow:hidden}
+
+/* ── THEME BANNER — no overflow ── */
+.theme-banner{width:100%;overflow:hidden}
+.tb-desc{word-break:break-word;white-space:normal}
+.tb-skills{flex-wrap:wrap}
+
+/* ── MONTH RAIL — horizontal scroll, never wrap ── */
+.month-rail{display:flex;gap:5px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory}
+.month-rail::-webkit-scrollbar{display:none}
+.month-btn{flex-shrink:0;scroll-snap-align:start;min-width:58px;max-width:72px}
+
+/* ── HEADER — tighter on small screens ── */
+.hdr-stats{gap:8px}
+.hs-val{font-size:13px}
+.logo-name{font-size:14px}
+
+/* ── NAV — spread evenly ── */
+.nav{width:100%}
+.nb{flex:1;min-width:0;padding:7px 4px 10px;font-size:9px}
+.nb svg{width:15px;height:15px}
+
+/* ── STAT ROW ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sc-val{font-size:17px}
+
+/* ── LESSON CARDS — text doesn't overflow ── */
+.lesson-card{width:100%;overflow:hidden}
+.lc-title{word-break:break-word}
+
+/* ── MODAL — full width on mobile ── */
+.modal{width:calc(100vw - 32px);max-width:560px}
+.modal-body{padding:12px 14px 16px}
+
+/* ── HEATMAP ── */
+.heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── SMALL PHONE (≤390px) ── */
+@media(max-width:390px){
+  .content{padding:10px;gap:10px}
+  .hdr{padding:10px 12px 0}
+  .hdr-top{margin-bottom:10px}
+  .logo-icon{width:30px;height:30px;border-radius:8px}
+  .logo-icon svg{width:15px;height:15px}
+  .logo-name{font-size:13px}
+  .logo-sub{font-size:9px}
+  .hs-val{font-size:12px}
+  .hs-lbl{font-size:9px}
+  .hdr-stats{gap:6px}
+
+  .month-btn{min-width:50px;padding:6px 7px}
+  .month-btn .mn{font-size:10px}
+  .month-btn .mtheme{font-size:8px}
+
+  .flight-hours{font-size:24px}
+  .fm-val{font-size:12px}
+  .fm-item{font-size:10px}
+
+  .om-val{font-size:18px}
+
+  .sc-val{font-size:16px}
+  .sc-icon{width:24px;height:24px}
+
   .hm-cell{width:9px;height:9px}
+  .hm-months{gap:2px}
+
+  .card{padding:12px}
+  .card-sm{padding:10px 12px}
+  .card-title{font-size:11px}
+
+  .tb-icon{font-size:18px}
+  .tb-title{font-size:14px}
+  .tb-desc{font-size:11px}
+  .tb-phase{font-size:9px}
+
+  .nb{font-size:9px;padding:6px 2px 9px}
+
+  .stat-row{gap:6px}
+  .stat-card{padding:10px 6px}
+}
+
+/* ── STANDARD MOBILE (≤480px) ── */
+@media(max-width:480px){
+  .content{padding:12px;gap:11px}
+  .hdr{padding:12px 14px 0}
   .flight-hours{font-size:26px}
-  .month-btn{min-width:44px;padding:6px 8px}
+  .hm-cell{width:10px;height:10px}
+  .modal{width:calc(100vw - 28px)}
+  .output-meter{padding:11px}
+  .om-val{font-size:20px}
+  .nb{padding:7px 6px 10px}
 }
 </style>
 
