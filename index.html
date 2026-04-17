@@ -483,7 +483,22 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null;
-function uid(){let u=localStorage.getItem('c1u');if(!u){u='u'+Math.random().toString(36).slice(2,9);localStorage.setItem('c1u',u);}return u;}
+
+// ── NOVO SISTEMA DE SYNC ──
+function uid(){
+  // 1. Checa se tem um ID na URL (ex: ?id=meu_codigo)
+  const params = new URLSearchParams(window.location.search);
+  const urlId = params.get('id');
+  if(urlId) { localStorage.setItem('c1u', urlId); } // Força o ID da URL
+  
+  // 2. Pega o ID salvo ou cria um novo
+  let u=localStorage.getItem('c1u');
+  if(!u){u='u'+Math.random().toString(36).slice(2,9);localStorage.setItem('c1u',u);}
+  
+  // Mostra o seu ID no console para você copiar
+  console.log("SEU CÓDIGO DE SYNC É:", u);
+  return u;
+}
 const UID=uid();
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
