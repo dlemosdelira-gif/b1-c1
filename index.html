@@ -405,7 +405,11 @@ textarea{min-height:120px}
   <div class="card">
     <div class="fb" style="margin-bottom:14px">
       <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
-      <button class="btn bsm" onclick="logSession()">Log +30 min</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace" id="sesminlbl">0 min logged</span>
+        <button class="btn bsm" onclick="logSession(-1)" id="logminus" style="padding:4px 8px;font-size:14px;line-height:1;display:none">−</button>
+        <button class="btn bpr bsm" onclick="logSession(1)">+ 30 min</button>
+      </div>
     </div>
     <div class="cigrid" id="cigrid"></div>
     <div class="pbar"><div class="pfil" id="wpbar" style="width:0%"></div></div>
@@ -669,7 +673,7 @@ function renderDash(){
   });
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
-  renderBanner();renderHeatmap();renderFlight();renderMeters();
+  renderBanner();renderHeatmap();renderFlight();renderMeters();updateLogBtn();
 }
 
 function toggleCI(k){
@@ -685,10 +689,24 @@ function toggleCI(k){
   }
   saveCI();renderDash();
 }
-function logSession(){
-  stats.totalMins=(stats.totalMins||0)+30;
-  if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+30;
-  saveST();toast('✈ +30 min logged!');renderFlight();
+function logSession(dir){
+  // dir: 1 = add 30min, -1 = remove 30min
+  const delta=dir*30;
+  stats.totalMins=Math.max(0,(stats.totalMins||0)+delta);
+  if(!stats.studyDays)stats.studyDays={};
+  stats.studyDays[today]=Math.max(0,(stats.studyDays[today]||0)+delta);
+  if(stats.studyDays[today]===0)delete stats.studyDays[today];
+  saveST();
+  toast(dir>0?'✈ +30 min logged!':'↩ 30 min removed');
+  renderFlight();
+  updateLogBtn();
+}
+function updateLogBtn(){
+  const mins=stats.studyDays&&stats.studyDays[today]?stats.studyDays[today]:0;
+  const lbl=document.getElementById('sesminlbl');
+  const minus=document.getElementById('logminus');
+  if(lbl)lbl.textContent=mins>0?mins+' min logged today':'0 min logged';
+  if(minus)minus.style.display=mins>0?'':'none';
 }
 
 // ── MONTH RAIL ────────────────────────────────────────────────────────────────
