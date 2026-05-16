@@ -298,6 +298,7 @@ textarea{min-height:120px}
 .modal-input{width:100%;padding:10px 12px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px;color:#0F172A;box-sizing:border-box;}
 .modal-input:focus{outline:none;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
 .modal-buttons{display:flex;gap:8px;justify-content:flex-end;}
+.hid{display:none !important;}
 </style>
 </head>
 <body>
@@ -528,7 +529,7 @@ textarea{min-height:120px}
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:600;color:#0F172A">Minhas Frases</div>
-      <button class="btn bte bsm" onclick="openAddSentence()">
+      <button class="btn bte bsm" onclick="openAddSentenceModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar
       </button>
     </div>
@@ -1317,6 +1318,7 @@ function setSS(s, errMsg = ''){
 // ── SENTENCE MANAGEMENT ────────────────────────────────────────────
 let mysentences = JSON.parse(localStorage.getItem('mysentences')) || [];
 let selectedSentenceIdx = -1;
+let editingSentenceIdx = -1;
 
 function renderSentences(){
   const lst = document.getElementById('sentencesList');
@@ -1329,7 +1331,8 @@ function renderSentences(){
   mysentences.forEach((s,i)=>{
     const div = document.createElement('div');
     div.className = 'sentence-item' + (i === selectedSentenceIdx ? ' selected' : '');
-    div.innerHTML = `<div class="sentence-text">${s}</div><div class="sentence-actions"><button class="sentence-btn" onclick="editSentenceModal(${i})" title="Editar">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Deletar">🗑️</button></div>`;
+    const contextText = s.context ? `<div style="font-size:11px;color:#6B7280;margin-top:4px">${s.context}</div>` : '';
+    div.innerHTML = `<div style="flex:1"><div class="sentence-text">${s.text}</div>${contextText}</div><div class="sentence-actions"><button class="sentence-btn" onclick="openEditModal(${i})" title="Editar">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Deletar">🗑️</button></div>`;
     div.addEventListener('click',(e)=>{if(!e.target.closest('.sentence-btn')) selectSentence(i);});
     lst.appendChild(div);
   });
@@ -1338,34 +1341,53 @@ function renderSentences(){
 function selectSentence(idx){
   selectedSentenceIdx = idx;
   const ta = document.getElementById('rtxt');
-  if(ta) ta.value = mysentences[idx];
+  if(ta) ta.value = mysentences[idx].text;
   renderSentences();
   onInput();
 }
 
-function openAddSentence(){
-  const input = prompt('Escreva sua frase em inglês:','');
-  if(input === null) return;
-  const text = input.trim();
-  if(!text){alert('Frase vazia');return;}
-  mysentences.push(text);
-  saveSentences();
-  renderSentences();
+function openAddSentenceModal(){
+  editingSentenceIdx = -1;
+  document.getElementById('sentenceInput').value = '';
+  document.getElementById('contextSelect').value = '';
+  document.getElementById('customContext').value = '';
+  document.getElementById('sentenceModal').classList.remove('hid');
 }
 
-function editSentenceModal(idx){
-  const input = prompt('Edite sua frase:',mysentences[idx]);
-  if(input === null) return;
-  const text = input.trim();
+function openEditModal(idx){
+  editingSentenceIdx = idx;
+  document.getElementById('sentenceInput').value = mysentences[idx].text;
+  document.getElementById('contextSelect').value = mysentences[idx].context || '';
+  document.getElementById('customContext').value = '';
+  document.getElementById('sentenceModal').classList.remove('hid');
+}
+
+function closeSentenceModal(){
+  document.getElementById('sentenceModal').classList.add('hid');
+}
+
+function saveSentenceFromModal(){
+  const text = document.getElementById('sentenceInput').value.trim();
+  const context = document.getElementById('customContext').value.trim() || document.getElementById('contextSelect').value;
+
   if(!text){alert('Frase vazia');return;}
-  mysentences[idx] = text;
-  if(selectedSentenceIdx === idx){
-    const ta = document.getElementById('rtxt');
-    if(ta) ta.value = text;
-    onInput();
+
+  const sentence = {text, context};
+
+  if(editingSentenceIdx >= 0){
+    mysentences[editingSentenceIdx] = sentence;
+    if(selectedSentenceIdx === editingSentenceIdx){
+      const ta = document.getElementById('rtxt');
+      if(ta) ta.value = text;
+      onInput();
+    }
+  } else {
+    mysentences.push(sentence);
   }
+
   saveSentences();
   renderSentences();
+  closeSentenceModal();
 }
 
 function deleteSentence(idx){
@@ -1392,5 +1414,27 @@ window.onload = initApp;
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js" onload="startSync()"></script>
+<div id="sentenceModal" class="modal-overlay hid" onclick="if(event.target===this)closeSentenceModal()">
+  <div class="modal-content">
+    <div class="modal-title">Adicionar Nova Frase</div>
+    <textarea id="sentenceInput" class="modal-input" style="height:80px;resize:vertical;font-family:inherit" placeholder="Escreva sua frase em inglês..."></textarea>
+    <select id="contextSelect" class="modal-input" style="height:40px">
+      <option value="">Selecione um contexto...</option>
+      <option value="Inglês Geral 1 – Expressões comuns em contextos específicos">Inglês Geral 1 – Expressões comuns</option>
+      <option value="Inglês Geral 2 – A linguagem da conversação">Inglês Geral 2 – Conversação</option>
+      <option value="Inglês Comercial e Profissional">Inglês Comercial e Profissional</option>
+      <option value="Inglês para Palestras e Reuniões">Inglês para Palestras e Reuniões</option>
+      <option value="Inglês para Viagens e Turismo">Inglês para Viagens e Turismo</option>
+      <option value="Morando no Exterior">Morando no Exterior</option>
+      <option value="Inglês para Correspondência Escrita">Inglês para Correspondência Escrita</option>
+      <option value="Expressões Comuns em Português">Expressões Comuns em Português</option>
+    </select>
+    <input id="customContext" class="modal-input" style="height:40px" placeholder="Ou adicione um contexto customizado...">
+    <div class="modal-buttons">
+      <button class="btn bte bsm" onclick="closeSentenceModal()">Cancelar</button>
+      <button class="btn bpr bsm" onclick="saveSentenceFromModal()">Adicionar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
