@@ -1177,7 +1177,7 @@ function handleRev(q){
   setTimeout(()=>{
     const nd=due();
     if(nd.length===0){flashIdx=0;}
-    else{flashIdx=flashIdx%nd.length;}
+    else if(flashIdx>=nd.length){flashIdx=nd.length-1;}
     renderRev();render();
   },150);
 }
