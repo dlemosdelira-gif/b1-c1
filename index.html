@@ -285,6 +285,19 @@ textarea{min-height:120px}
   .app{max-width:1200px;}
   .cards-grid{grid-template-columns:repeat(3,1fr);}
 }
+.sentence-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:13px;line-height:1.5;}
+.sentence-item:hover{background:#EFF6FF;border-color:#BFDBFE;}
+.sentence-item.selected{background:#DBEAFE;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.sentence-text{flex:1;color:#0F172A;}
+.sentence-actions{display:flex;gap:6px;}
+.sentence-btn{background:none;border:none;color:#6B7280;cursor:pointer;padding:4px 6px;font-size:12px;transition:color 0.2s;}
+.sentence-btn:hover{color:#EF4444;}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.modal-content{background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px;color:#0F172A;}
+.modal-input{width:100%;padding:10px 12px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px;color:#0F172A;box-sizing:border-box;}
+.modal-input:focus{outline:none;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.modal-buttons{display:flex;gap:8px;justify-content:flex-end;}
 </style>
 </head>
 <body>
@@ -510,6 +523,16 @@ textarea{min-height:120px}
         <div class="sttip"><span style="font-size:13px">💨</span><span><strong>Breath groups:</strong> Pause where the speaker pauses — not mid-phrase.</span></div>
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="fb" style="margin-bottom:10px">
+      <div style="font-size:14px;font-weight:600;color:#0F172A">Minhas Frases</div>
+      <button class="btn bte bsm" onclick="openAddSentence()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar
+      </button>
+    </div>
+    <div id="sentencesList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:200px;overflow-y:auto"></div>
   </div>
 
   <div class="card">
@@ -1290,6 +1313,78 @@ function setSS(s, errMsg = ''){
     l.style.color='#D97706';
   }
 }
+
+// ── SENTENCE MANAGEMENT ────────────────────────────────────────────
+let mysentences = JSON.parse(localStorage.getItem('mysentences')) || [];
+let selectedSentenceIdx = -1;
+
+function renderSentences(){
+  const lst = document.getElementById('sentencesList');
+  if(!lst) return;
+  lst.innerHTML = '';
+  if(mysentences.length === 0){
+    lst.innerHTML = '<div style="color:#94A3B8;font-size:12px;padding:8px">Adicione suas primeiras frases</div>';
+    return;
+  }
+  mysentences.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'sentence-item' + (i === selectedSentenceIdx ? ' selected' : '');
+    div.innerHTML = `<div class="sentence-text">${s}</div><div class="sentence-actions"><button class="sentence-btn" onclick="editSentenceModal(${i})" title="Editar">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Deletar">🗑️</button></div>`;
+    div.addEventListener('click',(e)=>{if(!e.target.closest('.sentence-btn')) selectSentence(i);});
+    lst.appendChild(div);
+  });
+}
+
+function selectSentence(idx){
+  selectedSentenceIdx = idx;
+  const ta = document.getElementById('rtxt');
+  if(ta) ta.value = mysentences[idx];
+  renderSentences();
+  onInput();
+}
+
+function openAddSentence(){
+  const input = prompt('Escreva sua frase em inglês:','');
+  if(input === null) return;
+  const text = input.trim();
+  if(!text){alert('Frase vazia');return;}
+  mysentences.push(text);
+  saveSentences();
+  renderSentences();
+}
+
+function editSentenceModal(idx){
+  const input = prompt('Edite sua frase:',mysentences[idx]);
+  if(input === null) return;
+  const text = input.trim();
+  if(!text){alert('Frase vazia');return;}
+  mysentences[idx] = text;
+  if(selectedSentenceIdx === idx){
+    const ta = document.getElementById('rtxt');
+    if(ta) ta.value = text;
+    onInput();
+  }
+  saveSentences();
+  renderSentences();
+}
+
+function deleteSentence(idx){
+  if(!confirm('Deletar esta frase?')) return;
+  mysentences.splice(idx,1);
+  if(selectedSentenceIdx === idx) selectedSentenceIdx = -1;
+  if(selectedSentenceIdx > idx) selectedSentenceIdx--;
+  saveSentences();
+  renderSentences();
+  if(selectedSentenceIdx >= 0) selectSentence(selectedSentenceIdx);
+}
+
+function saveSentences(){
+  localStorage.setItem('mysentences',JSON.stringify(mysentences));
+}
+
+window.addEventListener('load',()=>{
+  renderSentences();
+});
 
 window.onload = initApp;
 </script>
