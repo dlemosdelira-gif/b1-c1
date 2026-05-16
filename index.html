@@ -582,7 +582,7 @@ let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[];
 let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null;
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
@@ -1277,6 +1277,7 @@ function startSync(){
     RST = db.ref('stats');
     RCU = db.ref('customLessons');
     RMO = db.ref('activeMonth');
+    RSE = db.ref('sentences');
     
     RCI.on('value', s=>{
       const v=s.val();
@@ -1290,6 +1291,7 @@ function startSync(){
     RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); render();}, err => setSS('offline', 'DB Error: ' + err.code));
     RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
+    RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
@@ -1402,6 +1404,7 @@ function deleteSentence(idx){
 
 function saveSentences(){
   localStorage.setItem('mysentences',JSON.stringify(mysentences));
+  if(RSE)RSE.set(mysentences&&mysentences.length>0?mysentences:null).catch(()=>{});
 }
 
 window.addEventListener('load',()=>{
