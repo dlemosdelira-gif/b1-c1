@@ -663,9 +663,11 @@ function loadLocal(){
   try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
   try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
+  try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
   loadDailyTasks();
+  loadLessons();
 }
 function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
 function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
@@ -1457,92 +1459,150 @@ function closeEditDayModal(){
 }
 
 // ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
+let lessons={};
+let lessonStats={};
 let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
-function generateNewActivity(){
-  const sources=[];
-
-  // Fonte 1: My Sentences
-  if(mysentences.length>0){
-    mysentences.forEach(s=>{
-      sources.push({type:'sentence',text:s.text,context:s.context});
-    });
-  }
-
-  // Fonte 2: Lições do mês
-  const monthLessons=lessons(activeMonth);
-  if(monthLessons.length>0){
-    monthLessons.forEach(l=>{
-      sources.push({type:'lesson',title:l.title,desc:l.desc,tags:l.tags});
-    });
-  }
-
-  if(sources.length===0){toast('⚠️ Adicione frases ou selecione uma lição');return;}
-
-  const source=sources[Math.floor(Math.random()*sources.length)];
-  const type=ACTIVITY_TYPES[Math.floor(Math.random()*ACTIVITY_TYPES.length)];
-
-  let activity={id:Date.now(),source:source,type:type,completed:false};
-  const text=source.type==='sentence'?source.text:source.desc||source.title;
-
-  if(type==='multiple-choice'){
-    activity.question=`O tema "${text.slice(0,40)}..." está relacionado a:\n(A) Tema A\n(B) Tema B\n(C) Tema C\n(D) Tema D`;
-    activity.options=['Opção A','Opção B','Opção C','Opção D'];
-    activity.answer=0;
-  }else if(type==='cloze'){
-    const words=text.split(' ');
-    if(words.length>0){
-      const idx=Math.floor(Math.random()*words.length);
-      activity.blank=words[idx];
-      activity.text=text.replace(words[idx],'_____');
-    }else{
-      activity.text='Complete a sentença';
+function loadLessons(){
+  if(lessons.lessons)return;
+  const xhr=new XMLHttpRequest();
+  xhr.open('GET','lessons-c1.json',true);
+  xhr.onload=function(){
+    if(xhr.status===200){
+      lessons=JSON.parse(xhr.responseText);
+      localStorage.setItem('c1lessons',JSON.stringify(lessons));
     }
-  }else if(type==='true-false'){
-    activity.statement=text;
-    activity.answer=Math.random()>0.5;
-  }else if(type==='matching'){
-    activity.pairs=[{en:text,pt:'Tradução aqui'}];
-  }else if(type==='transcription'){
-    activity.text=`Transcreva e grave: "${text.slice(0,50)}..."`;
-  }
+  };
+  xhr.onerror=function(){
+    const cached=localStorage.getItem('c1lessons');
+    if(cached)lessons=JSON.parse(cached);
+  };
+  xhr.send();
+}
 
-  activities.push(activity);
+function getLessonStats(lessonId){
+  if(!lessonStats[lessonId]){
+    lessonStats[lessonId]={attempts:0,correct:0,incorrect:0,lastAttempt:null,nextReviewDate:null};
+  }
+  return lessonStats[lessonId];
+}
+
+function recordLessonAttempt(lessonId,isCorrect){
+  const stats=getLessonStats(lessonId);
+  stats.attempts++;
+  if(isCorrect){
+    stats.correct++;
+    stats.nextReviewDate=new Date(Date.now()+7*24*60*60*1000).toISOString().split('T')[0];
+  }else{
+    stats.incorrect++;
+    stats.nextReviewDate=new Date(Date.now()+1*24*60*60*1000).toISOString().split('T')[0];
+  }
+  stats.lastAttempt=new Date().toISOString().split('T')[0];
+  localStorage.setItem('c1lesstats',JSON.stringify(lessonStats));
+  if(RDT)RDT.child('lessonStats').set(lessonStats).catch(()=>{});
+}
+
+function getNeedsReviewLessons(){
+  if(!lessons.lessons)return[];
+  const today=new Date().toISOString().split('T')[0];
+  return lessons.lessons.filter(l=>{
+    const stats=getLessonStats(l.id);
+    if(stats.incorrect===0)return false;
+    const nextReview=stats.nextReviewDate||'1970-01-01';
+    return nextReview<=today;
+  });
+}
+
+function getRandomLesson(){
+  if(!lessons.lessons)return null;
+  const reviewLessons=getNeedsReviewLessons();
+  let pool=reviewLessons.length>0?reviewLessons:lessons.lessons;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function generateNewActivity(){
+  const lesson=getRandomLesson();
+  if(!lesson){toast('⚠️ No lessons available');return;}
+
+  let activity={id:Date.now(),lessonId:lesson.id,type:lesson.type,completed:false,question:lesson.question,text:lesson.text,statement:lesson.statement,correct:lesson.correct,options:lesson.options,blank:lesson.blank,explanation:lesson.explanation};
+
+  activities.unshift(activity);
+  if(activities.length>5)activities.pop();
   renderActivities();
 }
 
 function renderActivities(){
   const container=document.getElementById('activitiesContainer');
-  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Click Generate New to create an activity</div>';return;}
+  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Click "Generate New" to create an activity</div>';return;}
 
   let html='';
   activities.forEach(act=>{
-    const source=act.source;
-    const sourceLabel=source.type==='sentence'?`Sentence: ${source.context||''}`:` Lesson: ${source.title}`;
     let content='';
+    const isPending=!act.answered;
 
     if(act.type==='multiple-choice'){
-      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px;white-space:pre-wrap">${act.question}</div>
-        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer;font-size:12px"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.question}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>{
+          let bgc='transparent';
+          let border='1px solid #DDE3F5';
+          if(act.answered){
+            if(i===act.correct&&i===act.userAnswer)bgc='#D1FAE5';
+            else if(i===act.correct)bgc='#D1FAE5';
+            else if(i===act.userAnswer)bgc='#FEE2E2';
+          }
+          return `<label style="display:flex;gap:8px;cursor:${isPending?'pointer':'default'};font-size:12px;padding:8px;background:${bgc};border:${border};border-radius:6px" onclick="${isPending?`recordAnswer(${act.id},${i})`:''}">${isPending?`<input type="radio" name="q${act.id}">`:''} ${opt}</label>`;
+        }).join('')}</div>`;
     }else if(act.type==='cloze'){
       content=`<div style="font-size:12px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
-        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:12px">`;
+        <input type="text" id="cloze${act.id}" placeholder="Type the missing word" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:12px" ${act.answered?'disabled':''} onkeyup="if(event.key==='Enter')recordClozeAnswer(${act.id})">`;
     }else if(act.type==='true-false'){
       content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
-        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1;font-size:11px">✓ Verdadeiro</button><button class="btn bsm" style="flex:1;font-size:11px">✗ Falso</button></div>`;
-    }else if(act.type==='transcription'){
-      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.text}</div>
-        <button class="btn bpu bsm" style="width:100%;font-size:11px">🎤 Gravar</button>`;
+        <div style="display:flex;gap:8px">
+          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},true)`:''}" style="flex:1;font-size:11px;background:${act.answered&&act.userAnswer===true&&act.correct?'#10B981':act.answered&&act.userAnswer===true?'#EF4444':''}${act.answered&&act.userAnswer===true?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✓ True</button>
+          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},false)`:''}" style="flex:1;font-size:11px;background:${act.answered&&act.userAnswer===false&&!act.correct?'#10B981':act.answered&&act.userAnswer===false?'#EF4444':''}${act.answered&&act.userAnswer===false?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✗ False</button>
+        </div>`;
     }
 
-    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px">
-      <div style="font-size:10px;color:#94A3B8;margin-bottom:6px">${act.type.replace('-',' ').toUpperCase()} • ${sourceLabel}</div>
+    let feedback='';
+    if(act.answered){
+      const isCorrect=(act.type==='multiple-choice'?act.userAnswer===act.correct:act.type==='cloze'?act.userAnswer.toLowerCase()===act.blank.toLowerCase():act.userAnswer===act.correct);
+      feedback=`<div style="margin-top:10px;padding:10px;border-radius:6px;background:${isCorrect?'#D1FAE5':'#FEE2E2'};border-left:4px solid ${isCorrect?'#10B981':'#EF4444'}">
+        <div style="font-size:12px;color:${isCorrect?'#047857':'#B91C1C'};font-weight:600">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div>
+        <div style="font-size:11px;color:#0F172A;margin-top:4px">${act.explanation}</div>
+      </div>`;
+    }
+
+    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">
+      <div style="font-size:10px;color:#94A3B8;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">${act.type.replace('-',' ')} • C1</div>
       ${content}
-      <button class="btn bsm" style="margin-top:8px;width:100%;font-size:11px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
+      ${feedback}
+      <button class="btn bsm" style="margin-top:10px;width:100%;font-size:11px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Dismiss</button>
     </div>`;
   });
   container.innerHTML=html;
+}
+
+function recordAnswer(actId,answer){
+  const act=activities.find(a=>a.id===actId);
+  if(!act)return;
+  act.userAnswer=answer;
+  act.answered=true;
+  const isCorrect=(act.type==='multiple-choice'?answer===act.correct:answer===act.correct);
+  recordLessonAttempt(act.lessonId,isCorrect);
+  renderActivities();
+  toast(isCorrect?'✓ Great!':'Try again next time');
+}
+
+function recordClozeAnswer(actId){
+  const act=activities.find(a=>a.id===actId);
+  if(!act)return;
+  act.userAnswer=document.getElementById('cloze'+actId).value;
+  act.answered=true;
+  const isCorrect=act.userAnswer.toLowerCase()===act.blank.toLowerCase();
+  recordLessonAttempt(act.lessonId,isCorrect);
+  renderActivities();
+  toast(isCorrect?'✓ Correct!':'Not quite right');
 }
 
 // ── ROADMAP FEATURE ────────────────────────────────────────────────────

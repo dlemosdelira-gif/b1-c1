@@ -1,0 +1,258 @@
+{
+  "lessons": [
+    {
+      "id": "bus001",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "In a high-stakes negotiation, what does it mean to 'cut to the chase'?",
+      "options": [
+        "To reach a compromise quickly",
+        "To get to the main point without wasting time",
+        "To end the negotiation abruptly",
+        "To pursue an aggressive strategy"
+      ],
+      "correct": 1,
+      "explanation": "To 'cut to the chase' means to skip unnecessary details and focus on the main topic."
+    },
+    {
+      "id": "bus002",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The board decided to _____ the project after reviewing the financial projections.",
+      "blank": "shelve",
+      "options": ["shelve", "accelerate", "expand", "delegate"],
+      "explanation": "Shelve means to postpone or abandon temporarily. The context indicates putting the project aside due to financial concerns."
+    },
+    {
+      "id": "bus003",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "A 'synergy' in business refers to the weakening of combined efforts between two companies.",
+      "correct": false,
+      "explanation": "Synergy means the positive interaction where combined efforts produce greater results than the sum of individual efforts."
+    },
+    {
+      "id": "bus004",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "When a manager says 'let's circle back on this', what do they mean?",
+      "options": [
+        "Return to this topic later",
+        "Move in circles around the topic",
+        "Abandon the discussion",
+        "Make a circular argument"
+      ],
+      "correct": 0,
+      "explanation": "'Circle back' is a business idiom meaning to return to a topic at a later time."
+    },
+    {
+      "id": "bus005",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The company's _____ approach to customer service has earned them numerous awards.",
+      "blank": "holistic",
+      "options": ["holistic", "fragmented", "narrow", "superficial"],
+      "explanation": "Holistic means comprehensive, considering all aspects. It contrasts with fragmented or narrow approaches."
+    },
+    {
+      "id": "bus006",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'leverage' mean in a business context?",
+      "options": [
+        "To balance",
+        "To use something to maximum advantage",
+        "To reduce risk",
+        "To create competition"
+      ],
+      "correct": 1,
+      "explanation": "To leverage means to use something strategically to gain maximum benefit or advantage."
+    },
+    {
+      "id": "bus007",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "ROI (Return on Investment) measures the amount of money spent on a project.",
+      "correct": false,
+      "explanation": "ROI measures the profit or benefit gained relative to the investment made, not just the amount spent."
+    },
+    {
+      "id": "bus008",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "To remain competitive, the company decided to _____ its operations and cut unnecessary costs.",
+      "blank": "streamline",
+      "options": ["streamline", "complicate", "expand", "relocate"],
+      "explanation": "Streamline means to simplify and make more efficient. It's used when optimizing processes."
+    },
+    {
+      "id": "conv001",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "When someone says 'that's a loaded question', what do they mean?",
+      "options": [
+        "The question is heavy to carry",
+        "The question contains hidden assumptions or implications",
+        "The question is full of facts",
+        "The question is asked repeatedly"
+      ],
+      "correct": 1,
+      "explanation": "A 'loaded question' is one designed to create a problem or contain assumptions that trap the answerer."
+    },
+    {
+      "id": "conv002",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave a _____ response, neither agreeing nor disagreeing with the proposal.",
+      "blank": "noncommittal",
+      "options": ["noncommittal", "definitive", "enthusiastic", "critical"],
+      "explanation": "Noncommittal means avoiding taking a clear position or committing to something."
+    },
+    {
+      "id": "conv003",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "An 'idiom' is a word used to describe someone who speaks many languages.",
+      "correct": false,
+      "explanation": "An idiom is a phrase or expression with a meaning that cannot be deduced from individual words. A polyglot is someone who speaks many languages."
+    },
+    {
+      "id": "conv004",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'beat around the bush' mean?",
+      "options": [
+        "To exercise in nature",
+        "To avoid addressing the main point directly",
+        "To defeat someone in competition",
+        "To explore the woods"
+      ],
+      "correct": 1,
+      "explanation": "'Beat around the bush' is an idiom meaning to avoid getting to the point or discussing something directly."
+    },
+    {
+      "id": "conv005",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ wit and sharp observations always made his colleagues laugh.",
+      "blank": "acerbic",
+      "options": ["acerbic", "gentle", "dull", "predictable"],
+      "explanation": "Acerbic means sharp, sarcastic, or biting in wit or tone."
+    },
+    {
+      "id": "conv006",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "When someone 'takes the bait', what have they done?",
+      "options": [
+        "Gone fishing",
+        "Fallen for a trick or temptation",
+        "Accepted food",
+        "Started a debate"
+      ],
+      "correct": 1,
+      "explanation": "'Take the bait' means to fall for a trap, trick, or temptation offered by someone."
+    },
+    {
+      "id": "conv007",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "To 'procrastinate' means to work very efficiently and quickly.",
+      "correct": false,
+      "explanation": "Procrastinate means to delay or postpone, especially unnecessarily. It's the opposite of working efficiently."
+    },
+    {
+      "id": "conv008",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The politician's _____ speech left the audience confused about her actual position.",
+      "blank": "ambiguous",
+      "options": ["ambiguous", "clarifying", "passionate", "concise"],
+      "explanation": "Ambiguous means open to more than one interpretation; unclear or indefinite."
+    },
+    {
+      "id": "bus009",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is a 'paradigm shift' in business?",
+      "options": [
+        "A small adjustment to processes",
+        "A fundamental change in approach or thinking",
+        "A shift in employee schedules",
+        "A modification of office layout"
+      ],
+      "correct": 1,
+      "explanation": "A paradigm shift is a fundamental change in concepts, practices, or assumptions that define a field or industry."
+    },
+    {
+      "id": "bus010",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The startup's _____ business model disrupted the traditional industry.",
+      "blank": "innovative",
+      "options": ["innovative", "conventional", "outdated", "conservative"],
+      "explanation": "Innovative means introducing new ideas, methods, or technologies."
+    },
+    {
+      "id": "bus011",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Vertical integration means expanding into unrelated industries.",
+      "correct": false,
+      "explanation": "Vertical integration means expanding into different stages of production of the same product, not unrelated industries."
+    },
+    {
+      "id": "bus012",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "In business, what does 'due diligence' refer to?",
+      "options": [
+        "Paying bills on time",
+        "Being punctual to meetings",
+        "Thorough investigation before a business decision",
+        "Regular employee evaluations"
+      ],
+      "correct": 2,
+      "explanation": "Due diligence is the careful investigation and review of a company or investment before making a decision."
+    },
+    {
+      "id": "conv009",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ demeanor made it difficult to tell whether he was joking or serious.",
+      "blank": "inscrutable",
+      "options": ["inscrutable", "expressive", "cheerful", "transparent"],
+      "explanation": "Inscrutable means impossible to understand or interpret; mysterious."
+    },
+    {
+      "id": "conv010",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "A 'faux pas' is a polite and appropriate action in social situations.",
+      "correct": false,
+      "explanation": "A faux pas is a socially awkward or embarrassing action; a breach of etiquette."
+    }
+  ]
+}
