@@ -718,25 +718,6 @@ function render(){
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDash(){
-  const days=wkDays(),dn=days.filter(d=>checkins[d.key]).length,dv=due();
-  document.getElementById('scwk').textContent=dn+'/5';
-  document.getElementById('scdue').textContent=dv.length;
-  document.getElementById('scdue').style.color=dv.length>0?'#DC2626':'#16A34A';
-  document.getElementById('sctot').textContent=cards.length;
-  document.getElementById('wpbar').style.width=(dn/5*100)+'%';
-  document.getElementById('wklbl').textContent=dn+' of 5 complete';
-  // checkin grid
-  const g=document.getElementById('cigrid');g.innerHTML='';
-  days.forEach(d=>{
-    const ok=!!checkins[d.key];
-    const b=document.createElement('button');
-    b.className='ci-btn'+(ok?' dn':d.td?' td':'');
-    b.onclick=()=>toggleCI(d.key);
-    b.innerHTML='<span class="ci-lbl">'+d.lb+'</span>'
-      +'<div class="ci-dot'+(ok?' dn':'')+'">'+( ok?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
-      +(d.td&&!ok?'<span class="tdtag">today</span>':'');
-    g.appendChild(b);
-  });
   renderDashChecklist();
 }
 
