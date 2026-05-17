@@ -739,22 +739,36 @@ function render(){
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDash(){
-  try{
-    // Load tasks
-    const stored=localStorage.getItem('c1dt-'+today);
-    const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
+  // Load today's tasks
+  const stored=localStorage.getItem('c1dt-'+today);
+  const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
 
-    // Update checkboxes
-    ['preply','reading','listening','writing'].forEach(task=>{
-      const inputs=document.querySelectorAll(`[onclick*="toggleDailyTask('${task}')"] input`);
-      inputs.forEach(inp=>{
-        inp.checked=tasks[task]||false;
-      });
-    });
+  // Update checkboxes
+  document.querySelectorAll('#dashChecklistContainer input[type="checkbox"]').forEach((inp,i)=>{
+    const task=['preply','reading','listening','writing'][i];
+    if(task)inp.checked=tasks[task]||false;
+  });
 
-    renderYearHeatmap();
-  }catch(e){
-    console.error('renderDash error:',e);
+  // Render heatmap
+  const hm=document.getElementById('yearHeatmapContainer');
+  if(hm){
+    hm.innerHTML='';
+    const y=new Date().getFullYear();
+    for(let m=0;m<12;m++){
+      for(let d=1;d<=31;d++){
+        const dt=new Date(y,m,d);
+        if(dt.getMonth()!==m)break;
+        const key=dt.toISOString().split('T')[0];
+        const v=localStorage.getItem('c1dt-'+key);
+        const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
+        const bg=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'][Math.min(c,4)];
+        const sq=document.createElement('div');
+        sq.style.cssText=`width:20px;height:20px;background:${bg};border-radius:3px;cursor:pointer`;
+        sq.title=key;
+        sq.onclick=()=>editDayTasks(key);
+        hm.appendChild(sq);
+      }
+    }
   }
 }
 
@@ -1426,57 +1440,6 @@ function saveDayTasks(dateStr){
     toast('✓ Day updated');
   }catch(e){
     console.error('saveDayTasks error:',e);
-  }
-}
-
-function renderYearHeatmap(){
-  try{
-    const container=document.getElementById('yearHeatmapContainer');
-    if(!container)return;
-
-    // Clear existing children (not innerHTML to avoid CSS reset)
-    while(container.firstChild){
-      container.removeChild(container.firstChild);
-    }
-
-    const startDate=new Date(new Date().getFullYear(),0,1);
-    const endDate=new Date(new Date().getFullYear(),11,31);
-    let dayCount=0;
-
-    for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
-      try{
-        const key=d.toISOString().split('T')[0];
-        const val=localStorage.getItem('c1dt-'+key);
-        const completed=val?Object.values(JSON.parse(val)).filter(v=>v).length:0;
-        const colors=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
-        const bg=colors[Math.min(completed,4)];
-
-        const div=document.createElement('div');
-        div.style.width='20px';
-        div.style.height='20px';
-        div.style.background=bg;
-        div.style.borderRadius='4px';
-        div.style.cursor='pointer';
-        div.style.border='1px solid #D1D5DB';
-        div.title=key;
-        div.onclick=()=>editDayTasks(key);
-
-        container.appendChild(div);
-        dayCount++;
-      }catch(e2){
-        console.error('Day error:',e2);
-      }
-    }
-
-    if(dayCount===0){
-      container.innerHTML='<div style="grid-column:1/-1;color:#94A3B8;font-size:12px;padding:20px;text-align:center">No data yet. Mark tasks to see heatmap.</div>';
-    }
-  }catch(e){
-    console.error('renderYearHeatmap error:',e);
-    const container=document.getElementById('yearHeatmapContainer');
-    if(container){
-      container.innerHTML='<div style="grid-column:1/-1;color:#DC2626;font-size:12px;padding:20px">Error loading heatmap</div>';
-    }
   }
 }
 
