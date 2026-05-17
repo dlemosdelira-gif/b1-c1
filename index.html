@@ -533,6 +533,14 @@ textarea{min-height:120px}
 
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
+      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Atividades do Dia</div>
+      <button class="btn bte bsm" onclick="generateNewActivity()">Gerar Nova</button>
+    </div>
+    <div id="activitiesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="fb" style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
       <button class="btn bsm" id="micbtn" onclick="toggleListen()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
@@ -980,6 +988,7 @@ function renderPrac(){
   db2.className='dbadge'+(m.dc?' '+m.dc:'');
   db2.textContent=m.dl;
   ap.textContent=activeLesson?activeLesson.prompt:'Select a lesson above.';
+  renderActivities();
 }
 function onInput(){
   const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
@@ -1476,6 +1485,69 @@ function renderDashChecklist(){
   });
   const container=document.getElementById('dashChecklistContainer');
   if(container)container.innerHTML=html;
+}
+
+// ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
+let activities=[];
+const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
+
+function generateNewActivity(){
+  if(mysentences.length<1){toast('⚠️ Adicione frases em "Minhas Frases" primeiro');return;}
+  const sentence=mysentences[Math.floor(Math.random()*mysentences.length)];
+  const type=ACTIVITY_TYPES[Math.floor(Math.random()*ACTIVITY_TYPES.length)];
+
+  let activity={id:Date.now(),sentence:sentence.text,type:type,completed:false};
+
+  if(type==='multiple-choice'){
+    activity.question=`Qual é o melhor jeito de completar: "${sentence.text.slice(0,30)}..."?`;
+    activity.options=['Opção A','Opção B','Opção C','Opção D'];
+    activity.answer=0;
+  }else if(type==='cloze'){
+    const words=sentence.text.split(' ');
+    const idx=Math.floor(Math.random()*words.length);
+    activity.blank=words[idx];
+    activity.text=sentence.text.replace(words[idx],'_____');
+  }else if(type==='true-false'){
+    activity.statement=sentence.text;
+    activity.answer=Math.random()>0.5;
+  }else if(type==='matching'){
+    activity.pairs=[{en:sentence.text,pt:'Tradução aqui'}];
+  }else if(type==='transcription'){
+    activity.text='Transcreva a sentença que você vai gravar';
+  }
+
+  activities.push(activity);
+  renderActivities();
+}
+
+function renderActivities(){
+  const container=document.getElementById('activitiesContainer');
+  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Clique em "Gerar Nova" para criar uma atividade</div>';return;}
+
+  let html='';
+  activities.forEach(act=>{
+    let content='';
+    if(act.type==='multiple-choice'){
+      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.question}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
+    }else if(act.type==='cloze'){
+      content=`<div style="font-size:13px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
+        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box">`;
+    }else if(act.type==='true-false'){
+      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
+        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1">✓ Verdadeiro</button><button class="btn bsm" style="flex:1">✗ Falso</button></div>`;
+    }else if(act.type==='transcription'){
+      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">Grave e transcreva:</div>
+        <button class="btn bpu bsm" style="width:100%">🎤 Gravar</button>`;
+    }
+
+    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px">
+      <div style="font-size:11px;color:#94A3B8;margin-bottom:8px">${act.type.replace('-',' ').toUpperCase()}</div>
+      ${content}
+      <button class="btn bsm" style="margin-top:10px;width:100%" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
+    </div>`;
+  });
+  container.innerHTML=html;
 }
 
 // ── ROADMAP FEATURE ────────────────────────────────────────────────────
