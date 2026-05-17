@@ -418,7 +418,7 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
-  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Checklist Diário</div>
+  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
   <div id="dashChecklistContainer"></div>
 </div>
 
@@ -444,9 +444,9 @@ textarea{min-height:120px}
   
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">Minhas Frases</div>
+      <div style="font-size:14px;font-weight:600;color:#0F172A">My Sentences</div>
       <button class="btn bte bsm" onclick="openAddSentenceModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Adicionar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
       </button>
     </div>
     <div id="sentencesList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:200px;overflow-y:auto"></div>
@@ -454,8 +454,8 @@ textarea{min-height:120px}
 
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Atividades do Dia</div>
-      <button class="btn bte bsm" onclick="generateNewActivity()">Gerar Nova</button>
+      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Daily Activities</div>
+      <button class="btn bte bsm" onclick="generateNewActivity()">Generate New</button>
     </div>
     <div id="activitiesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
@@ -737,8 +737,6 @@ function renderDash(){
       +(d.td&&!ok?'<span class="tdtag">today</span>':'');
     g.appendChild(b);
   });
-  document.getElementById('dalert').classList.toggle('hid',dv.length===0);
-  if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
   renderDashChecklist();
 }
 
@@ -1397,7 +1395,7 @@ function renderDashChecklist(){
         <input type="checkbox" ${checked?'checked':''} style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()">
         <div style="flex:1">
           <div style="font-weight:600;color:#0F172A">${label}</div>
-          <div style="font-size:11px;color:#94A3B8;margin-top:2px">${monthCount} dias este mês • ${yearCount} dias este ano</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:2px">${monthCount} days this month • ${yearCount} days this year</div>
           <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${Math.min(monthCount*10,100)}%;background:${monthCount>20?'#00a878':monthCount>10?'#fbbf24':'#ff6b35'}"></div></div>
         </div>
       </div>
@@ -1414,7 +1412,7 @@ const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcr
 function generateNewActivity(){
   const sources=[];
 
-  // Fonte 1: Minhas Frases
+  // Fonte 1: My Sentences
   if(mysentences.length>0){
     mysentences.forEach(s=>{
       sources.push({type:'sentence',text:s.text,context:s.context});
@@ -1465,12 +1463,12 @@ function generateNewActivity(){
 
 function renderActivities(){
   const container=document.getElementById('activitiesContainer');
-  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Clique em "Gerar Nova" para criar uma atividade</div>';return;}
+  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Click Generate New to create an activity</div>';return;}
 
   let html='';
   activities.forEach(act=>{
     const source=act.source;
-    const sourceLabel=source.type==='sentence'?`Frase: ${source.context||''}`:` Lição: ${source.title}`;
+    const sourceLabel=source.type==='sentence'?`Sentence: ${source.context||''}`:` Lesson: ${source.title}`;
     let content='';
 
     if(act.type==='multiple-choice'){
@@ -1597,8 +1595,8 @@ window.onload = initApp;
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js" onload="startSync()"></script>
 <div id="sentenceModal" class="modal-overlay hid" onclick="if(event.target===this)closeSentenceModal()">
   <div class="modal-content">
-    <div class="modal-title">Adicionar Nova Frase</div>
-    <textarea id="sentenceInput" class="modal-input" style="height:80px;resize:vertical;font-family:inherit" placeholder="Escreva sua frase em inglês..."></textarea>
+    <div class="modal-title">Add Nova Frase</div>
+    <textarea id="sentenceInput" class="modal-input" style="height:80px;resize:vertical;font-family:inherit" placeholder="Write your sentence in English..."></textarea>
     <select id="contextSelect" class="modal-input" style="height:40px">
       <option value="">Selecione um contexto...</option>
       <option value="Inglês Geral 1 – Expressões comuns em contextos específicos">Inglês Geral 1 – Expressões comuns</option>
@@ -1613,7 +1611,7 @@ window.onload = initApp;
     <input id="customContext" class="modal-input" style="height:40px" placeholder="Ou adicione um contexto customizado...">
     <div class="modal-buttons">
       <button class="btn bte bsm" onclick="closeSentenceModal()">Cancelar</button>
-      <button class="btn bpr bsm" onclick="saveSentenceFromModal()">Adicionar</button>
+      <button class="btn bpr bsm" onclick="saveSentenceFromModal()">Add</button>
     </div>
   </div>
 </div>
