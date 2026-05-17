@@ -419,86 +419,7 @@ textarea{min-height:120px}
 
 <div class="pg" id="pg-dash">
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Checklist Diário</div>
-
   <div id="dashChecklistContainer"></div>
-
-  <div class="top-grid" style="display:none">
-    <div class="flt">
-      <div class="flt-lbl">✈ TOTAL FLIGHT HOURS</div>
-      <div class="flt-h" id="fhours">0h 00m</div>
-      <div class="flt-sub">Accumulated study time</div>
-      <div class="flt-meta">
-        <div class="flt-mi"><span class="flt-mv" id="fdays">0</span>study days</div>
-        <div class="flt-mi"><span class="flt-mv" id="favg">0m</span>avg/day</div>
-        <div class="flt-mi"><span class="flt-mv" id="fstrk">0</span>streak</div>
-      </div>
-    </div>
-
-    <div class="rm-card">
-      <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Roadmap</div>
-      <div class="rm-sel" id="rmsel"></div>
-      <div class="rm-theme" id="rmtheme"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="fb" style="margin-bottom:8px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity <span id="curYear">2026</span></div>
-      <div class="fl" style="gap:3px;align-items:center">
-        <span style="font-size:10px;color:#94A3B8">Less</span>
-        <div style="display:flex;gap:2px;align-items:center">
-          <div style="width:9px;height:9px;border-radius:2px;background:#CBD5E1"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#93C5FD"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#3B82F6"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#1D4ED8"></div>
-        </div>
-        <span style="font-size:10px;color:#94A3B8">More</span>
-      </div>
-    </div>
-    <div class="hm-wrap">
-      <div id="hmml" class="hm-months"></div>
-      <div id="hmg" class="hm-grid"></div>
-    </div>
-  </div>
-
-  <div class="stat-row">
-    <div class="sc">
-      <div class="sc-ic" style="background:#EFF6FF"><svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div class="sc-v" id="scwk">0/5</div>
-      <div class="sc-l">this week</div>
-    </div>
-    <div class="sc">
-      <div class="sc-ic" style="background:#FEF2F2"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="sc-v" id="scdue" style="color:#DC2626">0</div>
-      <div class="sc-l">due today</div>
-    </div>
-    <div class="sc">
-      <div class="sc-ic" style="background:#F5F3FF"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div>
-      <div class="sc-v" id="sctot" style="color:#7C3AED">0</div>
-      <div class="sc-l">total cards</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="fb" style="margin-bottom:12px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
-      <span style="font-size:11px;color:#94A3B8">Tap to toggle · 30 min each</span>
-    </div>
-    <div class="ci-row" id="cigrid" style="margin-bottom:12px"></div>
-    <div class="pbar"><div class="pfil" id="wpbar" style="width:0%"></div></div>
-    <p style="margin-top:6px;font-size:11px;color:#94A3B8;text-align:right;font-family:'DM Mono',monospace" id="wklbl">0 of 5 complete</p>
-  </div>
-
-  <div class="alert hid" id="dalert" onclick="goTab('rev')">
-    <div>
-      <div style="font-size:14px;font-weight:600;color:#DC2626" id="dalerttxt">Cards due</div>
-      <div style="font-size:12px;color:#DC2626;opacity:.8">Review now to keep your streak →</div>
-    </div>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-  </div>
-
-  <div data-card="progress"></div>
-  <div data-card="milestones"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -818,8 +739,7 @@ function renderDash(){
   });
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
-  renderFlight();renderMeters();renderHeatmap();updateLogBtn();
-  renderMonthProgress();renderMilestones();renderDashChecklist();
+  renderDashChecklist();
 }
 
 function toggleCI(k){
