@@ -299,6 +299,34 @@ textarea{min-height:120px}
 .modal-input:focus{outline:none;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
 .modal-buttons{display:flex;gap:8px;justify-content:flex-end;}
 .hid{display:none !important;}
+.month-card{background:#fff;border:2px solid #DDE3F5;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center;font-size:13px;line-height:1.4;color:#0F172A}
+.month-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.month-card.active{border-color:#2563EB;background:#EFF6FF;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.month-emoji{font-size:24px;margin-bottom:6px}
+.month-name{font-weight:600;margin:6px 0}
+.month-phase{font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;margin:6px 0;display:inline-block}
+.phase1{background:#D1FAE5;color:#065F46}
+.phase2{background:#DBEAFE;color:#0C2340}
+.phase3{background:#FEDBA9;color:#92400E}
+.phase4{background:#EDD5FF;color:#5B21B6}
+.month-focus{font-size:11px;color:#6B7280;margin-top:6px;text-align:left}
+.month-focus li{margin-left:14px}
+.progress-bar{width:100%;height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:#00a878;transition:width 0.3s}
+.milestone-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.milestone-item:hover{background:#EFF6FF;border-color:#BFDBFE}
+.milestone-item.completed{background:#D1FAE5;border-color:#6EE7B7;opacity:0.8}
+.milestone-item.completed .milestone-text{text-decoration:line-through;color:#6B7280}
+.milestone-checkbox{font-size:18px;flex-shrink:0}
+.milestone-text{flex:1;color:#0F172A;font-size:13px}
+.milestone-date{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace}
+@media(max-width:768px){
+  #roadmapContent{grid-template-columns:repeat(3,1fr);gap:10px}
+}
+@media(max-width:480px){
+  #roadmapContent{grid-template-columns:repeat(2,1fr);gap:8px}
+  .month-card{padding:10px;font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -322,6 +350,7 @@ textarea{min-height:120px}
   <div class="nav">
     <button class="nb on" onclick="goTab('dash')" id="nav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
     <button class="nb" onclick="goTab('prac')" id="nav-prac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Practice</button>
+    <button class="nb" onclick="goTab('road')" id="nav-road"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h20v4H2V3zm0 8h20v4H2v-4zm0 8h20v4H2v-4z"/></svg>Roadmap</button>
     <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards</button>
   </div>
@@ -485,6 +514,9 @@ textarea{min-height:120px}
     </div>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
   </div>
+
+  <div data-card="progress"></div>
+  <div data-card="milestones"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -556,6 +588,11 @@ textarea{min-height:120px}
   <div class="hid" id="anlres"></div>
 </div>
 
+<div class="pg hid" id="pg-road">
+  <div class="fb"><div style="font-size:15px;font-weight:600;color:#0F172A">📅 Learning Roadmap</div></div>
+  <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:0 14px"></div>
+</div>
+
 <div class="pg hid" id="pg-rev">
   <div class="fb"><div style="font-size:15px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
   <div id="revcontent"></div>
@@ -582,7 +619,8 @@ let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[];
 let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null;
+let milestones={},monthProgress={};
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null;
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
@@ -729,7 +767,9 @@ function loadLocal(){
   try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
   try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
   try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
+  try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
+  loadMilestones();
 }
 function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
 function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
@@ -776,6 +816,8 @@ function render(){
   const b=document.getElementById('revbdg');b.textContent=dv;b.classList.toggle('on',dv>0);
   renderMeters();renderFlight();
   if(curTab==='dash')renderDash();
+  else if(curTab==='prac')renderPrac();
+  else if(curTab==='road')buildRoadmap();
   else if(curTab==='rev')renderRev();
   else if(curTab==='cards')renderCards();
 }
@@ -804,6 +846,7 @@ function renderDash(){
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
   renderFlight();renderMeters();renderHeatmap();updateLogBtn();
+  renderMonthProgress();renderMilestones();
 }
 
 function toggleCI(k){
@@ -1177,7 +1220,7 @@ function handleRev(q){
   setTimeout(()=>{
     const nd=due();
     if(nd.length===0){flashIdx=0;}
-    else{flashIdx=flashIdx%nd.length;}
+    else if(flashIdx>=nd.length){flashIdx=nd.length-1;}
     renderRev();render();
   },150);
 }
@@ -1277,6 +1320,8 @@ function startSync(){
     RST = db.ref('stats');
     RCU = db.ref('customLessons');
     RMO = db.ref('activeMonth');
+    RSE = db.ref('sentences');
+    RMS = db.ref('milestones');
     
     RCI.on('value', s=>{
       const v=s.val();
@@ -1290,6 +1335,8 @@ function startSync(){
     RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); render();}, err => setSS('offline', 'DB Error: ' + err.code));
     RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
+    RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online'); renderMilestones();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
@@ -1402,11 +1449,105 @@ function deleteSentence(idx){
 
 function saveSentences(){
   localStorage.setItem('mysentences',JSON.stringify(mysentences));
+  if(RSE)RSE.set(mysentences&&mysentences.length>0?mysentences:null).catch(()=>{});
 }
 
 window.addEventListener('load',()=>{
   renderSentences();
 });
+
+// ── ROADMAP FEATURE ────────────────────────────────────────────────────
+const ROADMAP_COLORS={'1':'#00a878','2':'#00a878','3':'#00a878','4':'#00a878','5':'#0066cc','6':'#0066cc','7':'#0066cc','8':'#ff6b35','9':'#ff6b35','10':'#8b4dff','11':'#8b4dff','12':'#8b4dff'};
+const ROADMAP_PHASES={'1':'1','2':'1','3':'1','4':'1','5':'2','6':'2','7':'2','8':'3','9':'3','10':'4','11':'4','12':'4'};
+const ROADMAP_EMOJI=['','🌱','🌱','🌱','🌱','🔧','🔧','🔧','📚','📚','🎓','🎓','🎓'];
+
+function buildRoadmap(){
+  const rc=document.getElementById('roadmapContent');
+  if(!rc)return;
+  rc.innerHTML='';
+  MONTHS.forEach((m,i)=>{
+    const num=i+1,phase=ROADMAP_PHASES[num],bg=ROADMAP_COLORS[num];
+    const btn=document.createElement('div');
+    btn.className='month-card'+(activeMonth===num?' active':'');
+    btn.style.borderColor=bg;
+    btn.style.backgroundColor=activeMonth===num?bg+'15':'#fff';
+    const focusItems=(m.sk||[]).slice(0,3).map(sk=>'<li>'+sk+'</li>').join('');
+    btn.innerHTML=`<div class="month-emoji">${ROADMAP_EMOJI[num]}</div>
+      <div class="month-name">${m.lb}</div>
+      <div class="month-phase phase${phase}">Phase ${phase}</div>
+      <div style="font-size:10px;color:#6B7280;margin:4px 0">${m.th}</div>
+      <ul class="month-focus">${focusItems}</ul>`;
+    btn.onclick=()=>{activeMonth=num;saveMO();goTab('prac');toast('📅 '+m.lb);renderDash();buildRoadmap();};
+    rc.appendChild(btn);
+  });
+}
+
+// ── MONTHLY PROGRESS ────────────────────────────────────────────────────
+function renderMonthProgress(){
+  const lsns=lessons(activeMonth);
+  const completed=lsns.filter(l=>{const c=cards.find(x=>x.id===l.id);return c&&c.nextReview;}).length;
+  const total=lsns.length;
+  const pct=total>0?Math.round(completed*100/total):0;
+  const daysActive=Object.keys(checkins).filter(k=>k.slice(5,7)===String(activeMonth).padStart(2,'0')).length;
+  let color='#ff6b35';if(pct>30)color='#fbbf24';if(pct>70)color='#00a878';
+
+  const html=`<div class="card" style="margin-bottom:14px">
+    <div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">📊 Month Progress</div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:8px">${completed} / ${total} lessons completed</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+    <div style="display:flex;gap:16px;font-size:12px;margin-top:10px">
+      <div><span style="font-weight:600;color:#0F172A">${daysActive}</span> days active</div>
+      <div>Est. ${new Date(new Date().setDate(new Date().getDate()+Math.ceil((total-completed)*7/Math.max(daysActive,1)))).toLocaleDateString('pt-BR')}</div>
+    </div>
+  </div>`;
+  const dashCard=document.querySelector('[data-card="progress"]');
+  if(dashCard)dashCard.innerHTML=html;
+}
+
+// ── MILESTONES TRACKER ────────────────────────────────────────────────────
+const DEFAULT_MILESTONES={
+  'obsidian':{name:'Obsidian Vault Setup',completed:false},
+  'podcast':{name:'Native Podcast 100%',completed:false},
+  'escrita':{name:'Escrita Fluida (200+ words)',completed:false},
+  'fala':{name:'Fala Confiante com Nuance',completed:false},
+  'academic':{name:'Academic Writing Mastery',completed:false},
+  'exam':{name:'C1 Exam Ready',completed:false}
+};
+
+function loadMilestones(){
+  const stored=localStorage.getItem('c1ms');
+  milestones=stored?JSON.parse(stored):{...DEFAULT_MILESTONES};
+}
+
+function saveMilestones(){
+  localStorage.setItem('c1ms',JSON.stringify(milestones));
+  if(RMS)RMS.set(Object.keys(milestones).length?milestones:null).catch(()=>{});
+}
+
+function toggleMilestone(id){
+  if(!milestones[id])return;
+  milestones[id].completed=!milestones[id].completed;
+  if(milestones[id].completed){
+    milestones[id].completedDate=today;
+    toast('🎉 Milestone unlocked! '+milestones[id].name);
+  }
+  saveMilestones();
+  renderMilestones();
+}
+
+function renderMilestones(){
+  const html=Object.entries(milestones).map(([id,m])=>`
+    <div class="milestone-item${m.completed?' completed':''}" onclick="toggleMilestone('${id}')">
+      <div class="milestone-checkbox">${m.completed?'✅':'◯'}</div>
+      <div>
+        <div class="milestone-text">${m.name}</div>
+        ${m.completedDate?'<div class="milestone-date">✓ '+new Date(m.completedDate).toLocaleDateString('pt-BR')+'</div>':''}
+      </div>
+    </div>
+  `).join('');
+  const msCard=document.querySelector('[data-card="milestones"]');
+  if(msCard)msCard.innerHTML='<div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
+}
 
 window.onload = initApp;
 </script>
