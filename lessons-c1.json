@@ -1,0 +1,5179 @@
+{
+  "lessons": [
+    {
+      "id": "b001",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'cut to the chase' mean?",
+      "options": [
+        "Compromise quickly",
+        "Get to main point",
+        "End discussion",
+        "Be aggressive"
+      ],
+      "correct": 1,
+      "explanation": "Skip details and focus on main topic"
+    },
+    {
+      "id": "b002",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'leverage'?",
+      "options": [
+        "Balance items",
+        "Use for advantage",
+        "Reduce risk",
+        "Create competition"
+      ],
+      "correct": 1,
+      "explanation": "Use strategically for benefit"
+    },
+    {
+      "id": "b003",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'circle back' mean?",
+      "options": [
+        "Return later",
+        "Go in circles",
+        "Abandon topic",
+        "Circular logic"
+      ],
+      "correct": 0,
+      "explanation": "Return to topic at later time"
+    },
+    {
+      "id": "b004",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'due diligence'?",
+      "options": [
+        "Pay on time",
+        "Be punctual",
+        "Thorough investigation",
+        "Employee review"
+      ],
+      "correct": 2,
+      "explanation": "Careful investigation before decision"
+    },
+    {
+      "id": "b005",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'paradigm shift' mean?",
+      "options": [
+        "Small change",
+        "Fundamental change",
+        "Schedule change",
+        "Layout change"
+      ],
+      "correct": 1,
+      "explanation": "Major change in thinking"
+    },
+    {
+      "id": "b006",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'stakeholder'?",
+      "options": [
+        "Stock owner",
+        "Person with interest",
+        "Board member",
+        "Investor"
+      ],
+      "correct": 1,
+      "explanation": "Anyone affected by organization"
+    },
+    {
+      "id": "b007",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'merger'?",
+      "options": [
+        "Selling company",
+        "Combining companies",
+        "Hiring",
+        "Opening branch"
+      ],
+      "correct": 1,
+      "explanation": "Two companies becoming one"
+    },
+    {
+      "id": "b008",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'diversify' mean?",
+      "options": [
+        "Reduce staff",
+        "Expand into new markets",
+        "Raise prices",
+        "Cut costs"
+      ],
+      "correct": 1,
+      "explanation": "Spread risk into different areas"
+    },
+    {
+      "id": "b009",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'vertical integration'?",
+      "options": [
+        "Expand industries",
+        "Control production stages",
+        "Hire internationally",
+        "Build higher"
+      ],
+      "correct": 1,
+      "explanation": "Control supply chain"
+    },
+    {
+      "id": "b010",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'synergy'?",
+      "options": [
+        "Weak combination",
+        "Combined > individual efforts",
+        "Loss",
+        "Reduced output"
+      ],
+      "correct": 1,
+      "explanation": "Beneficial combination of efforts"
+    },
+    {
+      "id": "b011",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'horizontal integration'?",
+      "options": [
+        "Build wider",
+        "Acquire competitors",
+        "Expand down",
+        "Merge suppliers"
+      ],
+      "correct": 1,
+      "explanation": "Acquire competitors in market"
+    },
+    {
+      "id": "b012",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'pivot' mean?",
+      "options": [
+        "Turn slowly",
+        "Change strategy",
+        "Increase profit",
+        "Reduce staff"
+      ],
+      "correct": 1,
+      "explanation": "Change fundamental business direction"
+    },
+    {
+      "id": "b013",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'cash flow'?",
+      "options": [
+        "Bank balance",
+        "Money in/out movement",
+        "Annual profit",
+        "Employee wages"
+      ],
+      "correct": 1,
+      "explanation": "Movement of money through business"
+    },
+    {
+      "id": "b014",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'scalable' mean?",
+      "options": [
+        "Measurable",
+        "Grow without cost proportionally",
+        "Sellable",
+        "Divisible"
+      ],
+      "correct": 1,
+      "explanation": "Can expand efficiently"
+    },
+    {
+      "id": "b015",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'market share'?",
+      "options": [
+        "Stock percentage",
+        "Sales percentage",
+        "Office space",
+        "Revenue split"
+      ],
+      "correct": 1,
+      "explanation": "Percentage of total market"
+    },
+    {
+      "id": "b016",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'franchise'?",
+      "options": [
+        "Freedom",
+        "License to use brand",
+        "Partnership",
+        "Supplier deal"
+      ],
+      "correct": 1,
+      "explanation": "Licensed brand/system use"
+    },
+    {
+      "id": "b017",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'brand equity'?",
+      "options": [
+        "Brand account",
+        "Value from recognition",
+        "Stock value",
+        "Customer database"
+      ],
+      "correct": 1,
+      "explanation": "Value of brand name"
+    },
+    {
+      "id": "b018",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'benchmark' mean?",
+      "options": [
+        "Bench mark",
+        "Standard comparison",
+        "Financial report",
+        "Performance evaluation"
+      ],
+      "correct": 1,
+      "explanation": "Standard for comparison"
+    },
+    {
+      "id": "b019",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'break-even'?",
+      "options": [
+        "Rest period",
+        "Revenue equals costs",
+        "Max profit",
+        "Minimum loss"
+      ],
+      "correct": 1,
+      "explanation": "Where profit starts"
+    },
+    {
+      "id": "b020",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'iterate' mean?",
+      "options": [
+        "Leave place",
+        "Repeat with improvements",
+        "Count",
+        "Extend"
+      ],
+      "correct": 1,
+      "explanation": "Repeat process improving"
+    },
+    {
+      "id": "b021",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'ROI'?",
+      "options": [
+        "Risk",
+        "Revenue only",
+        "Return on investment",
+        "Rate of increase"
+      ],
+      "correct": 2,
+      "explanation": "Profit relative to investment"
+    },
+    {
+      "id": "b022",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'depreciation' mean?",
+      "options": [
+        "Appreciation",
+        "Increase value",
+        "Decrease value",
+        "Stay same"
+      ],
+      "correct": 2,
+      "explanation": "Decrease in asset value"
+    },
+    {
+      "id": "b023",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'amortization'?",
+      "options": [
+        "Immortal",
+        "Spread debt over time",
+        "Increase debt",
+        "Debt elimination"
+      ],
+      "correct": 1,
+      "explanation": "Spread debt over period"
+    },
+    {
+      "id": "b024",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'liquidate' mean?",
+      "options": [
+        "Make liquid",
+        "Convert to cash",
+        "Increase value",
+        "Create assets"
+      ],
+      "correct": 1,
+      "explanation": "Convert assets to cash"
+    },
+    {
+      "id": "b025",
+      "theme": "business",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'valuation'?",
+      "options": [
+        "Validation",
+        "Assessment of worth",
+        "Stock value",
+        "Asset cost"
+      ],
+      "correct": 1,
+      "explanation": "Determining business value"
+    },
+    {
+      "id": "c001",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'loaded question' mean?",
+      "options": [
+        "Heavy question",
+        "Contains assumptions",
+        "Fact-filled",
+        "Repeated"
+      ],
+      "correct": 1,
+      "explanation": "Question with hidden assumptions"
+    },
+    {
+      "id": "c002",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'beat around the bush' mean?",
+      "options": [
+        "Exercise",
+        "Avoid main point",
+        "Win competition",
+        "Explore"
+      ],
+      "correct": 1,
+      "explanation": "Avoid direct discussion"
+    },
+    {
+      "id": "c003",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'take the bait' mean?",
+      "options": [
+        "Fish",
+        "Fall for trick",
+        "Accept food",
+        "Debate"
+      ],
+      "correct": 1,
+      "explanation": "Fall for temptation/trick"
+    },
+    {
+      "id": "c004",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'break the ice' mean?",
+      "options": [
+        "Damage ice",
+        "Start conversation",
+        "End relationship",
+        "Get angry"
+      ],
+      "correct": 1,
+      "explanation": "Begin conversation/relieve tension"
+    },
+    {
+      "id": "c005",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'on thin ice' mean?",
+      "options": [
+        "Danger",
+        "Risky situation",
+        "Winter fun",
+        "Cold travel"
+      ],
+      "correct": 1,
+      "explanation": "In precarious situation"
+    },
+    {
+      "id": "c006",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'under the weather' mean?",
+      "options": [
+        "Outside rain",
+        "Feel sick",
+        "Emotionally unstable",
+        "Poor finances"
+      ],
+      "correct": 1,
+      "explanation": "Feel physically ill"
+    },
+    {
+      "id": "c007",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'cold shoulder' mean?",
+      "options": [
+        "Cold object",
+        "Ignore someone",
+        "Share drink",
+        "Medical help"
+      ],
+      "correct": 1,
+      "explanation": "Deliberately ignore"
+    },
+    {
+      "id": "c008",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'hit the hay' mean?",
+      "options": [
+        "Farm",
+        "Go to bed",
+        "Breakfast",
+        "Exercise"
+      ],
+      "correct": 1,
+      "explanation": "Go to sleep"
+    },
+    {
+      "id": "c009",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'piece of cake' mean?",
+      "options": [
+        "Dessert",
+        "Easy thing",
+        "Expensive",
+        "Hard task"
+      ],
+      "correct": 1,
+      "explanation": "Something very easy"
+    },
+    {
+      "id": "c010",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'bark up wrong tree' mean?",
+      "options": [
+        "Forest",
+        "Wrong approach",
+        "Be loud",
+        "Dislike animals"
+      ],
+      "correct": 1,
+      "explanation": "Pursue wrong course"
+    },
+    {
+      "id": "c011",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'spill the tea' mean?",
+      "options": [
+        "Waste drink",
+        "Share gossip",
+        "Reveal location",
+        "Break thing"
+      ],
+      "correct": 1,
+      "explanation": "Share secrets/gossip"
+    },
+    {
+      "id": "c012",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'no brainer'?",
+      "options": [
+        "No thinking",
+        "Easy choice",
+        "Obvious answer",
+        "All above"
+      ],
+      "correct": 3,
+      "explanation": "Extremely obvious choice"
+    },
+    {
+      "id": "c013",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'hit nail on head' mean?",
+      "options": [
+        "Use hammer",
+        "Describe perfectly",
+        "Harm",
+        "Build"
+      ],
+      "correct": 1,
+      "explanation": "Be exactly right"
+    },
+    {
+      "id": "c014",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'cost arm and leg' mean?",
+      "options": [
+        "Medical",
+        "Very expensive",
+        "Risk",
+        "Lose"
+      ],
+      "correct": 1,
+      "explanation": "Be very expensive"
+    },
+    {
+      "id": "c015",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What is 'piece of work'?",
+      "options": [
+        "Creative output",
+        "Difficult person",
+        "Artwork",
+        "Task"
+      ],
+      "correct": 1,
+      "explanation": "Difficult person"
+    },
+    {
+      "id": "c016",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'rain cats/dogs' mean?",
+      "options": [
+        "Falling animals",
+        "Heavy rain",
+        "Wet pets",
+        "Farm flood"
+      ],
+      "correct": 1,
+      "explanation": "Rain very heavily"
+    },
+    {
+      "id": "c017",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'once in blue moon' mean?",
+      "options": [
+        "Yearly",
+        "Very rarely",
+        "Astronomy",
+        "Color"
+      ],
+      "correct": 1,
+      "explanation": "Happen very rarely"
+    },
+    {
+      "id": "c018",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'get ball rolling' mean?",
+      "options": [
+        "Sports",
+        "Start something",
+        "Kick",
+        "Catch"
+      ],
+      "correct": 1,
+      "explanation": "Initiate/begin"
+    },
+    {
+      "id": "c019",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'call it day' mean?",
+      "options": [
+        "Name",
+        "End activity",
+        "Announce",
+        "Schedule"
+      ],
+      "correct": 1,
+      "explanation": "Stop work for day"
+    },
+    {
+      "id": "c020",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'wear hats' mean?",
+      "options": [
+        "Fashionable",
+        "Have roles",
+        "Attend events",
+        "Collect"
+      ],
+      "correct": 1,
+      "explanation": "Have multiple responsibilities"
+    },
+    {
+      "id": "c021",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'over moon' mean?",
+      "options": [
+        "Above",
+        "Very happy",
+        "Astronomy",
+        "Jump"
+      ],
+      "correct": 1,
+      "explanation": "Extremely happy"
+    },
+    {
+      "id": "c022",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'down in dumps' mean?",
+      "options": [
+        "Garbage",
+        "Very sad",
+        "Low place",
+        "Trash"
+      ],
+      "correct": 1,
+      "explanation": "Feel very sad"
+    },
+    {
+      "id": "c023",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'on cloud nine' mean?",
+      "options": [
+        "Sky",
+        "Extremely happy",
+        "Floating",
+        "High"
+      ],
+      "correct": 1,
+      "explanation": "In blissful state"
+    },
+    {
+      "id": "c024",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'rub wrong way' mean?",
+      "options": [
+        "Touch",
+        "Irritate",
+        "Clean",
+        "Massage"
+      ],
+      "correct": 1,
+      "explanation": "Annoy or irritate"
+    },
+    {
+      "id": "c025",
+      "theme": "conversational",
+      "type": "multiple-choice",
+      "difficulty": "C1",
+      "question": "What does 'pull leg' mean?",
+      "options": [
+        "Grab",
+        "Make joke",
+        "Exercise",
+        "Walk"
+      ],
+      "correct": 1,
+      "explanation": "Tease or joke"
+    },
+    {
+      "id": "vc0001",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0002",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The approach helped solve the problem was key.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0003",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0004",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0005",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The approach helped solve the problem was key.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0006",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0007",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0008",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The approach helped solve the problem was key.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0009",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0010",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ approach helped solve the problem.",
+      "blank": "pragmatic",
+      "options": [
+        "pragmatic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Practical/realistic"
+    },
+    {
+      "id": "vc0011",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0012",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His remarks were hurtful was key.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0013",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0014",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0015",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His remarks were hurtful was key.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0016",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0017",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0018",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His remarks were hurtful was key.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0019",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0020",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ remarks were hurtful.",
+      "blank": "caustic",
+      "options": [
+        "caustic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sharp/sarcastic"
+    },
+    {
+      "id": "vc0021",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0022",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was about her future success was key.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0023",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0024",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0025",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was about her future success was key.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0026",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0027",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0028",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was about her future success was key.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0029",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0030",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She was _____ about her future success.",
+      "blank": "optimistic",
+      "options": [
+        "optimistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hopeful"
+    },
+    {
+      "id": "vc0031",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0032",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student asked insightful questions was key.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0033",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0034",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0035",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student asked insightful questions was key.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0036",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0037",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0038",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student asked insightful questions was key.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0039",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0040",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student asked insightful questions.",
+      "blank": "perceptive",
+      "options": [
+        "perceptive",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Understanding/aware"
+    },
+    {
+      "id": "vc0041",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0042",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His nature made him fun was key.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0043",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0044",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0045",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His nature made him fun was key.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0046",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0047",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0048",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His nature made him fun was key.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0049",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0050",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature made him fun.",
+      "blank": "gregarious",
+      "options": [
+        "gregarious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Socially inclined"
+    },
+    {
+      "id": "vc0051",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0052",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed commitment was key.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0053",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0054",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0055",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed commitment was key.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0056",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0057",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0058",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed commitment was key.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0059",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0060",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She showed _____ commitment.",
+      "blank": "unwavering",
+      "options": [
+        "unwavering",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Steady/firm"
+    },
+    {
+      "id": "vc0061",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0062",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The evidence was overwhelming was key.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0063",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0064",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0065",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The evidence was overwhelming was key.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0066",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0067",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0068",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The evidence was overwhelming was key.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0069",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0070",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence was overwhelming.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0071",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0072",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His speech impressed everyone was key.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0073",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0074",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0075",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His speech impressed everyone was key.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0076",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0077",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0078",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His speech impressed everyone was key.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0079",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0080",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ speech impressed everyone.",
+      "blank": "eloquent",
+      "options": [
+        "eloquent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Articulate/fluent"
+    },
+    {
+      "id": "vc0081",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0082",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The policy was controversial was key.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0083",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0084",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0085",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The policy was controversial was key.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0086",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0087",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0088",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The policy was controversial was key.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0089",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0090",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ policy was controversial.",
+      "blank": "ambiguous",
+      "options": [
+        "ambiguous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unclear/unclear"
+    },
+    {
+      "id": "vc0091",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0092",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her for detail was impressive was key.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0093",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0094",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0095",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her for detail was impressive was key.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0096",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0097",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0098",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her for detail was impressive was key.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0099",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0100",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ for detail was impressive.",
+      "blank": "meticulous",
+      "options": [
+        "meticulous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Very careful"
+    },
+    {
+      "id": "vc0101",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0102",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The author wrote beautifully was key.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0103",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0104",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0105",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The author wrote beautifully was key.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0106",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0107",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0108",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The author wrote beautifully was key.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0109",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0110",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ author wrote beautifully.",
+      "blank": "prolific",
+      "options": [
+        "prolific",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Produces much"
+    },
+    {
+      "id": "vc0111",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0112",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His behavior was unexpected was key.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0113",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0114",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0115",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His behavior was unexpected was key.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0116",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0117",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0118",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His behavior was unexpected was key.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0119",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0120",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ behavior was unexpected.",
+      "blank": "aberrant",
+      "options": [
+        "aberrant",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Abnormal"
+    },
+    {
+      "id": "vc0121",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0122",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student excelled academically was key.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0123",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0124",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0125",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student excelled academically was key.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0126",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0127",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0128",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student excelled academically was key.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0129",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0130",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student excelled academically.",
+      "blank": "diligent",
+      "options": [
+        "diligent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hardworking"
+    },
+    {
+      "id": "vc0131",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0132",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave reasons for her decision was key.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0133",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0134",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0135",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave reasons for her decision was key.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0136",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0137",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0138",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave reasons for her decision was key.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0139",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0140",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "She gave _____ reasons for her decision.",
+      "blank": "cogent",
+      "options": [
+        "cogent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Convincing"
+    },
+    {
+      "id": "vc0141",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0142",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The atmosphere made us nervous was key.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0143",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0144",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0145",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The atmosphere made us nervous was key.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0146",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0147",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0148",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The atmosphere made us nervous was key.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0149",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0150",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ atmosphere made us nervous.",
+      "blank": "tense",
+      "options": [
+        "tense",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Strained"
+    },
+    {
+      "id": "vc0151",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0152",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His nature prevented friendship was key.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0153",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0154",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0155",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His nature prevented friendship was key.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0156",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0157",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0158",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His nature prevented friendship was key.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0159",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0160",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ nature prevented friendship.",
+      "blank": "antagonistic",
+      "options": [
+        "antagonistic",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Hostile"
+    },
+    {
+      "id": "vc0161",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0162",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The explanation confused everyone was key.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0163",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0164",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0165",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The explanation confused everyone was key.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0166",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0167",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0168",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The explanation confused everyone was key.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0169",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0170",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ explanation confused everyone.",
+      "blank": "convoluted",
+      "options": [
+        "convoluted",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Complex"
+    },
+    {
+      "id": "vc0171",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0172",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her presence calmed the situation was key.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0173",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0174",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0175",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her presence calmed the situation was key.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0176",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0177",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0178",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her presence calmed the situation was key.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0179",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0180",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ presence calmed the situation.",
+      "blank": "serene",
+      "options": [
+        "serene",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Peaceful"
+    },
+    {
+      "id": "vc0181",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0182",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The development surprised analysts was key.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0183",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0184",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0185",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The development surprised analysts was key.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0186",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0187",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0188",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The development surprised analysts was key.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0189",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0190",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ development surprised analysts.",
+      "blank": "precipitous",
+      "options": [
+        "precipitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Sudden/steep"
+    },
+    {
+      "id": "vc0191",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0192",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His actions saved the day was key.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0193",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0194",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0195",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His actions saved the day was key.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0196",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0197",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0198",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His actions saved the day was key.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0199",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0200",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ actions saved the day.",
+      "blank": "fortuitous",
+      "options": [
+        "fortuitous",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Fortunate"
+    },
+    {
+      "id": "vc0201",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0202",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The investment proved worthwhile was key.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0203",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0204",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0205",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The investment proved worthwhile was key.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0206",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0207",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0208",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The investment proved worthwhile was key.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0209",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0210",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ investment proved worthwhile.",
+      "blank": "judicious",
+      "options": [
+        "judicious",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise/careful"
+    },
+    {
+      "id": "vc0211",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0212",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her response showed wisdom was key.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0213",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0214",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0215",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her response showed wisdom was key.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0216",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0217",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0218",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her response showed wisdom was key.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0219",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0220",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "Her _____ response showed wisdom.",
+      "blank": "sage",
+      "options": [
+        "sage",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Wise"
+    },
+    {
+      "id": "vc0221",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0222",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The evidence proved guilt was key.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0223",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0224",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0225",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The evidence proved guilt was key.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0226",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0227",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0228",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The evidence proved guilt was key.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0229",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0230",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ evidence proved guilt.",
+      "blank": "irrefutable",
+      "options": [
+        "irrefutable",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Cannot be denied"
+    },
+    {
+      "id": "vc0231",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0232",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His approach was innovative was key.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0233",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0234",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0235",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His approach was innovative was key.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0236",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0237",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0238",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His approach was innovative was key.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0239",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0240",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "His _____ approach was innovative.",
+      "blank": "unconventional",
+      "options": [
+        "unconventional",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Unusual"
+    },
+    {
+      "id": "vc0241",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0242",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student struggled academically was key.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0243",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0244",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0245",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student struggled academically was key.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0246",
+      "theme": "business",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0247",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0248",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The student struggled academically was key.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0249",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "An The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "vc0250",
+      "theme": "conversational",
+      "type": "cloze",
+      "difficulty": "C1",
+      "text": "The _____ student struggled academically.",
+      "blank": "indolent",
+      "options": [
+        "indolent",
+        "other1",
+        "other2",
+        "other3"
+      ],
+      "explanation": "Lazy"
+    },
+    {
+      "id": "tf0001",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Inflation means prices are decreasing.",
+      "correct": false,
+      "explanation": "Inflation = price increase"
+    },
+    {
+      "id": "tf0002",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Inflation means prices are decreasing.",
+      "correct": false,
+      "explanation": "Inflation = price increase"
+    },
+    {
+      "id": "tf0003",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Inflation means prices are decreasing.",
+      "correct": false,
+      "explanation": "Inflation = price increase"
+    },
+    {
+      "id": "tf0004",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "ROI measures profit relative to investment.",
+      "correct": true,
+      "explanation": "ROI = profit/investment ratio"
+    },
+    {
+      "id": "tf0005",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "ROI measures profit relative to investment.",
+      "correct": true,
+      "explanation": "ROI = profit/investment ratio"
+    },
+    {
+      "id": "tf0006",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "ROI measures profit relative to investment.",
+      "correct": true,
+      "explanation": "ROI = profit/investment ratio"
+    },
+    {
+      "id": "tf0007",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "A monopoly has multiple competitors.",
+      "correct": false,
+      "explanation": "Monopoly = one seller"
+    },
+    {
+      "id": "tf0008",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "A monopoly has multiple competitors.",
+      "correct": false,
+      "explanation": "Monopoly = one seller"
+    },
+    {
+      "id": "tf0009",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "A monopoly has multiple competitors.",
+      "correct": false,
+      "explanation": "Monopoly = one seller"
+    },
+    {
+      "id": "tf0010",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "GDP includes only goods, not services.",
+      "correct": false,
+      "explanation": "GDP = goods AND services"
+    },
+    {
+      "id": "tf0011",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "GDP includes only goods, not services.",
+      "correct": false,
+      "explanation": "GDP = goods AND services"
+    },
+    {
+      "id": "tf0012",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "GDP includes only goods, not services.",
+      "correct": false,
+      "explanation": "GDP = goods AND services"
+    },
+    {
+      "id": "tf0013",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Depreciation increases asset value.",
+      "correct": false,
+      "explanation": "Depreciation = value decrease"
+    },
+    {
+      "id": "tf0014",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Depreciation increases asset value.",
+      "correct": false,
+      "explanation": "Depreciation = value decrease"
+    },
+    {
+      "id": "tf0015",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Depreciation increases asset value.",
+      "correct": false,
+      "explanation": "Depreciation = value decrease"
+    },
+    {
+      "id": "tf0016",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Dividend is profit to shareholders.",
+      "correct": true,
+      "explanation": "Dividends = profit distribution"
+    },
+    {
+      "id": "tf0017",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Dividend is profit to shareholders.",
+      "correct": true,
+      "explanation": "Dividends = profit distribution"
+    },
+    {
+      "id": "tf0018",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Dividend is profit to shareholders.",
+      "correct": true,
+      "explanation": "Dividends = profit distribution"
+    },
+    {
+      "id": "tf0019",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Market demand always stays constant.",
+      "correct": false,
+      "explanation": "Demand fluctuates"
+    },
+    {
+      "id": "tf0020",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Market demand always stays constant.",
+      "correct": false,
+      "explanation": "Demand fluctuates"
+    },
+    {
+      "id": "tf0021",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Market demand always stays constant.",
+      "correct": false,
+      "explanation": "Demand fluctuates"
+    },
+    {
+      "id": "tf0022",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Capital expenditure = daily operational costs.",
+      "correct": false,
+      "explanation": "CapEx = asset purchases"
+    },
+    {
+      "id": "tf0023",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Capital expenditure = daily operational costs.",
+      "correct": false,
+      "explanation": "CapEx = asset purchases"
+    },
+    {
+      "id": "tf0024",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Capital expenditure = daily operational costs.",
+      "correct": false,
+      "explanation": "CapEx = asset purchases"
+    },
+    {
+      "id": "tf0025",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Profit margins show profit percentage.",
+      "correct": true,
+      "explanation": "Margin = profit/revenue%"
+    },
+    {
+      "id": "tf0026",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Profit margins show profit percentage.",
+      "correct": true,
+      "explanation": "Margin = profit/revenue%"
+    },
+    {
+      "id": "tf0027",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Profit margins show profit percentage.",
+      "correct": true,
+      "explanation": "Margin = profit/revenue%"
+    },
+    {
+      "id": "tf0028",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Stock split changes company value.",
+      "correct": false,
+      "explanation": "Split redistributes shares"
+    },
+    {
+      "id": "tf0029",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Stock split changes company value.",
+      "correct": false,
+      "explanation": "Split redistributes shares"
+    },
+    {
+      "id": "tf0030",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Stock split changes company value.",
+      "correct": false,
+      "explanation": "Split redistributes shares"
+    },
+    {
+      "id": "tf0031",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Bankruptcy = complete failure.",
+      "correct": true,
+      "explanation": "Bankruptcy = legal debt process"
+    },
+    {
+      "id": "tf0032",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Bankruptcy = complete failure.",
+      "correct": true,
+      "explanation": "Bankruptcy = legal debt process"
+    },
+    {
+      "id": "tf0033",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Bankruptcy = complete failure.",
+      "correct": true,
+      "explanation": "Bankruptcy = legal debt process"
+    },
+    {
+      "id": "tf0034",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Revenue = profit after expenses.",
+      "correct": false,
+      "explanation": "Revenue = income before expenses"
+    },
+    {
+      "id": "tf0035",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Revenue = profit after expenses.",
+      "correct": false,
+      "explanation": "Revenue = income before expenses"
+    },
+    {
+      "id": "tf0036",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Revenue = profit after expenses.",
+      "correct": false,
+      "explanation": "Revenue = income before expenses"
+    },
+    {
+      "id": "tf0037",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Tax deductions reduce taxable income.",
+      "correct": true,
+      "explanation": "Deductions lower tax amount"
+    },
+    {
+      "id": "tf0038",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Tax deductions reduce taxable income.",
+      "correct": true,
+      "explanation": "Deductions lower tax amount"
+    },
+    {
+      "id": "tf0039",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Tax deductions reduce taxable income.",
+      "correct": true,
+      "explanation": "Deductions lower tax amount"
+    },
+    {
+      "id": "tf0040",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Compound interest grows faster than simple.",
+      "correct": true,
+      "explanation": "Compound = exponential growth"
+    },
+    {
+      "id": "tf0041",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Compound interest grows faster than simple.",
+      "correct": true,
+      "explanation": "Compound = exponential growth"
+    },
+    {
+      "id": "tf0042",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Compound interest grows faster than simple.",
+      "correct": true,
+      "explanation": "Compound = exponential growth"
+    },
+    {
+      "id": "tf0043",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Outsourcing always reduces costs.",
+      "correct": false,
+      "explanation": "Can have hidden costs"
+    },
+    {
+      "id": "tf0044",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Outsourcing always reduces costs.",
+      "correct": false,
+      "explanation": "Can have hidden costs"
+    },
+    {
+      "id": "tf0045",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Outsourcing always reduces costs.",
+      "correct": false,
+      "explanation": "Can have hidden costs"
+    },
+    {
+      "id": "tf0046",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Fiscal year must be Jan-Dec.",
+      "correct": false,
+      "explanation": "Can be any 12 months"
+    },
+    {
+      "id": "tf0047",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Fiscal year must be Jan-Dec.",
+      "correct": false,
+      "explanation": "Can be any 12 months"
+    },
+    {
+      "id": "tf0048",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Fiscal year must be Jan-Dec.",
+      "correct": false,
+      "explanation": "Can be any 12 months"
+    },
+    {
+      "id": "tf0049",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Procurement is buying supplies.",
+      "correct": true,
+      "explanation": "Procurement = purchasing"
+    },
+    {
+      "id": "tf0050",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Procurement is buying supplies.",
+      "correct": true,
+      "explanation": "Procurement = purchasing"
+    },
+    {
+      "id": "tf0051",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Procurement is buying supplies.",
+      "correct": true,
+      "explanation": "Procurement = purchasing"
+    },
+    {
+      "id": "tf0052",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Idiom describes multilingual person.",
+      "correct": false,
+      "explanation": "Idiom = phrase with figurative meaning"
+    },
+    {
+      "id": "tf0053",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Idiom describes multilingual person.",
+      "correct": false,
+      "explanation": "Idiom = phrase with figurative meaning"
+    },
+    {
+      "id": "tf0054",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Idiom describes multilingual person.",
+      "correct": false,
+      "explanation": "Idiom = phrase with figurative meaning"
+    },
+    {
+      "id": "tf0055",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Procrastinate means work efficiently.",
+      "correct": false,
+      "explanation": "Procrastinate = delay"
+    },
+    {
+      "id": "tf0056",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Procrastinate means work efficiently.",
+      "correct": false,
+      "explanation": "Procrastinate = delay"
+    },
+    {
+      "id": "tf0057",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Procrastinate means work efficiently.",
+      "correct": false,
+      "explanation": "Procrastinate = delay"
+    },
+    {
+      "id": "tf0058",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Faux pas is polite action.",
+      "correct": false,
+      "explanation": "Faux pas = social mistake"
+    },
+    {
+      "id": "tf0059",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Faux pas is polite action.",
+      "correct": false,
+      "explanation": "Faux pas = social mistake"
+    },
+    {
+      "id": "tf0060",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Faux pas is polite action.",
+      "correct": false,
+      "explanation": "Faux pas = social mistake"
+    },
+    {
+      "id": "tf0061",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Serendipity is finding good by chance.",
+      "correct": true,
+      "explanation": "Serendipity = lucky discovery"
+    },
+    {
+      "id": "tf0062",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Serendipity is finding good by chance.",
+      "correct": true,
+      "explanation": "Serendipity = lucky discovery"
+    },
+    {
+      "id": "tf0063",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Serendipity is finding good by chance.",
+      "correct": true,
+      "explanation": "Serendipity = lucky discovery"
+    },
+    {
+      "id": "tf0064",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Gregarious people prefer solitude.",
+      "correct": false,
+      "explanation": "Gregarious = social"
+    },
+    {
+      "id": "tf0065",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Gregarious people prefer solitude.",
+      "correct": false,
+      "explanation": "Gregarious = social"
+    },
+    {
+      "id": "tf0066",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Gregarious people prefer solitude.",
+      "correct": false,
+      "explanation": "Gregarious = social"
+    },
+    {
+      "id": "tf0067",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Articulate means express clearly.",
+      "correct": true,
+      "explanation": "Articulate = express well"
+    },
+    {
+      "id": "tf0068",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Articulate means express clearly.",
+      "correct": true,
+      "explanation": "Articulate = express well"
+    },
+    {
+      "id": "tf0069",
+      "theme": "conversational",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Articulate means express clearly.",
+      "correct": true,
+      "explanation": "Articulate = express well"
+    },
+    {
+      "id": "tf0070",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Taciturn people talk a lot.",
+      "correct": false,
+      "explanation": "Taciturn = silent"
+    },
+    {
+      "id": "tf0071",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Taciturn people talk a lot.",
+      "correct": false,
+      "explanation": "Taciturn = silent"
+    },
+    {
+      "id": "tf0072",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Taciturn people talk a lot.",
+      "correct": false,
+      "explanation": "Taciturn = silent"
+    },
+    {
+      "id": "tf0073",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Ambiguous means very clear.",
+      "correct": false,
+      "explanation": "Ambiguous = unclear"
+    },
+    {
+      "id": "tf0074",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Ambiguous means very clear.",
+      "correct": false,
+      "explanation": "Ambiguous = unclear"
+    },
+    {
+      "id": "tf0075",
+      "theme": "business",
+      "type": "true-false",
+      "difficulty": "C1",
+      "statement": "Ambiguous means very clear.",
+      "correct": false,
+      "explanation": "Ambiguous = unclear"
+    }
+  ]
+}
