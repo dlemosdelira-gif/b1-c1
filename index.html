@@ -419,10 +419,15 @@ textarea{min-height:120px}
 
 <div class="pg" id="pg-dash">
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
-  <div id="dashChecklistContainer"></div>
+  <div id="dashChecklistContainer">
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('reading')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">📖 Reading</div></div></div></div>
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('listening')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎧 Listening</div></div></div></div>
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('writing')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">✍️ Writing</div></div></div></div>
+  </div>
 
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
-  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto"></div>
+  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto;display:grid;gap:2px;grid-template-columns:repeat(53,20px)"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -728,27 +733,18 @@ function render(){
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDash(){
   try{
-    const container=document.getElementById('dashChecklistContainer');
-    if(!container)return;
-
     // Load tasks
     const stored=localStorage.getItem('c1dt-'+today);
     const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
 
-    let html='';
-    Object.entries(TASK_LABELS).forEach(([task,label])=>{
-      const checked=tasks[task];
-      html+=`<div class="card" style="margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('${task}')">
-          <input type="checkbox" ${checked?'checked':''} style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()">
-          <div style="flex:1">
-            <div style="font-weight:600;color:#0F172A">${label}</div>
-          </div>
-        </div>
-      </div>`;
+    // Update checkboxes
+    ['preply','reading','listening','writing'].forEach(task=>{
+      const inputs=document.querySelectorAll(`[onclick*="toggleDailyTask('${task}')"] input`);
+      inputs.forEach(inp=>{
+        inp.checked=tasks[task]||false;
+      });
     });
 
-    container.innerHTML=html;
     renderYearHeatmap();
   }catch(e){
     console.error('renderDash error:',e);
@@ -1428,7 +1424,10 @@ function saveDayTasks(dateStr){
 
 function renderYearHeatmap(){
   try{
-    let html='<div style="display:grid;gap:2px;grid-template-columns:repeat(53,20px);margin-bottom:16px">';
+    const container=document.getElementById('yearHeatmapContainer');
+    if(!container)return;
+
+    container.innerHTML='';
     const startDate=new Date(new Date().getFullYear(),0,1);
     const endDate=new Date(new Date().getFullYear(),11,31);
 
@@ -1438,11 +1437,12 @@ function renderYearHeatmap(){
       const completed=val?Object.values(JSON.parse(val)).filter(v=>v).length:0;
       const colors=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
       const bg=colors[Math.min(completed,4)];
-      html+=`<div style="width:20px;height:20px;background:${bg};border-radius:4px;cursor:pointer;border:1px solid #D1D5DB" title="${key}" onclick="editDayTasks('${key}')"></div>`;
+      const div=document.createElement('div');
+      div.style.cssText=`width:20px;height:20px;background:${bg};border-radius:4px;cursor:pointer;border:1px solid #D1D5DB`;
+      div.title=key;
+      div.onclick=()=>editDayTasks(key);
+      container.appendChild(div);
     }
-    html+='</div>';
-    const container=document.getElementById('yearHeatmapContainer');
-    if(container)container.innerHTML=html;
   }catch(e){
     console.error('renderYearHeatmap error:',e);
   }
