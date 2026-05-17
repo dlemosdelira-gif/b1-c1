@@ -431,27 +431,6 @@ textarea{min-height:120px}
       </div>
     </div>
 
-    <div class="out-card">
-      <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Daily Output</div>
-      <div class="out-row">
-        <div class="out-lbl">WORDS TODAY</div>
-        <div class="out-val" id="wtoday" style="color:#2563EB">0</div>
-        <div class="out-goal">goal: 150 words</div>
-        <div class="out-bar"><div class="out-fill" id="wprog" style="background:#2563EB;width:0%"></div></div>
-      </div>
-      <div class="out-row">
-        <div class="out-lbl">MINS SPOKEN</div>
-        <div class="out-val" id="mspoken" style="color:#7C3AED">0</div>
-        <div class="out-goal">goal: 10 minutes</div>
-        <div class="out-bar"><div class="out-fill" id="mprog" style="background:#7C3AED;width:0%"></div></div>
-      </div>
-      <div class="out-log">
-        <span style="font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace" id="sesminlbl">0 min logged</span>
-        <button class="btn bsm" id="logminus" onclick="logSession(-1)" style="display:none;padding:3px 8px;font-size:13px;line-height:1">−</button>
-        <button class="btn bpr bsm" onclick="logSession(1)" style="padding:3px 10px">+ 30 min</button>
-      </div>
-    </div>
-
     <div class="rm-card">
       <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Roadmap</div>
       <div class="rm-sel" id="rmsel"></div>
@@ -797,12 +776,13 @@ function closeM(id){document.getElementById(id).classList.add('hid');}
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function goTab(t){
   curTab=t;
-  ['dash','prac','rev','cards'].forEach(x=>{
+  ['dash','prac','road','rev','cards'].forEach(x=>{
     document.getElementById('pg-'+x).classList.toggle('hid',x!==t);
     document.getElementById('nav-'+x).classList.toggle('on',x===t);
   });
   if(t==='dash')renderDash();
   else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+  else if(t==='road')buildRoadmap();
   else if(t==='rev')renderRev();
   else if(t==='cards')renderCards();
 }
