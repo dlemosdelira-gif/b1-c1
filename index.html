@@ -418,8 +418,11 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
+  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Checklist Diário</div>
 
-  <div class="top-grid">
+  <div id="dashChecklistContainer"></div>
+
+  <div class="top-grid" style="display:none">
     <div class="flt">
       <div class="flt-lbl">✈ TOTAL FLIGHT HOURS</div>
       <div class="flt-h" id="fhours">0h 00m</div>
@@ -580,7 +583,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null;
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
@@ -730,6 +733,7 @@ function loadLocal(){
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
+  loadDailyTasks();
 }
 function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
 function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
@@ -807,7 +811,7 @@ function renderDash(){
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
   renderFlight();renderMeters();renderHeatmap();updateLogBtn();
-  renderMonthProgress();renderMilestones();
+  renderMonthProgress();renderMilestones();renderDashChecklist();
 }
 
 function toggleCI(k){
@@ -1283,6 +1287,7 @@ function startSync(){
     RMO = db.ref('activeMonth');
     RSE = db.ref('sentences');
     RMS = db.ref('milestones');
+    RDT = db.ref('dailyTasks');
     
     RCI.on('value', s=>{
       const v=s.val();
@@ -1416,6 +1421,62 @@ function saveSentences(){
 window.addEventListener('load',()=>{
   renderSentences();
 });
+
+// ── DAILY CHECKLIST ────────────────────────────────────────────────────
+let dailyTasks={preply:false,reading:false,listening:false,writing:false};
+const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
+
+function loadDailyTasks(){
+  const stored=localStorage.getItem('c1dt-'+today);
+  if(stored)dailyTasks=JSON.parse(stored);
+  else dailyTasks={preply:false,reading:false,listening:false,writing:false};
+}
+
+function toggleDailyTask(task){
+  dailyTasks[task]=!dailyTasks[task];
+  localStorage.setItem('c1dt-'+today,JSON.stringify(dailyTasks));
+  if(RDT)RDT.child(today).set(dailyTasks).catch(()=>{});
+  renderDashChecklist();
+}
+
+function getDayCount(task,period='month'){
+  let count=0;
+  for(let i=0;i<365;i++){
+    const d=new Date();
+    d.setDate(d.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+    const val=localStorage.getItem('c1dt-'+key);
+    if(!val)continue;
+    const obj=JSON.parse(val);
+    if(obj[task]){
+      if(period==='month'&&key.slice(5,7)!==today.slice(5,7))break;
+      count++;
+    }
+  }
+  return count;
+}
+
+function renderDashChecklist(){
+  loadDailyTasks();
+  let html='';
+  Object.entries(TASK_LABELS).forEach(([task,label])=>{
+    const checked=dailyTasks[task];
+    const monthCount=getDayCount(task,'month');
+    const yearCount=getDayCount(task,'year');
+    html+=`<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('${task}')">
+        <input type="checkbox" ${checked?'checked':''} style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()">
+        <div style="flex:1">
+          <div style="font-weight:600;color:#0F172A">${label}</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:2px">${monthCount} dias este mês • ${yearCount} dias este ano</div>
+          <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${Math.min(monthCount*10,100)}%;background:${monthCount>20?'#00a878':monthCount>10?'#fbbf24':'#ff6b35'}"></div></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  const container=document.getElementById('dashChecklistContainer');
+  if(container)container.innerHTML=html;
+}
 
 // ── ROADMAP FEATURE ────────────────────────────────────────────────────
 const ROADMAP_COLORS={'1':'#00a878','2':'#00a878','3':'#00a878','4':'#00a878','5':'#0066cc','6':'#0066cc','7':'#0066cc','8':'#ff6b35','9':'#ff6b35','10':'#8b4dff','11':'#8b4dff','12':'#8b4dff'};
