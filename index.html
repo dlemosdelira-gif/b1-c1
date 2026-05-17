@@ -420,6 +420,12 @@ textarea{min-height:120px}
 <div class="pg" id="pg-dash">
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
   <div id="dashChecklistContainer"></div>
+
+  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
+  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto"></div>
+
+  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📈 Monthly Breakdown</div>
+  <div id="monthlyBarChartContainer" class="card" style="padding:16px;overflow-x:auto"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -1383,6 +1389,70 @@ function renderDashChecklist(){
     </div>`;
   });
   const container=document.getElementById('dashChecklistContainer');
+  if(container)container.innerHTML=html;
+  renderYearHeatmap();
+  renderMonthlyBarChart();
+}
+
+function getTaskCompletionForDay(date){
+  const key=date.toISOString().split('T')[0];
+  const val=localStorage.getItem('c1dt-'+key);
+  if(!val)return 0;
+  const obj=JSON.parse(val);
+  return Object.values(obj).filter(v=>v).length;
+}
+
+function renderYearHeatmap(){
+  let html='<div style="display:grid;gap:2px;grid-template-columns:repeat(53,20px);margin-bottom:16px">';
+  const startDate=new Date(new Date().getFullYear(),0,1);
+  const endDate=new Date(new Date().getFullYear(),11,31);
+
+  for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
+    const completed=getTaskCompletionForDay(new Date(d));
+    const colors=['#E5E7EB','#FECACA','#FCA5A5','#F87171','#DC2626'];
+    const bg=colors[Math.min(completed,4)];
+    const title=d.toISOString().split('T')[0];
+    html+=`<div style="width:20px;height:20px;background:${bg};border-radius:4px;cursor:help;border:1px solid #D1D5DB" title="${title}"></div>`;
+  }
+  html+='</div>';
+  const container=document.getElementById('yearHeatmapContainer');
+  if(container)container.innerHTML=html;
+}
+
+function renderMonthlyBarChart(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const tasks=['preply','reading','listening','writing'];
+  const colors={preply:'#3B82F6',reading:'#10B981',listening:'#F59E0B',writing:'#8B5CF6'};
+
+  let html='<div style="display:flex;flex-direction:column;gap:16px">';
+
+  months.forEach((month,idx)=>{
+    const firstDay=new Date(new Date().getFullYear(),idx,1);
+    const lastDay=new Date(new Date().getFullYear(),idx+1,0);
+
+    let html2='<div><div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:8px">'+month+'</div>';
+    html2+='<div style="display:flex;align-items:flex-end;gap:8px;height:80px">';
+
+    tasks.forEach(task=>{
+      let count=0;
+      for(let d=new Date(firstDay);d<=lastDay;d.setDate(d.getDate()+1)){
+        const key=d.toISOString().split('T')[0];
+        const val=localStorage.getItem('c1dt-'+key);
+        if(val){
+          const obj=JSON.parse(val);
+          if(obj[task])count++;
+        }
+      }
+      const height=Math.max(5,count*3);
+      html2+=`<div style="flex:1;background:${colors[task]};height:${height}px;border-radius:4px;cursor:help" title="${task}: ${count} days"></div>`;
+    });
+
+    html2+='</div></div>';
+    html+=html2;
+  });
+
+  html+='</div>';
+  const container=document.getElementById('monthlyBarChartContainer');
   if(container)container.innerHTML=html;
 }
 
