@@ -1495,9 +1495,9 @@ function recordLessonAttempt(lessonId,isCorrect){
 }
 
 function getNeedsReviewLessons(){
-  if(!lessons.lessons)return[];
+  if(!lessonsDB.lessons)return[];
   const today=new Date().toISOString().split('T')[0];
-  return lessons.lessons.filter(l=>{
+  return lessonsDB.lessons.filter(l=>{
     const stats=getLessonStats(l.id);
     if(stats.incorrect===0)return false;
     const nextReview=stats.nextReviewDate||'1970-01-01';
@@ -1506,15 +1506,15 @@ function getNeedsReviewLessons(){
 }
 
 function getRandomLesson(){
-  if(!lessons.lessons)return null;
+  if(!lessonsDB.lessons)return null;
   const reviewLessons=getNeedsReviewLessons();
-  let pool=reviewLessons.length>0?reviewLessons:lessons.lessons;
+  let pool=reviewLessons.length>0?reviewLessons:lessonsDB.lessons;
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
 function generateNewActivity(){
   // Ensure lessons are loaded
-  if(!lessons.lessons||lessons.lessons.length===0){
+  if(!lessonsDB.lessons||lessonsDB.lessons.length===0){
     loadLessons();
     setTimeout(generateNewActivity,500);
     return;
