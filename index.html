@@ -419,86 +419,7 @@ textarea{min-height:120px}
 
 <div class="pg" id="pg-dash">
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Checklist Diário</div>
-
   <div id="dashChecklistContainer"></div>
-
-  <div class="top-grid" style="display:none">
-    <div class="flt">
-      <div class="flt-lbl">✈ TOTAL FLIGHT HOURS</div>
-      <div class="flt-h" id="fhours">0h 00m</div>
-      <div class="flt-sub">Accumulated study time</div>
-      <div class="flt-meta">
-        <div class="flt-mi"><span class="flt-mv" id="fdays">0</span>study days</div>
-        <div class="flt-mi"><span class="flt-mv" id="favg">0m</span>avg/day</div>
-        <div class="flt-mi"><span class="flt-mv" id="fstrk">0</span>streak</div>
-      </div>
-    </div>
-
-    <div class="rm-card">
-      <div class="ctit" style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Roadmap</div>
-      <div class="rm-sel" id="rmsel"></div>
-      <div class="rm-theme" id="rmtheme"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="fb" style="margin-bottom:8px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity <span id="curYear">2026</span></div>
-      <div class="fl" style="gap:3px;align-items:center">
-        <span style="font-size:10px;color:#94A3B8">Less</span>
-        <div style="display:flex;gap:2px;align-items:center">
-          <div style="width:9px;height:9px;border-radius:2px;background:#CBD5E1"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#93C5FD"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#3B82F6"></div>
-          <div style="width:9px;height:9px;border-radius:2px;background:#1D4ED8"></div>
-        </div>
-        <span style="font-size:10px;color:#94A3B8">More</span>
-      </div>
-    </div>
-    <div class="hm-wrap">
-      <div id="hmml" class="hm-months"></div>
-      <div id="hmg" class="hm-grid"></div>
-    </div>
-  </div>
-
-  <div class="stat-row">
-    <div class="sc">
-      <div class="sc-ic" style="background:#EFF6FF"><svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div class="sc-v" id="scwk">0/5</div>
-      <div class="sc-l">this week</div>
-    </div>
-    <div class="sc">
-      <div class="sc-ic" style="background:#FEF2F2"><svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="sc-v" id="scdue" style="color:#DC2626">0</div>
-      <div class="sc-l">due today</div>
-    </div>
-    <div class="sc">
-      <div class="sc-ic" style="background:#F5F3FF"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/></svg></div>
-      <div class="sc-v" id="sctot" style="color:#7C3AED">0</div>
-      <div class="sc-l">total cards</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="fb" style="margin-bottom:12px">
-      <div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Weekly Check-ins</div>
-      <span style="font-size:11px;color:#94A3B8">Tap to toggle · 30 min each</span>
-    </div>
-    <div class="ci-row" id="cigrid" style="margin-bottom:12px"></div>
-    <div class="pbar"><div class="pfil" id="wpbar" style="width:0%"></div></div>
-    <p style="margin-top:6px;font-size:11px;color:#94A3B8;text-align:right;font-family:'DM Mono',monospace" id="wklbl">0 of 5 complete</p>
-  </div>
-
-  <div class="alert hid" id="dalert" onclick="goTab('rev')">
-    <div>
-      <div style="font-size:14px;font-weight:600;color:#DC2626" id="dalerttxt">Cards due</div>
-      <div style="font-size:12px;color:#DC2626;opacity:.8">Review now to keep your streak →</div>
-    </div>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-  </div>
-
-  <div data-card="progress"></div>
-  <div data-card="milestones"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -818,8 +739,7 @@ function renderDash(){
   });
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
-  renderFlight();renderMeters();renderHeatmap();updateLogBtn();
-  renderMonthProgress();renderMilestones();renderDashChecklist();
+  renderDashChecklist();
 }
 
 function toggleCI(k){
@@ -1492,28 +1412,51 @@ let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
 function generateNewActivity(){
-  if(mysentences.length<1){toast('⚠️ Adicione frases em "Minhas Frases" primeiro');return;}
-  const sentence=mysentences[Math.floor(Math.random()*mysentences.length)];
+  const sources=[];
+
+  // Fonte 1: Minhas Frases
+  if(mysentences.length>0){
+    mysentences.forEach(s=>{
+      sources.push({type:'sentence',text:s.text,context:s.context});
+    });
+  }
+
+  // Fonte 2: Lições do mês
+  const monthLessons=lessons(activeMonth);
+  if(monthLessons.length>0){
+    monthLessons.forEach(l=>{
+      sources.push({type:'lesson',title:l.title,desc:l.desc,tags:l.tags});
+    });
+  }
+
+  if(sources.length===0){toast('⚠️ Adicione frases ou selecione uma lição');return;}
+
+  const source=sources[Math.floor(Math.random()*sources.length)];
   const type=ACTIVITY_TYPES[Math.floor(Math.random()*ACTIVITY_TYPES.length)];
 
-  let activity={id:Date.now(),sentence:sentence.text,type:type,completed:false};
+  let activity={id:Date.now(),source:source,type:type,completed:false};
+  const text=source.type==='sentence'?source.text:source.desc||source.title;
 
   if(type==='multiple-choice'){
-    activity.question=`Qual é o melhor jeito de completar: "${sentence.text.slice(0,30)}..."?`;
+    activity.question=`O tema "${text.slice(0,40)}..." está relacionado a:\n(A) Tema A\n(B) Tema B\n(C) Tema C\n(D) Tema D`;
     activity.options=['Opção A','Opção B','Opção C','Opção D'];
     activity.answer=0;
   }else if(type==='cloze'){
-    const words=sentence.text.split(' ');
-    const idx=Math.floor(Math.random()*words.length);
-    activity.blank=words[idx];
-    activity.text=sentence.text.replace(words[idx],'_____');
+    const words=text.split(' ');
+    if(words.length>0){
+      const idx=Math.floor(Math.random()*words.length);
+      activity.blank=words[idx];
+      activity.text=text.replace(words[idx],'_____');
+    }else{
+      activity.text='Complete a sentença';
+    }
   }else if(type==='true-false'){
-    activity.statement=sentence.text;
+    activity.statement=text;
     activity.answer=Math.random()>0.5;
   }else if(type==='matching'){
-    activity.pairs=[{en:sentence.text,pt:'Tradução aqui'}];
+    activity.pairs=[{en:text,pt:'Tradução aqui'}];
   }else if(type==='transcription'){
-    activity.text='Transcreva a sentença que você vai gravar';
+    activity.text=`Transcreva e grave: "${text.slice(0,50)}..."`;
   }
 
   activities.push(activity);
@@ -1526,25 +1469,28 @@ function renderActivities(){
 
   let html='';
   activities.forEach(act=>{
+    const source=act.source;
+    const sourceLabel=source.type==='sentence'?`Frase: ${source.context||''}`:` Lição: ${source.title}`;
     let content='';
+
     if(act.type==='multiple-choice'){
-      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.question}</div>
-        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px;white-space:pre-wrap">${act.question}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer;font-size:12px"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
     }else if(act.type==='cloze'){
-      content=`<div style="font-size:13px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
-        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box">`;
+      content=`<div style="font-size:12px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
+        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:12px">`;
     }else if(act.type==='true-false'){
-      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
-        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1">✓ Verdadeiro</button><button class="btn bsm" style="flex:1">✗ Falso</button></div>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
+        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1;font-size:11px">✓ Verdadeiro</button><button class="btn bsm" style="flex:1;font-size:11px">✗ Falso</button></div>`;
     }else if(act.type==='transcription'){
-      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">Grave e transcreva:</div>
-        <button class="btn bpu bsm" style="width:100%">🎤 Gravar</button>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.text}</div>
+        <button class="btn bpu bsm" style="width:100%;font-size:11px">🎤 Gravar</button>`;
     }
 
-    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px">
-      <div style="font-size:11px;color:#94A3B8;margin-bottom:8px">${act.type.replace('-',' ').toUpperCase()}</div>
+    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px">
+      <div style="font-size:10px;color:#94A3B8;margin-bottom:6px">${act.type.replace('-',' ').toUpperCase()} • ${sourceLabel}</div>
       ${content}
-      <button class="btn bsm" style="margin-top:10px;width:100%" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
+      <button class="btn bsm" style="margin-top:8px;width:100%;font-size:11px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
     </div>`;
   });
   container.innerHTML=html;
