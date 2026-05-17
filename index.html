@@ -1448,27 +1448,27 @@ function closeEditDayModal(){
 }
 
 // ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
-let lessons={};
+let lessonsDB={};
 let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
 function loadLessons(){
-  if(lessons.lessons)return;
+  if(lessonsDB.lessons)return;
 
   // Try cached first
   const cached=localStorage.getItem('c1lessons');
   if(cached){
-    lessons=JSON.parse(cached);
+    lessonsDB=JSON.parse(cached);
     return;
   }
 
   // Load from file async
   fetch('lessons-c1.json').then(r=>r.json()).then(data=>{
-    lessons=data;
+    lessonsDB=data;
     localStorage.setItem('c1lessons',JSON.stringify(data));
   }).catch(()=>{
     console.log('Could not load lessons file, will use empty');
-    lessons={lessons:[]};
+    lessonsDB={lessons:[]};
   });
 }
 
