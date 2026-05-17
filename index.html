@@ -427,7 +427,7 @@ textarea{min-height:120px}
   </div>
 
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
-  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto;display:grid;gap:2px;grid-template-columns:repeat(53,20px)"></div>
+  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto;display:grid;gap:2px;grid-template-columns:repeat(53,20px);min-height:150px"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -703,16 +703,23 @@ function closeM(id){document.getElementById(id).classList.add('hid');}
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function goTab(t){
-  curTab=t;
-  ['dash','prac','road','rev','cards'].forEach(x=>{
-    document.getElementById('pg-'+x).classList.toggle('hid',x!==t);
-    document.getElementById('nav-'+x).classList.toggle('on',x===t);
-  });
-  if(t==='dash')renderDash();
-  else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
-  else if(t==='road')buildRoadmap();
-  else if(t==='rev')renderRev();
-  else if(t==='cards')renderCards();
+  try{
+    curTab=t;
+    ['dash','prac','road','rev','cards'].forEach(x=>{
+      const pg=document.getElementById('pg-'+x);
+      const nav=document.getElementById('nav-'+x);
+      if(pg)pg.classList.toggle('hid',x!==t);
+      if(nav)nav.classList.toggle('on',x===t);
+    });
+
+    if(t==='dash')renderDash();
+    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+    else if(t==='road')buildRoadmap();
+    else if(t==='rev')renderRev();
+    else if(t==='cards')renderCards();
+  }catch(e){
+    console.error('goTab error:',e);
+  }
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -1427,24 +1434,49 @@ function renderYearHeatmap(){
     const container=document.getElementById('yearHeatmapContainer');
     if(!container)return;
 
-    container.innerHTML='';
+    // Clear existing children (not innerHTML to avoid CSS reset)
+    while(container.firstChild){
+      container.removeChild(container.firstChild);
+    }
+
     const startDate=new Date(new Date().getFullYear(),0,1);
     const endDate=new Date(new Date().getFullYear(),11,31);
+    let dayCount=0;
 
     for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
-      const key=d.toISOString().split('T')[0];
-      const val=localStorage.getItem('c1dt-'+key);
-      const completed=val?Object.values(JSON.parse(val)).filter(v=>v).length:0;
-      const colors=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
-      const bg=colors[Math.min(completed,4)];
-      const div=document.createElement('div');
-      div.style.cssText=`width:20px;height:20px;background:${bg};border-radius:4px;cursor:pointer;border:1px solid #D1D5DB`;
-      div.title=key;
-      div.onclick=()=>editDayTasks(key);
-      container.appendChild(div);
+      try{
+        const key=d.toISOString().split('T')[0];
+        const val=localStorage.getItem('c1dt-'+key);
+        const completed=val?Object.values(JSON.parse(val)).filter(v=>v).length:0;
+        const colors=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
+        const bg=colors[Math.min(completed,4)];
+
+        const div=document.createElement('div');
+        div.style.width='20px';
+        div.style.height='20px';
+        div.style.background=bg;
+        div.style.borderRadius='4px';
+        div.style.cursor='pointer';
+        div.style.border='1px solid #D1D5DB';
+        div.title=key;
+        div.onclick=()=>editDayTasks(key);
+
+        container.appendChild(div);
+        dayCount++;
+      }catch(e2){
+        console.error('Day error:',e2);
+      }
+    }
+
+    if(dayCount===0){
+      container.innerHTML='<div style="grid-column:1/-1;color:#94A3B8;font-size:12px;padding:20px;text-align:center">No data yet. Mark tasks to see heatmap.</div>';
     }
   }catch(e){
     console.error('renderYearHeatmap error:',e);
+    const container=document.getElementById('yearHeatmapContainer');
+    if(container){
+      container.innerHTML='<div style="grid-column:1/-1;color:#DC2626;font-size:12px;padding:20px">Error loading heatmap</div>';
+    }
   }
 }
 
@@ -1701,7 +1733,10 @@ function renderMilestones(){
   if(msCard)msCard.innerHTML='<div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
 }
 
-window.onload = initApp;
+window.onload = function(){
+  initApp();
+  setTimeout(startSync, 1000);
+};
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
