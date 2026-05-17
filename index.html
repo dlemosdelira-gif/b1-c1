@@ -1465,20 +1465,24 @@ let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
 function loadLessons(){
-  if(lessons.lessons)return;
-  const xhr=new XMLHttpRequest();
-  xhr.open('GET','lessons-c1.json',true);
-  xhr.onload=function(){
-    if(xhr.status===200){
-      lessons=JSON.parse(xhr.responseText);
-      localStorage.setItem('c1lessons',JSON.stringify(lessons));
-    }
-  };
-  xhr.onerror=function(){
-    const cached=localStorage.getItem('c1lessons');
-    if(cached)lessons=JSON.parse(cached);
-  };
-  xhr.send();
+  if(lessons.lessons)return Promise.resolve();
+  return new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET','lessons-c1.json',true);
+    xhr.onload=function(){
+      if(xhr.status===200){
+        lessons=JSON.parse(xhr.responseText);
+        localStorage.setItem('c1lessons',JSON.stringify(lessons));
+      }
+      resolve();
+    };
+    xhr.onerror=function(){
+      const cached=localStorage.getItem('c1lessons');
+      if(cached)lessons=JSON.parse(cached);
+      resolve();
+    };
+    xhr.send();
+  });
 }
 
 function getLessonStats(lessonId){
@@ -1521,7 +1525,8 @@ function getRandomLesson(){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-function generateNewActivity(){
+async function generateNewActivity(){
+  await loadLessons();
   const lesson=getRandomLesson();
   if(!lesson){toast('⚠️ No lessons available');return;}
 
