@@ -1412,28 +1412,51 @@ let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
 function generateNewActivity(){
-  if(mysentences.length<1){toast('⚠️ Adicione frases em "Minhas Frases" primeiro');return;}
-  const sentence=mysentences[Math.floor(Math.random()*mysentences.length)];
+  const sources=[];
+
+  // Fonte 1: Minhas Frases
+  if(mysentences.length>0){
+    mysentences.forEach(s=>{
+      sources.push({type:'sentence',text:s.text,context:s.context});
+    });
+  }
+
+  // Fonte 2: Lições do mês
+  const monthLessons=lessons(activeMonth);
+  if(monthLessons.length>0){
+    monthLessons.forEach(l=>{
+      sources.push({type:'lesson',title:l.title,desc:l.desc,tags:l.tags});
+    });
+  }
+
+  if(sources.length===0){toast('⚠️ Adicione frases ou selecione uma lição');return;}
+
+  const source=sources[Math.floor(Math.random()*sources.length)];
   const type=ACTIVITY_TYPES[Math.floor(Math.random()*ACTIVITY_TYPES.length)];
 
-  let activity={id:Date.now(),sentence:sentence.text,type:type,completed:false};
+  let activity={id:Date.now(),source:source,type:type,completed:false};
+  const text=source.type==='sentence'?source.text:source.desc||source.title;
 
   if(type==='multiple-choice'){
-    activity.question=`Qual é o melhor jeito de completar: "${sentence.text.slice(0,30)}..."?`;
+    activity.question=`O tema "${text.slice(0,40)}..." está relacionado a:\n(A) Tema A\n(B) Tema B\n(C) Tema C\n(D) Tema D`;
     activity.options=['Opção A','Opção B','Opção C','Opção D'];
     activity.answer=0;
   }else if(type==='cloze'){
-    const words=sentence.text.split(' ');
-    const idx=Math.floor(Math.random()*words.length);
-    activity.blank=words[idx];
-    activity.text=sentence.text.replace(words[idx],'_____');
+    const words=text.split(' ');
+    if(words.length>0){
+      const idx=Math.floor(Math.random()*words.length);
+      activity.blank=words[idx];
+      activity.text=text.replace(words[idx],'_____');
+    }else{
+      activity.text='Complete a sentença';
+    }
   }else if(type==='true-false'){
-    activity.statement=sentence.text;
+    activity.statement=text;
     activity.answer=Math.random()>0.5;
   }else if(type==='matching'){
-    activity.pairs=[{en:sentence.text,pt:'Tradução aqui'}];
+    activity.pairs=[{en:text,pt:'Tradução aqui'}];
   }else if(type==='transcription'){
-    activity.text='Transcreva a sentença que você vai gravar';
+    activity.text=`Transcreva e grave: "${text.slice(0,50)}..."`;
   }
 
   activities.push(activity);
@@ -1446,25 +1469,28 @@ function renderActivities(){
 
   let html='';
   activities.forEach(act=>{
+    const source=act.source;
+    const sourceLabel=source.type==='sentence'?`Frase: ${source.context||''}`:` Lição: ${source.title}`;
     let content='';
+
     if(act.type==='multiple-choice'){
-      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.question}</div>
-        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px;white-space:pre-wrap">${act.question}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer;font-size:12px"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
     }else if(act.type==='cloze'){
-      content=`<div style="font-size:13px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
-        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box">`;
+      content=`<div style="font-size:12px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
+        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:12px">`;
     }else if(act.type==='true-false'){
-      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
-        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1">✓ Verdadeiro</button><button class="btn bsm" style="flex:1">✗ Falso</button></div>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
+        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1;font-size:11px">✓ Verdadeiro</button><button class="btn bsm" style="flex:1;font-size:11px">✗ Falso</button></div>`;
     }else if(act.type==='transcription'){
-      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">Grave e transcreva:</div>
-        <button class="btn bpu bsm" style="width:100%">🎤 Gravar</button>`;
+      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.text}</div>
+        <button class="btn bpu bsm" style="width:100%;font-size:11px">🎤 Gravar</button>`;
     }
 
-    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px">
-      <div style="font-size:11px;color:#94A3B8;margin-bottom:8px">${act.type.replace('-',' ').toUpperCase()}</div>
+    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px">
+      <div style="font-size:10px;color:#94A3B8;margin-bottom:6px">${act.type.replace('-',' ').toUpperCase()} • ${sourceLabel}</div>
       ${content}
-      <button class="btn bsm" style="margin-top:10px;width:100%" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
+      <button class="btn bsm" style="margin-top:8px;width:100%;font-size:11px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
     </div>`;
   });
   container.innerHTML=html;
