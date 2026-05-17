@@ -703,16 +703,23 @@ function closeM(id){document.getElementById(id).classList.add('hid');}
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function goTab(t){
-  curTab=t;
-  ['dash','prac','road','rev','cards'].forEach(x=>{
-    document.getElementById('pg-'+x).classList.toggle('hid',x!==t);
-    document.getElementById('nav-'+x).classList.toggle('on',x===t);
-  });
-  if(t==='dash')renderDash();
-  else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
-  else if(t==='road')buildRoadmap();
-  else if(t==='rev')renderRev();
-  else if(t==='cards')renderCards();
+  try{
+    curTab=t;
+    ['dash','prac','road','rev','cards'].forEach(x=>{
+      const pg=document.getElementById('pg-'+x);
+      const nav=document.getElementById('nav-'+x);
+      if(pg)pg.classList.toggle('hid',x!==t);
+      if(nav)nav.classList.toggle('on',x===t);
+    });
+
+    if(t==='dash')renderDash();
+    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+    else if(t==='road')buildRoadmap();
+    else if(t==='rev')renderRev();
+    else if(t==='cards')renderCards();
+  }catch(e){
+    console.error('goTab error:',e);
+  }
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
