@@ -1465,23 +1465,22 @@ let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
 function loadLessons(){
-  if(lessons.lessons)return Promise.resolve();
-  return new Promise((resolve)=>{
-    const xhr=new XMLHttpRequest();
-    xhr.open('GET','lessons-c1.json',true);
-    xhr.onload=function(){
-      if(xhr.status===200){
-        lessons=JSON.parse(xhr.responseText);
-        localStorage.setItem('c1lessons',JSON.stringify(lessons));
-      }
-      resolve();
-    };
-    xhr.onerror=function(){
-      const cached=localStorage.getItem('c1lessons');
-      if(cached)lessons=JSON.parse(cached);
-      resolve();
-    };
-    xhr.send();
+  if(lessons.lessons)return;
+
+  // Try cached first
+  const cached=localStorage.getItem('c1lessons');
+  if(cached){
+    lessons=JSON.parse(cached);
+    return;
+  }
+
+  // Load from file async
+  fetch('lessons-c1.json').then(r=>r.json()).then(data=>{
+    lessons=data;
+    localStorage.setItem('c1lessons',JSON.stringify(data));
+  }).catch(()=>{
+    console.log('Could not load lessons file, will use empty');
+    lessons={lessons:[]};
   });
 }
 
@@ -1525,8 +1524,14 @@ function getRandomLesson(){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-async function generateNewActivity(){
-  await loadLessons();
+function generateNewActivity(){
+  // Ensure lessons are loaded
+  if(!lessons.lessons||lessons.lessons.length===0){
+    loadLessons();
+    setTimeout(generateNewActivity,500);
+    return;
+  }
+
   const lesson=getRandomLesson();
   if(!lesson){toast('⚠️ No lessons available');return;}
 
