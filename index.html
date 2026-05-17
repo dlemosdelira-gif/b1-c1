@@ -423,9 +423,6 @@ textarea{min-height:120px}
 
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
   <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto"></div>
-
-  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📈 Monthly Breakdown</div>
-  <div id="monthlyBarChartContainer" class="card" style="padding:16px;overflow-x:auto"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -1391,7 +1388,6 @@ function renderDashChecklist(){
   const container=document.getElementById('dashChecklistContainer');
   if(container)container.innerHTML=html;
   renderYearHeatmap();
-  renderMonthlyBarChart();
 }
 
 function getTaskCompletionForDay(date){
@@ -1409,51 +1405,55 @@ function renderYearHeatmap(){
 
   for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
     const completed=getTaskCompletionForDay(new Date(d));
-    const colors=['#E5E7EB','#FECACA','#FCA5A5','#F87171','#DC2626'];
+    const colors=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
     const bg=colors[Math.min(completed,4)];
-    const title=d.toISOString().split('T')[0];
-    html+=`<div style="width:20px;height:20px;background:${bg};border-radius:4px;cursor:help;border:1px solid #D1D5DB" title="${title}"></div>`;
+    const dateStr=d.toISOString().split('T')[0];
+    html+=`<div style="width:20px;height:20px;background:${bg};border-radius:4px;cursor:pointer;border:1px solid #D1D5DB" title="${dateStr}" onclick="editDayTasks('${dateStr}')"></div>`;
   }
   html+='</div>';
   const container=document.getElementById('yearHeatmapContainer');
   if(container)container.innerHTML=html;
 }
 
-function renderMonthlyBarChart(){
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const tasks=['preply','reading','listening','writing'];
-  const colors={preply:'#3B82F6',reading:'#10B981',listening:'#F59E0B',writing:'#8B5CF6'};
+function editDayTasks(dateStr){
+  const val=localStorage.getItem('c1dt-'+dateStr);
+  const dayTasks=val?JSON.parse(val):{preply:false,reading:false,listening:false,writing:false};
 
-  let html='<div style="display:flex;flex-direction:column;gap:16px">';
+  let html='<div class="modal-title">Edit '+dateStr+'</div>';
+  html+='<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">';
 
-  months.forEach((month,idx)=>{
-    const firstDay=new Date(new Date().getFullYear(),idx,1);
-    const lastDay=new Date(new Date().getFullYear(),idx+1,0);
-
-    let html2='<div><div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:8px">'+month+'</div>';
-    html2+='<div style="display:flex;align-items:flex-end;gap:8px;height:80px">';
-
-    tasks.forEach(task=>{
-      let count=0;
-      for(let d=new Date(firstDay);d<=lastDay;d.setDate(d.getDate()+1)){
-        const key=d.toISOString().split('T')[0];
-        const val=localStorage.getItem('c1dt-'+key);
-        if(val){
-          const obj=JSON.parse(val);
-          if(obj[task])count++;
-        }
-      }
-      const height=Math.max(5,count*3);
-      html2+=`<div style="flex:1;background:${colors[task]};height:${height}px;border-radius:4px;cursor:help" title="${task}: ${count} days"></div>`;
-    });
-
-    html2+='</div></div>';
-    html+=html2;
+  Object.entries(TASK_LABELS).forEach(([task,label])=>{
+    const checked=dayTasks[task];
+    html+=`<label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+      <input type="checkbox" id="edit_${task}" ${checked?'checked':''} style="width:18px;height:18px">
+      <span style="color:#0F172A">${label}</span>
+    </label>`;
   });
 
   html+='</div>';
-  const container=document.getElementById('monthlyBarChartContainer');
-  if(container)container.innerHTML=html;
+  html+=`<div class="modal-buttons">
+    <button class="btn bte bsm" onclick="closeEditDayModal()">Cancel</button>
+    <button class="btn bpr bsm" onclick="saveDayTasks('${dateStr}')">Save</button>
+  </div>`;
+
+  document.getElementById('editDayContent').innerHTML=html;
+  document.getElementById('editDayModal').classList.remove('hid');
+}
+
+function saveDayTasks(dateStr){
+  const dayTasks={};
+  Object.keys(TASK_LABELS).forEach(task=>{
+    dayTasks[task]=document.getElementById('edit_'+task).checked;
+  });
+  localStorage.setItem('c1dt-'+dateStr,JSON.stringify(dayTasks));
+  if(RDT)RDT.child(dateStr).set(dayTasks).catch(()=>{});
+  closeEditDayModal();
+  renderDashChecklist();
+  toast('✅ Day updated');
+}
+
+function closeEditDayModal(){
+  document.getElementById('editDayModal').classList.add('hid');
 }
 
 // ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
@@ -1664,6 +1664,11 @@ window.onload = initApp;
       <button class="btn bte bsm" onclick="closeSentenceModal()">Cancelar</button>
       <button class="btn bpr bsm" onclick="saveSentenceFromModal()">Add</button>
     </div>
+  </div>
+</div>
+
+<div id="editDayModal" class="modal-overlay hid" onclick="if(event.target===this)closeEditDayModal()">
+  <div class="modal-content" id="editDayContent">
   </div>
 </div>
 </body>
