@@ -418,8 +418,11 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
+  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Checklist Diário</div>
 
-  <div class="top-grid">
+  <div id="dashChecklistContainer"></div>
+
+  <div class="top-grid" style="display:none">
     <div class="flt">
       <div class="flt-lbl">✈ TOTAL FLIGHT HOURS</div>
       <div class="flt-h" id="fhours">0h 00m</div>
@@ -518,25 +521,6 @@ textarea{min-height:120px}
     <div id="activeprompt" style="font-size:13px;color:#0F172A;line-height:1.6"></div>
   </div>
   
-  <div class="card csm">
-    <div class="fb">
-      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;color:#0F172A">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Shadowing Mode
-      </div>
-      <button class="btn bpu bsm" onclick="toggleShadow()" id="shbtn">▶ Start 5-min</button>
-    </div>
-    <div class="stimer hid" id="shtimer" style="margin-top:12px">
-      <div style="font-size:10px;color:#7C3AED;font-family:'DM Mono',monospace;letter-spacing:1px">SHADOWING SESSION</div>
-      <div class="stdsp" id="shdsp">5:00</div>
-      <div class="sttips">
-        <div class="sttip"><span style="font-size:13px">🎯</span><span><strong>Match rhythm:</strong> Mirror the speaker's pace exactly, word by word.</span></div>
-        <div class="sttip"><span style="font-size:13px">🎵</span><span><strong>Intonation:</strong> Rise on questions, fall on statements. Exaggerate at first.</span></div>
-        <div class="sttip"><span style="font-size:13px">🔗</span><span><strong>Connected speech:</strong> "want to" → "wanna", "going to" → "gonna".</span></div>
-        <div class="sttip"><span style="font-size:13px">💨</span><span><strong>Breath groups:</strong> Pause where the speaker pauses — not mid-phrase.</span></div>
-      </div>
-    </div>
-  </div>
-
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:600;color:#0F172A">Minhas Frases</div>
@@ -545,6 +529,14 @@ textarea{min-height:120px}
       </button>
     </div>
     <div id="sentencesList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:200px;overflow-y:auto"></div>
+  </div>
+
+  <div class="card">
+    <div class="fb" style="margin-bottom:10px">
+      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Atividades do Dia</div>
+      <button class="btn bte bsm" onclick="generateNewActivity()">Gerar Nova</button>
+    </div>
+    <div id="activitiesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
 
   <div class="card">
@@ -599,7 +591,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null;
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
@@ -749,6 +741,7 @@ function loadLocal(){
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
+  loadDailyTasks();
 }
 function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
 function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
@@ -826,7 +819,7 @@ function renderDash(){
   document.getElementById('dalert').classList.toggle('hid',dv.length===0);
   if(dv.length)document.getElementById('dalerttxt').textContent=dv.length+' card'+(dv.length>1?'s':'')+' due for review';
   renderFlight();renderMeters();renderHeatmap();updateLogBtn();
-  renderMonthProgress();renderMilestones();
+  renderMonthProgress();renderMilestones();renderDashChecklist();
 }
 
 function toggleCI(k){
@@ -995,6 +988,7 @@ function renderPrac(){
   db2.className='dbadge'+(m.dc?' '+m.dc:'');
   db2.textContent=m.dl;
   ap.textContent=activeLesson?activeLesson.prompt:'Select a lesson above.';
+  renderActivities();
 }
 function onInput(){
   const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
@@ -1302,6 +1296,7 @@ function startSync(){
     RMO = db.ref('activeMonth');
     RSE = db.ref('sentences');
     RMS = db.ref('milestones');
+    RDT = db.ref('dailyTasks');
     
     RCI.on('value', s=>{
       const v=s.val();
@@ -1435,6 +1430,125 @@ function saveSentences(){
 window.addEventListener('load',()=>{
   renderSentences();
 });
+
+// ── DAILY CHECKLIST ────────────────────────────────────────────────────
+let dailyTasks={preply:false,reading:false,listening:false,writing:false};
+const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
+
+function loadDailyTasks(){
+  const stored=localStorage.getItem('c1dt-'+today);
+  if(stored)dailyTasks=JSON.parse(stored);
+  else dailyTasks={preply:false,reading:false,listening:false,writing:false};
+}
+
+function toggleDailyTask(task){
+  dailyTasks[task]=!dailyTasks[task];
+  localStorage.setItem('c1dt-'+today,JSON.stringify(dailyTasks));
+  if(RDT)RDT.child(today).set(dailyTasks).catch(()=>{});
+  renderDashChecklist();
+}
+
+function getDayCount(task,period='month'){
+  let count=0;
+  for(let i=0;i<365;i++){
+    const d=new Date();
+    d.setDate(d.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+    const val=localStorage.getItem('c1dt-'+key);
+    if(!val)continue;
+    const obj=JSON.parse(val);
+    if(obj[task]){
+      if(period==='month'&&key.slice(5,7)!==today.slice(5,7))break;
+      count++;
+    }
+  }
+  return count;
+}
+
+function renderDashChecklist(){
+  loadDailyTasks();
+  let html='';
+  Object.entries(TASK_LABELS).forEach(([task,label])=>{
+    const checked=dailyTasks[task];
+    const monthCount=getDayCount(task,'month');
+    const yearCount=getDayCount(task,'year');
+    html+=`<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('${task}')">
+        <input type="checkbox" ${checked?'checked':''} style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()">
+        <div style="flex:1">
+          <div style="font-weight:600;color:#0F172A">${label}</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:2px">${monthCount} dias este mês • ${yearCount} dias este ano</div>
+          <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${Math.min(monthCount*10,100)}%;background:${monthCount>20?'#00a878':monthCount>10?'#fbbf24':'#ff6b35'}"></div></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  const container=document.getElementById('dashChecklistContainer');
+  if(container)container.innerHTML=html;
+}
+
+// ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
+let activities=[];
+const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
+
+function generateNewActivity(){
+  if(mysentences.length<1){toast('⚠️ Adicione frases em "Minhas Frases" primeiro');return;}
+  const sentence=mysentences[Math.floor(Math.random()*mysentences.length)];
+  const type=ACTIVITY_TYPES[Math.floor(Math.random()*ACTIVITY_TYPES.length)];
+
+  let activity={id:Date.now(),sentence:sentence.text,type:type,completed:false};
+
+  if(type==='multiple-choice'){
+    activity.question=`Qual é o melhor jeito de completar: "${sentence.text.slice(0,30)}..."?`;
+    activity.options=['Opção A','Opção B','Opção C','Opção D'];
+    activity.answer=0;
+  }else if(type==='cloze'){
+    const words=sentence.text.split(' ');
+    const idx=Math.floor(Math.random()*words.length);
+    activity.blank=words[idx];
+    activity.text=sentence.text.replace(words[idx],'_____');
+  }else if(type==='true-false'){
+    activity.statement=sentence.text;
+    activity.answer=Math.random()>0.5;
+  }else if(type==='matching'){
+    activity.pairs=[{en:sentence.text,pt:'Tradução aqui'}];
+  }else if(type==='transcription'){
+    activity.text='Transcreva a sentença que você vai gravar';
+  }
+
+  activities.push(activity);
+  renderActivities();
+}
+
+function renderActivities(){
+  const container=document.getElementById('activitiesContainer');
+  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Clique em "Gerar Nova" para criar uma atividade</div>';return;}
+
+  let html='';
+  activities.forEach(act=>{
+    let content='';
+    if(act.type==='multiple-choice'){
+      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.question}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>`<label style="display:flex;gap:8px;cursor:pointer"><input type="radio" name="q${act.id}"> ${opt}</label>`).join('')}</div>`;
+    }else if(act.type==='cloze'){
+      content=`<div style="font-size:13px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
+        <input type="text" placeholder="Preencha a lacuna" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box">`;
+    }else if(act.type==='true-false'){
+      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
+        <div style="display:flex;gap:8px"><button class="btn bsm" style="flex:1">✓ Verdadeiro</button><button class="btn bsm" style="flex:1">✗ Falso</button></div>`;
+    }else if(act.type==='transcription'){
+      content=`<div style="font-size:13px;color:#0F172A;margin-bottom:8px">Grave e transcreva:</div>
+        <button class="btn bpu bsm" style="width:100%">🎤 Gravar</button>`;
+    }
+
+    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px">
+      <div style="font-size:11px;color:#94A3B8;margin-bottom:8px">${act.type.replace('-',' ').toUpperCase()}</div>
+      ${content}
+      <button class="btn bsm" style="margin-top:10px;width:100%" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Descartar</button>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
 
 // ── ROADMAP FEATURE ────────────────────────────────────────────────────
 const ROADMAP_COLORS={'1':'#00a878','2':'#00a878','3':'#00a878','4':'#00a878','5':'#0066cc','6':'#0066cc','7':'#0066cc','8':'#ff6b35','9':'#ff6b35','10':'#8b4dff','11':'#8b4dff','12':'#8b4dff'};
