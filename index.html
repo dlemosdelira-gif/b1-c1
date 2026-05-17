@@ -419,10 +419,15 @@ textarea{min-height:120px}
 
 <div class="pg" id="pg-dash">
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
-  <div id="dashChecklistContainer"></div>
+  <div id="dashChecklistContainer">
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('reading')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">📖 Reading</div></div></div></div>
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('listening')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎧 Listening</div></div></div></div>
+    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('writing')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">✍️ Writing</div></div></div></div>
+  </div>
 
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
-  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto"></div>
+  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto;display:grid;gap:2px;grid-template-columns:repeat(53,20px);min-height:150px"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -516,6 +521,11 @@ const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null;
+
+// ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
+const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
+let dailyTasks={preply:false,reading:false,listening:false,writing:false};
+let lessonStats={};
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[
@@ -666,7 +676,6 @@ function loadLocal(){
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
-  loadDailyTasks();
   loadLessons();
 }
 function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
@@ -694,16 +703,23 @@ function closeM(id){document.getElementById(id).classList.add('hid');}
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function goTab(t){
-  curTab=t;
-  ['dash','prac','road','rev','cards'].forEach(x=>{
-    document.getElementById('pg-'+x).classList.toggle('hid',x!==t);
-    document.getElementById('nav-'+x).classList.toggle('on',x===t);
-  });
-  if(t==='dash')renderDash();
-  else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
-  else if(t==='road')buildRoadmap();
-  else if(t==='rev')renderRev();
-  else if(t==='cards')renderCards();
+  try{
+    curTab=t;
+    ['dash','prac','road','rev','cards'].forEach(x=>{
+      const pg=document.getElementById('pg-'+x);
+      const nav=document.getElementById('nav-'+x);
+      if(pg)pg.classList.toggle('hid',x!==t);
+      if(nav)nav.classList.toggle('on',x===t);
+    });
+
+    if(t==='dash')renderDash();
+    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+    else if(t==='road')buildRoadmap();
+    else if(t==='rev')renderRev();
+    else if(t==='cards')renderCards();
+  }catch(e){
+    console.error('goTab error:',e);
+  }
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -723,7 +739,37 @@ function render(){
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDash(){
-  renderDashChecklist();
+  // Load today's tasks
+  const stored=localStorage.getItem('c1dt-'+today);
+  const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
+
+  // Update checkboxes
+  document.querySelectorAll('#dashChecklistContainer input[type="checkbox"]').forEach((inp,i)=>{
+    const task=['preply','reading','listening','writing'][i];
+    if(task)inp.checked=tasks[task]||false;
+  });
+
+  // Render heatmap
+  const hm=document.getElementById('yearHeatmapContainer');
+  if(hm){
+    hm.innerHTML='';
+    const y=new Date().getFullYear();
+    for(let m=0;m<12;m++){
+      for(let d=1;d<=31;d++){
+        const dt=new Date(y,m,d);
+        if(dt.getMonth()!==m)break;
+        const key=dt.toISOString().split('T')[0];
+        const v=localStorage.getItem('c1dt-'+key);
+        const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
+        const bg=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'][Math.min(c,4)];
+        const sq=document.createElement('div');
+        sq.style.cssText=`width:20px;height:20px;background:${bg};border-radius:3px;cursor:pointer`;
+        sq.title=key;
+        sq.onclick=()=>editDayTasks(key);
+        hm.appendChild(sq);
+      }
+    }
+  }
 }
 
 function toggleCI(k){
@@ -1216,6 +1262,7 @@ function startSync(){
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online'); renderMilestones();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
@@ -1336,122 +1383,64 @@ window.addEventListener('load',()=>{
 });
 
 // ── DAILY CHECKLIST ────────────────────────────────────────────────────
-let dailyTasks={preply:false,reading:false,listening:false,writing:false};
-const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
-
-function loadDailyTasks(){
-  const stored=localStorage.getItem('c1dt-'+today);
-  if(stored)dailyTasks=JSON.parse(stored);
-  else dailyTasks={preply:false,reading:false,listening:false,writing:false};
-}
 
 function toggleDailyTask(task){
-  dailyTasks[task]=!dailyTasks[task];
-  localStorage.setItem('c1dt-'+today,JSON.stringify(dailyTasks));
-  if(RDT)RDT.child(today).set(dailyTasks).catch(()=>{});
-  renderDashChecklist();
-}
-
-function getDayCount(task,period='month'){
-  let count=0;
-  for(let i=0;i<365;i++){
-    const d=new Date();
-    d.setDate(d.getDate()-i);
-    const key=d.toISOString().split('T')[0];
-    const val=localStorage.getItem('c1dt-'+key);
-    if(!val)continue;
-    const obj=JSON.parse(val);
-    if(obj[task]){
-      if(period==='month'&&key.slice(5,7)!==today.slice(5,7))break;
-      count++;
-    }
+  try{
+    const stored=localStorage.getItem('c1dt-'+today);
+    const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
+    tasks[task]=!tasks[task];
+    localStorage.setItem('c1dt-'+today,JSON.stringify(tasks));
+    if(RDT)RDT.child(today).set(tasks).catch(()=>{});
+    renderDash();
+    toast('✓ Saved');
+  }catch(e){
+    console.error('toggleDailyTask error:',e);
   }
-  return count;
-}
-
-function renderDashChecklist(){
-  loadDailyTasks();
-  let html='';
-  Object.entries(TASK_LABELS).forEach(([task,label])=>{
-    const checked=dailyTasks[task];
-    const monthCount=getDayCount(task,'month');
-    const yearCount=getDayCount(task,'year');
-    html+=`<div class="card" style="margin-bottom:10px">
-      <div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('${task}')">
-        <input type="checkbox" ${checked?'checked':''} style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()">
-        <div style="flex:1">
-          <div style="font-weight:600;color:#0F172A">${label}</div>
-          <div style="font-size:11px;color:#94A3B8;margin-top:2px">${monthCount} days this month • ${yearCount} days this year</div>
-          <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:${Math.min(monthCount*10,100)}%;background:${monthCount>20?'#00a878':monthCount>10?'#fbbf24':'#ff6b35'}"></div></div>
-        </div>
-      </div>
-    </div>`;
-  });
-  const container=document.getElementById('dashChecklistContainer');
-  if(container)container.innerHTML=html;
-  renderYearHeatmap();
-}
-
-function getTaskCompletionForDay(date){
-  const key=date.toISOString().split('T')[0];
-  const val=localStorage.getItem('c1dt-'+key);
-  if(!val)return 0;
-  const obj=JSON.parse(val);
-  return Object.values(obj).filter(v=>v).length;
-}
-
-function renderYearHeatmap(){
-  let html='<div style="display:grid;gap:2px;grid-template-columns:repeat(53,20px);margin-bottom:16px">';
-  const startDate=new Date(new Date().getFullYear(),0,1);
-  const endDate=new Date(new Date().getFullYear(),11,31);
-
-  for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
-    const completed=getTaskCompletionForDay(new Date(d));
-    const colors=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
-    const bg=colors[Math.min(completed,4)];
-    const dateStr=d.toISOString().split('T')[0];
-    html+=`<div style="width:20px;height:20px;background:${bg};border-radius:4px;cursor:pointer;border:1px solid #D1D5DB" title="${dateStr}" onclick="editDayTasks('${dateStr}')"></div>`;
-  }
-  html+='</div>';
-  const container=document.getElementById('yearHeatmapContainer');
-  if(container)container.innerHTML=html;
 }
 
 function editDayTasks(dateStr){
-  const val=localStorage.getItem('c1dt-'+dateStr);
-  const dayTasks=val?JSON.parse(val):{preply:false,reading:false,listening:false,writing:false};
+  try{
+    const val=localStorage.getItem('c1dt-'+dateStr);
+    const dayTasks=val?JSON.parse(val):{preply:false,reading:false,listening:false,writing:false};
 
-  let html='<div class="modal-title">Edit '+dateStr+'</div>';
-  html+='<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">';
+    let html='<div class="modal-title">Edit '+dateStr+'</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">';
 
-  Object.entries(TASK_LABELS).forEach(([task,label])=>{
-    const checked=dayTasks[task];
-    html+=`<label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-      <input type="checkbox" id="edit_${task}" ${checked?'checked':''} style="width:18px;height:18px">
-      <span style="color:#0F172A">${label}</span>
-    </label>`;
-  });
+    Object.entries(TASK_LABELS).forEach(([task,label])=>{
+      const checked=dayTasks[task];
+      html+=`<label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="edit_${task}" ${checked?'checked':''} style="width:18px;height:18px">
+        <span style="color:#0F172A">${label}</span>
+      </label>`;
+    });
 
-  html+='</div>';
-  html+=`<div class="modal-buttons">
-    <button class="btn bte bsm" onclick="closeEditDayModal()">Cancel</button>
-    <button class="btn bpr bsm" onclick="saveDayTasks('${dateStr}')">Save</button>
-  </div>`;
+    html+='</div>';
+    html+=`<div class="modal-buttons">
+      <button class="btn bte bsm" onclick="closeEditDayModal()">Cancel</button>
+      <button class="btn bpr bsm" onclick="saveDayTasks('${dateStr}')">Save</button>
+    </div>`;
 
-  document.getElementById('editDayContent').innerHTML=html;
-  document.getElementById('editDayModal').classList.remove('hid');
+    document.getElementById('editDayContent').innerHTML=html;
+    document.getElementById('editDayModal').classList.remove('hid');
+  }catch(e){
+    console.error('editDayTasks error:',e);
+  }
 }
 
 function saveDayTasks(dateStr){
-  const dayTasks={};
-  Object.keys(TASK_LABELS).forEach(task=>{
-    dayTasks[task]=document.getElementById('edit_'+task).checked;
-  });
-  localStorage.setItem('c1dt-'+dateStr,JSON.stringify(dayTasks));
-  if(RDT)RDT.child(dateStr).set(dayTasks).catch(()=>{});
-  closeEditDayModal();
-  renderDashChecklist();
-  toast('✅ Day updated');
+  try{
+    const dayTasks={};
+    Object.keys(TASK_LABELS).forEach(task=>{
+      dayTasks[task]=document.getElementById('edit_'+task).checked;
+    });
+    localStorage.setItem('c1dt-'+dateStr,JSON.stringify(dayTasks));
+    if(RDT)RDT.child(dateStr).set(dayTasks).catch(()=>{});
+    closeEditDayModal();
+    renderDash();
+    toast('✓ Day updated');
+  }catch(e){
+    console.error('saveDayTasks error:',e);
+  }
 }
 
 function closeEditDayModal(){
@@ -1460,25 +1449,27 @@ function closeEditDayModal(){
 
 // ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
 let lessons={};
-let lessonStats={};
 let activities=[];
 const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
 
 function loadLessons(){
   if(lessons.lessons)return;
-  const xhr=new XMLHttpRequest();
-  xhr.open('GET','lessons-c1.json',true);
-  xhr.onload=function(){
-    if(xhr.status===200){
-      lessons=JSON.parse(xhr.responseText);
-      localStorage.setItem('c1lessons',JSON.stringify(lessons));
-    }
-  };
-  xhr.onerror=function(){
-    const cached=localStorage.getItem('c1lessons');
-    if(cached)lessons=JSON.parse(cached);
-  };
-  xhr.send();
+
+  // Try cached first
+  const cached=localStorage.getItem('c1lessons');
+  if(cached){
+    lessons=JSON.parse(cached);
+    return;
+  }
+
+  // Load from file async
+  fetch('lessons-c1.json').then(r=>r.json()).then(data=>{
+    lessons=data;
+    localStorage.setItem('c1lessons',JSON.stringify(data));
+  }).catch(()=>{
+    console.log('Could not load lessons file, will use empty');
+    lessons={lessons:[]};
+  });
 }
 
 function getLessonStats(lessonId){
@@ -1522,6 +1513,13 @@ function getRandomLesson(){
 }
 
 function generateNewActivity(){
+  // Ensure lessons are loaded
+  if(!lessons.lessons||lessons.lessons.length===0){
+    loadLessons();
+    setTimeout(generateNewActivity,500);
+    return;
+  }
+
   const lesson=getRandomLesson();
   if(!lesson){toast('⚠️ No lessons available');return;}
 
@@ -1698,7 +1696,10 @@ function renderMilestones(){
   if(msCard)msCard.innerHTML='<div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
 }
 
-window.onload = initApp;
+window.onload = function(){
+  initApp();
+  setTimeout(startSync, 1000);
+};
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
