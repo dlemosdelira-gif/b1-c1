@@ -2040,28 +2040,44 @@ function handleAnkiXMLImport(xmlContent){
 }
 
 function tryExtractCardsFromXMLText(xmlContent){
-  // Extract text content and look for patterns
-  const lines=xmlContent.split(/[<>]/).filter(l=>l.trim().length>5);
+  console.log('Trying text extraction from XML');
   const importedCards=[];
+  const seen=new Set();
 
-  for(let i=0;i<lines.length-1;i++){
-    const line1=lines[i].replace(/<[^>]*>/g,'').trim();
-    const line2=lines[i+1].replace(/<[^>]*>/g,'').trim();
+  // Remove XML tags and get text segments
+  let cleaned=xmlContent.replace(/<\?xml[^?]*\?>/g,'').replace(/<!--[\s\S]*?-->/g,'');
 
-    if(line1.length>5&&line2.length>5&&line1.length<200&&line2.length<300&&!line1.startsWith('<?')&&!line2.startsWith('<?')){
-      importedCards.push({
-        id:Date.now()+Math.random(),
-        simple:line1.slice(0,100),
-        c1:line2.slice(0,200),
-        example:'',
-        type:'chunk',
-        nextReview:today,
-        intervalIdx:0,
-        easiness:2.5
-      });
-      if(importedCards.length>=50)break;
+  // Try to find content between tags that looks like cards
+  const tagContents=cleaned.match(/>([^<]{10,300})</g)||[];
+  console.log('Found '+tagContents.length+' potential text segments');
+
+  tagContents.slice(0,200).forEach((segment,idx)=>{
+    let text=segment.replace(/^>/,'').replace(/<$/,'').trim();
+
+    // Skip empty or XML declaration
+    if(text.length<4||text.startsWith('xml')||text.startsWith('?'))return;
+
+    // Try to use pairs of consecutive segments as front/back
+    if(idx>0){
+      const prev=tagContents[idx-1].replace(/^>/,'').replace(/<$/,'').trim();
+
+      if(prev.length>3&&text.length>3&&prev.length<150&&text.length<300&&!seen.has(prev)){
+        seen.add(prev);
+        importedCards.push({
+          id:Date.now()+Math.random(),
+          simple:prev.slice(0,100),
+          c1:text.slice(0,200),
+          example:'',
+          type:'chunk',
+          nextReview:today,
+          intervalIdx:0,
+          easiness:2.5
+        });
+      }
     }
-  }
+  });
+
+  console.log('Extracted '+importedCards.length+' cards from text');
   return importedCards;
 }
 
