@@ -427,7 +427,7 @@ textarea{min-height:120px}
   </div>
 
   <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
-  <div id="yearHeatmapContainer" class="card" style="padding:16px;overflow-x:auto;display:grid;gap:2px;grid-template-columns:repeat(53,20px);min-height:150px"></div>
+  <div id="yearHeatmapContainer" class="card" style="padding:16px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -1876,80 +1876,109 @@ async function handleAnkiImport(file){
         const zip=new JSZip();
         await zip.loadAsync(data);
 
-        // Try to find collection.anki2 in various locations
+        // Look for collection.xml (Anki export format)
+        const files=Object.keys(zip.files);
+        let xmlPath=files.find(f=>f.endsWith('collection.xml'));
+
+        if(xmlPath){
+          const xmlContent=await zip.file(xmlPath).async('string');
+          handleAnkiXMLImport(xmlContent);
+          return;
+        }
+
+        // Try collection.anki2
         let collFile=zip.file('collection.anki2');
         if(!collFile){
-          // Try root of zip
-          const files=Object.keys(zip.files);
           const collPath=files.find(f=>f.endsWith('collection.anki2'));
           if(collPath)collFile=zip.file(collPath);
         }
 
-        if(!collFile){
-          // Try CSV fallback - look for CSV files in zip
-          const files=Object.keys(zip.files);
-          const csvPath=files.find(f=>f.endsWith('.csv'));
-          if(csvPath){
-            const csvContent=await zip.file(csvPath).async('string');
-            handleCSVImportContent(csvContent);
-            return;
-          }
-          toast('❌ No collection.anki2 found. Try exporting "Notes in CSV format" instead.');
-          return;
-        }
+        if(collFile){
+          const collData=await collFile.async('arraybuffer');
+          const u8arr=new Uint8Array(collData);
+          const text=new TextDecoder().decode(u8arr);
+          const cardMatches=text.match(/(.{1,100}?)[\x00-\x1f](.{1,100}?)[\x00-\x1f]/g)||[];
 
-        const collData=await collFile.async('arraybuffer');
-        const u8arr=new Uint8Array(collData);
-        const text=new TextDecoder().decode(u8arr);
-
-        // Extract cards from SQLite binary
-        const cardMatches=text.match(/(.{1,100}?)[\x00-\x1f](.{1,100}?)[\x00-\x1f]/g)||[];
-
-        if(cardMatches.length<5){
-          toast('❌ Could not extract cards from file. Try exporting as CSV instead.');
-          return;
-        }
-
-        const importedCards=[];
-        const seen=new Set();
-
-        cardMatches.forEach(match=>{
-          const parts=match.split(/[\x00-\x1f]/);
-          const front=(parts[0]||'').replace(/\s+/g,' ').trim();
-          const back=(parts[1]||'').replace(/\s+/g,' ').trim();
-
-          if(front.length>2&&back.length>2&&!seen.has(front)&&!front.match(/^[\x00-\x1f]+/)&&!back.match(/^[\x00-\x1f]+/)){
-            seen.add(front);
-            importedCards.push({
-              id:Date.now()+Math.random(),
-              simple:front.slice(0,100),
-              c1:back.slice(0,200),
-              example:'',
-              type:'chunk',
-              nextReview:today,
-              intervalIdx:0,
-              easiness:2.5
+          if(cardMatches.length>5){
+            const importedCards=[];
+            const seen=new Set();
+            cardMatches.forEach(match=>{
+              const parts=match.split(/[\x00-\x1f]/);
+              const front=(parts[0]||'').replace(/\s+/g,' ').trim();
+              const back=(parts[1]||'').replace(/\s+/g,' ').trim();
+              if(front.length>2&&back.length>2&&!seen.has(front)){
+                seen.add(front);
+                importedCards.push({id:Date.now()+Math.random(),simple:front.slice(0,100),c1:back.slice(0,200),example:'',type:'chunk',nextReview:today,intervalIdx:0,easiness:2.5});
+                if(importedCards.length>=100)return;
+              }
             });
-            if(importedCards.length>=100)return;
+            if(importedCards.length>0){
+              ankiImportData={count:importedCards.length,cards:importedCards};
+              showImportPreview(importedCards);
+              return;
+            }
           }
-        });
-
-        if(importedCards.length===0){
-          toast('❌ No valid cards found. Try exporting as CSV format.');
-          return;
         }
 
-        ankiImportData={count:importedCards.length, cards:importedCards};
-        showImportPreview(importedCards);
+        toast('❌ Invalid Anki file. Use CSV export instead.');
       }catch(err){
         console.error('Anki import error:',err);
-        toast('❌ Error: '+err.message+'. Try CSV format instead.');
+        toast('❌ Error: '+err.message);
       }
     };
     reader.readAsArrayBuffer(file);
   }catch(err){
     console.error(err);
     toast('❌ Error: '+err.message);
+  }
+}
+
+function handleAnkiXMLImport(xmlContent){
+  try{
+    const parser=new DOMParser();
+    const xmlDoc=parser.parseFromString(xmlContent,'text/xml');
+
+    if(xmlDoc.getElementsByTagName('parsererror').length>0){
+      toast('❌ Invalid XML format');
+      return;
+    }
+
+    const notes=xmlDoc.getElementsByTagName('note');
+    const importedCards=[];
+    const seen=new Set();
+
+    Array.from(notes).forEach(note=>{
+      const fields=note.getElementsByTagName('field');
+      if(fields.length>=2){
+        let front=(fields[0].textContent||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+        let back=(fields[1].textContent||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+
+        if(front.length>2&&back.length>2&&!seen.has(front)){
+          seen.add(front);
+          importedCards.push({
+            id:Date.now()+Math.random(),
+            simple:front.slice(0,100),
+            c1:back.slice(0,200),
+            example:'',
+            type:'chunk',
+            nextReview:today,
+            intervalIdx:0,
+            easiness:2.5
+          });
+        }
+      }
+    });
+
+    if(importedCards.length===0){
+      toast('❌ No cards found in XML');
+      return;
+    }
+
+    ankiImportData={count:importedCards.length,cards:importedCards};
+    showImportPreview(importedCards);
+  }catch(err){
+    console.error('XML parse error:',err);
+    toast('❌ Error parsing XML: '+err.message);
   }
 }
 
