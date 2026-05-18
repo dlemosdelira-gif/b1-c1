@@ -788,42 +788,42 @@ function renderDash(){
 
     const maxCount=Math.max(...monthDays.map(x=>x.count),4);
     const barHtml=monthDays.slice(-14).map(day=>{
-      const h=Math.max(3,Math.round(day.count/maxCount*60));
+      const h=Math.max(2,Math.round(day.count/maxCount*50));
       const bg=day.count===0?'#E5E7EB':day.count<2?'#D1FAE5':day.count<3?'#6EE7B7':'#10B981';
-      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px" title="${day.key}: ${day.count}/4 tasks" onclick="editDayTasks('${day.key}')"><div style="width:100%;height:${h}px;background:${bg};border-radius:2px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1"></div><div style="font-size:8px;color:#94A3B8;text-align:center">${day.day}</div></div>`;
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:60px" title="${day.key}: ${day.count}/4 tasks" onclick="editDayTasks('${day.key}')"><div style="width:100%;max-width:20px;height:${h}px;background:${bg};border-radius:2px;cursor:pointer;transition:all 0.2s" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1"></div><div style="font-size:7px;color:#94A3B8;text-align:center;min-height:12px">${day.day}</div></div>`;
     }).join('');
 
-    html+=`<div style="margin-bottom:16px">
-      <div style="font-size:12px;font-weight:600;color:#0F172A;margin-bottom:12px">📊 ${monthNames[m]} Progress</div>
-      <div style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:12px;padding:0 8px;background:#F8FAFF;border-radius:8px;padding:12px">${barHtml}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:#F0FDF4;padding:12px;border-radius:8px;text-align:center;border-left:3px solid #10B981">
-          <div style="font-size:16px;font-weight:600;color:#16A34A">${monthDone}</div>
-          <div style="font-size:10px;color:#6B7280;margin-top:4px">Active days</div>
+    html+=`<div style="padding:0;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:10px">📊 ${monthNames[m]} Progress</div>
+      <div style="display:flex;align-items:flex-end;gap:2px;height:70px;background:#F8FAFF;border-radius:8px;padding:10px;margin-bottom:10px;overflow-x:auto">${barHtml}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+        <div style="background:#F0FDF4;padding:10px;border-radius:8px;border-left:3px solid #10B981">
+          <div style="font-size:14px;font-weight:600;color:#16A34A;text-align:center">${monthDone}</div>
+          <div style="font-size:9px;color:#6B7280;text-align:center;margin-top:2px">Days active</div>
         </div>
-        <div style="background:#EFF6FF;padding:12px;border-radius:8px;text-align:center;border-left:3px solid #2563EB">
-          <div style="font-size:16px;font-weight:600;color:#2563EB">${Math.round(monthDone/monthTotal*100)}%</div>
-          <div style="font-size:10px;color:#6B7280;margin-top:4px">Completion</div>
+        <div style="background:#EFF6FF;padding:10px;border-radius:8px;border-left:3px solid #2563EB">
+          <div style="font-size:14px;font-weight:600;color:#2563EB;text-align:center">${Math.round(monthDone/monthTotal*100)}%</div>
+          <div style="font-size:9px;color:#6B7280;text-align:center;margin-top:2px">Completion</div>
         </div>
       </div>
     </div>`;
 
     // ══ YEARLY PROGRESS ══
-    html+=`<div>
-      <div style="font-size:12px;font-weight:600;color:#0F172A;margin-bottom:10px">📅 Year Overview</div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;font-size:10px;align-items:center;padding:8px;background:#F8FAFF;border-radius:6px">
+    html+=`<div style="padding:0;margin-top:14px">
+      <div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:10px">📅 Year Overview</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;font-size:9px;align-items:center;padding:8px;background:#F8FAFF;border-radius:6px;flex-wrap:wrap">
         <span style="color:#6B7280">Less</span>
-        <div style="width:12px;height:12px;background:#E5E7EB;border-radius:2px"></div>
-        <div style="width:12px;height:12px;background:#D1FAE5;border-radius:2px"></div>
-        <div style="width:12px;height:12px;background:#A7F3D0;border-radius:2px"></div>
-        <div style="width:12px;height:12px;background:#6EE7B7;border-radius:2px"></div>
-        <div style="width:12px;height:12px;background:#10B981;border-radius:2px"></div>
+        <div style="width:11px;height:11px;background:#E5E7EB;border-radius:2px"></div>
+        <div style="width:11px;height:11px;background:#D1FAE5;border-radius:2px"></div>
+        <div style="width:11px;height:11px;background:#A7F3D0;border-radius:2px"></div>
+        <div style="width:11px;height:11px;background:#6EE7B7;border-radius:2px"></div>
+        <div style="width:11px;height:11px;background:#10B981;border-radius:2px"></div>
         <span style="color:#6B7280">More</span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">`;
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;width:100%;padding:0">`;
 
     for(let month=m;month<12;month++){
-      html+=`<div style="font-size:9px;font-weight:600;color:#6B7280;grid-column:1/-1;margin-bottom:6px;margin-top:${month>m?'10px':'0'}px">${monthNames[month]}</div>`;
+      html+=`<div style="font-size:8px;font-weight:600;color:#6B7280;grid-column:1/-1;padding-top:${month>m?'10px':'0'};padding-bottom:4px">${monthNames[month]}</div>`;
 
       const start=(month===m)?d:1;
       const end=new Date(y,month+1,0).getDate();
@@ -836,8 +836,8 @@ function renderDash(){
         const levels=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
         const bg=levels[Math.min(c,4)];
         const isFuture=dt>new Date();
-        const borderStyle=(key===today)?'border:2px solid #2563EB;':'';
-        html+=`<div title="${key}: ${c}/4" style="width:18px;height:18px;background:${bg};border-radius:2px;cursor:pointer;opacity:${isFuture?'0.4':'0.9'};transition:all 0.2s;${borderStyle}" onmouseover="this.style.transform='scale(1.4)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)'" onclick="editDayTasks('${key}')"></div>`;
+        const borderStyle=(key===today)?'border:2px solid #2563EB;':' ';
+        html+=`<div title="${key}: ${c}/4" style="width:16px;height:16px;background:${bg};border-radius:2px;cursor:pointer;opacity:${isFuture?'0.3':'0.85'};transition:all 0.2s;${borderStyle}" onmouseover="this.style.transform='scale(1.4)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)'" onclick="editDayTasks('${key}')"></div>`;
       }
     }
     html+=`</div></div>`;
