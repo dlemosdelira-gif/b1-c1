@@ -1950,15 +1950,28 @@ async function handleAnkiImport(file){
 
 function handleAnkiXMLImport(xmlContent){
   try{
+    if(!xmlContent||xmlContent.length<100){
+      toast('❌ XML file is empty or too small');
+      return;
+    }
+
     const parser=new DOMParser();
     const xmlDoc=parser.parseFromString(xmlContent,'text/xml');
 
     if(xmlDoc.getElementsByTagName('parsererror').length>0){
-      toast('❌ Invalid XML format');
+      console.log('Parser error in XML');
+      toast('❌ Invalid XML format. Try CSV export instead.');
       return;
     }
 
     const notes=xmlDoc.getElementsByTagName('note');
+    console.log('Found '+notes.length+' notes in XML');
+
+    if(notes.length===0){
+      toast('❌ No notes found in XML file');
+      return;
+    }
+
     const importedCards=[];
     const seen=new Set();
 
@@ -1980,20 +1993,24 @@ function handleAnkiXMLImport(xmlContent){
             intervalIdx:0,
             easiness:2.5
           });
+          if(importedCards.length>=200)return;
         }
       }
     });
 
+    console.log('Extracted '+importedCards.length+' cards from XML');
+
     if(importedCards.length===0){
-      toast('❌ No cards found in XML');
+      toast('❌ No valid cards found in XML');
       return;
     }
 
     ankiImportData={count:importedCards.length,cards:importedCards};
     showImportPreview(importedCards);
+    toast('✅ Found '+importedCards.length+' cards in Anki file');
   }catch(err){
     console.error('XML parse error:',err);
-    toast('❌ Error parsing XML: '+err.message);
+    toast('❌ Error: '+err.message);
   }
 }
 
