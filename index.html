@@ -818,24 +818,33 @@ function renderDash(){
         <!-- Yearly Progress -->
         <div style="width:100%">
           <div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:10px;white-space:nowrap">📅 Year Overview</div>
-          <div style="display:flex;gap:4px;margin-bottom:10px;font-size:9px;align-items:center;padding:8px;background:#F8FAFF;border-radius:6px;flex-wrap:wrap;width:100%">
-            <span style="color:#6B7280">Less</span>
-            <div style="width:10px;height:10px;background:#E5E7EB;border-radius:2px"></div>
-            <div style="width:10px;height:10px;background:#D1FAE5;border-radius:2px"></div>
-            <div style="width:10px;height:10px;background:#A7F3D0;border-radius:2px"></div>
-            <div style="width:10px;height:10px;background:#6EE7B7;border-radius:2px"></div>
-            <div style="width:10px;height:10px;background:#10B981;border-radius:2px"></div>
-            <span style="color:#6B7280">More</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;width:100%">`;
+          <div style="display:flex;gap:6px;margin-bottom:12px;font-size:10px;align-items:center;padding:10px;background:#F8FAFF;border-radius:6px;flex-wrap:wrap;width:100%">
+            <span style="color:#6B7280;font-weight:500">Less</span>
+            <div style="width:12px;height:12px;background:#E5E7EB;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#D1FAE5;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#A7F3D0;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#6EE7B7;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#10B981;border-radius:2px"></div>
+            <span style="color:#6B7280;font-weight:500">More</span>
+          </div>`;
 
+    // Create calendar grid by month
     for(let month=m;month<12;month++){
-      html+=`<div style="font-size:8px;font-weight:600;color:#6B7280;grid-column:1/-1;padding:${month>m?'12px 0 4px':'0 0 4px'}">${monthNames[month]}</div>`;
+      html+=`<div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:600;color:#0F172A;margin-bottom:8px">${monthNames[month]}</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%">`;
 
-      const start=(month===m)?d:1;
+      // Add day headers
+      const dayHeaders=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const firstDay=new Date(y,month,1).getDay();
+
+      // Empty cells for days before month starts
+      for(let i=0;i<firstDay;i++){
+        html+=`<div></div>`;
+      }
+
       const end=new Date(y,month+1,0).getDate();
-
-      for(let day=start;day<=end;day++){
+      for(let day=1;day<=end;day++){
         const dt=new Date(y,month,day);
         const key=dt.toISOString().split('T')[0];
         const v=localStorage.getItem('c1dt-'+key);
@@ -843,12 +852,14 @@ function renderDash(){
         const levels=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
         const bg=levels[Math.min(c,4)];
         const isFuture=dt>new Date();
-        const border=(key===today)?'2px solid #2563EB':'none';
-        html+=`<div title="${key}: ${c}/4" style="width:15px;height:15px;background:${bg};border:${border};border-radius:2px;cursor:pointer;opacity:${isFuture?'0.3':'0.85'}" onclick="editDayTasks('${key}')"></div>`;
+        const border=(key===today)?'3px solid #2563EB':'1px solid transparent';
+        html+=`<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:${bg};border:${border};border-radius:3px;cursor:pointer;opacity:${isFuture?'0.4':'1'};font-size:10px;color:#475569;font-weight:500;transition:all 0.2s" title="${key}: ${c}/4 tasks" onclick="editDayTasks('${key}')">${day}</div>`;
       }
+
+      html+=`</div></div>`;
     }
 
-    html+=`</div></div></div>`;
+    html+=`</div></div>`;
     hm.innerHTML=html;
   }
 }
@@ -1876,14 +1887,18 @@ async function handleAnkiImport(file){
         const zip=new JSZip();
         await zip.loadAsync(data);
 
-        // Look for collection.xml (Anki export format)
+        // Look for any .xml file (Anki export format)
         const files=Object.keys(zip.files);
-        let xmlPath=files.find(f=>f.endsWith('collection.xml'));
+        let xmlPath=files.find(f=>f.endsWith('.xml')&&!f.includes('__MACOSX'));
 
         if(xmlPath){
-          const xmlContent=await zip.file(xmlPath).async('string');
-          handleAnkiXMLImport(xmlContent);
-          return;
+          try{
+            const xmlContent=await zip.file(xmlPath).async('string');
+            handleAnkiXMLImport(xmlContent);
+            return;
+          }catch(xmlErr){
+            console.log('XML import failed:',xmlErr);
+          }
         }
 
         // Try collection.anki2
@@ -1935,15 +1950,28 @@ async function handleAnkiImport(file){
 
 function handleAnkiXMLImport(xmlContent){
   try{
+    if(!xmlContent||xmlContent.length<100){
+      toast('❌ XML file is empty or too small');
+      return;
+    }
+
     const parser=new DOMParser();
     const xmlDoc=parser.parseFromString(xmlContent,'text/xml');
 
     if(xmlDoc.getElementsByTagName('parsererror').length>0){
-      toast('❌ Invalid XML format');
+      console.log('Parser error in XML');
+      toast('❌ Invalid XML format. Try CSV export instead.');
       return;
     }
 
     const notes=xmlDoc.getElementsByTagName('note');
+    console.log('Found '+notes.length+' notes in XML');
+
+    if(notes.length===0){
+      toast('❌ No notes found in XML file');
+      return;
+    }
+
     const importedCards=[];
     const seen=new Set();
 
@@ -1965,20 +1993,24 @@ function handleAnkiXMLImport(xmlContent){
             intervalIdx:0,
             easiness:2.5
           });
+          if(importedCards.length>=200)return;
         }
       }
     });
 
+    console.log('Extracted '+importedCards.length+' cards from XML');
+
     if(importedCards.length===0){
-      toast('❌ No cards found in XML');
+      toast('❌ No valid cards found in XML');
       return;
     }
 
     ankiImportData={count:importedCards.length,cards:importedCards};
     showImportPreview(importedCards);
+    toast('✅ Found '+importedCards.length+' cards in Anki file');
   }catch(err){
     console.error('XML parse error:',err);
-    toast('❌ Error parsing XML: '+err.message);
+    toast('❌ Error: '+err.message);
   }
 }
 
