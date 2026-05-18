@@ -1940,7 +1940,7 @@ async function handleAnkiImport(file){
               const back=(parts[1]||'').replace(/\s+/g,' ').trim();
               if(front.length>2&&back.length>2&&!seen.has(front)){
                 seen.add(front);
-                importedCards.push({id:Date.now()+Math.random(),simple:front.slice(0,100),c1:back.slice(0,200),example:'',type:'chunk',nextReview:today,intervalIdx:0,easiness:2.5});
+            id:''+Date.now()+Math.floor(Math.random()*100000),
                 if(importedCards.length>=100)return;
               }
             });
@@ -2107,7 +2107,7 @@ function tryExtractCardsFromXMLStructure(xmlDoc){
     if(front.length>3&&back.length>5&&back.length<300&&!seen.has(front)){
       seen.add(front);
       importedCards.push({
-        id:Date.now()+Math.random(),
+        id:''+Date.now()+Math.floor(Math.random()*100000),
         simple:front.slice(0,100),
         c1:back.slice(0,200),
         example:'',
@@ -2146,7 +2146,7 @@ function handleCSVImportContent(csvContent){
     if(simple.length>0&&c1.length>0&&!seen.has(simple)){
       seen.add(simple);
       importedCards.push({
-        id:Date.now()+Math.random(),
+        id:''+Date.now()+Math.floor(Math.random()*100000),
         simple:simple,
         c1:c1,
         example:'',
