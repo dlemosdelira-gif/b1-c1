@@ -1848,7 +1848,7 @@ async function handleCSVImport(file){
         if(simple.length>0&&c1.length>0&&!seen.has(simple)){
           seen.add(simple);
           importedCards.push({
-            id:Date.now()+Math.random(),
+            id:''+Date.now()+Math.floor(Math.random()*100000),
             simple:simple,
             c1:c1,
             example:'',
@@ -2003,7 +2003,7 @@ function handleAnkiXMLImport(xmlContent){
           if(front.length>2&&back.length>2&&!seen.has(front)){
             seen.add(front);
             importedCards.push({
-              id:Date.now()+Math.random(),
+              id:''+Date.now()+Math.floor(Math.random()*100000),
               simple:front.slice(0,100),
               c1:back.slice(0,200),
               example:'',
@@ -2064,7 +2064,7 @@ function tryExtractCardsFromXMLText(xmlContent){
       if(prev.length>3&&text.length>3&&prev.length<150&&text.length<300&&!seen.has(prev)){
         seen.add(prev);
         importedCards.push({
-          id:Date.now()+Math.random(),
+          id:''+Date.now()+Math.floor(Math.random()*100000),
           simple:prev.slice(0,100),
           c1:text.slice(0,200),
           example:'',
