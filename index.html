@@ -2040,44 +2040,47 @@ function handleAnkiXMLImport(xmlContent){
 }
 
 function tryExtractCardsFromXMLText(xmlContent){
-  console.log('Trying text extraction from XML');
+  console.log('Trying XML structure parsing');
   const importedCards=[];
   const seen=new Set();
 
-  // Remove XML tags and get text segments
-  let cleaned=xmlContent.replace(/<\?xml[^?]*\?>/g,'').replace(/<!--[\s\S]*?-->/g,'');
+  // Try to find <card> elements with Front/Back structure
+  const cardRegex=/<card[^>]*>[\s\S]*?<\/card>/gi;
+  const cards=xmlContent.match(cardRegex)||[];
+  console.log('Found '+cards.length+' card elements');
 
-  // Try to find content between tags that looks like cards
-  const tagContents=cleaned.match(/>([^<]{10,300})</g)||[];
-  console.log('Found '+tagContents.length+' potential text segments');
+  if(cards.length>0){
+    cards.forEach((cardXml,idx)=>{
+      // Extract Front field
+      const frontMatch=cardXml.match(/<rich-text[^>]*name=['"]?Front['"]?[^>]*>[\s\S]*?<\/rich-text>/i);
+      const backMatch=cardXml.match(/<rich-text[^>]*name=['"]?Back['"]?[^>]*>[\s\S]*?<\/rich-text>/i);
 
-  tagContents.slice(0,200).forEach((segment,idx)=>{
-    let text=segment.replace(/^>/,'').replace(/<$/,'').trim();
+      if(frontMatch&&backMatch){
+        let front=frontMatch[0].replace(/<[^>]*>/g,'').trim();
+        let back=backMatch[0].replace(/<[^>]*>/g,'').trim();
 
-    // Skip empty or XML declaration
-    if(text.length<4||text.startsWith('xml')||text.startsWith('?'))return;
+        front=front.replace(/\s+/g,' ').trim();
+        back=back.replace(/\s+/g,' ').trim();
 
-    // Try to use pairs of consecutive segments as front/back
-    if(idx>0){
-      const prev=tagContents[idx-1].replace(/^>/,'').replace(/<$/,'').trim();
-
-      if(prev.length>3&&text.length>3&&prev.length<150&&text.length<300&&!seen.has(prev)){
-        seen.add(prev);
-        importedCards.push({
-          id:''+Date.now()+Math.floor(Math.random()*100000),
-          simple:prev.slice(0,100),
-          c1:text.slice(0,200),
-          example:'',
-          type:'chunk',
-          nextReview:today,
-          intervalIdx:0,
-          easiness:2.5
-        });
+        if(front.length>2&&back.length>2&&!seen.has(front)){
+          seen.add(front);
+          importedCards.push({
+            id:''+Date.now()+Math.floor(Math.random()*100000),
+            simple:front.slice(0,100),
+            c1:back.slice(0,200),
+            example:'',
+            type:'chunk',
+            nextReview:today,
+            intervalIdx:0,
+            easiness:2.5
+          });
+          console.log('Card '+(idx+1)+': "'+front.substring(0,40)+'" -> "'+back.substring(0,40)+'"');
+        }
       }
-    }
-  });
+    });
+  }
 
-  console.log('Extracted '+importedCards.length+' cards from text');
+  console.log('Extracted '+importedCards.length+' cards from XML structure');
   return importedCards;
 }
 
