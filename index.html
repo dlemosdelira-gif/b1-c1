@@ -1225,10 +1225,11 @@ function renderRev(){
   if(!flipped){
     const isCloze=card.type==='chunk';
     const front=isCloze&&card.example?card.example.replace(card.simple,'<span class="fblank"></span>'):card.simple;
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">'+(isCloze?'Cloze — fill the blank':'Simple version')+'</div>'+(isCloze?'<div style="font-size:12px;color:#2563EB;font-weight:600;margin-bottom:10px">'+esc(card.c1)+'</div>':'')+'<div class="'+(isCloze?'fcloze':'fword')+'">'+front+'</div>'+((!isCloze)?'<div style="font-size:11px;color:#94A3B8;margin-top:8px">What\'s the C1 version?</div>':'')+'<div class="ftap">Tap to reveal →</div></div>'
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">'+(isCloze?'Cloze — fill the blank':'Simple version')+'</div><div class="'+(isCloze?'fcloze':'fword')+'">'+front+'</div>'+((!isCloze)?'<div style="font-size:11px;color:#94A3B8;margin-top:8px">What\'s the C1 version?</div>':'')+'<div class="ftap">Tap to reveal →</div></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }else{
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl">'+esc(card.c1)+'</div>'+(card.example?'<div class="fex">"'+esc(card.example)+'"</div>':'')+'<div class="ftap">← '+esc(card.simple)+'</div></div>'
+    const themeLabel=isCloze?'Theme / Context:':'';
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">'+(isCloze?themeLabel+' '+esc(card.c1):'C1 expression')+'</div><div class="fword bl">'+(isCloze?esc(card.simple):esc(card.c1))+'</div>'+(card.example?'<div class="fex">"'+esc(card.example)+'"</div>':'')+'<div class="ftap">← '+(isCloze?'(answer above)':esc(card.simple))+'</div></div>'
       +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }
