@@ -1184,14 +1184,20 @@ function handleRev(q){
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
 function renderCards(){
   const el=document.getElementById('cardslist');
-  if(cards.length===0){el.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Analyze your writing and save C1 upgrades.</div><button class="btn bpr" onclick="goTab(\'prac\')">Go to Practice →</button></div>';return;}
-  let h='<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;margin-bottom:14px">'
-    +'<div class="ctit" style="margin-bottom:12px;color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Collocation / Chunk</div>'
+  if(cards.length===0){el.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Add C1 upgrades or import from Anki.</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;width:100%"><button class="btn bpr" onclick="goTab(\'prac\')">Go to Practice →</button><label class="btn bte" style="margin:0;cursor:pointer">📚 Import Anki Deck<input type="file" accept=".zip" style="display:none" onchange="handleAnkiImport(this.files[0])"></label></div></div>';return;}
+  let h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'
+    +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE">'
+    +'<div class="ctit" style="margin-bottom:12px;color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Chunk</div>'
     +'<div class="chunk-form">'
-    +'<input type="text" id="chkw" placeholder="Keyword (e.g. reach)">'
-    +'<input type="text" id="chex" placeholder="Full collocation (e.g. To reach a consensus)">'
-    +'<button class="btn bpr bsm" onclick="saveChunk()">Save Chunk</button>'
-    +'</div></div>';
+    +'<input type="text" id="chkw" placeholder="Keyword" style="margin-bottom:8px">'
+    +'<input type="text" id="chex" placeholder="Full form" style="margin-bottom:8px">'
+    +'<button class="btn bpr bsm" onclick="saveChunk()" style="width:100%">Save</button>'
+    +'</div></div>'
+    +'<div class="card" style="background:linear-gradient(135deg,#F0FDF4,#F5F3FF);border-color:#BBF7D0">'
+    +'<div class="ctit" style="margin-bottom:12px;color:#16A34A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Import Anki</div>'
+    +'<label style="cursor:pointer;display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;font-size:12px;color:#16A34A;font-weight:500">'
+    +'📚 Click to import ZIP<input type="file" accept=".zip" style="display:none" onchange="handleAnkiImport(this.files[0])">'
+    +'</label></div></div>';
   h+='<div class="cards-grid">'+cards.map(c=>{
     const id=c.nextReview<=today;
     return '<div class="citem'+(id?' due':'')+'"><div style="flex:1;min-width:0">'
@@ -1726,6 +1732,123 @@ function renderMilestones(){
   `).join('');
   const msCard=document.querySelector('[data-card="milestones"]');
   if(msCard)msCard.innerHTML='<div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
+}
+
+// ── ANKI IMPORT ───────────────────────────────────────────────────────────────
+let ankiImportData=null;
+
+async function handleAnkiImport(file){
+  if(!file)return;
+  toast('📥 Loading Anki file...');
+
+  try{
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    await loadScript('https://sql.js.org/dist/sql-wasm.js');
+
+    const reader=new FileReader();
+    reader.onload=async(e)=>{
+      try{
+        const data=new Uint8Array(e.target.result);
+        const zip=new JSZip();
+        await zip.loadAsync(data);
+
+        const collFile=zip.file('collection.anki2');
+        if(!collFile){toast('❌ Invalid Anki file');return;}
+
+        const collData=await collFile.async('arraybuffer');
+        const SQL=await window.initSqlJs();
+        const db=new SQL.Database(new Uint8Array(collData));
+
+        const notes=db.exec("SELECT id,flds,tags FROM notes LIMIT 100");
+        if(!notes||notes.length===0){
+          toast('❌ No notes found in deck');
+          return;
+        }
+
+        const importedCards=[];
+        const rows=notes[0].values;
+
+        rows.forEach(row=>{
+          const fields=row[1].split('\x1f');
+          if(fields.length>=2){
+            importedCards.push({
+              id:Date.now()+Math.random(),
+              simple:fields[0]||'',
+              c1:fields[1]||'',
+              example:fields.length>2?fields[2]:'',
+              type:'chunk',
+              nextReview:today,
+              intervalIdx:0,
+              easiness:2.5
+            });
+          }
+        });
+
+        ankiImportData={count:importedCards.length, cards:importedCards};
+        showAnkiImportPreview(importedCards);
+      }catch(err){
+        console.error(err);
+        toast('❌ Error: '+err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }catch(err){
+    console.error(err);
+    toast('❌ Failed to load required libraries');
+  }
+}
+
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=src;
+    script.async=true;
+    script.onload=resolve;
+    script.onerror=reject;
+    document.head.appendChild(script);
+  });
+}
+
+function showAnkiImportPreview(importedCards){
+  const preview=importedCards.slice(0,3).map(c=>`<div style="font-size:11px;padding:8px;background:#F0FDF4;border-radius:6px;margin-bottom:6px"><div style="font-weight:600;color:#0F172A">${esc(c.simple)}</div><div style="color:#94A3B8;margin-top:2px">→ ${esc(c.c1)}</div></div>`).join('');
+
+  const html=`<div class="modal">
+    <div class="mhdr"><div class="mtit">📚 Import from Anki</div><button class="btn bsm" onclick="closeM('mAnkiImport')">✕</button></div>
+    <div class="mbdy">
+      <div style="padding:12px;background:#F0FDF4;border-radius:8px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:600;color:#16A34A">✓ ${ankiImportData.count} cards found</div>
+        <div style="font-size:11px;color:#16A34A;margin-top:6px">Ready to import your Anki deck</div>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:#94A3B8;margin-bottom:6px;text-transform:uppercase">Preview:</div>
+      ${preview}
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn bte bsm" onclick="closeM('mAnkiImport')">Cancel</button>
+        <button class="btn bpr bsm" onclick="importAnkiCards()">Import ${ankiImportData.count} Cards</button>
+      </div>
+    </div>
+  </div>`;
+
+  let md=document.getElementById('mAnkiImport');
+  if(!md){
+    md=document.createElement('div');
+    md.id='mAnkiImport';
+    md.className='mov hid';
+    md.onclick=function(e){if(e.target===this)closeM('mAnkiImport');};
+    document.body.appendChild(md);
+  }
+  md.innerHTML=html;
+  openM('mAnkiImport');
+}
+
+function importAnkiCards(){
+  if(!ankiImportData)return;
+  const before=cards.length;
+  cards=[...cards,...ankiImportData.cards];
+  saveCA();
+  toast(`✅ Imported ${ankiImportData.count} cards!`);
+  render();
+  renderCards();
+  closeM('mAnkiImport');
 }
 
 window.onload = function(){
