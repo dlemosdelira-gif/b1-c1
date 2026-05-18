@@ -1182,10 +1182,12 @@ function saveCard(simple,c1,example,type='upgrade'){
   saveCA();toast('Saved to SRS! 🎉');render();
 }
 function saveChunk(){
-  const k=document.getElementById('chkw')?.value.trim(),e=document.getElementById('chex')?.value.trim();
-  if(!k||!e){toast('Fill both fields');return;}
-  saveCard(k,'(collocation)',e,'chunk');
-  document.getElementById('chkw').value='';document.getElementById('chex').value='';
+  const simple=document.getElementById('chkw')?.value.trim(),c1=document.getElementById('chex')?.value.trim(),example=document.getElementById('chex2')?.value.trim()||'';
+  if(!simple||!c1){toast('Fill Simple and C1 Expression fields');return;}
+  saveCard(simple,c1,example,'chunk');
+  document.getElementById('chkw').value='';
+  document.getElementById('chex').value='';
+  document.getElementById('chex2').value='';
 }
 function openEdit(id){
   const c=cards.find(x=>x.id===id);if(!c)return;
@@ -1260,8 +1262,9 @@ function renderCards(){
     +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE">'
     +'<div class="ctit" style="margin-bottom:12px;color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Chunk</div>'
     +'<div class="chunk-form">'
-    +'<input type="text" id="chkw" placeholder="Keyword" style="margin-bottom:8px">'
-    +'<input type="text" id="chex" placeholder="Full form" style="margin-bottom:8px">'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Simple / Original</label><input type="text" id="chkw" style="margin-bottom:8px;font-size:13px;padding:8px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box"></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">C1 Expression</label><input type="text" id="chex" style="margin-bottom:8px;font-size:13px;padding:8px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box"></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Example sentence</label><textarea id="chex2" style="margin-bottom:8px;font-size:13px;padding:8px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:60px;resize:vertical"></textarea></div>'
     +'<button class="btn bpr bsm" onclick="saveChunk()" style="width:100%">Save</button>'
     +'</div></div>'
     +'<div class="card" style="background:linear-gradient(135deg,#F0FDF4,#F5F3FF);border-color:#BBF7D0">'
@@ -1940,7 +1943,7 @@ async function handleAnkiImport(file){
               const back=(parts[1]||'').replace(/\s+/g,' ').trim();
               if(front.length>2&&back.length>2&&!seen.has(front)){
                 seen.add(front);
-            id:''+Date.now()+Math.floor(Math.random()*100000),
+                importedCards.push({id:''+Date.now()+Math.floor(Math.random()*100000),simple:front.slice(0,100),c1:back.slice(0,200),example:'',type:'chunk',nextReview:today,intervalIdx:0,easiness:2.5});
                 if(importedCards.length>=100)return;
               }
             });
