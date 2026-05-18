@@ -314,10 +314,10 @@ textarea{min-height:120px}
   .nb svg{width:17px;height:17px;}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 16px 0;}
-  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.5fr auto;align-items:stretch;gap:10px}
-  .chunk-form>div{display:flex;flex-direction:column}
+  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.5fr auto;align-items:end;gap:10px}
+  .chunk-form>div{display:flex;flex-direction:column;height:100%}
   .chunk-form>div label{margin-bottom:4px}
-  .chunk-form>div input{margin-top:auto}
+  .chunk-form>div input{flex:1;min-height:42px}
   .chunk-form>div textarea{flex:1;min-height:70px}
   .chunk-form button{align-self:end;min-height:42px;padding:10px 20px;white-space:nowrap}
 }
@@ -1280,6 +1280,11 @@ function saveChunk(){
   document.getElementById('chex').value='';
   document.getElementById('chex2').value='';
 }
+function formatText(text){
+  if(!text)return'';
+  let safe=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+}
 function openEdit(id){
   const c=cards.find(x=>x.id===id);if(!c)return;
   editCardId=id;
@@ -1319,7 +1324,7 @@ function renderRev(){
     ch='<div class="fcard" onclick="flipCard()"><div class="fhint">'+(isCloze?'Cloze — fill the blank':'Simple version')+'</div><div class="'+(isCloze?'fcloze':'fword')+'">'+front+'</div>'+((!isCloze)?'<div style="font-size:11px;color:#94A3B8;margin-top:8px">What\'s the C1 version?</div>':'')+'<div class="ftap">Tap to reveal →</div></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }else{
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl">'+esc(card.c1)+'</div>'+(card.example?'<div style="font-size:12px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.5;padding:8px 12px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB">My sentences: '+esc(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:12px;color:#475569;margin-top:10px;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
       +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }
