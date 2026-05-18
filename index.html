@@ -1248,9 +1248,9 @@ function renderRev(){
   dv.forEach((_,i)=>dots+='<div class="pdot2'+(i<flashIdx?' dn':i===flashIdx?' cu':'')+'"></div>');
   dots+='</div>';
   let ch='';
+  const isCloze=card.type==='chunk';
   const navBtns='<div class="rev-nav"><button class="rnb" onclick="navRev(-1)" '+(dv.length<=1?'disabled':'')+' title="Previous">←</button><button class="rnb" onclick="navRev(1)" '+(dv.length<=1?'disabled':'')+' title="Next">→</button></div>';
   if(!flipped){
-    const isCloze=card.type==='chunk';
     const front=isCloze&&card.example?card.example.replace(card.simple,'<span class="fblank"></span>'):card.simple;
     ch='<div class="fcard" onclick="flipCard()"><div class="fhint">'+(isCloze?'Cloze — fill the blank':'Simple version')+'</div><div class="'+(isCloze?'fcloze':'fword')+'">'+front+'</div>'+((!isCloze)?'<div style="font-size:11px;color:#94A3B8;margin-top:8px">What\'s the C1 version?</div>':'')+'<div class="ftap">Tap to reveal →</div></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
