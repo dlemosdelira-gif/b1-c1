@@ -1951,7 +1951,7 @@ async function handleAnkiImport(file){
           }
         }
 
-        toast('❌ Invalid Anki file. Use CSV export instead.');
+        toast('❌ No valid Anki export found.\n\nHow to export from Anki:\n1. Right-click the deck\n2. Click "Export"\n3. Choose "Notes in CSV format"\n4. Save and import here');
       }catch(err){
         console.error('Anki import error:',err);
         toast('❌ Error: '+err.message);
@@ -1976,7 +1976,7 @@ function handleAnkiXMLImport(xmlContent){
 
     if(xmlDoc.getElementsByTagName('parsererror').length>0){
       console.log('Parser error in XML');
-      toast('❌ Invalid XML format. Try CSV export instead.');
+      toast('❌ This XML file is not an Anki export.\n\nExport from Anki:\n1. Right-click deck\n2. Click Export\n3. Choose "Notes in CSV format"');
       return;
     }
 
@@ -1984,7 +1984,8 @@ function handleAnkiXMLImport(xmlContent){
     console.log('Found '+notes.length+' notes in XML');
 
     if(notes.length===0){
-      toast('❌ No notes found in XML file');
+      console.log('No <note> tags found. This is not an Anki export file.');
+      toast('❌ This XML file is not an Anki export.\n\nExport from Anki:\n1. Right-click deck\n2. Click Export\n3. Choose "Notes in CSV format"');
       return;
     }
 
