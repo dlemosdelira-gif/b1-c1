@@ -359,13 +359,13 @@ textarea{min-height:120px}
 <div class="toast" id="toast"></div>
 
 <div class="mov hid" id="mAI" onclick="if(event.target===this)closeM('mAI')">
-  <div class="modal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
     <div class="mhdr"><div class="mtit">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
-    <div class="mbdy">
+    <div class="mbdy" style="overflow-y:auto">
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
-          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:100px;overflow-y:auto" id="mpbox"></div>
+          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
             <span class="cbdg" id="cpbdg">✓ Copied!</span>
@@ -375,8 +375,8 @@ textarea{min-height:120px}
       <div class="mstep"><div class="mnum">2</div>
         <div style="width:100%">
           <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
-          <textarea id="jsonin" style="min-height:90px;font-family:'DM Mono',monospace;font-size:11px" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
-          <div class="fl g8 mt8" style="justify-content:flex-end">
+          <textarea id="jsonin" style="min-height:120px;font-family:'DM Mono',monospace;font-size:11px;width:100%;box-sizing:border-box" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
+          <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
             <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>
             <button class="btn bpr bsm" onclick="processJSON()">⚡ Process Analysis</button>
           </div>
