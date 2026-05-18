@@ -314,9 +314,12 @@ textarea{min-height:120px}
   .nb svg{width:17px;height:17px;}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 16px 0;}
-  .chunk-form{grid-template-columns:1fr 1fr 1.5fr auto;align-items:flex-end;gap:10px}
-  .chunk-form>div:nth-child(-n+3){grid-column:span 1}
-  .chunk-form button{grid-column:auto;align-self:flex-end;min-height:42px;padding:10px 20px}
+  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.5fr auto;align-items:stretch;gap:10px}
+  .chunk-form>div{display:flex;flex-direction:column}
+  .chunk-form>div label{margin-bottom:4px}
+  .chunk-form>div input{margin-top:auto}
+  .chunk-form>div textarea{flex:1;min-height:70px}
+  .chunk-form button{align-self:end;min-height:42px;padding:10px 20px;white-space:nowrap}
 }
 @media(min-width:1280px){
   .app{max-width:1200px;}
@@ -566,10 +569,6 @@ textarea{min-height:120px}
 <div class="pg hid" id="pg-cards">
   <div class="fb">
     <div style="font-size:15px;font-weight:600;color:#0F172A">My Cards</div>
-    <div class="fl g6">
-      <button class="btn bsm" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
-      <button class="btn bsm bpu" onclick="exportAnki()">Anki</button>
-    </div>
   </div>
   <div id="cardslist"></div>
 </div>
