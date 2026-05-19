@@ -448,6 +448,7 @@ textarea{min-height:120px}
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:#fff"><option value="">No topic</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom...</option></select></div><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
       <div style="font-size:11px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>
       <div class="fb" style="flex-wrap:wrap;gap:8px">
         <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
@@ -1266,19 +1267,25 @@ function saveUpgrade(i){
 }
 
 // ── CARDS ─────────────────────────────────────────────────────────────────────
-function saveCard(simple,c1,example,type='upgrade'){
+function saveCard(simple,c1,example,type='upgrade',topic=''){
   if(cards.find(c=>c.simple===simple)){toast('Already saved!');return;}
   const{date,intervalIdx,easiness}=nxtRev(2,-1,2.5);
-  cards.unshift({id:Date.now().toString(),simple,c1,example,type,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today});
+  const cardObj={id:Date.now().toString(),simple,c1,example,type,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today};
+  if(topic)cardObj.topic=topic;
+  cards.unshift(cardObj);
   saveCA();toast('Saved to SRS! 🎉');render();
 }
 function saveChunk(){
   const simple=document.getElementById('chkw')?.value.trim(),c1=document.getElementById('chex')?.value.trim(),example=document.getElementById('chex2')?.value.trim()||'';
   if(!simple||!c1){toast('Fill Simple and Back fields');return;}
-  saveCard(simple,c1,example,'chunk');
+  const topicSel=document.getElementById('chtopic')?.value||'',customTopic=document.getElementById('chcustom')?.value.trim()||'';
+  const topic=customTopic||topicSel||'';
+  saveCard(simple,c1,example,'chunk',topic);
   document.getElementById('chkw').value='';
   document.getElementById('chex').value='';
   document.getElementById('chex2').value='';
+  document.getElementById('chtopic').value='';
+  document.getElementById('chcustom').value='';
 }
 function formatText(text){
   if(!text)return'';
@@ -1291,13 +1298,17 @@ function openEdit(id){
   document.getElementById('ec_sim').value=c.simple||'';
   document.getElementById('ec_c1').value=c.c1||'';
   document.getElementById('ec_ex').value=c.example||'';
+  document.getElementById('ec_topic').value=c.topic||'';
+  document.getElementById('ec_custom').value='';
   openM('mEC');
 }
 function saveEdit(){
   const s=document.getElementById('ec_sim').value.trim(),c=document.getElementById('ec_c1').value.trim(),e=document.getElementById('ec_ex').value.trim();
   if(!s||!c){toast('⚠️ Simple and C1 are required');return;}
+  const topicSel=document.getElementById('ec_topic')?.value||'',customTopic=document.getElementById('ec_custom')?.value.trim()||'';
+  const topic=customTopic||topicSel||'';
   const i=cards.findIndex(x=>x.id===editCardId);
-  if(i>=0){cards[i].simple=s;cards[i].c1=c;cards[i].example=e;}
+  if(i>=0){cards[i].simple=s;cards[i].c1=c;cards[i].example=e;if(topic){cards[i].topic=topic;}else{delete cards[i].topic;}}
   saveCA();closeM('mEC');toast('✅ Card updated!');renderCards();render();
 }
 function confirmDel(){
@@ -1322,7 +1333,7 @@ function renderRev(){
     ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }else{
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:12px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:10px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:12px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
       +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }
@@ -1372,13 +1383,18 @@ function renderCards(){
     +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
     +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
     +'<button class="btn bpr" onclick="saveChunk()" style="padding:10px 20px;font-size:13px">Save Card</button>'
-    +'</div></div>';
+    +'</div>'
+    +'<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">'
+    +'<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
+    +'<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
+    +'</div>'
+    +'</div>';
   h+='<div class="cards-grid">'+cards.map(c=>{
     const id=c.nextReview<=today;
     return '<div class="citem'+(id?' due':'')+'"><div style="flex:1;min-width:0">'
       +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">'
       +'<span class="cisim">'+esc(c.simple)+'</span><span style="color:#94A3B8;font-size:12px">→</span>'
-      +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+'</div>'
+      +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+(c.topic?'<span class="tag tbl" style="font-size:10px;padding:2px 6px">'+esc(c.topic)+'</span>':'')+'</div>'
       +(c.example?'<div style="font-size:12px;color:#475569;font-style:italic;margin:2px 0 5px;word-break:break-word">"'+esc(c.example)+'"</div>':'')
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
       +'<span class="tag '+(id?'trd':'tgg')+'">'+(id?'Due today':'Next: '+c.nextReview)+'</span>'
@@ -1417,6 +1433,7 @@ function setupCardTextareas(){
 
 // ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
 const CTAGS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Science','Tech','Philosophy','Culture','Business'];
+const TOPICS=['Sentence Structure','Connectors','Word Formation','Verb Tenses','Prepositions','Modal Verbs','Reported Speech','Active vs Passive Voice','Pronouns & Determiners','Conditional','Discourse Markers & Hedging','Questions & Indirect Questions','how to say anything in english','Baralhos compartilhados','commom themes'];
 function openM(id){
   document.getElementById(id).classList.remove('hid');
   if(id==='mCL'){
