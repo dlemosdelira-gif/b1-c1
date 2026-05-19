@@ -237,8 +237,6 @@ textarea{min-height:120px}
 
 /* ── 📱 MEDIA QUERIES ── */
 @media(max-width:768px){
-  body { transform: scale(0.93); transform-origin: 0 0; width: calc(100% / 0.93); }
-  .app { width: 100%; }
   .pg{padding:10px;gap:12px; width:100%;}
   .hdr{padding:10px 10px 0;}
   .hs-l { display: none; }
@@ -246,6 +244,10 @@ textarea{min-height:120px}
   .hst { gap: 14px; }
   .logo-name { font-size: 13px; }
   .top-grid{grid-template-columns:1fr; gap:12px;}
+  .rev-foot{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:8px;}
+  .rev-cnt{width:100%;text-align:center;}
+  .rev-nav{width:100%;justify-content:center;}
+  .rev-ctrls>div:last-child{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;align-items:center!important;}
   .rm-sel { display: flex; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
   .rm-sel::-webkit-scrollbar { display: none; }
   .rm-btn { flex: 0 0 22%; min-width: 60px; padding: 6px 2px; }
@@ -1353,9 +1355,9 @@ function renderRev(){
   const c=document.getElementById('revcontent');
   const topics=revUsedTopics();
   const modes=[['all','All Due','📚'],['topic','By Topic','🏷️'],['random','Random','🎲'],['weakest','Weakest','🔥']];
-  let ctrls='<div class="card" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
+  let ctrls='<div class="card rev-ctrls" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
-    +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:18px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">'+m[2]+' '+m[1]+'</button>').join('')
+    +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:18px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;flex:1 1 calc(50% - 4px);">'+m[2]+' '+m[1]+'</button>').join('')
     +'</div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
   if(revCfg.mode==='topic'){
