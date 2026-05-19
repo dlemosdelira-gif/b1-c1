@@ -171,14 +171,14 @@ textarea{min-height:120px}
 .cbdg.on{display:flex}
 
 /* ── FLASHCARD ── */
-.fcard{background:#fff;border:1px solid #DDE3F5;border-radius:16px;min-height:220px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;text-align:center;cursor:pointer;transition:border-color .15s}
+.fcard{background:#fff;border:1px solid #DDE3F5;border-radius:16px;min-height:220px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;text-align:center;cursor:pointer;transition:border-color .15s;max-width:600px;margin:0 auto}
 .fcard:hover{border-color:#BFDBFE}
 .fhint{font-size:10px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
-.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.3;color:#0F172A}
+.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.5;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fword.bl{color:#1D4ED8}
-.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A}
+.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fblank{display:inline-block;background:#BFDBFE;border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
-.fex{font-size:12px;color:#475569;font-style:italic;margin-bottom:6px}
+.fex{font-size:12px;color:#475569;font-style:italic;margin-bottom:6px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .ftap{font-size:11px;color:#94A3B8}
 .rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .rb{padding:10px 6px;border-radius:10px;border:1px solid #DDE3F5;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center;background:#fff}
@@ -259,11 +259,11 @@ textarea{min-height:120px}
   .btn.bsm { min-height: 34px; }
   textarea, input[type=text] { font-size: 16px !important; }
   /* Mobile Flashcard Responsive */
-  .fcard{min-height:140px;padding:14px 12px;margin:8px 0;}
+  .fcard{min-height:140px;padding:14px 12px;margin:8px 0;max-width:100%;}
   .fhint{font-size:9px;margin-bottom:6px;}
-  .fword{font-size:16px;margin-bottom:8px;line-height:1.4;}
-  .fcloze{font-size:13px;margin-bottom:8px;line-height:1.5;}
-  .fex{font-size:11px;margin-bottom:4px;}
+  .fword{font-size:16px;margin-bottom:8px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
+  .fcloze{font-size:13px;margin-bottom:8px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
+  .fex{font-size:11px;margin-bottom:4px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
   .ftap{font-size:10px;}
   .rbtns{gap:6px;margin-top:8px;}
   .rb{padding:8px 4px;border-radius:8px;}
@@ -1338,16 +1338,25 @@ function navRev(dir){
 }
 function handleRev(q){
   const dv=due(),card=dv[flashIdx];if(!card)return;
+  const reviewedId=card.id;
   const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
   const i=cards.findIndex(c=>c.id===card.id);
   if(i>=0){cards[i].nextReview=date;cards[i].intervalIdx=intervalIdx;cards[i].easiness=easiness;}
-  saveCA();flipped=false;
-  setTimeout(()=>{
-    const nd=due();
-    if(nd.length===0){flashIdx=0;}
-    else if(flashIdx>=nd.length){flashIdx=nd.length-1;}
-    renderRev();render();
-  },150);
+  flipped=false;
+  const nd=due();
+  if(nd.length===0){
+    flashIdx=0;
+  }else{
+    const stillThereIdx=nd.findIndex(c=>c.id===reviewedId);
+    if(stillThereIdx>=0){
+      flashIdx=(stillThereIdx+1)%nd.length;
+    }else if(flashIdx>=nd.length){
+      flashIdx=0;
+    }
+  }
+  renderRev();
+  saveCA();
+  render();
 }
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
