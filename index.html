@@ -240,9 +240,13 @@ textarea{min-height:120px}
   .pg{padding:10px;gap:12px; width:100%;}
   .hdr{padding:10px 10px 0;}
   .hs-l { display: none; }
-  .hs-v { font-size: 16px; }
+  .hs-v { font-size: 15px; }
   .hst { gap: 14px; }
-  .logo-name { font-size: 13px; }
+  .logo-name { font-size: 12px; }
+  .logo-name span { font-size: 13px !important; }
+  .logo-sub { font-size: 17px; }
+  .nb { font-size: 17px; }
+  .nbdg { font-size: 17px; }
   .top-grid{grid-template-columns:1fr; gap:12px;}
   .rev-foot{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:8px;}
   .rev-cnt{width:100%;text-align:center;}
@@ -775,14 +779,17 @@ function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(active
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const due=()=>cards.filter(c=>c.nextReview<=today);
 let revCfg={mode:'all',topic:'',limit:20,random:10};
+let revSessionCache=null;
 try{const s=JSON.parse(localStorage.getItem('c1revcfg')||'null');if(s)revCfg=Object.assign(revCfg,s);}catch(e){}
 function saveRevCfg(){localStorage.setItem('c1revcfg',JSON.stringify(revCfg));}
 function revSession(){
+  if(revSessionCache)return revSessionCache;
   let pool=due();
   if(revCfg.mode==='topic'&&revCfg.topic){pool=pool.filter(c=>c.topic===revCfg.topic);}
   else if(revCfg.mode==='weakest'){pool=pool.slice().sort((a,b)=>(a.easiness||2.5)-(b.easiness||2.5));}
-  else if(revCfg.mode==='random'){pool=pool.slice().sort(()=>Math.random()-0.5);return pool.slice(0,Math.max(1,revCfg.random|0));}
-  return pool.slice(0,Math.max(1,revCfg.limit|0));
+  else if(revCfg.mode==='random'){pool=pool.slice().sort(()=>Math.random()-0.5);pool=pool.slice(0,Math.max(1,revCfg.random|0));revSessionCache=pool;return pool;}
+  const result=pool.slice(0,Math.max(1,revCfg.limit|0));
+  return result;
 }
 function wkDays(){
   const a=[],n=new Date(),dw=n.getDay(),m=new Date(n);
@@ -1339,10 +1346,10 @@ function confirmDel(){
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────────
-function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;saveRevCfg();renderRev();}
-function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;saveRevCfg();renderRev();}
-function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;saveRevCfg();renderRev();}}
-function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;saveRevCfg();renderRev();}}
+function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
+function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
+function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
+function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
 function revUsedTopics(){
   const s=new Set();
   cards.forEach(c=>{if(c.topic)s.add(c.topic);});
