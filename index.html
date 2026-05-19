@@ -1390,6 +1390,28 @@ function renderCards(){
       +'</div></div>';
   }).join('')+'</div>';
   el.innerHTML=h;
+  setupCardTextareas();
+}
+
+function setupCardTextareas(){
+  const tareas=['chkw','chex','chex2'];
+  tareas.forEach(id=>{
+    const ta=document.getElementById(id);
+    if(!ta)return;
+    const autoExpand=()=>{
+      ta.style.height='auto';
+      ta.style.height=Math.max(80,ta.scrollHeight)+'px';
+    };
+    ta.addEventListener('input',autoExpand);
+    ta.addEventListener('paste',(e)=>{
+      setTimeout(()=>{
+        const v=ta.value;
+        const cleaned=v.split('\n').map(line=>line.trim()).filter(line=>line).join('\n');
+        if(cleaned!==v){ta.value=cleaned;}
+        autoExpand();
+      },0);
+    });
+  });
 }
 
 // ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
