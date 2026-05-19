@@ -1338,16 +1338,25 @@ function navRev(dir){
 }
 function handleRev(q){
   const dv=due(),card=dv[flashIdx];if(!card)return;
+  const reviewedId=card.id;
   const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
   const i=cards.findIndex(c=>c.id===card.id);
   if(i>=0){cards[i].nextReview=date;cards[i].intervalIdx=intervalIdx;cards[i].easiness=easiness;}
-  saveCA();flipped=false;
-  setTimeout(()=>{
-    const nd=due();
-    if(nd.length===0){flashIdx=0;}
-    else if(flashIdx>=nd.length){flashIdx=nd.length-1;}
-    renderRev();render();
-  },150);
+  flipped=false;
+  const nd=due();
+  if(nd.length===0){
+    flashIdx=0;
+  }else{
+    const stillThereIdx=nd.findIndex(c=>c.id===reviewedId);
+    if(stillThereIdx>=0){
+      flashIdx=(stillThereIdx+1)%nd.length;
+    }else if(flashIdx>=nd.length){
+      flashIdx=0;
+    }
+  }
+  renderRev();
+  saveCA();
+  render();
 }
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
