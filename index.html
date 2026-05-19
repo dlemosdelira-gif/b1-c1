@@ -314,11 +314,11 @@ textarea{min-height:120px}
   .nb svg{width:17px;height:17px;}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 16px 0;}
-  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;align-items:end;gap:10px}
-  .chunk-form>div{display:flex;flex-direction:column;height:100%}
+  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;align-items:start;gap:10px}
+  .chunk-form>div{display:flex;flex-direction:column}
   .chunk-form>div label{margin-bottom:4px}
-  .chunk-form>div textarea{flex:1;min-height:80px}
-  .chunk-form button{align-self:end;min-height:42px;padding:10px 20px;white-space:nowrap}
+  .chunk-form>div textarea{min-height:80px;resize:vertical!important}
+  .chunk-form button{align-self:start;margin-top:22px;min-height:42px;padding:10px 20px;white-space:nowrap}
 }
 @media(min-width:1280px){
   .app{max-width:1200px;}
@@ -1398,17 +1398,18 @@ function setupCardTextareas(){
   tareas.forEach(id=>{
     const ta=document.getElementById(id);
     if(!ta)return;
-    const autoExpand=()=>{
-      ta.style.height='auto';
-      ta.style.height=Math.max(80,ta.scrollHeight)+'px';
+    const growIfNeeded=()=>{
+      if(ta.scrollHeight>ta.clientHeight){
+        ta.style.height=ta.scrollHeight+'px';
+      }
     };
-    ta.addEventListener('input',autoExpand);
+    ta.addEventListener('input',growIfNeeded);
     ta.addEventListener('paste',(e)=>{
       setTimeout(()=>{
         const v=ta.value;
         const cleaned=v.split('\n').map(line=>line.trim()).filter(line=>line).join('\n');
         if(cleaned!==v){ta.value=cleaned;}
-        autoExpand();
+        growIfNeeded();
       },0);
     });
   });
