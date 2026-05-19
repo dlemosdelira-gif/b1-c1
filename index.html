@@ -8,7 +8,7 @@
 <style>
 /* ── ESTILOS TÉCNICOS (RESPONSIVIDADE E CORES) ── */
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;color:#0F172A;font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh; -webkit-tap-highlight-color: transparent;}
+html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;color:#0F172A;font-family:'DM Sans',sans-serif;font-size:19px;min-height:100vh; -webkit-tap-highlight-color: transparent;}
 .app{width:100%; max-width:860px;margin:0 auto;padding-bottom:80px; overflow-x:hidden;}
 
 /* ── HEADER ── */
@@ -17,21 +17,21 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .logo{display:flex;align-items:center;gap:9px;min-width:0}
 .logo-ic{width:32px;height:32px;background:#2563EB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-ic svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
-.logo-name{font-size:14px;font-weight:600; white-space: nowrap;}
-.logo-sub{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px;margin-top:1px}
+.logo-name{font-size:19px;font-weight:600; white-space: nowrap;}
+.logo-sub{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px;margin-top:1px}
 .sdot{width:6px;height:6px;border-radius:50%;background:#16A34A;flex-shrink:0}
 .sdot.sy{background:#D97706;animation:pulse 1s infinite}
 .sdot.off{background:#DC2626}
 .hst{display:flex;gap:10px;flex-shrink:0}
 .hs{text-align:center}
-.hs-v{font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center}
-.hs-l{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
+.hs-v{font-size:19px;font-weight:600;display:flex;align-items:center;gap:2px;justify-content:center}
+.hs-l{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace}
 .nav{display:flex;width:100%; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;}
 .nav::-webkit-scrollbar { display: none; }
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:#94A3B8;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative; min-width: 65px;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px 10px;border:none;background:transparent;cursor:pointer;color:#94A3B8;font-family:'DM Sans',sans-serif;font-size:19px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;position:relative; min-width: 65px;}
 .nb svg{width:15px;height:15px}
 .nb.on{color:#2563EB;border-bottom-color:#2563EB}
-.nbdg{position:absolute;top:4px;right:4px;background:#DC2626;color:#fff;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:600;display:none}
+.nbdg{position:absolute;top:4px;right:4px;background:#DC2626;color:#fff;border-radius:10px;font-size:19px;padding:1px 5px;font-weight:600;display:none}
 .nbdg.on{display:block}
 
 /* ── PAGE LAYOUT ── */
@@ -39,39 +39,39 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .hid{display:none!important}
 .card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px; width:100%; overflow:hidden;}
 .csm{padding:11px 13px}
-.ctit{font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ctit{font-size:19px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .ctit svg{width:13px;height:13px;flex-shrink:0}
 
 /* ── DASHBOARD CARDS ── */
 .top-grid{display:grid;grid-template-columns:1.2fr 1fr 1.3fr;gap:10px; width:100%;}
 .flt{background:linear-gradient(135deg,#1E3A8A,#2563EB);border-radius:12px;padding:14px;color:#fff;}
-.flt-lbl{font-size:9px;letter-spacing:1.5px;font-family:'DM Mono',monospace;opacity:.7;margin-bottom:4px}
-.flt-h{font-size:26px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:2px;color:#fff}
-.flt-sub{font-size:11px;opacity:.7;margin-bottom:10px;color:#fff}
+.flt-lbl{font-size:19px;letter-spacing:1.5px;font-family:'DM Mono',monospace;opacity:.7;margin-bottom:4px}
+.flt-h{font-size:29px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:2px;color:#fff}
+.flt-sub{font-size:19px;opacity:.7;margin-bottom:10px;color:#fff}
 .flt-meta{display:flex;gap:12px;flex-wrap:wrap}
-.flt-mi{font-size:10px;color:rgba(255,255,255,.75)}
-.flt-mv{font-size:13px;font-weight:600;color:#fff;display:block}
+.flt-mi{font-size:19px;color:rgba(255,255,255,.75)}
+.flt-mv{font-size:19px;font-weight:600;color:#fff;display:block}
 
 .out-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px; width:100%; overflow:hidden;}
 .out-row{display:flex;flex-direction:column;gap:2px}
-.out-lbl{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace;letter-spacing:1px}
-.out-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace}
-.out-goal{font-size:10px;color:#94A3B8}
+.out-lbl{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace;letter-spacing:1px}
+.out-val{font-size:27px;font-weight:700;font-family:'DM Mono',monospace}
+.out-goal{font-size:19px;color:#94A3B8}
 .out-bar{height:4px;background:#E2E8F0;border-radius:4px;margin-top:4px;overflow:hidden}
 .out-fill{height:100%;border-radius:4px;transition:width .4s}
 .out-log{display:flex;align-items:center;gap:5px;margin-top:4px}
 
 .rm-card{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px; width:100%; overflow:hidden;}
 .rm-sel{display:grid;grid-template-columns:repeat(6,1fr);gap:3px; width:100%;}
-.rm-btn{padding:4px 2px;border-radius:6px;border:1px solid #DDE3F5;background:transparent;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:#475569;text-align:center;transition:all .15s;line-height:1.3}
+.rm-btn{padding:4px 2px;border-radius:6px;border:1px solid #DDE3F5;background:transparent;cursor:pointer;font-family:'DM Mono',monospace;font-size:19px;font-weight:600;color:#475569;text-align:center;transition:all .15s;line-height:1.3}
 .rm-btn:hover{border-color:#BFDBFE;background:#EFF6FF}
 .rm-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
 .rm-theme{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:8px;margin-top:2px}
-.rm-icon{font-size:16px;flex-shrink:0}
+.rm-icon{font-size:27px;flex-shrink:0}
 .rm-info{}
-.rm-ph{font-size:9px;font-weight:600;letter-spacing:1px;font-family:'DM Mono',monospace;margin-bottom:1px}
-.rm-name{font-size:12px;font-weight:600;color:#0F172A}
-.rm-desc{font-size:11px;color:#475569;line-height:1.4;margin-top:1px}
+.rm-ph{font-size:19px;font-weight:600;letter-spacing:1px;font-family:'DM Mono',monospace;margin-bottom:1px}
+.rm-name{font-size:19px;font-weight:600;color:#0F172A}
+.rm-desc{font-size:19px;color:#475569;line-height:1.4;margin-top:1px}
 
 /* ── HEATMAP ── */
 .hm-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; width:100%; padding-bottom:4px;}
@@ -81,18 +81,18 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .hm-c{width:11px;height:11px;border-radius:2px;background:#CBD5E1; flex-shrink:0;}
 .hm-c.l1{background:#93C5FD}.hm-c.l2{background:#3B82F6}.hm-c.l3{background:#2563EB}.hm-c.l4{background:#1D4ED8}
 .hm-months{display:flex;gap:3px;padding:0 0 3px}
-.hm-ml{font-size:9px;color:#94A3B8;font-family:'DM Mono',monospace}
+.hm-ml{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace}
 
 /* ── CHECKINS ── */
 .ci-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px; width:100%;}
 .ci-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 4px;border-radius:10px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;min-height:70px}
 .ci-btn.dn{background:#F0FDF4;border-color:#BBF7D0}
 .ci-btn.td{background:#EFF6FF;border-color:#BFDBFE}
-.ci-lbl{font-size:11px;color:#475569;font-weight:500}
+.ci-lbl{font-size:19px;color:#475569;font-weight:500}
 .ci-dot{width:22px;height:22px;border-radius:50%;border:2px solid #CBD5E1;display:flex;align-items:center;justify-content:center}
 .ci-dot.dn{background:#16A34A;border-color:#16A34A}
 .ci-dot svg{width:11px;height:11px;stroke:#fff;stroke-width:3}
-.tdtag{font-size:9px;color:#2563EB;font-family:'DM Mono',monospace}
+.tdtag{font-size:19px;color:#2563EB;font-family:'DM Mono',monospace}
 .pbar{height:5px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-top:8px}
 .pfil{height:100%;border-radius:4px;transition:width .4s;background:#16A34A}
 
@@ -101,12 +101,12 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .sc{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:12px 8px;text-align:center}
 .sc-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin:0 auto 5px}
 .sc-ic svg{width:13px;height:13px;stroke-width:2}
-.sc-v{font-size:17px;font-weight:700;margin-bottom:2px;color:#0F172A}
-.sc-l{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace}
+.sc-v{font-size:19px;font-weight:700;margin-bottom:2px;color:#0F172A}
+.sc-l{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace}
 
 /* ── BUTTONS & OTHERS ── */
 .alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid #DDE3F5;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:#fff;color:#475569}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid #DDE3F5;font-family:'DM Sans',sans-serif;font-size:19px;font-weight:500;cursor:pointer;transition:all .15s;background:#fff;color:#475569}
 .btn:hover{background:#F1F5F9}
 .btn:active{transform:scale(.97)}
 .btn svg{width:13px;height:13px;flex-shrink:0}
@@ -115,11 +115,11 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .bdn{background:#FEF2F2;color:#DC2626;border-color:#FECACA}
 .bpu{background:#F5F3FF;color:#7C3AED;border-color:#DDD6FE}
 .bte{background:#F0FDFA;color:#0D9488;border-color:#99F6E4}
-.bsm{padding:4px 10px;font-size:11px}
+.bsm{padding:4px 10px;font-size:19px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 
 /* ── TAGS & LESSONS ── */
-.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:inline-flex;align-items:center;font-weight:500}
+.tag{font-size:19px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;display:inline-flex;align-items:center;font-weight:500}
 .tgr{background:#F1F5F9;color:#475569;border:1px solid #DDE3F5}
 .tbl{background:#EFF6FF;color:#1D4ED8}
 .tpu{background:#F5F3FF;color:#7C3AED}
@@ -131,28 +131,28 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .lcard:hover{border-color:#BFDBFE}
 .lcard.on{background:#EFF6FF;border-color:#2563EB}
 .lcard.custom{border-left:3px solid #F97316}
-.ltit{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#0F172A}
-.ldsc{font-size:12px;color:#475569;line-height:1.5;margin-bottom:6px}
+.ltit{font-size:19px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#0F172A}
+.ldsc{font-size:19px;color:#475569;line-height:1.5;margin-bottom:6px}
 
 .pbox{border-radius:8px;padding:12px 14px;border-left:3px solid #2563EB;background:#EFF6FF;border:1px solid #BFDBFE}
 .pbox.m2{background:#F0FDF4;border-color:#BBF7D0;border-left-color:#16A34A}
 .pbox.m3{background:#F5F3FF;border-color:#DDD6FE;border-left-color:#7C3AED}
-.plbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;color:#2563EB}
+.plbl{font-size:19px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:4px;color:#2563EB}
 .pbox.m2 .plbl{color:#16A34A}.pbox.m3 .plbl{color:#7C3AED}
-.dbadge{font-size:10px;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;background:#EFF6FF;color:#1D4ED8}
+.dbadge{font-size:19px;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;background:#EFF6FF;color:#1D4ED8}
 .dbadge.m2{background:#F0FDF4;color:#16A34A}
 .dbadge.m3{background:#F5F3FF;color:#7C3AED}
 
 /* ── INPUTS ── */
-textarea,input[type=text]{width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;background:#F8FAFF;color:#0F172A;resize:vertical;transition:border-color .15s}
+textarea,input[type=text]{width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:19px;line-height:1.6;background:#F8FAFF;color:#0F172A;resize:vertical;transition:border-color .15s}
 textarea:focus,input[type=text]:focus{outline:none;border-color:#2563EB;background:#fff}
 textarea{min-height:120px}
 
 /* ── SHADOWING ── */
 .stimer{background:linear-gradient(135deg,#F5F3FF,#EFF6FF);border:1px solid #DDD6FE;border-radius:12px;padding:16px;text-align:center}
-.stdsp{font-size:40px;font-weight:700;font-family:'DM Mono',monospace;color:#7C3AED;margin:8px 0}
+.stdsp{font-size:44px;font-weight:700;font-family:'DM Mono',monospace;color:#7C3AED;margin:8px 0}
 .sttips{display:grid;gap:5px;text-align:left;margin-top:10px}
-.sttip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4}
+.sttip{display:flex;align-items:flex-start;gap:8px;font-size:19px;color:#475569;background:rgba(255,255,255,.8);padding:7px 10px;border-radius:8px;line-height:1.4}
 .lisbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FEF2F2;border-radius:8px;margin-bottom:8px}
 .pdot{width:8px;height:8px;border-radius:50%;background:#DC2626;animation:pulse 1s infinite}
 .tword{padding:1px 2px;border-radius:3px;display:inline}
@@ -163,28 +163,28 @@ textarea{min-height:120px}
 .mov{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal{background:#fff;border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
 .mhdr{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.mtit{font-size:15px;font-weight:600;color:#0F172A}
+.mtit{font-size:19px;font-weight:600;color:#0F172A}
 .mbdy{padding:0 16px 16px;display:grid;gap:12px}
 .mstep{display:flex;gap:10px;align-items:flex-start}
-.mnum{width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.cbdg{display:none;font-size:12px;color:#16A34A;font-weight:500;align-items:center;gap:4px}
+.mnum{width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.cbdg{display:none;font-size:19px;color:#16A34A;font-weight:500;align-items:center;gap:4px}
 .cbdg.on{display:flex}
 
 /* ── FLASHCARD ── */
 .fcard{background:#fff;border:1px solid #DDE3F5;border-radius:16px;min-height:220px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;text-align:center;cursor:pointer;transition:border-color .15s;max-width:600px;margin:0 auto}
 .fcard:hover{border-color:#BFDBFE}
-.fhint{font-size:10px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
-.fword{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.5;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.fhint{font-size:19px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
+.fword{font-size:27px;font-weight:700;margin-bottom:12px;line-height:1.5;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fword.bl{color:#1D4ED8;font-weight:600}
-.fcloze{font-size:16px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.fcloze{font-size:27px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fblank{display:inline-block;background:#BFDBFE;border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
-.fex{font-size:12px;color:#475569;font-style:italic;margin-bottom:6px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
-.ftap{font-size:11px;color:#94A3B8}
+.fex{font-size:19px;color:#475569;font-style:italic;margin-bottom:6px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.ftap{font-size:19px;color:#94A3B8}
 .rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .rb{padding:10px 6px;border-radius:10px;border:1px solid #DDE3F5;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center;background:#fff}
 .rb:active{transform:scale(.97)}
-.rbl{font-size:13px;font-weight:600;margin-bottom:2px}
-.rbs{font-size:10px;opacity:.75;font-family:'DM Mono',monospace}
+.rbl{font-size:19px;font-weight:600;margin-bottom:2px}
+.rbs{font-size:19px;opacity:.75;font-family:'DM Mono',monospace}
 .rb.hard{background:#FEF2F2;border-color:#FECACA;color:#DC2626}
 .rb.good{background:#FFFBEB;border-color:#FDE68A;color:#D97706}
 .rb.easy{background:#F0FDF4;border-color:#BBF7D0;color:#16A34A}
@@ -192,9 +192,9 @@ textarea{min-height:120px}
 .pdot2{flex:1;height:4px;border-radius:4px;background:#DDE3F5;transition:background .2s}
 .pdot2.dn{background:#16A34A}.pdot2.cu{background:#2563EB}
 .rev-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
-.rev-cnt{font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace}
+.rev-cnt{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace}
 .rev-nav{display:flex;gap:6px}
-.rnb{width:32px;height:32px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;font-size:14px;color:#475569;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.rnb{width:32px;height:32px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;font-size:19px;color:#475569;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .rnb:hover:not(:disabled){background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
 .rnb:disabled{opacity:.4;cursor:not-allowed}
 
@@ -203,8 +203,8 @@ textarea{min-height:120px}
 .citem{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;transition:all .15s;box-shadow:0 1px 2px rgba(15,23,42,.03)}
 .citem:hover{border-color:#BFDBFE;box-shadow:0 2px 8px rgba(37,99,235,.08)}
 .citem.due{border-color:#FECACA;background:#FEF2F2}
-.cisim{font-size:12px;color:#94A3B8;text-decoration:line-through}
-.cic1{font-size:13px;font-weight:600;color:#1D4ED8}
+.cisim{font-size:19px;color:#94A3B8;text-decoration:line-through}
+.cic1{font-size:19px;font-weight:600;color:#1D4ED8}
 .chunk-form{display:grid;gap:10px}
 .chunk-form input[type=text]{min-height:unset;height:42px;background:#fff;border-color:#BFDBFE}
 .chunk-form input[type=text]:focus{border-color:#2563EB;background:#fff}
@@ -212,19 +212,19 @@ textarea{min-height:120px}
 
 /* ── CORRECTIONS ── */
 .corr{border:1px solid #DDE3F5;border-radius:8px;overflow:hidden}
-.cwrong{padding:8px 12px;background:#FEF2F2;font-size:12px;color:#DC2626}
-.cright{padding:8px 12px;background:#F0FDF4;font-size:12px;color:#16A34A;font-weight:500}
-.cwhy{padding:8px 12px;font-size:12px;color:#475569;line-height:1.5}
+.cwrong{padding:8px 12px;background:#FEF2F2;font-size:19px;color:#DC2626}
+.cright{padding:8px 12px;background:#F0FDF4;font-size:19px;color:#16A34A;font-weight:500}
+.cwhy{padding:8px 12px;font-size:19px;color:#475569;line-height:1.5}
 .upitem{border:1px solid #DDE3F5;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;background:#fff}
 
 /* ── EMPTY ── */
 .empty{text-align:center;padding:32px 20px}
 .eico{width:48px !important;height:48px !important;max-width:48px;display:block;margin:0 auto 16px auto;color:#94A3B8}
-.etit{font-size:15px;font-weight:600;margin-bottom:6px;color:#0F172A}
-.esub{font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5}
+.etit{font-size:19px;font-weight:600;margin-bottom:6px;color:#0F172A}
+.esub{font-size:19px;color:#475569;margin-bottom:14px;line-height:1.5}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:30px;font-size:19px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap}
 .toast.on{opacity:1}
 
 /* ── UTILS ── */
@@ -233,7 +233,7 @@ textarea{min-height:120px}
 .g6{gap:6px}.g8{gap:8px}
 .mt8{margin-top:8px}.mt10{margin-top:10px}
 .gg{display:grid;gap:8px}
-.wc{font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace}
+.wc{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace}
 
 /* ── 📱 MEDIA QUERIES ── */
 @media(max-width:768px){
@@ -252,26 +252,26 @@ textarea{min-height:120px}
   .ci-btn { flex: 0 0 28%; min-width: 75px; }
   .stat-row{gap:8px}
   .sc { padding: 12px 4px; }
-  .sc-v{font-size:16px}
+  .sc-v{font-size:27px}
   .hm-c{width:10px;height:10px}
-  .flt-h{font-size:24px}
+  .flt-h{font-size:27px}
   .btn { min-height: 40px; justify-content: center; }
   .btn.bsm { min-height: 34px; }
   textarea, input[type=text] { font-size: 16px !important; }
   /* Mobile Flashcard Responsive */
   .fcard{min-height:140px;padding:14px 12px;margin:8px 0;max-width:100%;}
-  .fhint{font-size:9px;margin-bottom:6px;}
-  .fword{font-size:16px;margin-bottom:8px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
-  .fcloze{font-size:13px;margin-bottom:8px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
-  .fex{font-size:11px;margin-bottom:4px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
-  .ftap{font-size:10px;}
+  .fhint{font-size:19px;margin-bottom:6px;}
+  .fword{font-size:27px;margin-bottom:8px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
+  .fcloze{font-size:19px;margin-bottom:8px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
+  .fex{font-size:19px;margin-bottom:4px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}
+  .ftap{font-size:19px;}
   .rbtns{gap:6px;margin-top:8px;}
   .rb{padding:8px 4px;border-radius:8px;}
-  .rbl{font-size:12px;margin-bottom:1px;}
-  .rbs{font-size:9px;}
+  .rbl{font-size:19px;margin-bottom:1px;}
+  .rbs{font-size:19px;}
   .rev-foot{margin-top:8px;flex-wrap:wrap;}
-  .rev-cnt{font-size:10px;}
-  .rnb{width:28px;height:28px;font-size:12px;}
+  .rev-cnt{font-size:19px;}
+  .rnb{width:28px;height:28px;font-size:19px;}
   .pdots{margin-bottom:8px;gap:3px;}
   .pdot2{height:3px;}
   .chunk-form{grid-template-columns:1fr!important}
@@ -280,7 +280,7 @@ textarea{min-height:120px}
 
 /* ── IMPORT/EXPORT BUTTONS ── */
 .cards-actions{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.action-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .15s;color:#475569;position:relative}
+.action-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:19px;font-weight:500;transition:all .15s;color:#475569;position:relative}
 .action-btn:hover{background:#F1F5F9;border-color:#BFDBFE}
 .action-btn.imp{background:#F0FDFA;color:#0D9488;border-color:#99F6E4}
 .action-btn.exp{background:#FEF3C7;color:#B45309;border-color:#FCD34D}
@@ -289,7 +289,7 @@ textarea{min-height:120px}
 .import-export-modal{position:fixed;inset:0;background:rgba(15,23,42,.2);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
 .import-export-modal.open{display:flex}
 .import-dropdown{background:#fff;border:1px solid #DDE3F5;border-radius:10px;box-shadow:0 10px 30px rgba(15,23,42,.15);min-width:210px;overflow:hidden;max-width:100%}
-.import-dropdown-item{padding:12px 16px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:#475569;border-bottom:1px solid #EEF2FF;transition:all .15s;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.import-dropdown-item{padding:12px 16px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:19px;color:#475569;border-bottom:1px solid #EEF2FF;transition:all .15s;display:flex;align-items:center;gap:10px;white-space:nowrap}
 .import-dropdown-item:last-child{border-bottom:none}
 .import-dropdown-item:hover{background:#F8FAFF;color:#2563EB;font-weight:500}
 .import-dropdown-item svg{width:16px;height:16px;flex-shrink:0}
@@ -304,13 +304,13 @@ textarea{min-height:120px}
   .ci-row{gap:12px;}
   .ci-btn{min-height:84px;padding:14px 6px;}
   .sc{padding:16px 12px;}
-  .sc-v{font-size:20px;}
+  .sc-v{font-size:27px;}
   .hm-c{width:13px;height:13px;}
-  .flt-h{font-size:30px;}
+  .flt-h{font-size:33px;}
   .fcard{min-height:260px;padding:36px 28px;}
-  .fword{font-size:26px;}
-  .fcloze{font-size:18px;}
-  .nb{font-size:11px;padding:10px 6px 12px;}
+  .fword{font-size:29px;}
+  .fcloze{font-size:27px;}
+  .nb{font-size:19px;padding:10px 6px 12px;}
   .nb svg{width:17px;height:17px;}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 16px 0;}
@@ -326,31 +326,31 @@ textarea{min-height:120px}
   .cards-grid{grid-template-columns:repeat(3,1fr);}
 }
 .topic-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
-.sentence-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:13px;line-height:1.5;}
+.sentence-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:19px;line-height:1.5;}
 .sentence-item:hover{background:#EFF6FF;border-color:#BFDBFE;}
 .sentence-item.selected{background:#DBEAFE;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
 .sentence-text{flex:1;color:#0F172A;}
 .sentence-actions{display:flex;gap:6px;}
-.sentence-btn{background:none;border:none;color:#6B7280;cursor:pointer;padding:4px 6px;font-size:12px;transition:color 0.2s;}
+.sentence-btn{background:none;border:none;color:#6B7280;cursor:pointer;padding:4px 6px;font-size:19px;transition:color 0.2s;}
 .sentence-btn:hover{color:#EF4444;}
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;}
 .modal-content{background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
-.modal-title{font-size:16px;font-weight:600;margin-bottom:16px;color:#0F172A;}
-.modal-input{width:100%;padding:10px 12px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px;color:#0F172A;box-sizing:border-box;}
+.modal-title{font-size:27px;font-weight:600;margin-bottom:16px;color:#0F172A;}
+.modal-input{width:100%;padding:10px 12px;border:1px solid #DDE3F5;border-radius:8px;font-size:19px;font-family:inherit;margin-bottom:16px;color:#0F172A;box-sizing:border-box;}
 .modal-input:focus{outline:none;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
 .modal-buttons{display:flex;gap:8px;justify-content:flex-end;}
 .hid{display:none !important;}
-.month-card{background:#fff;border:2px solid #DDE3F5;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center;font-size:13px;line-height:1.4;color:#0F172A}
+.month-card{background:#fff;border:2px solid #DDE3F5;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;text-align:center;font-size:19px;line-height:1.4;color:#0F172A}
 .month-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
 .month-card.active{border-color:#2563EB;background:#EFF6FF;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-.month-emoji{font-size:24px;margin-bottom:6px}
+.month-emoji{font-size:27px;margin-bottom:6px}
 .month-name{font-weight:600;margin:6px 0}
-.month-phase{font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;margin:6px 0;display:inline-block}
+.month-phase{font-size:19px;font-weight:600;padding:4px 8px;border-radius:6px;margin:6px 0;display:inline-block}
 .phase1{background:#D1FAE5;color:#065F46}
 .phase2{background:#DBEAFE;color:#0C2340}
 .phase3{background:#FEDBA9;color:#92400E}
 .phase4{background:#EDD5FF;color:#5B21B6}
-.month-focus{font-size:11px;color:#6B7280;margin-top:6px;text-align:left}
+.month-focus{font-size:19px;color:#6B7280;margin-top:6px;text-align:left}
 .month-focus li{margin-left:14px}
 .progress-bar{width:100%;height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;margin:8px 0}
 .progress-fill{height:100%;background:#00a878;transition:width 0.3s}
@@ -358,15 +358,15 @@ textarea{min-height:120px}
 .milestone-item:hover{background:#EFF6FF;border-color:#BFDBFE}
 .milestone-item.completed{background:#D1FAE5;border-color:#6EE7B7;opacity:0.8}
 .milestone-item.completed .milestone-text{text-decoration:line-through;color:#6B7280}
-.milestone-checkbox{font-size:18px;flex-shrink:0}
-.milestone-text{flex:1;color:#0F172A;font-size:13px}
-.milestone-date{font-size:10px;color:#94A3B8;font-family:'DM Mono',monospace}
+.milestone-checkbox{font-size:27px;flex-shrink:0}
+.milestone-text{flex:1;color:#0F172A;font-size:19px}
+.milestone-date{font-size:19px;color:#94A3B8;font-family:'DM Mono',monospace}
 @media(max-width:768px){
   #roadmapContent{grid-template-columns:repeat(3,1fr);gap:10px}
 }
 @media(max-width:480px){
   #roadmapContent{grid-template-columns:repeat(2,1fr);gap:8px}
-  .month-card{padding:10px;font-size:12px}
+  .month-card{padding:10px;font-size:19px}
 }
 </style>
 </head>
@@ -378,7 +378,7 @@ textarea{min-height:120px}
     <div class="logo">
       <div class="logo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
-        <div class="logo-name">English C1 <span style="font-size:10px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v4.7</span></div>
+        <div class="logo-name">English C1 <span style="font-size:19px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">v4.7</span></div>
         <div class="logo-sub"><span class="sdot off" id="sdot"></span><span id="slbl">Local only</span></div>
       </div>
     </div>
@@ -405,8 +405,8 @@ textarea{min-height:120px}
     <div class="mbdy" style="overflow-y:auto">
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
-          <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
-          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:11px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
+          <div style="font-size:19px;font-weight:500;color:#0F172A;margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
+          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:19px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
             <span class="cbdg" id="cpbdg">✓ Copied!</span>
@@ -415,8 +415,8 @@ textarea{min-height:120px}
       </div>
       <div class="mstep"><div class="mnum">2</div>
         <div style="width:100%">
-          <div style="font-size:13px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
-          <textarea id="jsonin" style="min-height:120px;font-family:'DM Mono',monospace;font-size:11px;width:100%;box-sizing:border-box" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
+          <div style="font-size:19px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
+          <textarea id="jsonin" style="min-height:120px;font-family:'DM Mono',monospace;font-size:19px;width:100%;box-sizing:border-box" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
           <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
             <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>
             <button class="btn bpr bsm" onclick="processJSON()">⚡ Process Analysis</button>
@@ -431,10 +431,10 @@ textarea{min-height:120px}
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
     <div class="mbdy">
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div></div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
       <div class="fl g8" style="justify-content:flex-end">
         <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>
         <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>
@@ -447,11 +447,11 @@ textarea{min-height:120px}
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
     <div class="mbdy">
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff"></select></div><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
-      <div style="font-size:11px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>
+      <div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:19px;font-family:'DM Sans',sans-serif;background:#fff"></select></div><div><label style="font-size:19px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:19px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
+      <div style="font-size:19px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>
       <div class="fb" style="flex-wrap:wrap;gap:8px">
         <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
         <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
@@ -489,7 +489,7 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
-  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
+  <div style="padding:14px 0;font-size:19px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
   <div id="dashChecklistContainer">
     <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>
     <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('reading')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">📖 Reading</div></div></div></div>
@@ -497,14 +497,14 @@ textarea{min-height:120px}
     <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('writing')"><input type="checkbox" style="width:18px;height:18px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">✍️ Writing</div></div></div></div>
   </div>
 
-  <div style="padding:14px 0;font-size:15px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
+  <div style="padding:14px 0;font-size:19px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
   <div id="yearHeatmapContainer" class="card" style="padding:16px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
 </div>
 
 <div class="pg hid" id="pg-prac">
   <div class="card csm" style="background:#F8FAFF">
     <div class="fb">
-      <div style="font-size:12px;color:#475569;display:flex;align-items:center;gap:6px">
+      <div style="font-size:19px;color:#475569;display:flex;align-items:center;gap:6px">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:#2563EB">00:00</span>
       </div>
@@ -518,12 +518,12 @@ textarea{min-height:120px}
   <div id="promptbox" class="pbox">
     <div class="dbadge" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>
     <div class="plbl">Your Prompt</div>
-    <div id="activeprompt" style="font-size:13px;color:#0F172A;line-height:1.6"></div>
+    <div id="activeprompt" style="font-size:19px;color:#0F172A;line-height:1.6"></div>
   </div>
   
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">My Sentences</div>
+      <div style="font-size:19px;font-weight:600;color:#0F172A">My Sentences</div>
       <button class="btn bte bsm" onclick="openAddSentenceModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
       </button>
@@ -533,7 +533,7 @@ textarea{min-height:120px}
 
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Daily Activities</div>
+      <div style="font-size:19px;font-weight:600;color:#0F172A">🎯 Daily Activities</div>
       <button class="btn bte bsm" onclick="generateNewActivity()">Generate New</button>
     </div>
     <div id="activitiesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -541,13 +541,13 @@ textarea{min-height:120px}
 
   <div class="card">
     <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
+      <div style="font-size:19px;font-weight:600;color:#0F172A">Your Response</div>
       <button class="btn bsm" id="micbtn" onclick="toggleListen()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
       </button>
     </div>
-    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:12px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
-    <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;line-height:1.8;min-height:36px;color:#0F172A"></div>
+    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:19px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
+    <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:19px;line-height:1.8;min-height:36px;color:#0F172A"></div>
     <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
     <div class="fb mt8">
       <span class="wc" id="wcount">0 words</span>
@@ -560,18 +560,18 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg hid" id="pg-road">
-  <div class="fb"><div style="font-size:15px;font-weight:600;color:#0F172A">📅 Learning Roadmap</div></div>
+  <div class="fb"><div style="font-size:19px;font-weight:600;color:#0F172A">📅 Learning Roadmap</div></div>
   <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:0 14px"></div>
 </div>
 
 <div class="pg hid" id="pg-rev">
-  <div class="fb"><div style="font-size:15px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
+  <div class="fb"><div style="font-size:19px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
   <div id="revcontent"></div>
 </div>
 
 <div class="pg hid" id="pg-cards">
   <div class="fb">
-    <div style="font-size:15px;font-weight:600;color:#0F172A">My Cards</div>
+    <div style="font-size:19px;font-weight:600;color:#0F172A">My Cards</div>
   </div>
   <div id="cardslist"></div>
 </div>
@@ -877,7 +877,7 @@ function renderDash(){
       <div style="width:100%;box-sizing:border-box">
         <!-- Monthly Progress -->
         <div style="margin-bottom:20px;width:100%;box-sizing:border-box">
-          <div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:10px;white-space:nowrap">📊 ${monthNames[m]} Progress</div>
+          <div style="font-size:19px;font-weight:600;color:#0F172A;margin-bottom:10px;white-space:nowrap">📊 ${monthNames[m]} Progress</div>
           <div style="display:flex;gap:2px;height:70px;background:#F8FAFF;border-radius:8px;padding:10px;margin-bottom:10px;width:100%;overflow-x:auto">`;
 
     monthDays.slice(-14).forEach(day=>{
@@ -885,19 +885,19 @@ function renderDash(){
       const bg=day.count===0?'#E5E7EB':day.count<2?'#D1FAE5':day.count<3?'#6EE7B7':'#10B981';
       html+=`<div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;height:60px;width:25px" title="${day.key}: ${day.count}/4 tasks" onclick="editDayTasks('${day.key}')">
         <div style="width:18px;height:${h}px;background:${bg};border-radius:2px;cursor:pointer"></div>
-        <div style="font-size:7px;color:#94A3B8">${day.day}</div>
+        <div style="font-size:8px;color:#94A3B8">${day.day}</div>
       </div>`;
     });
 
     html+=`</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
             <div style="background:#F0FDF4;padding:10px;border-radius:8px;border-left:3px solid #10B981;text-align:center">
-              <div style="font-size:16px;font-weight:600;color:#16A34A">${monthDone}</div>
-              <div style="font-size:9px;color:#6B7280;margin-top:4px">Days active</div>
+              <div style="font-size:27px;font-weight:600;color:#16A34A">${monthDone}</div>
+              <div style="font-size:19px;color:#6B7280;margin-top:4px">Days active</div>
             </div>
             <div style="background:#EFF6FF;padding:10px;border-radius:8px;border-left:3px solid #2563EB;text-align:center">
-              <div style="font-size:16px;font-weight:600;color:#2563EB">${Math.round(monthDone/monthTotal*100)}%</div>
-              <div style="font-size:9px;color:#6B7280;margin-top:4px">Completion</div>
+              <div style="font-size:27px;font-weight:600;color:#2563EB">${Math.round(monthDone/monthTotal*100)}%</div>
+              <div style="font-size:19px;color:#6B7280;margin-top:4px">Completion</div>
             </div>
           </div>
         </div>
@@ -905,14 +905,14 @@ function renderDash(){
         <!-- Yearly Progress -->
         <div style="width:100%">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:600;color:#0F172A;white-space:nowrap">📅 Year Overview</div>
+            <div style="font-size:19px;font-weight:600;color:#0F172A;white-space:nowrap">📅 Year Overview</div>
             <div style="display:flex;gap:6px">
-              <button class="btn bsm" onclick="prevMonth()" style="padding:6px 10px;font-size:14px">←</button>
-              <div style="font-size:12px;font-weight:600;color:#0F172A;min-width:80px;text-align:center;padding:6px 8px">${monthNames[displayMonth]}</div>
-              <button class="btn bsm" onclick="nextMonth()" style="padding:6px 10px;font-size:14px">→</button>
+              <button class="btn bsm" onclick="prevMonth()" style="padding:6px 10px;font-size:19px">←</button>
+              <div style="font-size:19px;font-weight:600;color:#0F172A;min-width:80px;text-align:center;padding:6px 8px">${monthNames[displayMonth]}</div>
+              <button class="btn bsm" onclick="nextMonth()" style="padding:6px 10px;font-size:19px">→</button>
             </div>
           </div>
-          <div style="display:flex;gap:6px;margin-bottom:12px;font-size:10px;align-items:center;padding:10px;background:#F8FAFF;border-radius:6px;flex-wrap:wrap;width:100%">
+          <div style="display:flex;gap:6px;margin-bottom:12px;font-size:19px;align-items:center;padding:10px;background:#F8FAFF;border-radius:6px;flex-wrap:wrap;width:100%">
             <span style="color:#6B7280;font-weight:500">Less</span>
             <div style="width:12px;height:12px;background:#E5E7EB;border-radius:2px"></div>
             <div style="width:12px;height:12px;background:#D1FAE5;border-radius:2px"></div>
@@ -944,7 +944,7 @@ function renderDash(){
       const bg=levels[Math.min(c,4)];
       const isFuture=dt>new Date();
       const border=(key===today)?'3px solid #2563EB':'1px solid transparent';
-      html+=`<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:${bg};border:${border};border-radius:3px;cursor:pointer;opacity:${isFuture?'0.4':'1'};font-size:11px;color:#475569;font-weight:600;transition:all 0.2s" title="${key}: ${c}/4 tasks" onclick="editDayTasks('${key}')">${day}</div>`;
+      html+=`<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:${bg};border:${border};border-radius:3px;cursor:pointer;opacity:${isFuture?'0.4':'1'};font-size:19px;color:#475569;font-weight:600;transition:all 0.2s" title="${key}: ${c}/4 tasks" onclick="editDayTasks('${key}')">${day}</div>`;
     }
 
     html+=`</div></div></div>`;
@@ -1111,11 +1111,11 @@ function renderPrac(){
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
   // Month context
-  document.getElementById('pmctx').innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span class="tag tbl">'+m.ic+' Month '+m.n+': '+m.th+'</span><span style="font-size:12px;color:#94A3B8">'+ls.length+' lesson'+(ls.length!==1?'s':'')+'</span></div>';
+  document.getElementById('pmctx').innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span class="tag tbl">'+m.ic+' Month '+m.n+': '+m.th+'</span><span style="font-size:19px;color:#94A3B8">'+ls.length+' lesson'+(ls.length!==1?'s':'')+'</span></div>';
   // Lessons
   const ll=document.getElementById('lessonlist');ll.innerHTML='';
   if(ls.length===0){
-    ll.innerHTML='<div class="card" style="text-align:center;padding:20px"><p style="color:#475569;font-size:13px;margin-bottom:10px">No lessons for Month '+activeMonth+'.</p><button class="btn bte bsm" onclick="openM(\'mCL\')">Add Custom Lesson</button></div>';
+    ll.innerHTML='<div class="card" style="text-align:center;padding:20px"><p style="color:#475569;font-size:19px;margin-bottom:10px">No lessons for Month '+activeMonth+'.</p><button class="btn bte bsm" onclick="openM(\'mCL\')">Add Custom Lesson</button></div>';
   }else{
     ls.forEach(l=>{
       const div=document.createElement('div');
@@ -1131,7 +1131,7 @@ function renderPrac(){
         +'<div style="display:flex;gap:5px;flex-wrap:wrap">'+(l.tags||[]).map(t=>'<span class="tag tgr">'+t+'</span>').join('')+'</div></div>'
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'
         +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none" onclick="event.stopPropagation()"><input type="checkbox" '+(completed?'checked':'')+' onchange="toggleLessonComplete(\''+l.id+'\',this.checked)" style="width:16px;height:16px;cursor:pointer"><span style="font-size:11px;color:#6B7280;font-weight:500">Done</span></label>'
+        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none" onclick="event.stopPropagation()"><input type="checkbox" '+(completed?'checked':'')+' onchange="toggleLessonComplete(\''+l.id+'\',this.checked)" style="width:16px;height:16px;cursor:pointer"><span style="font-size:19px;color:#6B7280;font-weight:500">Done</span></label>'
         +'<a href="'+esc(l.url)+'" target="_blank" onclick="event.stopPropagation()" style="color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>'
         +'</div>'
         +(l.isCustom?'<button onclick="event.stopPropagation();delCustom(\''+l.id+'\')" style="background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
@@ -1246,9 +1246,9 @@ function processJSON(){
 function renderAnalysis(r){
   const lc={B1:'#D97706',B2:'#2563EB',C1:'#16A34A',C2:'#7C3AED'};
   let h='<div class="card fb" style="align-items:flex-start">'
-    +'<div><div style="font-size:11px;color:#94A3B8;margin-bottom:4px">Estimated Level</div>'
-    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+(lc[r.level_estimate]||'#2563EB')+'">'+(r.level_estimate||'—')+'</div></div>'
-    +'<div style="max-width:60%;text-align:right;font-size:13px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
+    +'<div><div style="font-size:19px;color:#94A3B8;margin-bottom:4px">Estimated Level</div>'
+    +'<div style="font-size:29px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+(lc[r.level_estimate]||'#2563EB')+'">'+(r.level_estimate||'—')+'</div></div>'
+    +'<div style="max-width:60%;text-align:right;font-size:19px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
   if(r.corrections?.length){
     h+='<div class="card"><div class="ctit"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="gg">';
     r.corrections.forEach(c=>{h+='<div class="corr"><div class="cwrong">✗ '+esc(c.original)+'</div><div class="cright">✓ '+esc(c.corrected)+'</div><div class="cwhy">'+esc(c.explanation)+'</div></div>';});
@@ -1260,10 +1260,10 @@ function renderAnalysis(r){
     r.c1_upgrades.forEach((u,i)=>{
       h+='<div class="upitem"><div style="flex:1">'
         +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">'
-        +'<span style="font-size:12px;color:#94A3B8;text-decoration:line-through">'+esc(u.simple)+'</span>'
+        +'<span style="font-size:19px;color:#94A3B8;text-decoration:line-through">'+esc(u.simple)+'</span>'
         +'<span style="color:#94A3B8">→</span>'
-        +'<span style="font-size:13px;font-weight:600;color:#1D4ED8">'+esc(u.c1)+'</span></div>'
-        +'<div style="font-size:12px;color:#475569;font-style:italic">"'+esc(u.example)+'"</div></div>'
+        +'<span style="font-size:19px;font-weight:600;color:#1D4ED8">'+esc(u.c1)+'</span></div>'
+        +'<div style="font-size:19px;color:#475569;font-style:italic">"'+esc(u.example)+'"</div></div>'
         +'<button class="btn bpr bsm" id="sub'+i+'" onclick="saveUpgrade('+i+')">'
         +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save</button></div>';
     });
@@ -1275,7 +1275,7 @@ function saveUpgrade(i){
   const u=pendingUpgrades[i];if(!u)return;
   saveCard(u.simple,u.c1,u.example,'upgrade');
   const b=document.getElementById('sub'+i);
-  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:11px;border-radius:8px;cursor:default';}
+  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:19px;border-radius:8px;cursor:default';}
 }
 
 // ── CARDS ─────────────────────────────────────────────────────────────────────
@@ -1350,18 +1350,18 @@ function renderRev(){
   const modes=[['all','All Due','📚'],['topic','By Topic','🏷️'],['random','Random','🎲'],['weakest','Weakest','🔥']];
   let ctrls='<div class="card" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
-    +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:11px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">'+m[2]+' '+m[1]+'</button>').join('')
+    +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:19px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">'+m[2]+' '+m[1]+'</button>').join('')
     +'</div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
   if(revCfg.mode==='topic'){
-    ctrls+='<select onchange="setRevTopic(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:12px;background:#fff;flex:1;min-width:160px;font-family:\'DM Sans\',sans-serif"><option value="">— Select topic —</option>'
+    ctrls+='<select onchange="setRevTopic(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:19px;background:#fff;flex:1;min-width:160px;font-family:\'DM Sans\',sans-serif"><option value="">— Select topic —</option>'
       +topics.map(t=>'<option value="'+esc(t)+'"'+(revCfg.topic===t?' selected':'')+'>'+esc(t)+'</option>').join('')
       +'</select>';
   }
   if(revCfg.mode==='random'){
-    ctrls+='<label style="font-size:11px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:12px;background:#fff;font-family:\'DM Mono\',monospace">';
+    ctrls+='<label style="font-size:19px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:19px;background:#fff;font-family:\'DM Mono\',monospace">';
   }
-  ctrls+='<label style="font-size:11px;color:#475569;margin-left:auto">Daily limit:</label><input type="number" min="1" max="500" value="'+revCfg.limit+'" onchange="setRevLimit(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:12px;background:#fff;font-family:\'DM Mono\',monospace">';
+  ctrls+='<label style="font-size:19px;color:#475569;margin-left:auto">Daily limit:</label><input type="number" min="1" max="500" value="'+revCfg.limit+'" onchange="setRevLimit(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:19px;background:#fff;font-family:\'DM Mono\',monospace">';
   ctrls+='</div></div>';
   if(allDue.length===0){c.innerHTML=ctrls+'<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>';return;}
   if(dv.length===0){c.innerHTML=ctrls+'<div class="card empty"><div class="etit">No cards match this filter</div><div class="esub">'+(revCfg.mode==='topic'&&!revCfg.topic?'Select a topic above.':'Try a different filter or add cards with this topic.')+'</div></div>';return;}
@@ -1373,10 +1373,10 @@ function renderRev(){
   let ch='';
   const navBtns='<div class="rev-nav"><button class="rnb" onclick="navRev(-1)" '+(dv.length<=1?'disabled':'')+' title="Previous">←</button><button class="rnb" onclick="navRev(1)" '+(dv.length<=1?'disabled':'')+' title="Next">→</button></div>';
   if(!flipped){
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:10px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:19px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }else{
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:10px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:12px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:19px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:19px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
       +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>'
       +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
   }
@@ -1420,35 +1420,35 @@ function renderCards(){
     +'<button class="action-btn exp" onclick="openExportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'
     +'</div>'
     +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:16px;margin-bottom:14px">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:10px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:19px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:19px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
     +'<div class="chunk-form">'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:13px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:13px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:13px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:19px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:19px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:19px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:19px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:19px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:19px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
     +'</div>'
     +'<div class="topic-row">'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
+    +'<div><label style="font-size:19px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:19px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
+    +'<div><label style="font-size:19px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:19px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
     +'</div>'
     +'<div style="margin-top:14px;padding:12px;background:#fff;border-radius:8px;border:1px solid #E5E7EB">'
-    +'<div style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Preview</div>'
+    +'<div style="font-size:19px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Preview</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    +'<div><div style="font-size:10px;color:#94A3B8;margin-bottom:4px">Front:</div><div id="chkwPreview" style="font-size:13px;color:#0F172A;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
-    +'<div><div style="font-size:10px;color:#94A3B8;margin-bottom:4px">Back:</div><div id="chexPreview" style="font-size:13px;color:#1D4ED8;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'<div><div style="font-size:19px;color:#94A3B8;margin-bottom:4px">Front:</div><div id="chkwPreview" style="font-size:19px;color:#0F172A;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'<div><div style="font-size:19px;color:#94A3B8;margin-bottom:4px">Back:</div><div id="chexPreview" style="font-size:19px;color:#1D4ED8;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
     +'</div>'
     +'</div>'
-    +'<button class="btn bpr" onclick="saveChunk()" style="width:100%;padding:12px 20px;font-size:14px;font-weight:600;margin-top:14px">💾 Save Card</button>'
+    +'<button class="btn bpr" onclick="saveChunk()" style="padding:12px 20px;font-size:19px;font-weight:600;margin-top:14px;display:block;margin-left:auto;margin-right:auto">💾 Save Card</button>'
     +'</div>';
   h+='<div class="cards-grid">'+cards.map(c=>{
     const id=c.nextReview<=today;
     return '<div class="citem'+(id?' due':'')+'"><div style="flex:1;min-width:0">'
       +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">'
-      +'<span class="cisim">'+esc(c.simple)+'</span><span style="color:#94A3B8;font-size:12px">→</span>'
-      +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+(c.topic?'<span class="tag tbl" style="font-size:10px;padding:2px 6px">'+esc(c.topic)+'</span>':'')+'</div>'
-      +(c.example?'<div style="font-size:12px;color:#475569;font-style:italic;margin:2px 0 5px;word-break:break-word">"'+esc(c.example)+'"</div>':'')
+      +'<span class="cisim">'+esc(c.simple)+'</span><span style="color:#94A3B8;font-size:19px">→</span>'
+      +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+(c.topic?'<span class="tag tbl" style="font-size:19px;padding:2px 6px">'+esc(c.topic)+'</span>':'')+'</div>'
+      +(c.example?'<div style="font-size:19px;color:#475569;font-style:italic;margin:2px 0 5px;word-break:break-word">"'+esc(c.example)+'"</div>':'')
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
       +'<span class="tag '+(id?'trd':'tgg')+'">'+(id?'Due today':'Next: '+c.nextReview)+'</span>'
-      +'<span style="font-size:10px;color:#94A3B8;font-family:\'DM Mono\',monospace">EF '+(c.easiness||2.5).toFixed(1)+'</span>'
+      +'<span style="font-size:19px;color:#94A3B8;font-family:\'DM Mono\',monospace">EF '+(c.easiness||2.5).toFixed(1)+'</span>'
       +'</div></div>'
       +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px">'
       +'<button onclick="openEdit(\''+c.id+'\')" title="Edit" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
@@ -1466,6 +1466,16 @@ function setupCardTextareas(){
     const back=document.getElementById('chex')?.value||'';
     document.getElementById('chkwPreview').innerHTML=formatText(front)||'<span style="color:#CBD5E1">—</span>';
     document.getElementById('chexPreview').innerHTML=formatText(back)||'<span style="color:#CBD5E1">—</span>';
+  };
+  const insertMarkdown=(ta,before,after)=>{
+    const start=ta.selectionStart,end=ta.selectionEnd;
+    const selected=ta.value.substring(start,end)||'text';
+    const newText=ta.value.substring(0,start)+before+selected+after+ta.value.substring(end);
+    ta.value=newText;
+    ta.selectionStart=start+before.length;
+    ta.selectionEnd=start+before.length+selected.length;
+    ta.focus();
+    updatePreview();
   };
   tareas.forEach(id=>{
     const ta=document.getElementById(id);
@@ -1485,6 +1495,11 @@ function setupCardTextareas(){
         growIfNeeded();
       },0);
     });
+    ta.addEventListener('keydown',(e)=>{
+      if(!e.ctrlKey&&!e.metaKey)return;
+      if(e.key==='b'||e.key==='B'){e.preventDefault();insertMarkdown(ta,'**','**');}
+      else if(e.key==='i'||e.key==='I'){e.preventDefault();insertMarkdown(ta,'*','*');}
+    });
   });
   updatePreview();
 }
@@ -1496,12 +1511,12 @@ function openM(id){
   document.getElementById(id).classList.remove('hid');
   if(id==='mCL'){
     selTags=[];
-    document.getElementById('cltaggrid').innerHTML=CTAGS.map(t=>'<button onclick="toggleTag(\''+t+'\',this)" style="padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:11px;font-family:\'DM Mono\',monospace;cursor:pointer;transition:all .15s;color:#475569">'+t+'</button>').join('');
+    document.getElementById('cltaggrid').innerHTML=CTAGS.map(t=>'<button onclick="toggleTag(\''+t+'\',this)" style="padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:19px;font-family:\'DM Mono\',monospace;cursor:pointer;transition:all .15s;color:#475569">'+t+'</button>').join('');
   }
 }
 function toggleTag(t,b){
-  if(selTags.includes(t)){selTags=selTags.filter(x=>x!==t);b.style.cssText='padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:11px;font-family:DM Mono,monospace;cursor:pointer;color:#475569';}
-  else{selTags.push(t);b.style.cssText='padding:4px 9px;border-radius:20px;border:none;background:#2563EB;color:#fff;font-size:11px;font-family:DM Mono,monospace;cursor:pointer';}
+  if(selTags.includes(t)){selTags=selTags.filter(x=>x!==t);b.style.cssText='padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:19px;font-family:DM Mono,monospace;cursor:pointer;color:#475569';}
+  else{selTags.push(t);b.style.cssText='padding:4px 9px;border-radius:20px;border:none;background:#2563EB;color:#fff;font-size:19px;font-family:DM Mono,monospace;cursor:pointer';}
 }
 function saveCustomLesson(){
   const tit=document.getElementById('cltit').value.trim(),url=document.getElementById('clurl').value.trim(),prom=document.getElementById('clprompt').value.trim();
@@ -1629,13 +1644,13 @@ function renderSentences(){
   if(!lst) return;
   lst.innerHTML = '';
   if(mysentences.length === 0){
-    lst.innerHTML = '<div style="color:#94A3B8;font-size:12px;padding:8px">Adicione suas primeiras frases</div>';
+    lst.innerHTML = '<div style="color:#94A3B8;font-size:19px;padding:8px">Adicione suas primeiras frases</div>';
     return;
   }
   mysentences.forEach((s,i)=>{
     const div = document.createElement('div');
     div.className = 'sentence-item' + (i === selectedSentenceIdx ? ' selected' : '');
-    const contextText = s.context ? `<div style="font-size:11px;color:#6B7280;margin-top:4px">${s.context}</div>` : '';
+    const contextText = s.context ? `<div style="font-size:19px;color:#6B7280;margin-top:4px">${s.context}</div>` : '';
     div.innerHTML = `<div style="flex:1"><div class="sentence-text">${s.text}</div>${contextText}</div><div class="sentence-actions"><button class="sentence-btn" onclick="openEditModal(${i})" title="Editar">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Deletar">🗑️</button></div>`;
     div.addEventListener('click',(e)=>{if(!e.target.closest('.sentence-btn')) selectSentence(i);});
     lst.appendChild(div);
@@ -1863,7 +1878,7 @@ function generateNewActivity(){
 
 function renderActivities(){
   const container=document.getElementById('activitiesContainer');
-  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:12px;padding:8px">Click "Generate New" to create an activity</div>';return;}
+  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:19px;padding:8px">Click "Generate New" to create an activity</div>';return;}
 
   let html='';
   activities.forEach(act=>{
@@ -1871,7 +1886,7 @@ function renderActivities(){
     const isPending=!act.answered;
 
     if(act.type==='multiple-choice'){
-      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.question}</div>
+      content=`<div style="font-size:19px;color:#0F172A;margin-bottom:8px">${act.question}</div>
         <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>{
           let bgc='transparent';
           let border='1px solid #DDE3F5';
@@ -1880,16 +1895,16 @@ function renderActivities(){
             else if(i===act.correct)bgc='#D1FAE5';
             else if(i===act.userAnswer)bgc='#FEE2E2';
           }
-          return `<label style="display:flex;gap:8px;cursor:${isPending?'pointer':'default'};font-size:12px;padding:8px;background:${bgc};border:${border};border-radius:6px" onclick="${isPending?`recordAnswer(${act.id},${i})`:''}">${isPending?`<input type="radio" name="q${act.id}">`:''} ${opt}</label>`;
+          return `<label style="display:flex;gap:8px;cursor:${isPending?'pointer':'default'};font-size:19px;padding:8px;background:${bgc};border:${border};border-radius:6px" onclick="${isPending?`recordAnswer(${act.id},${i})`:''}">${isPending?`<input type="radio" name="q${act.id}">`:''} ${opt}</label>`;
         }).join('')}</div>`;
     }else if(act.type==='cloze'){
-      content=`<div style="font-size:12px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
-        <input type="text" id="cloze${act.id}" placeholder="Type the missing word" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:12px" ${act.answered?'disabled':''} onkeyup="if(event.key==='Enter')recordClozeAnswer(${act.id})">`;
+      content=`<div style="font-size:19px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
+        <input type="text" id="cloze${act.id}" placeholder="Type the missing word" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:19px" ${act.answered?'disabled':''} onkeyup="if(event.key==='Enter')recordClozeAnswer(${act.id})">`;
     }else if(act.type==='true-false'){
-      content=`<div style="font-size:12px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
+      content=`<div style="font-size:19px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
         <div style="display:flex;gap:8px">
-          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},true)`:''}" style="flex:1;font-size:11px;background:${act.answered&&act.userAnswer===true&&act.correct?'#10B981':act.answered&&act.userAnswer===true?'#EF4444':''}${act.answered&&act.userAnswer===true?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✓ True</button>
-          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},false)`:''}" style="flex:1;font-size:11px;background:${act.answered&&act.userAnswer===false&&!act.correct?'#10B981':act.answered&&act.userAnswer===false?'#EF4444':''}${act.answered&&act.userAnswer===false?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✗ False</button>
+          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},true)`:''}" style="flex:1;font-size:19px;background:${act.answered&&act.userAnswer===true&&act.correct?'#10B981':act.answered&&act.userAnswer===true?'#EF4444':''}${act.answered&&act.userAnswer===true?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✓ True</button>
+          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},false)`:''}" style="flex:1;font-size:19px;background:${act.answered&&act.userAnswer===false&&!act.correct?'#10B981':act.answered&&act.userAnswer===false?'#EF4444':''}${act.answered&&act.userAnswer===false?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✗ False</button>
         </div>`;
     }
 
@@ -1897,16 +1912,16 @@ function renderActivities(){
     if(act.answered){
       const isCorrect=(act.type==='multiple-choice'?act.userAnswer===act.correct:act.type==='cloze'?act.userAnswer.toLowerCase()===act.blank.toLowerCase():act.userAnswer===act.correct);
       feedback=`<div style="margin-top:10px;padding:10px;border-radius:6px;background:${isCorrect?'#D1FAE5':'#FEE2E2'};border-left:4px solid ${isCorrect?'#10B981':'#EF4444'}">
-        <div style="font-size:12px;color:${isCorrect?'#047857':'#B91C1C'};font-weight:600">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div>
-        <div style="font-size:11px;color:#0F172A;margin-top:4px">${act.explanation}</div>
+        <div style="font-size:19px;color:${isCorrect?'#047857':'#B91C1C'};font-weight:600">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div>
+        <div style="font-size:19px;color:#0F172A;margin-top:4px">${act.explanation}</div>
       </div>`;
     }
 
     html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">
-      <div style="font-size:10px;color:#94A3B8;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">${act.type.replace('-',' ')} • C1</div>
+      <div style="font-size:19px;color:#94A3B8;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">${act.type.replace('-',' ')} • C1</div>
       ${content}
       ${feedback}
-      <button class="btn bsm" style="margin-top:10px;width:100%;font-size:11px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Dismiss</button>
+      <button class="btn bsm" style="margin-top:10px;width:100%;font-size:19px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Dismiss</button>
     </div>`;
   });
   container.innerHTML=html;
@@ -1953,7 +1968,7 @@ function buildRoadmap(){
     btn.innerHTML=`<div class="month-emoji">${ROADMAP_EMOJI[num]}</div>
       <div class="month-name">${m.lb}</div>
       <div class="month-phase phase${phase}">Phase ${phase}</div>
-      <div style="font-size:10px;color:#6B7280;margin:4px 0">${m.th}</div>
+      <div style="font-size:19px;color:#6B7280;margin:4px 0">${m.th}</div>
       <ul class="month-focus">${focusItems}</ul>`;
     btn.onclick=()=>{activeMonth=num;saveMO();goTab('prac');toast('📅 '+m.lb);renderDash();buildRoadmap();};
     rc.appendChild(btn);
@@ -1970,10 +1985,10 @@ function renderMonthProgress(){
   let color='#ff6b35';if(pct>30)color='#fbbf24';if(pct>70)color='#00a878';
 
   const html=`<div class="card" style="margin-bottom:14px">
-    <div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">📊 Month Progress</div>
-    <div style="font-size:12px;color:#6B7280;margin-bottom:8px">${completed} / ${total} lessons completed</div>
+    <div style="font-size:19px;font-weight:600;color:#0F172A;margin-bottom:12px">📊 Month Progress</div>
+    <div style="font-size:19px;color:#6B7280;margin-bottom:8px">${completed} / ${total} lessons completed</div>
     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
-    <div style="display:flex;gap:16px;font-size:12px;margin-top:10px">
+    <div style="display:flex;gap:16px;font-size:19px;margin-top:10px">
       <div><span style="font-weight:600;color:#0F172A">${daysActive}</span> days active</div>
       <div>Est. ${new Date(new Date().setDate(new Date().getDate()+Math.ceil((total-completed)*7/Math.max(daysActive,1)))).toLocaleDateString('pt-BR')}</div>
     </div>
@@ -2024,7 +2039,7 @@ function renderMilestones(){
     </div>
   `).join('');
   const msCard=document.querySelector('[data-card="milestones"]');
-  if(msCard)msCard.innerHTML='<div style="font-size:13px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
+  if(msCard)msCard.innerHTML='<div style="font-size:19px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
 }
 
 // ── CSV & ANKI IMPORT ─────────────────────────────────────────────────────────
@@ -2420,16 +2435,16 @@ function loadScript(src){
 }
 
 function showImportPreview(importedCards){
-  const preview=importedCards.slice(0,3).map(c=>`<div style="font-size:11px;padding:8px;background:#F0FDF4;border-radius:6px;margin-bottom:6px"><div style="font-weight:600;color:#0F172A">${esc(c.simple)}</div><div style="color:#94A3B8;margin-top:2px">→ ${esc(c.c1)}</div></div>`).join('');
+  const preview=importedCards.slice(0,3).map(c=>`<div style="font-size:19px;padding:8px;background:#F0FDF4;border-radius:6px;margin-bottom:6px"><div style="font-weight:600;color:#0F172A">${esc(c.simple)}</div><div style="color:#94A3B8;margin-top:2px">→ ${esc(c.c1)}</div></div>`).join('');
 
   const html=`<div class="modal">
     <div class="mhdr"><div class="mtit">📚 Import from Anki</div><button class="btn bsm" onclick="closeM('mAnkiImport')">✕</button></div>
     <div class="mbdy">
       <div style="padding:12px;background:#F0FDF4;border-radius:8px;margin-bottom:12px">
-        <div style="font-size:13px;font-weight:600;color:#16A34A">✓ ${ankiImportData.count} cards found</div>
-        <div style="font-size:11px;color:#16A34A;margin-top:6px">Ready to import your Anki deck</div>
+        <div style="font-size:19px;font-weight:600;color:#16A34A">✓ ${ankiImportData.count} cards found</div>
+        <div style="font-size:19px;color:#16A34A;margin-top:6px">Ready to import your Anki deck</div>
       </div>
-      <div style="font-size:11px;font-weight:600;color:#94A3B8;margin-bottom:6px;text-transform:uppercase">Preview:</div>
+      <div style="font-size:19px;font-weight:600;color:#94A3B8;margin-bottom:6px;text-transform:uppercase">Preview:</div>
       ${preview}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
         <button class="btn bte bsm" onclick="closeM('mAnkiImport')">Cancel</button>
