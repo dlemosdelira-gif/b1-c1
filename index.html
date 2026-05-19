@@ -2072,6 +2072,18 @@ async function handleAnkiImport(file){
   }
 }
 
+function cleanCardText(text){
+  if(!text)return'';
+  return text
+    .replace(/&nbsp;/g,'\n')
+    .replace(/<br\s*\/?>/gi,'\n')
+    .replace(/<[^>]*>/g,'')
+    .replace(/\n+/g,'\n')
+    .split('\n')
+    .map(line=>line.replace(/\s+/g,' ').trim())
+    .filter(line=>line.length>0)
+    .join('\n');
+}
 function handleAnkiXMLImport(xmlContent){
   try{
     if(!xmlContent||xmlContent.length<100){
@@ -2104,15 +2116,15 @@ function handleAnkiXMLImport(xmlContent){
       Array.from(notes).forEach(note=>{
         const fields=note.getElementsByTagName('field');
         if(fields.length>=2){
-          let front=(fields[0].textContent||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
-          let back=(fields[1].textContent||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+          let front=cleanCardText(fields[0].textContent||'');
+          let back=cleanCardText(fields[1].textContent||'');
 
           if(front.length>2&&back.length>2&&!seen.has(front)){
             seen.add(front);
             importedCards.push({
               id:''+Date.now()+Math.floor(Math.random()*100000),
-              simple:front.slice(0,100),
-              c1:back.slice(0,200),
+              simple:front,
+              c1:back,
               example:'',
               type:'chunk',
               nextReview:today,
@@ -2163,18 +2175,15 @@ function tryExtractCardsFromXMLText(xmlContent){
       const backMatch=cardXml.match(/<rich-text[^>]*name=['"]?Back['"]?[^>]*>[\s\S]*?<\/rich-text>/i);
 
       if(frontMatch&&backMatch){
-        let front=frontMatch[0].replace(/<[^>]*>/g,'').trim();
-        let back=backMatch[0].replace(/<[^>]*>/g,'').trim();
-
-        front=front.replace(/\s+/g,' ').trim();
-        back=back.replace(/\s+/g,' ').trim();
+        let front=cleanCardText(frontMatch[0].replace(/<[^>]*>/g,''));
+        let back=cleanCardText(backMatch[0].replace(/<[^>]*>/g,''));
 
         if(front.length>2&&back.length>2&&!seen.has(front)){
           seen.add(front);
           importedCards.push({
             id:''+Date.now()+Math.floor(Math.random()*100000),
-            simple:front.slice(0,100),
-            c1:back.slice(0,200),
+            simple:front,
+            c1:back,
             example:'',
             type:'chunk',
             nextReview:today,
@@ -2200,8 +2209,8 @@ function tryExtractCardsFromXMLStructure(xmlDoc){
   let candidatePairs=[];
 
   Array.from(allElements).forEach(el=>{
-    const text=(el.textContent||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
-    if(text.length>3&&text.length<300&&!text.includes('<?')){
+    const text=cleanCardText(el.textContent||'');
+    if(text.length>3&&text.length<1000&&!text.includes('<?')){
       candidatePairs.push(text);
     }
   });
@@ -2211,12 +2220,12 @@ function tryExtractCardsFromXMLStructure(xmlDoc){
     const front=candidatePairs[i];
     const back=candidatePairs[i+1];
 
-    if(front.length>3&&back.length>5&&back.length<300&&!seen.has(front)){
+    if(front.length>3&&back.length>5&&!seen.has(front)){
       seen.add(front);
       importedCards.push({
         id:''+Date.now()+Math.floor(Math.random()*100000),
-        simple:front.slice(0,100),
-        c1:back.slice(0,200),
+        simple:front,
+        c1:back,
         example:'',
         type:'chunk',
         nextReview:today,
@@ -2245,10 +2254,8 @@ function handleCSVImportContent(csvContent){
     const parts=line.split('\t').map(p=>p.trim());
     if(parts.length<2)return;
 
-    let simple=parts[0]||'';
-    let c1=parts[1]||'';
-    simple=simple.replace(/<[^>]*>/g,'').slice(0,100);
-    c1=c1.replace(/<[^>]*>/g,'').slice(0,200);
+    let simple=cleanCardText(parts[0]||'');
+    let c1=cleanCardText(parts[1]||'');
 
     if(simple.length>0&&c1.length>0&&!seen.has(simple)){
       seen.add(simple);
