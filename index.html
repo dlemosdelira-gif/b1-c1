@@ -314,6 +314,7 @@ textarea{min-height:120px}
   .nb svg{width:17px;height:17px;}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 16px 0;}
+  .topic-row{grid-template-columns:1fr 1fr!important}
   .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;align-items:start;gap:10px}
   .chunk-form>div{display:flex;flex-direction:column}
   .chunk-form>div label{margin-bottom:4px}
@@ -324,6 +325,7 @@ textarea{min-height:120px}
   .app{max-width:1200px;}
   .cards-grid{grid-template-columns:repeat(3,1fr);}
 }
+.topic-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
 .sentence-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:13px;line-height:1.5;}
 .sentence-item:hover{background:#EFF6FF;border-color:#BFDBFE;}
 .sentence-item.selected{background:#DBEAFE;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
@@ -1417,18 +1419,25 @@ function renderCards(){
     +'<button class="action-btn imp" onclick="openImportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>+ Import</button>'
     +'<button class="action-btn exp" onclick="openExportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'
     +'</div>'
-    +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:14px;margin-bottom:14px">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px;flex-wrap:wrap"><div style="color:#2563EB;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:10px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
+    +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:16px;margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:10px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
     +'<div class="chunk-form">'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
-    +'<button class="btn bpr" onclick="saveChunk()" style="padding:10px 20px;font-size:13px">Save Card</button>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:13px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:13px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:13px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
     +'</div>'
-    +'<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">'
-    +'<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
-    +'<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
+    +'<div class="topic-row">'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
     +'</div>'
+    +'<div style="margin-top:14px;padding:12px;background:#fff;border-radius:8px;border:1px solid #E5E7EB">'
+    +'<div style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Preview</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<div><div style="font-size:10px;color:#94A3B8;margin-bottom:4px">Front:</div><div id="chkwPreview" style="font-size:13px;color:#0F172A;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'<div><div style="font-size:10px;color:#94A3B8;margin-bottom:4px">Back:</div><div id="chexPreview" style="font-size:13px;color:#1D4ED8;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'</div>'
+    +'</div>'
+    +'<button class="btn bpr" onclick="saveChunk()" style="width:100%;padding:12px 20px;font-size:14px;font-weight:600;margin-top:14px">💾 Save Card</button>'
     +'</div>';
   h+='<div class="cards-grid">'+cards.map(c=>{
     const id=c.nextReview<=today;
@@ -1452,6 +1461,12 @@ function renderCards(){
 
 function setupCardTextareas(){
   const tareas=['chkw','chex','chex2'];
+  const updatePreview=()=>{
+    const front=document.getElementById('chkw')?.value||'';
+    const back=document.getElementById('chex')?.value||'';
+    document.getElementById('chkwPreview').innerHTML=formatText(front)||'<span style="color:#CBD5E1">—</span>';
+    document.getElementById('chexPreview').innerHTML=formatText(back)||'<span style="color:#CBD5E1">—</span>';
+  };
   tareas.forEach(id=>{
     const ta=document.getElementById(id);
     if(!ta)return;
@@ -1459,6 +1474,7 @@ function setupCardTextareas(){
       if(ta.scrollHeight>ta.clientHeight){
         ta.style.height=ta.scrollHeight+'px';
       }
+      updatePreview();
     };
     ta.addEventListener('input',growIfNeeded);
     ta.addEventListener('paste',(e)=>{
@@ -1470,6 +1486,7 @@ function setupCardTextareas(){
       },0);
     });
   });
+  updatePreview();
 }
 
 // ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
