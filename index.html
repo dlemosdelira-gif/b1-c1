@@ -448,7 +448,7 @@ textarea{min-height:120px}
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>
       <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:#fff"><option value="">No topic</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom...</option></select></div><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff"></select></div><div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:13px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
       <div style="font-size:11px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>
       <div class="fb" style="flex-wrap:wrap;gap:8px">
         <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
@@ -1298,8 +1298,11 @@ function openEdit(id){
   document.getElementById('ec_sim').value=c.simple||'';
   document.getElementById('ec_c1').value=c.c1||'';
   document.getElementById('ec_ex').value=c.example||'';
-  document.getElementById('ec_topic').value=c.topic||'';
-  document.getElementById('ec_custom').value='';
+  const sel=document.getElementById('ec_topic');
+  sel.innerHTML='<option value="">No topic</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom...</option>';
+  if(c.topic&&TOPICS.includes(c.topic)){sel.value=c.topic;document.getElementById('ec_custom').value='';}
+  else if(c.topic){sel.value='__custom__';document.getElementById('ec_custom').value=c.topic;}
+  else{sel.value='';document.getElementById('ec_custom').value='';}
   openM('mEC');
 }
 function saveEdit(){
