@@ -314,11 +314,10 @@ textarea{min-height:120px}
   .nb svg{width:17px;height:17px;}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 16px 0;}
-  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.5fr auto;align-items:end;gap:10px}
+  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;align-items:end;gap:10px}
   .chunk-form>div{display:flex;flex-direction:column;height:100%}
   .chunk-form>div label{margin-bottom:4px}
-  .chunk-form>div input{flex:1;min-height:42px}
-  .chunk-form>div textarea{flex:1;min-height:70px}
+  .chunk-form>div textarea{flex:1;min-height:80px}
   .chunk-form button{align-self:end;min-height:42px;padding:10px 20px;white-space:nowrap}
 }
 @media(min-width:1280px){
@@ -446,9 +445,10 @@ textarea{min-height:120px}
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
     <div class="mbdy">
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><input type="text" id="ec_sim"></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><input type="text" id="ec_c1"></div>
-      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:70px"></textarea></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>
+      <div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>
+      <div style="font-size:11px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>
       <div class="fb" style="flex-wrap:wrap;gap:8px">
         <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
         <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
@@ -1359,11 +1359,11 @@ function renderCards(){
     +'<button class="action-btn exp" onclick="openExportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'
     +'</div>'
     +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:14px;margin-bottom:14px">'
-    +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;color:#2563EB;font-size:13px;font-weight:600"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px;flex-wrap:wrap"><div style="color:#2563EB;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:10px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
     +'<div class="chunk-form">'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><input type="text" id="chkw" placeholder="Simple word or phrase" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box"></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><input type="text" id="chex" placeholder="C1 expression" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box"></div>'
-    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:70px;resize:vertical"></textarea></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:13px;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5"></textarea></div>'
     +'<button class="btn bpr" onclick="saveChunk()" style="padding:10px 20px;font-size:13px">Save Card</button>'
     +'</div></div>';
   h+='<div class="cards-grid">'+cards.map(c=>{
