@@ -235,6 +235,12 @@ textarea{min-height:120px}
 .gg{display:grid;gap:8px}
 .wc{font-size:14px;color:#94A3B8;font-family:'DM Mono',monospace}
 
+/* ── SCROLL TO TOP BUTTON ── */
+.scroll-top-btn{position:fixed;bottom:90px;right:16px;width:44px;height:44px;border-radius:50%;background:#2563EB;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,99,235,0.3);transition:all .3s;z-index:99;font-size:0}
+.scroll-top-btn:hover{transform:scale(1.1);box-shadow:0 6px 16px rgba(37,99,235,0.4)}
+.scroll-top-btn:active{transform:scale(0.95)}
+.scroll-top-btn svg{width:16px;height:16px;stroke:currentColor}
+
 /* ── 📱 MEDIA QUERIES ── */
 @media(max-width:768px){
   .pg{padding:10px;gap:12px; width:100%;}
@@ -596,6 +602,12 @@ textarea{min-height:120px}
   </div>
   <div id="cardslist"></div>
 </div>
+
+<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" style="display:none">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
 
 </div><script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -2545,6 +2557,21 @@ function importAnkiCards(){
   renderCards();
   closeM('mAnkiImport');
 }
+
+function scrollToTop(){
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateScrollButton(){
+  const btn=document.getElementById('scrollTopBtn');
+  if(window.scrollY>300){
+    btn.style.display='flex';
+  }else{
+    btn.style.display='none';
+  }
+}
+
+window.addEventListener('scroll',updateScrollButton);
 
 window.onload = function(){
   initApp();
