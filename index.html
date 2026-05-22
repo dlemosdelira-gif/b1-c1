@@ -2028,7 +2028,7 @@ function buildRoadmap(){
   if(!rc)return;
   rc.innerHTML='';
   MONTHS.forEach((m,i)=>{
-    const num=i+1,phase=ROADMAP_PHASES[num],bg=ROADMAP_COLORS[num];
+    const num=m.n,phase=ROADMAP_PHASES[num],bg=ROADMAP_COLORS[num];
     const btn=document.createElement('div');
     btn.className='month-card'+(activeMonth===num?' active':'');
     btn.style.borderColor=bg;
@@ -2039,7 +2039,7 @@ function buildRoadmap(){
       <div class="month-phase phase${phase}">Phase ${phase}</div>
       <div style="font-size:14px;color:#6B7280;margin:4px 0">${m.th}</div>
       <ul class="month-focus">${focusItems}</ul>`;
-    btn.onclick=()=>{activeMonth=num;saveMO();goTab('prac');toast('📅 '+m.lb);renderDash();buildRoadmap();};
+    btn.onclick=()=>{activeMonth=num;saveMO();goTab('prac');toast('📅 '+m.lb);renderDash();buildRoadmap();renderPrac();};
     rc.appendChild(btn);
   });
 }
