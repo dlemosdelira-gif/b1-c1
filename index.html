@@ -1557,9 +1557,10 @@ function dl(ct,fn,mt){const a=document.createElement('a');a.href=URL.createObjec
 // ── BOOT (UI FIRST, FIREBASE IN BACKGROUND) ───────────────────────────────────
 function initApp(){
   loadLocal();
-  setSS('offline'); 
+  setSS('offline');
   buildRoadmap();
   renderDash();
+  renderMilestones();
   render();
   initSesTimer();
 }
@@ -2022,17 +2023,56 @@ function toggleMilestone(id){
 }
 
 function renderMilestones(){
-  const html=Object.entries(milestones).map(([id,m])=>`
-    <div class="milestone-item${m.completed?' completed':''}" onclick="toggleMilestone('${id}')">
-      <div class="milestone-checkbox">${m.completed?'✅':'◯'}</div>
-      <div>
-        <div class="milestone-text">${m.name}</div>
-        ${m.completedDate?'<div class="milestone-date">✓ '+new Date(m.completedDate).toLocaleDateString('pt-BR')+'</div>':''}
+  // TOEFL Milestones system
+  const container = document.getElementById('milestonesContainer');
+  if (!container) return;
+
+  const TOEFL_MILESTONES = {
+    "maio": {month: 5, title: "✅ Foundations (Maio)", target: "Baseline assessment. Know weakest section.", desc: "Understand TOEFL format. Diagnostic test."},
+    "junho": {month: 6, title: "✅ Reading 18-20 | Listening 15-18 (Junho)", target: "65-75% accuracy in receptive skills", desc: "Build reading/listening foundation."},
+    "julho": {month: 7, title: "✅ Speaking Fluency (Julho)", target: "45-60s with examples. Est. 15-18/30", desc: "Master all 4 speaking tasks."},
+    "agosto": {month: 8, title: "✅ Writing Essays (Agosto)", target: "350+ words in 50 min. Est. 18-20/30", desc: "Strong essay structure & grammar."},
+    "setembro": {month: 9, title: "✅ Full Mocks 65-75 (Setembro)", target: "Complete 2 full tests. 65-75/120", desc: "Build endurance. Solidify strategies."},
+    "outubro": {month: 10, title: "✅ Final Push 70-80 (Outubro)", target: "Each section 20+/30. Total 70-80/120", desc: "Intensive weak section focus."},
+    "novembro": {month: 11, title: "✅ Polish 78-82 (Novembro)", target: "Consistent 78-82/120. Confidence 8/10", desc: "Vocabulary strong. Templates ready."},
+    "janeiro": {month: 1, title: "🎉 TOEFL 80+ EXAM (Janeiro)", target: "Official score: 80+ Target achieved!", desc: "Reading 22+, Listening 20+, Speaking 20+, Writing 22+"}
+  };
+
+  const stored = localStorage.getItem('toeflmilestones');
+  let completed = {};
+  if (stored) {
+    try { completed = JSON.parse(stored); } catch(e) {}
+  }
+
+  let html = '<div style="padding: 14px 0; font-size: 14px; font-weight: 600; color: #0F172A; margin-bottom: 12px;">🎯 TOEFL Milestones (8 meses até 80+)</div>';
+
+  Object.entries(TOEFL_MILESTONES).forEach(([key, m]) => {
+    const isCompleted = completed[key] === true;
+    const bgColor = isCompleted ? '#F0FDF4' : '#EFF6FF';
+    const borderColor = isCompleted ? '#16A34A' : '#2563EB';
+    const checkmark = isCompleted ? '✅' : '⏳';
+
+    html += `<div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;" onclick="toggleTOEFLMilestone('${key}')">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+        <span style="font-size: 16px;">${checkmark}</span>
+        <span style="font-weight: 600; color: #0F172A; flex: 1;">${m.title}</span>
       </div>
-    </div>
-  `).join('');
-  const msCard=document.querySelector('[data-card="milestones"]');
-  if(msCard)msCard.innerHTML='<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:12px">🏆 Milestones</div>'+html;
+      <div style="color: #475569; font-size: 13px; margin-left: 24px; margin-bottom: 2px;">📊 ${m.target}</div>
+      <div style="color: #6B7280; font-size: 12px; margin-left: 24px;">💡 ${m.desc}</div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleTOEFLMilestone(key) {
+  const stored = localStorage.getItem('toeflmilestones');
+  let completed = stored ? JSON.parse(stored) : {};
+
+  completed[key] = !completed[key];
+  localStorage.setItem('toeflmilestones', JSON.stringify(completed));
+  renderMilestones();
+  toast(completed[key] ? '🎉 Milestone completed!' : '⏳ Milestone unmarked');
 }
 
 // ── CSV & ANKI IMPORT ─────────────────────────────────────────────────────────
