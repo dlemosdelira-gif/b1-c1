@@ -1102,7 +1102,7 @@ function renderPrac(){
       div.className='lcard'+(activeLesson&&activeLesson.id===l.id?' on':'')+(l.isCustom?' custom':'')+(completed?' completed':'');
       div.style.background=completed?'linear-gradient(135deg,#F0FDF4,#E8F5E9)':'';
       div.style.borderColor=completed?'#86EFAC':'';
-      div.onclick=(e)=>{if(e.target.tagName==='INPUT')return;activeLesson=l;renderPrac();};
+      div.onclick=(e)=>{if(e.target.closest('label')&&e.target.tagName!=='A')return;activeLesson=l;renderPrac();};
       div.innerHTML='<div style="flex:1;min-width:0">'
         +'<div class="ltit">'+esc(l.title)+'<span class="tag tgr">'+esc(l.level||'C1')+'</span>'+(l.isCustom?'<span class="tag tcu">custom</span>':'')+
         (completed?'<span class="tag" style="background:#10B981;color:white;font-weight:600">✓ Done</span>':'')+'</div>'
@@ -1110,7 +1110,7 @@ function renderPrac(){
         +'<div style="display:flex;gap:5px;flex-wrap:wrap">'+(l.tags||[]).map(t=>'<span class="tag tgr">'+t+'</span>').join('')+'</div></div>'
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'
         +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" '+(completed?'checked':'')+' onchange="toggleLessonComplete(\''+l.id+'\',this.checked)" style="width:14px;height:14px;cursor:pointer"><span style="font-size:14px;color:#6B7280;font-weight:500">Done</span></label>'
+        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" data-lesson-id="'+l.id+'" '+(completed?'checked':'')+' style="width:14px;height:14px;cursor:pointer"><span style="font-size:14px;color:#6B7280;font-weight:500">Done</span></label>'
         +'<a href="'+esc(l.url)+'" target="_blank" onclick="event.stopPropagation()" style="color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>'
         +'</div>'
         +(l.isCustom?'<button onclick="event.stopPropagation();delCustom(\''+l.id+'\')" style="background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
@@ -1125,6 +1125,17 @@ function renderPrac(){
   db2.textContent=m.dl;
   ap.textContent=activeLesson?activeLesson.prompt:'Select a lesson above.';
   renderActivities();
+  // Add event delegation for checkbox changes
+  const ll=document.getElementById('lessonlist');
+  if(ll){
+    ll.addEventListener('change',(e)=>{
+      if(e.target.type==='checkbox' && e.target.dataset.lessonId){
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        toggleLessonComplete(e.target.dataset.lessonId, e.target.checked);
+      }
+    },true);
+  }
 }
 function onInput(){
   const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
