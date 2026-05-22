@@ -1004,7 +1004,7 @@ function toggleLessonComplete(lessonId,isCompleted){
   }
   localStorage.setItem('c1completed',JSON.stringify(completed));
   if(window.firebase&&RDR){
-    RDR.child('completed').set(completed).catch(()=>{});
+    RDR.set(completed).catch(()=>{});
   }
   renderPrac();
   toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
