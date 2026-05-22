@@ -992,20 +992,26 @@ function renderMeters(){
 // ── PRACTICE ──────────────────────────────────────────────────────────────────
 function isLessonCompleted(lessonId){
   const completed=JSON.parse(localStorage.getItem('c1completed')||'{}');
-  return completed[lessonId]||false;
+  console.log('isLessonCompleted:', lessonId, 'completed[lessonId]:', completed[lessonId], 'full obj:', completed);
+  return completed[lessonId]===true;
 }
 
 function toggleLessonComplete(lessonId,isCompleted){
+  console.log('toggleLessonComplete called:', lessonId, 'isCompleted:', isCompleted);
   const completed=JSON.parse(localStorage.getItem('c1completed')||'{}');
+  console.log('Before:', completed);
   if(isCompleted){
     completed[lessonId]=true;
   }else{
     delete completed[lessonId];
   }
+  console.log('After:', completed);
   localStorage.setItem('c1completed',JSON.stringify(completed));
+  console.log('Saved to localStorage:', localStorage.getItem('c1completed'));
   if(window.firebase&&RDR){
     RDR.child('completed').set(completed).catch(()=>{});
   }
+  console.log('About to call renderPrac');
   renderPrac();
   toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
 }
