@@ -515,7 +515,6 @@ textarea{min-height:120px}
 
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
   <div id="yearHeatmapContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
-<div id="milestonesContainer" style="margin-top: 20px; margin-bottom: 20px;"></div>
 
 </div>
 
@@ -532,6 +531,7 @@ textarea{min-height:120px}
     </div>
   </div>
   <div id="pmctx"></div>
+  <div id="weeklyActivitiesContainer"></div>
   <div id="lessonlist"></div>
   <div id="promptbox" class="pbox">
     <div class="dbadge" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>
@@ -1010,11 +1010,87 @@ function toggleLessonComplete(lessonId,isCompleted){
   toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
 }
 
+const TOEFL_WEEKLY_ACTIVITIES = {
+  5: {month: 5, title: "🌱 Month 1: Foundations (Maio)", weeks: [
+    {w: 1, focus: "📋 Test Format Mastery", tasks: ["Take official diagnostic (TOEFL practice test 1)", "Score each section (R/L/S/W)", "Identify weakest area (priority for July-Aug)"], checkpoint: "Know test structure, score breakdown"},
+    {w: 2, focus: "🎯 Goal Setting & Planning", tasks: ["Create study schedule (5-7 days/week)", "Set section targets: Reading 22+, Listening 20+, Speaking 20+, Writing 22+", "Join study group or find accountability partner"], checkpoint: "Clear roadmap for next 7 months"},
+    {w: 3, focus: "📚 Baseline Assessment", tasks: ["Analyze diagnostic weaknesses (reading speed? listening detail? speaking fluency?)", "Watch 2-3 official TOEFL videos on each section", "Review official TOEFL rubrics for Speaking/Writing"], checkpoint: "Know exact weak areas"},
+    {w: 4, focus: "🚀 Start Section Review", tasks: ["Read 1 official passage + 10 Q's (target 60%)", "Listen to 1 lecture + 6 Q's (target 50%)", "Record independent speaking task (task 1)"], checkpoint: "Feel the rhythm of exam"}
+  ]},
+  6: {month: 6, title: "📖 Month 2: Reading + Listening (Junho)", weeks: [
+    {w: 1, focus: "🔍 Reading Strategy: Skimming", tasks: ["Learn TOEFL reading format (2 passages, 10 Q each, 35 min)", "Practice skimming 3 passages (5 min each)", "Focus on main idea questions first"], checkpoint: "Time: 5-7 min per passage, 60%+ accuracy"},
+    {w: 2, focus: "📖 Reading Vocabulary & Inference", tasks: ["Extract 50 academic words from 3 passages", "Do 15 vocabulary-in-context questions", "Practice 10 inference questions"], checkpoint: "Know 50 new academic words"},
+    {w: 3, focus: "👂 Listening Part 1: Conversations", tasks: ["Complete 6 official conversations (3 min each)", "Take Cornell notes (main idea + key details)", "Identify question types: detail, inference, purpose"], checkpoint: "70%+ on conversation questions"},
+    {w: 4, focus: "🎓 Listening Part 2: Lectures", tasks: ["Complete 6 official lectures (5 min each)", "Focus on lecture structure (intro > main > examples)", "Practice 24 questions total"], checkpoint: "70%+ on lecture questions, good notes"}
+  ]},
+  7: {month: 7, title: "🎤 Month 3: Speaking Mastery (Julho)", weeks: [
+    {w: 1, focus: "🗣️ Task 1: Independent Speaking", tasks: ["Understand task 1 format (personal experience, 45s)", "Template: Intro (5s) + 2 detailed examples (20s) + conclusion (5s)", "Record 5 responses on different topics", "Self-assess: clear examples? natural pace?"], checkpoint: "45s response with 2 clear examples"},
+    {w: 2, focus: "💬 Tasks 2-4: Integrated Speaking", tasks: ["Understand integrated tasks (read passage > listen > speak 60s)", "Template: Paraphrase source + key point from lecture/reading", "Practice 3 complete sets of tasks 2-4", "Focus: smooth transitions, no fillers (um, like)"], checkpoint: "60s response with synthesis of 2 sources"},
+    {w: 3, focus: "🎙️ Pronunciation & Delivery", tasks: ["Record all 4 tasks (10 min total)", "Listen for: stress placement, intonation, connected speech", "Practice 10 minimal pairs (th, r/l, vowels)", "Record again - compare before/after"], checkpoint: "Natural delivery, clear pronunciation"},
+    {w: 4, focus: "🔥 Speaking Fluency Boot Camp", tasks: ["3x full mock (4 tasks back-to-back, 16 min each)", "Grade for: content (20%), fluency (20%), pronunciation (20%), delivery (40%)", "Self-score: aim for 15-18/30", "Record weakest task 3x for review"], checkpoint: "Confident 60s responses, minimal hesitation"}
+  ]},
+  8: {month: 8, title: "✍️ Month 4: Writing Mastery (Agosto)", weeks: [
+    {w: 1, focus: "📝 Task 1: Integrated Essay (Synthesis)", tasks: ["Learn task 1 format (read + listen + write, 20 min, 150-225 words)", "Essay structure: Intro + Body (3 paragraphs) + Conclusion", "Template: Reading says X, Lecture says Y, Connection is Z", "Write 3 essays from official materials"], checkpoint: "200+ word essay, clear synthesis"},
+    {w: 2, focus: "✏️ Task 2: Academic Discussion", tasks: ["Learn task 2 format (10 min, 100+ words, agree/disagree)", "Structure: Intro (opinion) + Body (2 reasons + examples) + Conclusion", "Practice writing 5 responses on different topics", "Grade for: opinion clarity, reason strength, example quality"], checkpoint: "150+ word response, clear position"},
+    {w: 3, focus: "🔧 Grammar & Sentence Variety", tasks: ["Check all 8 essays for: subject-verb agreement, tense consistency, article usage", "Add variety: complex sentences, compound sentences, transitions", "Count sentence types: write 50%+ complex sentences", "No repeated sentence starters"], checkpoint: "Error-free essay, varied syntax"},
+    {w: 4, focus: "⏱️ Timed Writing & Confidence", tasks: ["3x full writing section (2 essays, 50 min total)", "Task 1: 20 min for 200 words (no editing after)", "Task 2: 10 min for 150 words", "Grade both: Self-score 20-22/30"], checkpoint: "Complete both essays in time with 20+/30 score"}
+  ]},
+  9: {month: 9, title: "⏱️ Month 5: Full Mock Tests (Setembro)", weeks: [
+    {w: 1, focus: "🧪 Mock Test 1 (Full)", tasks: ["Complete one full TOEFL (Reading + Listening + Speaking + Writing, 3+ hours)", "Conditions: quiet, timed, no breaks (except official ones)", "Score all 4 sections (0-30 scale)", "Analyze: which questions did you rush?"], checkpoint: "Full test completed, baseline score 60-70"},
+    {w: 2, focus: "📊 Error Analysis & Focus Areas", tasks: ["Review mock 1: categorize errors (careless, unclear, too slow, knowledge gap)", "Identify pattern: are errors in one skill? one question type?", "Create focus list: top 5 weak areas", "Plan targeted drills for September"], checkpoint: "Clear action plan from mock 1"},
+    {w: 3, focus: "🎯 Mock Test 2 + Drills", tasks: ["Drill weakest area 3x before mock 2", "Complete mock test 2 (full, timed, same conditions)", "Score again - should see 3-5 point improvement", "Compare mock 1 vs 2: progress? still weak areas?"], checkpoint: "65-75/120 on mock 2"},
+    {w: 4, focus: "🔄 Refine Strategies", tasks: ["Take mock 3 (optional)", "Focus on: pacing (don't rush!), accuracy over speed", "Review top 10 errors across all mocks", "Solidify strategies: which study method works best?"], checkpoint: "Consistent score 65-75 across mocks"}
+  ]},
+  10: {month: 10, title: "🔥 Month 6: Final Push (Outubro)", weeks: [
+    {w: 1, focus: "📚 Listening Deep Dive", tasks: ["Take 3 full listening sections (3 days) with detailed note review", "Goal: 25+/30 on each (80%+ accuracy)", "Analyze: lecture vs conversation? main idea vs detail?", "If weak: drill that question type 20x before next mock"], checkpoint: "80%+ on listening questions"},
+    {w: 2, focus: "📖 Reading Speed + Accuracy", tasks: ["Take 3 full reading sections (timed 35 min)", "Goal: 25+/30 (80%+ accuracy)", "Track: which passages faster? which question types harder?", "Do vocabulary drills if vocabulary-in-context weak"], checkpoint: "Complete reading in time with 80%+ accuracy"},
+    {w: 3, focus: "🗣️ Speaking Confidence Boost", tasks: ["Record 2 full speaking sections (8 tasks total)", "Self-grade by rubric: aim for 23-24/30", "If weak: drill delivery/pronunciation until confident", "Practice responses to 20 new topics"], checkpoint: "Consistent 22-24/30 on speaking"},
+    {w: 4, focus: "✍️ Writing Polish", tasks: ["Write 4 essays under timed conditions", "Grade both task 1 & 2: aim for 23-24/30", "Proofread obsessively - each error costs 1-2 points", "Goal: 350+ words, error-free"], checkpoint: "Consistent 22-24/30 on writing"}
+  ]},
+  11: {month: 11, title: "✨ Month 7: Polish & Review (Novembro)", weeks: [
+    {w: 1, focus: "🔤 Vocabulary Final Push", tasks: ["Review 150+ academic words you learned", "Daily flashcard review: 30 min/day", "Goal: 90%+ recognition + usage", "Use new words in writing practice"], checkpoint: "Know 150+ academic words cold"},
+    {w: 2, focus: "📋 Essay Templates & Examples", tasks: ["Memorize strong essay templates for task 1 & 2", "Collect 10 powerful real-world examples", "Practice: can you write 350+ words in 30 min?", "Do 2 full writing sections"], checkpoint: "Templates & examples ready for exam"},
+    {w: 3, focus: "🎙️ Speaking Polish", tasks: ["Record 2 full speaking sections", "Focus: pronunciation, pace, examples", "Aim for 24-25/30", "Do 20 independent topics practice"], checkpoint: "Polished delivery, high confidence"},
+    {w: 4, focus: "🎯 Final Confidence Builder", tasks: ["Take 1 final full mock", "Goal: 78-82/120 (confirms readiness)", "Review any remaining weak spots", "Prep logistics: test center, photo ID, what to bring"], checkpoint: "Confidence 8/10, ready for January exam"}
+  ]},
+  1: {month: 1, title: "🎉 January: TOEFL Exam (Janeiro)", weeks: [
+    {w: 1, focus: "🗓️ Exam Logistics", tasks: ["Confirm test date, center location, time", "Prepare: passport/ID, admission ticket, calculator", "Light review only - trust 8 months of preparation", "Get good sleep"], checkpoint: "Ready for exam day"},
+    {w: 2, focus: "📝 Test Day - TOEFL 80+", tasks: ["Read all instructions carefully (2 min)", "Reading: 35 min, target 22+/30", "Listening: 41 min, target 20+/30", "Speaking: 16 min, target 20+/30 (fluent, clear)", "Writing: 50 min, target 22+/30 (error-free, 350+)"], checkpoint: "Complete all 4 sections, submit on time"},
+    {w: 3, focus: "🏆 Results & Reflection", tasks: ["Receive official TOEFL score (usually 2-3 days)", "If 80+: Celebrate! 🎉 Goal achieved!", "If <80: Identify weak areas, plan retake strategy", "Document: what worked? what to improve?"], checkpoint: "Official TOEFL iBT results"},
+    {w: 4, focus: "🎯 Next Steps", tasks: ["If 80+: Submit to universities, celebrate achievement", "If retake needed: Review 2-month intensive plan", "Share experience: help others on TOEFL journey", "Plan next English goal (C2? Business English?)"], checkpoint: "Next chapter begins"}
+  ]}
+};
+
+function renderWeeklyActivities(monthNum){
+  const data = TOEFL_WEEKLY_ACTIVITIES[monthNum];
+  const el = document.getElementById('weeklyActivitiesContainer');
+  if(!data || !el) return;
+
+  let html = '<div class="card" style="background:linear-gradient(135deg,#F0F9FF,#F5F3FF);border:1px solid #BFDBFE;margin-bottom:14px">';
+  html += '<div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:12px">'+data.title+'</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">';
+
+  data.weeks.forEach(wk => {
+    html += `<div style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px;font-size:13px;line-height:1.5">
+      <div style="font-weight:700;color:#1F2937;margin-bottom:6px;font-size:14px">Week ${wk.w}: ${wk.focus}</div>
+      <ul style="margin:0;padding-left:16px;color:#475569;margin-bottom:8px">
+        ${wk.tasks.slice(0,2).map(t => `<li style="margin-bottom:3px">${t}</li>`).join('')}
+      </ul>
+      <div style="border-top:1px solid #E5E7EB;padding-top:8px;color:#059669;font-weight:600;font-size:12px">✓ ${wk.checkpoint}</div>
+    </div>`;
+  });
+
+  html += '</div></div>';
+  el.innerHTML = html;
+}
+
 function renderPrac(){
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
   // Month context
   document.getElementById('pmctx').innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span class="tag tbl">'+m.ic+' Month '+m.n+': '+m.th+'</span><span style="font-size:14px;color:#94A3B8">'+ls.length+' lesson'+(ls.length!==1?'s':'')+'</span></div>';
+  // Render weekly activities for this month
+  renderWeeklyActivities(activeMonth);
   // Lessons
   const ll=document.getElementById('lessonlist');ll.innerHTML='';
   if(ls.length===0){
@@ -1560,7 +1636,6 @@ function initApp(){
   setSS('offline');
   buildRoadmap();
   renderDash();
-  renderMilestones();
   render();
   initSesTimer();
 }
@@ -1601,7 +1676,7 @@ function startSync(){
     RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
-    RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online'); renderMilestones();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
