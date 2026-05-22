@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>English C1 — v4.7 (X-Ray)</title>
+<title>TOEFL 80+ — Prep Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ── ESTILOS TÉCNICOS (RESPONSIVIDADE E CORES) ── */
@@ -438,405 +438,183 @@ textarea{min-height:120px}
       </div>
       <div class="mstep"><div class="mnum">2</div>
         <div style="width:100%">
-          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
-          <textarea id="jsonin" style="min-height:120px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>
-          <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
-            <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>
-            <button class="btn bpr bsm" onclick="processJSON()">⚡ Process Analysis</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>\n          <textarea id="jsonin" style="min-height:120px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='{"corrections":[...],"c1_upgrades":[...],"overall_feedback":"...","level_estimate":"B2"}'></textarea>\n          <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">\n            <button class="btn bsm" onclick="closeM('mAI')">Cancel</button>\n            <button class="btn bpr bsm" onclick="processJSON()">⚡ Process Analysis</button>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">\n  <div class="modal">\n    <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>\n    <div class="mbdy">\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div></div>\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>\n      <div class="fl g8" style="justify-content:flex-end">\n        <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>\n        <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class="mov hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">\n  <div class="modal">\n    <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>\n    <div class="mbdy">\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>\n      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>\n      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div><div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>\n      <div style="font-size:14px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>\n      <div class="fb" style="flex-wrap:wrap;gap:8px">\n        <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>\n        <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>\n      </div>\n    </div>\n  </div>\n</div>\n\n<div id="importModal" class="import-export-modal" onclick="if(event.target===this)closeImportModal()">\n  <div class="import-dropdown">\n    <div class="import-dropdown-item" onclick="document.getElementById('csvFileInput').click();closeImportModal()">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>\n      📊 CSV\n    </div>\n    <div class="import-dropdown-item" onclick="document.getElementById('ankiFileInput').click();closeImportModal()">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7M3 7l9-5 9 5"/></svg>\n      📚 Anki\n    </div>\n  </div>\n  <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCSVImport(this.files[0])">\n  <input type="file" id="ankiFileInput" accept=".zip,.apkg" style="display:none" onchange="handleAnkiImport(this.files[0])">\n</div>\n\n<div id="exportModal" class="import-export-modal" onclick="if(event.target===this)closeExportModal()">\n  <div class="import-dropdown">\n    <div class="import-dropdown-item" onclick="exportCSV();closeExportModal()">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>\n      📊 CSV\n    </div>\n    <div class="import-dropdown-item" onclick="exportAnki();closeExportModal()">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>\n      📚 Anki\n    </div>\n  </div>\n</div>\n\n<div class="pg" id="pg-dash">\n  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>\n  <div id="dashChecklistContainer">\n    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>\n    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('reading')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">📖 Reading</div></div></div></div>\n    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('listening')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎧 Listening</div></div></div></div>\n    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('writing')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">✍️ Writing</div></div></div></div>\n  </div>\n\n  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>\n  <div id="yearHeatmapContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>\n</div>\n\n<div class="pg hid" id="pg-prac">\n  <div class="card csm" style="background:#F8FAFF">\n    <div class="fb">\n      <div style="font-size:14px;color:#475569;display:flex;align-items:center;gap:6px">\n        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>\n        Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:#2563EB">00:00</span>\n      </div>\n      <button class="btn bte bsm" onclick="openM('mCL')">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom\n      </button>\n    </div>\n  </div>\n  <div id="pmctx"></div>\n  <div id="lessonlist"></div>\n  <div id="promptbox" class="pbox">\n    <div class="dbadge" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>\n    <div class="plbl">Your Prompt</div>\n    <div id="activeprompt" style="font-size:14px;color:#0F172A;line-height:1.6"></div>\n  </div>\n  \n  <div class="card">\n    <div class="fb" style="margin-bottom:10px">\n      <div style="font-size:14px;font-weight:600;color:#0F172A">My Sentences</div>\n      <button class="btn bte bsm" onclick="openAddSentenceModal()">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add\n      </button>\n    </div>\n    <div id="sentencesList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:200px;overflow-y:auto"></div>\n  </div>\n\n  <div class="card">\n    <div class="fb" style="margin-bottom:10px">\n      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Daily Activities</div>\n      <button class="btn bte bsm" onclick="generateNewActivity()">Generate New</button>\n    </div>\n    <div id="activitiesContainer" style="display:flex;flex-direction:column;gap:10px"></div>\n  </div>\n\n  <div class="card">\n    <div class="fb" style="margin-bottom:10px">\n      <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>\n      <button class="btn bsm" id="micbtn" onclick="toggleListen()">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak\n      </button>\n    </div>\n    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:14px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>\n    <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14px;line-height:1.8;min-height:36px;color:#0F172A"></div>\n    <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>\n    <div class="fb mt8" style="flex-wrap:wrap;gap:6px">\n      <span class="wc" id="wcount">0 words</span>\n      <div style="display:flex;gap:6px;flex-wrap:wrap">\n        <button class="btn bte" id="claudebtn" onclick="openInClaude()" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude\n        </button>\n        <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled>\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up\n        </button>\n      </div>\n    </div>\n  </div>\n  <div class="hid" id="anlres"></div>\n</div>\n\n<div class="pg hid" id="pg-road">\n  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A">📅 Learning Roadmap</div></div>\n  <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:0 14px"></div>\n</div>\n\n<div class="pg hid" id="pg-rev">\n  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>\n  <div id="revcontent"></div>\n</div>\n\n<div class="pg hid" id="pg-cards">\n  <div class="fb">\n    <div style="font-size:14px;font-weight:600;color:#0F172A">My Cards</div>\n  </div>\n  <div id="cardslist"></div>\n</div>\n\n<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" style="display:none">\n  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">\n    <polyline points="18 15 12 9 6 15"></polyline>\n  </svg>\n</button>\n\n</div><script>\n// ── DATA ──────────────────────────────────────────────────────────────────────\nlet checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth();\nlet activeMonth=5,activeLesson=null,curTab='dash';\nlet flashIdx=0,flipped=false,listening=false,recognition=null;\nlet shadowOn=false,shadowIv=null,shadowSecs=300;\nlet sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[];\nlet curText='';\nconst today=new Date().toISOString().split('T')[0];\nconst IVLS=[1,3,7,14,30,60,90];\nlet milestones={},monthProgress={};\nlet db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null;\n\n// ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────\nconst TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};\nlet dailyTasks={preply:false,reading:false,listening:false,writing:false};\nlet lessonStats={};\n\n// ── MONTHS ────────────────────────────────────────────────────────────────────\nconst MONTHS=[\n  {\n    n:5,lb:'May',th:'Foundations',ic:'🌱',ph:'Phase 1',\n    thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',\n    ds:'TOEFL familiarization, test format, baseline mock.',\n    sk:['Test Format','Note-Taking','Vocabulary (AWL)','Pacing'],\n    dl:'🌱 Month 1 — TOEFL Foundations (May)',\n    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.
+CURRENT MONTH (5): Foundations phase — TOEFL familiarization, test format, baseline mock.
 
-<div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
-  <div class="modal">
-    <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
-    <div class="mbdy">
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Title *</label><input type="text" id="cltit" placeholder="e.g. Lex Fridman — AI episode"></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">URL *</label><input type="text" id="clurl" placeholder="https://..."></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Category</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="cltaggrid"></div></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Study Prompt (optional)</label><textarea id="clprompt" style="min-height:70px" placeholder="What do you want to focus on?"></textarea></div>
-      <div class="fl g8" style="justify-content:flex-end">
-        <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>
-        <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>
-      </div>
-    </div>
-  </div>
-</div>
+Analyze the student's response using ETS TOEFL rubrics:\n- Delivery (Speaking): pronunciation, intonation, fluency\n- Language Use: grammar, vocabulary, accuracy\n- Topic Development: ideas, examples, coherence, organization\n- Overall proficiency estimate per section\n\nReturn ONLY valid JSON in this exact structure:\n{\n  \"diagnosis\": {\n    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},\n    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},\n    \"overall_estimate\": <0-120>\n  },\n  \"toefl_progress\": {\n    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},\n    \"status\": \"Below target|On track|Ahead\"\n  },\n  \"patterns\": {\n    \"recurring_errors\": [\"error 1\", \"error 2\"],\n    \"strengths\": [\"strength 1\", \"strength 2\"],\n    \"next_focus\": \"what to drill next\"\n  },\n  \"actionable\": {\n    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],\n    \"critical_fix\": \"one thing to fix immediately\"\n  },\n  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],\n  \"overall_feedback\": \"1-2 sentence summary\"\n}\n\nBe direct and specific. Student text: \"{{T}}\"\n'
+  },
+  {
+    n:6,lb:'Jun',th:'Reading + Listening',ic:'📖',ph:'Phase 1',
+    thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',
+    ds:'Academic reading strategies, intensive listening with note-taking.',
+    sk:['Skimming/Scanning','Inference','Note-Taking','Academic Vocab'],
+    dl:'📖 Month 2 — Reading & Listening Core (Jun)',
+    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.\nCURRENT MONTH (6): Reading + Listening phase — Academic reading strategies, intensive listening with note-taking.\n\nAnalyze the student's response using ETS TOEFL rubrics:
+- Delivery (Speaking): pronunciation, intonation, fluency
+- Language Use: grammar, vocabulary, accuracy
+- Topic Development: ideas, examples, coherence, organization
+- Overall proficiency estimate per section
 
-<div class="mov hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
-  <div class="modal">
-    <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
-    <div class="mbdy">
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="ec_sim" style="min-height:80px;resize:vertical"></textarea></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="ec_c1" style="min-height:80px;resize:vertical"></textarea></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="ec_ex" style="min-height:80px;resize:vertical"></textarea></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="ec_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div><div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="ec_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
-      <div style="font-size:14px;color:#94A3B8;padding:6px 10px;background:#F8FAFC;border-radius:6px;line-height:1.5">💡 Tip: Use <strong>**bold**</strong>, <strong>*italic*</strong>, and emojis 🎯 for richer cards</div>
-      <div class="fb" style="flex-wrap:wrap;gap:8px">
-        <button class="btn bdn bsm" onclick="confirmDel()">🗑 Delete</button>
-        <div class="fl g8"><button class="btn bsm" onclick="closeM('mEC')">Cancel</button><button class="btn bpr bsm" onclick="saveEdit()">Save Changes</button></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="importModal" class="import-export-modal" onclick="if(event.target===this)closeImportModal()">
-  <div class="import-dropdown">
-    <div class="import-dropdown-item" onclick="document.getElementById('csvFileInput').click();closeImportModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-      📊 CSV
-    </div>
-    <div class="import-dropdown-item" onclick="document.getElementById('ankiFileInput').click();closeImportModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7M3 7l9-5 9 5"/></svg>
-      📚 Anki
-    </div>
-  </div>
-  <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCSVImport(this.files[0])">
-  <input type="file" id="ankiFileInput" accept=".zip,.apkg" style="display:none" onchange="handleAnkiImport(this.files[0])">
-</div>
-
-<div id="exportModal" class="import-export-modal" onclick="if(event.target===this)closeExportModal()">
-  <div class="import-dropdown">
-    <div class="import-dropdown-item" onclick="exportCSV();closeExportModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      📊 CSV
-    </div>
-    <div class="import-dropdown-item" onclick="exportAnki();closeExportModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      📚 Anki
-    </div>
-  </div>
-</div>
-
-<div class="pg" id="pg-dash">
-  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
-  <div id="dashChecklistContainer">
-    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>
-    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('reading')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">📖 Reading</div></div></div></div>
-    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('listening')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎧 Listening</div></div></div></div>
-    <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('writing')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">✍️ Writing</div></div></div></div>
-  </div>
-
-  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
-  <div id="yearHeatmapContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
-</div>
-
-<div class="pg hid" id="pg-prac">
-  <div class="card csm" style="background:#F8FAFF">
-    <div class="fb">
-      <div style="font-size:14px;color:#475569;display:flex;align-items:center;gap:6px">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:#2563EB">00:00</span>
-      </div>
-      <button class="btn bte bsm" onclick="openM('mCL')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom
-      </button>
-    </div>
-  </div>
-  <div id="pmctx"></div>
-  <div id="lessonlist"></div>
-  <div id="promptbox" class="pbox">
-    <div class="dbadge" id="dbadge">📘 Month 1 — Grammar & Natural Vocab</div>
-    <div class="plbl">Your Prompt</div>
-    <div id="activeprompt" style="font-size:14px;color:#0F172A;line-height:1.6"></div>
-  </div>
-  
-  <div class="card">
-    <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">My Sentences</div>
-      <button class="btn bte bsm" onclick="openAddSentenceModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
-      </button>
-    </div>
-    <div id="sentencesList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:200px;overflow-y:auto"></div>
-  </div>
-
-  <div class="card">
-    <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Daily Activities</div>
-      <button class="btn bte bsm" onclick="generateNewActivity()">Generate New</button>
-    </div>
-    <div id="activitiesContainer" style="display:flex;flex-direction:column;gap:10px"></div>
-  </div>
-
-  <div class="card">
-    <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
-      <button class="btn bsm" id="micbtn" onclick="toggleListen()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
-      </button>
-    </div>
-    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:14px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
-    <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14px;line-height:1.8;min-height:36px;color:#0F172A"></div>
-    <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
-    <div class="fb mt8" style="flex-wrap:wrap;gap:6px">
-      <span class="wc" id="wcount">0 words</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn bte" id="claudebtn" onclick="openInClaude()" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
-        </button>
-        <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up
-        </button>
-      </div>
-    </div>
-  </div>
-  <div class="hid" id="anlres"></div>
-</div>
-
-<div class="pg hid" id="pg-road">
-  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A">📅 Learning Roadmap</div></div>
-  <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:0 14px"></div>
-</div>
-
-<div class="pg hid" id="pg-rev">
-  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
-  <div id="revcontent"></div>
-</div>
-
-<div class="pg hid" id="pg-cards">
-  <div class="fb">
-    <div style="font-size:14px;font-weight:600;color:#0F172A">My Cards</div>
-  </div>
-  <div id="cardslist"></div>
-</div>
-
-<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" style="display:none">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polyline points="18 15 12 9 6 15"></polyline>
-  </svg>
-</button>
-
-</div><script>
-// ── DATA ──────────────────────────────────────────────────────────────────────
-let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth();
-let activeMonth=5,activeLesson=null,curTab='dash';
-let flashIdx=0,flipped=false,listening=false,recognition=null;
-let shadowOn=false,shadowIv=null,shadowSecs=300;
-let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[];
-let curText='';
-const today=new Date().toISOString().split('T')[0];
-const IVLS=[1,3,7,14,30,60,90];
-let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null;
-
-// ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
-const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
-let dailyTasks={preply:false,reading:false,listening:false,writing:false};
-let lessonStats={};
-
-// ── MONTHS ────────────────────────────────────────────────────────────────────
-const MONTHS=[
-  {n:1,lb:'Jan',th:'Foundation',ic:'🌱',ph:'Phase 1',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'Build daily habits, natural vocabulary and grammatical precision.',sk:['Natural Grammar','Core Vocabulary','Sentence Mining','Daily Writing'],dc:'',dl:'📘 Month 1 — Grammar & Natural Vocab',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (1): Foundation grammar (basic tenses, word order, B1 connectors).\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":1,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:2,lb:'Feb',th:'Systems',ic:'⚙️',ph:'Phase 1',thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',ds:'Develop logical argumentation and technical language comprehension.',sk:['Logic & Structure','Technical Reading','Cause & Effect','Complex Sentences'],dc:'m2',dl:'⚙️ Month 2 — Logic & Technical Language',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (2): Logic and basic technical language (cause/effect, complex sentences).\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":2,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:3,lb:'Mar',th:'Argumentation',ic:'🎯',ph:'Phase 2',thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',ds:'Master rhetoric, hedging language and academic register at C1 level.',sk:['Hedging Language','Academic Register','Rhetoric','Nuance & Precision'],dc:'m3',dl:'🎯 Month 3 — Rhetoric & Hedging',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (3): Hedging and academic register (modal verbs, nuance B2+).\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":3,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:4,lb:'Apr',th:'Fluency',ic:'🚀',ph:'Phase 2',thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',ds:'Prioritize speaking speed, naturalness and spontaneous output.',sk:['Speed Speaking','Spontaneous Output','Idiomatic Language','Register Switching'],dc:'m3',dl:'🚀 Month 4 — Fluency & Idiomaticity',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (4): Fluency and naturalness (idiomatic phrasing, register switching).\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":4,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:5,lb:'May',th:'Deep Input',ic:'📖',ph:'Phase 2',thbg:'#FFFBEB',thbd:'#FDE68A',thco:'#D97706',ds:'Intensive native input across multiple registers.',sk:['Dense Listening','Speed Reading','Collocations','Discourse Markers'],dc:'m3',dl:'📖 Month 5 — Deep Input & Collocations',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (5): Foundation Fix — consolidate solid B2. Tenses, B2 connectors, natural phrases (not robotic). Learner is B1/B2.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":5,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:6,lb:'Jun',th:'Output',ic:'✍️',ph:'Phase 3',thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',ds:'Maximum writing output and structured speaking practice.',sk:['Essays 300+','Debate Practice','C1 Collocations','Speed Output'],dc:'m3',dl:'✍️ Month 6 — Output Sprint',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (6): Grammar & Logic — past perfect, conditionals, basic argumentation, B2+ register. Learner should be solid B2+.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":6,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:7,lb:'Jul',th:'Academic',ic:'🎓',ph:'Phase 3',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'Academic writing, citation language and formal register mastery.',sk:['Academic Writing','Hedging Mastery','Nominalization','Passive Constructions'],dc:'m3',dl:'🎓 Month 7 — Academic Register',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (7): Hedging & Academic Register — modals (might, could, tend to), nominalization, academic language C1-.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":7,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:8,lb:'Aug',th:'Gap Analysis',ic:'🔍',ph:'Phase 3',thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',ds:'Mid-year assessment and targeted weak-area improvement.',sk:['Self-Assessment','Error Patterns','Targeted Drilling','C1 Mock Tasks'],dc:'m3',dl:'🔍 Month 8 — Gap Analysis',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (8): Fluency & Spontaneity — natural speech, basic idioms, speed, output under pressure. C1-.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":8,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:9,lb:'Sep',th:'Precision',ic:'⚡',ph:'Phase 4',thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',ds:'Near-native precision in word choice, tone and register.',sk:['Near-native Tone','Connotation','Register Perfection','Nuance Control'],dc:'m3',dl:'⚡ Month 9 — Precision',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (9): C1 Output & Register Switching — formal essays, sophistication, formal vs informal register. C1.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":9,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:10,lb:'Oct',th:'C1 Mock',ic:'📋',ph:'Phase 4',thbg:'#FFFBEB',thbd:'#FDE68A',thco:'#D97706',ds:'Full C1-level practice tasks across all four skills.',sk:['C1 Writing Tasks','Long Turn Speaking','Complex Listening','C1 Vocabulary'],dc:'m3',dl:'📋 Month 10 — C1 Mock',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (10): Precision & Idiomaticity — precise word choice, C1 collocations, idioms, nuance. C1.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":10,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:11,lb:'Nov',th:'Consolidation',ic:'🏆',ph:'Phase 4',thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',ds:'Consolidate all C1 skills and build your portfolio.',sk:['Portfolio Review','Error-Free Writing','Natural Fluency','Final Polish'],dc:'m3',dl:'🏆 Month 11 — Consolidation',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (11): C1 Mock Sprint — evaluate like exam. Learner nearly ready for C1 certification.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":11,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-  {n:12,lb:'Dec',th:'C1 Achieved',ic:'🎉',ph:'Phase 4',thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',ds:'Final assessment, celebration and 2027 planning.',sk:['Final Assessment','2027 Planning','Portfolio Complete','Celebrate 🎉'],dc:'m3',dl:'🎉 Month 12 — C1 Achieved',ai:'You are an expert English coach for a Brazilian B1/B2 learner targeting C1 by December 2026.\nCURRENT MONTH (12): Final Polish & Consolidation — final C1 assessment. Learner completed B1→C1 journey.\n\nPerform a COMPREHENSIVE analysis. Return ONLY valid JSON in this exact structure:\n{\n  "diagnosis":{\n    "grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},\n    "vocabulary":{"score":<1-10>,"notes":"range assessment","gaps":["missing collocation 1","missing C1 word 2"]},\n    "fluency":{"score":<1-10>,"notes":"naturalness check","improvement":"specific tip"},\n    "register":{"score":<1-10>,"notes":"formality match","fix":"how to adjust"},\n    "c1_distance":{"score":<0-100>,"percentage":"X%","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"}\n  },\n  "patterns":{\n    "recurring_errors":["error pattern 1","error pattern 2","error pattern 3"],\n    "strengths":["strength 1","strength 2","strength 3"],\n    "bottleneck":"the ONE thing most limiting C1 progress"\n  },\n  "actionable":{\n    "next_3_days":["DAY 1: concrete task","DAY 2: concrete task","DAY 3: concrete task"],\n    "avoid":"specific pattern to stop doing",\n    "focus_skill":"which skill to drill now"\n  },\n  "roadmap_alignment":{\n    "current_month":12,\n    "status":"On track|Ahead|Behind",\n    "next_activity":"specific suggestion for tomorrow",\n    "recommendation":"one-sentence strategic advice"\n  },\n  "corrections":[{"original":"...","corrected":"...","explanation":"..."}],\n  "c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],\n  "overall_feedback":"2-3 sentence summary",\n  "level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"\n}\n\nBe honest, specific, and direct. Avoid generic praise. Provide 3-6 corrections and 4-8 c1_upgrades.\nStudent text: "{{T}}"'},
-];
-
-// ── LESSONS — B1→C1 Roadmap (May→December 2026) ──────────────────────────────
-// Practical lessons without textbook dependency — concrete, measurable activities
-const BL={
-
-  // ══ MONTH 5 — MAY: Foundation Fix (Solidify B2) ════════════════════════════
-  5:[
-    {id:'m5l1',month:5,title:'Week 1 — Daily Routine (200 words)',level:'B2',url:'#',tags:['Writing','Tenses'],desc:'Write 200 words describing your daily routine. Use present simple, present continuous, past simple, and past continuous. Underline each tense to track variety.',prompt:'Analyze this 200-word daily routine for tense accuracy and naturalness. Identify B1-level patterns and suggest B2/C1 upgrades.'},
-    {id:'m5l2',month:5,title:'Week 2 — Rewrite 5 B1→B2 Sentences',level:'B2',url:'#',tags:['Writing','Connectors'],desc:'Take 5 simple B1 sentences you use frequently and rewrite each as B2 using connectors: however, moreover, furthermore, although, despite. Show both versions side-by-side.',prompt:'Compare B1→B2 sentence rewrites. Evaluate connector usage, flow, and suggest more sophisticated alternatives.'},
-    {id:'m5l3',month:5,title:'Week 3 — Recording: "Why C1?" (90 seconds)',level:'B2',url:'#',tags:['Speaking','Motivation'],desc:'Record 90 seconds answering: "Why do you want to reach C1 English level?" No script. Transcribe what you said and submit the transcript.',prompt:'Analyze this spoken-then-transcribed text for natural speech patterns, hesitations, and fluency gaps. Suggest B2+ phrasing.'},
-    {id:'m5l4',month:5,title:'Week 4 — News Summary (150 words)',level:'B2',url:'#',tags:['Reading','Summarizing'],desc:'Choose an English news article (BBC, Guardian, NYT). Read and summarize in 150 words using your own words. Focus: understand complex arguments and paraphrase accurately.',prompt:'Evaluate this news summary for paraphrasing skill, vocabulary range, and accurate representation. Suggest B2+ collocations.'},
-  ],
-
-  // ══ MONTH 6 — JUNE: Grammar & Logic (Solid B2+) ═════════════════════════════
-  6:[
-    {id:'m6l1',month:6,title:'Week 1 — Professional Challenge (200 words)',level:'B2+',url:'#',tags:['Writing','Past Perfect','Conditionals'],desc:'Write 200 words about a professional challenge you overcame. REQUIRED: use past perfect (had + past participle) at least 2x and one 3rd conditional (If I had..., I would have...). Underline each structure.',prompt:'Analyze grammar precision in past perfect and conditionals. Flag any confusion. Suggest sophisticated argumentative structures.'},
-    {id:'m6l2',month:6,title:'Week 2 — Prepared Debate (3 min recording)',level:'B2+',url:'#',tags:['Speaking','Argumentation'],desc:'Choose a controversial topic (remote work, social media, AI). Prepare your position with 2 solid arguments. Record 3 minutes defending it. Transcribe the audio.',prompt:'Evaluate argumentative structure, logical connectors, and rhetorical effectiveness. Suggest C1-level argumentative phrases.'},
-    {id:'m6l3',month:6,title:'Week 3 — Email Rewrite (B1 robotic → B2 natural)',level:'B2+',url:'#',tags:['Writing','Register'],desc:'Take a formal email you wrote (request raise, complaint, etc.) in a robotic B1 style. Rewrite as natural B2. Show both versions side-by-side.',prompt:'Compare formal email versions. Evaluate register, naturalness, politeness markers. Suggest C1 phrasings.'},
-    {id:'m6l4',month:6,title:'Week 4 — Podcast Listening (2 min) + 10 new words',level:'B2+',url:'#',tags:['Listening','Vocabulary'],desc:'Choose a podcast episode. Listen to a specific 2-minute segment 2-3 times. List 10 new words/expressions with their context. Write 1 original sentence using each.',prompt:'Evaluate the 10 new words and self-created sentences for accurate usage and natural collocation. Flag incorrect contexts.'},
-  ],
-
-  // ══ MONTH 7 — JULY: Hedging & Academic Register (B2+ → C1-) ══════════════════
-  7:[
-    {id:'m7l1',month:7,title:'Week 1 — Technology & Work (250 words)',level:'C1-',url:'#',tags:['Writing','Hedging'],desc:'Write 250 words: "How will technology change work in the next 10 years?" REQUIRED: use at least 5 hedging expressions: might, could, tend to, arguably, presumably, it is likely that, one could say that.',prompt:'Evaluate hedging language. Identify over-confident statements needing softening. Suggest C1 academic hedging alternatives.'},
-    {id:'m7l2',month:7,title:'Week 2 — Add Hedging to Claims',level:'C1-',url:'#',tags:['Writing','Hedging'],desc:'Take 5 categorical statements (ex: "Men are better at math") and rewrite each with appropriate academic hedging. Show original + hedged version.',prompt:'Compare original vs hedged versions. Evaluate hedging sophistication and suggest more nuanced academic phrasings.'},
-    {id:'m7l3',month:7,title:'Week 3 — Spontaneous Opinion (2 min recording)',level:'C1-',url:'#',tags:['Speaking','Spontaneity'],desc:'Record 2 minutes sharing your opinion on a social topic (education, environment, etc.) WITHOUT A SCRIPT. Natural hesitations are OK. Transcribe everything.',prompt:'Analyze spontaneous speech for natural fillers, real-time hedging, and C1 register. Identify where planning would help.'},
-    {id:'m7l4',month:7,title:'Week 4 — Academic Abstract + 3 Questions',level:'C1-',url:'#',tags:['Reading','Academic'],desc:'Read an academic paper abstract (Google Scholar). Answer 3 questions in 100 words: (1) What is the hypothesis? (2) What method was used? (3) What are the conclusions?',prompt:'Evaluate academic comprehension and paraphrasing of scholarly language. Identify vocabulary gaps and suggest C1 collocations.'},
-  ],
-
-  // ══ MONTH 8 — AUGUST: Fluency & Spontaneity (C1-) ════════════════════════════
-  8:[
-    {id:'m8l1',month:8,title:'Week 1 — Unexpected Question (2-3 min recording)',level:'C1-',url:'#',tags:['Speaking','Fluency'],desc:'Ask a colleague to ask you an UNEXPECTED question about your professional field. Record 2-3 minutes answering unpreparedly. Transcribe the response.',prompt:'Analyze spontaneous speech under pressure. Evaluate fluency, hesitations, lexical retrieval speed, and improvisation. Identify stuck moments.'},
-    {id:'m8l2',month:8,title:'Week 2 — Your Biggest Error (300 words)',level:'C1-',url:'#',tags:['Writing','Self-Reflection'],desc:'Write 300 words honestly: "What is your biggest English error and why does it persist?" Self-reflection required — don\'t write the obvious. Be real.',prompt:'Evaluate depth of self-reflection and ability to articulate complex personal patterns. Flag if writing sounds natural or rehearsed.'},
-    {id:'m8l3',month:8,title:'Week 3 — Shadowing Podcast (3 min)',level:'C1-',url:'#',tags:['Speaking','Pronunciation'],desc:'Choose a native podcast (Lex Fridman, This American Life, etc.). Shadow 3 minutes (repeat while listening). Record 1 minute of your shadowing. Transcribe.',prompt:'Evaluate shadowing transcript for pronunciation accuracy, intonation match, and natural rhythm. Identify sounds needing practice.'},
-    {id:'m8l4',month:8,title:'Week 4 — Speed Writing (150x2 in 20 min)',level:'C1-',url:'#',tags:['Writing','Speed'],desc:'Choose 2 different topics. Write 150 words on each in 20 minutes total. Focus: SPEED of production, not perfection. Complete both topics.',prompt:'Evaluate writing under time pressure. Compare structural quality between both texts. Identify shortcuts and suggest C1 patterns for speed.'},
-  ],
-
-  // ══ MONTH 9 — SEPTEMBER: C1 Output & Register Switching (C1) ═════════════════
-  9:[
-    {id:'m9l1',month:9,title:'Week 1 — Formal Argumentative Essay (350 words)',level:'C1',url:'#',tags:['Writing','Essay','Formal'],desc:'Choose a topic (ex: "Should universities be free?"). Write 350 words in formal academic essay format: intro, 2 body paragraphs, conclusion. Use clear topic sentences and academic linkers.',prompt:'Evaluate as C1 academic essay: thesis clarity, paragraph cohesion, formal register, structure range. Provide C1/C2 score and areas for C2.'},
-    {id:'m9l2',month:9,title:'Week 2 — Rewrite as Blog Post (informal register)',level:'C1',url:'#',tags:['Writing','Register'],desc:'Take the Week 1 essay and rewrite in INFORMAL BLOG TONE. Same content, completely different register. Show both versions (formal + informal).',prompt:'Compare formal essay vs informal blog versions. Evaluate register-switching skill, idiomatic informal English, argumentative quality.'},
-    {id:'m9l3',month:9,title:'Week 3 — Business Pitch (3 min recording)',level:'C1',url:'#',tags:['Speaking','Persuasion'],desc:'Create a fictional business idea. Record 3 minutes of persuasive pitch (as if seeking investment). Structure: problem → solution → market → differentiator → ask.',prompt:'Evaluate persuasive structure, business English vocabulary, delivery confidence, rhetorical devices. Suggest C1 business idioms.'},
-    {id:'m9l4',month:9,title:'Week 4 — Structured Debate (30 min)',level:'C1',url:'#',tags:['Speaking','Debate'],desc:'Conduct a 30-minute debate with a colleague on a controversial topic. Focus: quick rebuttals, defend with hedging, refute elegantly. Record and extract 3 min for analysis.',prompt:'Evaluate debate excerpt for argumentative agility, refutation techniques, handling counterarguments at C1 level.'},
-  ],
-
-  // ══ MONTH 10 — OCTOBER: Precision & Idiomaticity (C1) ═══════════════════════
-  10:[
-    {id:'m10l1',month:10,title:'Week 1 — Brazil vs Country X (300 words)',level:'C1',url:'#',tags:['Writing','Connotation'],desc:'Write 300 words: "The biggest cultural difference between Brazil and [choose country]." Focus: CONNOTATION PRECISION — avoid generic words, choose each adjective carefully.',prompt:'Evaluate word choice precision and connotation accuracy. Flag neutral words where connotation-loaded words would be powerful. Suggest C1 alternatives.'},
-    {id:'m10l2',month:10,title:'Week 2 — 20 Collocations + 20 Sentences',level:'C1',url:'#',tags:['Vocabulary','Collocations'],desc:'From recent reading, extract 20 new collocations (ex: "raise concerns", "fall short of"). Write 1 original sentence per collocation. Record 5 of them spoken naturally.',prompt:'Evaluate collocation accuracy and sentence naturalness. Flag unnatural usages and suggest more idiomatic variants.'},
-    {id:'m10l3',month:10,title:'Week 3 — Synonyms with Connotation',level:'C1',url:'#',tags:['Vocabulary','Nuance'],desc:'Pick 5 common words (happy, sad, big, small, important). List 5 synonyms each with DIFFERENT connotations. Write 1 sentence showing correct connotation per synonym.',prompt:'Evaluate synonym choices and connotation accuracy in context. Flag misuse of connotation and suggest precise alternatives.'},
-    {id:'m10l4',month:10,title:'Week 4 — Polarizing Debate (3 min recording)',level:'C1',url:'#',tags:['Speaking','Nuance'],desc:'Record 3 minutes on a polarizing topic (abortion, guns, politics). Demonstrate NUANCE, not radicalism. Use hedging, acknowledge other side, show complexity. Transcribe.',prompt:'Evaluate nuanced opinion on polarizing topic. Score hedging quality, acknowledgment of opposing views, sophistication. Flag black-and-white statements.'},
-  ],
-
-  // ══ MONTH 11 — NOVEMBER: C1 Mock Sprint (C1 Ready) ═════════════════════════════
-  11:[
-    {id:'m11l1',month:11,title:'Week 1 — Timed Essay (45 min / 350 words)',level:'C1',url:'#',tags:['Mock Exam','Writing'],desc:'Exam simulation: 45 minutes to write 350 words of formal argumentative essay. No heavy revision. Topic given on the spot. Time yourself strictly.',prompt:'Evaluate using FCE/CAE criteria: Content (5), Communicative Achievement (5), Organization (5), Language (5). Provide individual scores and C1/C2 estimate.'},
-    {id:'m11l2',month:11,title:'Week 2 — Technical Presentation + Q&A (5+5 min)',level:'C1',url:'#',tags:['Mock Exam','Speaking'],desc:'Present a technical work topic in 5 minutes (recorded). Colleague then asks 5 minutes of unexpected questions. Record both. Transcribe everything.',prompt:'Evaluate technical presentation and spontaneous Q&A at C1 level. Score vocabulary range, fluency, accuracy, interaction skills.'},
-    {id:'m11l3',month:11,title:'Week 3 — 2 Academic Articles (30 min timed)',level:'C1',url:'#',tags:['Mock Exam','Reading'],desc:'In 30 minutes: read 2 different academic articles and write 150-word summary for each. Focus: fast synthesis and accuracy under time pressure.',prompt:'Evaluate reading comprehension under time pressure. Score accuracy of synthesis, paraphrasing skill, academic register in summaries.'},
-    {id:'m11l4',month:11,title:'Week 4 — Mock Debate (10 min, opposite position)',level:'C1',url:'#',tags:['Mock Exam','Debate'],desc:'Take a position you DISAGREE with and defend it for 10 minutes in a debate. Record critical 3 min. Focus: genuine argumentation from a disagreed position.',prompt:'Evaluate ability to argue from a disagreed position. Score sophistication, conviction, language flexibility under intellectual challenge.'},
-  ],
-
-  // ══ MONTH 12 — DECEMBER: Final Polish & C1 Consolidation ═════════════════════
-  12:[
-    {id:'m12l1',month:12,title:'Week 1 — Re-record Best 3 (Sept/Oct)',level:'C1',url:'#',tags:['Consolidation','Speaking'],desc:'Select your 3 best recordings from Months 9-10. Re-record each applying all feedback received. Compare before & after. Transcribe new versions.',prompt:'Compare improvement between original and re-recorded versions. Identify successfully integrated feedback and remaining gaps.'},
-    {id:'m12l2',month:12,title:'Week 2 — Portfolio: 5 Best Texts',level:'C1',url:'#',tags:['Consolidation','Portfolio'],desc:'Compile your 5 best texts from the year (250-350 words each). Revise each applying everything learned. Create "My C1 Portfolio 2026" document.',prompt:'Evaluate portfolio as body of work: range, consistency, growth trajectory, overall C1 readiness. Identify strongest piece and why.'},
-    {id:'m12l3',month:12,title:'Week 3 — C1 Self-Assessment Checklist',level:'C1',url:'#',tags:['Consolidation','Self-Assessment'],desc:'Write 250 words honestly: use a C1 checklist (CEFR descriptors) and rate yourself on Grammar, Vocabulary, Fluency, Register, Pronunciation. Don\'t be polite — be real.',prompt:'Evaluate self-assessment accuracy. Does learner see themselves clearly? Compare self-rating with actual text quality. Identify blind spots.'},
-    {id:'m12l4',month:12,title:'Week 4 — Final Recording: "My B1→C1 Journey"',level:'C1',url:'#',tags:['Consolidation','Reflection'],desc:'Record 3-5 minutes reflecting on your B1→C1 journey in the past 8 months. What changed? What\'s still hard? Next steps? Transcribe.',prompt:'Final assessment: evaluate reflection as C1 sample. Provide final C1/C2 estimate. Identify growth markers and remaining gaps.'},
-  ],
-};
-
-
-// ── SM-2 ──────────────────────────────────────────────────────────────────────
-function nxtRev(q,idx=0,ef=2.5){
-  const INTERVALS=[1,3,7,14,30,60,90];
-  let newEf=Math.max(1.3,ef+0.1-(5-q)*(0.08+(5-q)*0.02));
-  let newIdx=idx;
-  let days=1;
-
-  if(q<3){
-    days=1;
-  }else if(q===3){
-    days=3;
-    newIdx=Math.min(idx+1,INTERVALS.length-1);
-  }else if(q===5){
-    days=7;
-    newIdx=Math.min(idx+2,INTERVALS.length-1);
-  }else if(q===7){
-    days=15;
-    newIdx=Math.min(idx+3,INTERVALS.length-1);
-  }
-
-  const d=new Date();
-  d.setDate(d.getDate()+days);
-  d.setHours(0,0,0,0);
-  return{date:d.toISOString().split('T')[0],intervalIdx:newIdx,easiness:newEf};
+Return ONLY valid JSON in this exact structure:
+{
+  \"diagnosis\": {
+    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},
+    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},
+    \"overall_estimate\": <0-120>
+  },
+  \"toefl_progress\": {
+    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},
+    \"status\": \"Below target|On track|Ahead\"
+  },
+  \"patterns\": {
+    \"recurring_errors\": [\"error 1\", \"error 2\"],
+    \"strengths\": [\"strength 1\", \"strength 2\"],
+    \"next_focus\": \"what to drill next\"
+  },
+  \"actionable\": {
+    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],
+    \"critical_fix\": \"one thing to fix immediately\"
+  },
+  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],
+  \"overall_feedback\": \"1-2 sentence summary\"
 }
 
-// ── STORAGE ───────────────────────────────────────────────────────────────────
-function loadLocal(){
-  try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}
-  try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
-  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
-  try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
-  try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
-  try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
-  activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
-  loadMilestones();
-  loadLessons();
-}
-function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
-function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
-function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}
-function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
-function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
+Be direct and specific. Student text: \"{{T}}\"
+'\n  },\n  {\n    n:7,lb:'Jul',th:'Speaking Mastery',ic:'🎤',ph:'Phase 2',\n    thbg:'#FEF3C7',thbd:'#FCD34D',thco:'#D97706',\n    ds:'Speaking: independent task + 3 integrated tasks. Timing, delivery, fluency.',\n    sk:['Task 1 (Independent)','Tasks 2-4 (Integrated)','Delivery','Organization'],\n    dl:'🎤 Month 3 — Speaking 4 Tasks (Jul)',\n    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.
+CURRENT MONTH (7): Speaking Mastery phase — Speaking: independent task + 3 integrated tasks. Timing, delivery, fluency.
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-const due=()=>cards.filter(c=>c.nextReview<=today);
-let revCfg={mode:'all',topic:'',limit:20,random:10};
-let revSessionCache=null;
-try{const s=JSON.parse(localStorage.getItem('c1revcfg')||'null');if(s)revCfg=Object.assign(revCfg,s);}catch(e){}
-function saveRevCfg(){localStorage.setItem('c1revcfg',JSON.stringify(revCfg));}
-function revSession(){
-  if(revSessionCache)return revSessionCache;
-  let pool=due();
-  if(revCfg.mode==='topic'&&revCfg.topic){pool=pool.filter(c=>c.topic===revCfg.topic);}
-  else if(revCfg.mode==='weakest'){pool=pool.slice().sort((a,b)=>(a.easiness||2.5)-(b.easiness||2.5));}
-  else if(revCfg.mode==='random'){pool=pool.slice().sort(()=>Math.random()-0.5);pool=pool.slice(0,Math.max(1,revCfg.random|0));revSessionCache=pool;return pool;}
-  const result=pool.slice(0,Math.max(1,revCfg.limit|0));
-  return result;
-}
-function wkDays(){
-  const a=[],n=new Date(),dw=n.getDay(),m=new Date(n);
-  m.setDate(n.getDate()-(dw===0?6:dw-1));
-  for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);a.push({key:d.toISOString().split('T')[0],lb:['Mon','Tue','Wed','Thu','Fri'][i],td:d.toISOString().split('T')[0]===today});}
-  return a;
-}
-function streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
-function f2(n){return String(n).padStart(2,'0');}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function mdata(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}
-function lessons(n){return[...(BL[n]||[]).map(l=>({...l,isCustom:false})),...customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}))];}
-function openM(id){document.getElementById(id).classList.remove('hid');}
-function closeM(id){document.getElementById(id).classList.add('hid');}
+Analyze the student's response using ETS TOEFL rubrics:\n- Delivery (Speaking): pronunciation, intonation, fluency\n- Language Use: grammar, vocabulary, accuracy\n- Topic Development: ideas, examples, coherence, organization\n- Overall proficiency estimate per section\n\nReturn ONLY valid JSON in this exact structure:\n{\n  \"diagnosis\": {\n    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},\n    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},\n    \"overall_estimate\": <0-120>\n  },\n  \"toefl_progress\": {\n    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},\n    \"status\": \"Below target|On track|Ahead\"\n  },\n  \"patterns\": {\n    \"recurring_errors\": [\"error 1\", \"error 2\"],\n    \"strengths\": [\"strength 1\", \"strength 2\"],\n    \"next_focus\": \"what to drill next\"\n  },\n  \"actionable\": {\n    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],\n    \"critical_fix\": \"one thing to fix immediately\"\n  },\n  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],\n  \"overall_feedback\": \"1-2 sentence summary\"\n}\n\nBe direct and specific. Student text: \"{{T}}\"\n'
+  },
+  {
+    n:8,lb:'Aug',th:'Writing Mastery',ic:'✍️',ph:'Phase 2',
+    thbg:'#FCE7F3',thbd:'#FBCFE8',thco:'#EC4899',
+    ds:'Writing: integrated essay (synthesis) + academic discussion.',
+    sk:['Integrated Essay','Synthesis','Discussion Post','Grammar/Style'],
+    dl:'✍️ Month 4 — Writing 2 Tasks (Aug)',
+    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.\nCURRENT MONTH (8): Writing Mastery phase — Writing: integrated essay (synthesis) + academic discussion.\n\nAnalyze the student's response using ETS TOEFL rubrics:
+- Delivery (Speaking): pronunciation, intonation, fluency
+- Language Use: grammar, vocabulary, accuracy
+- Topic Development: ideas, examples, coherence, organization
+- Overall proficiency estimate per section
 
-// ── NAV ───────────────────────────────────────────────────────────────────────
-function goTab(t){
-  try{
-    curTab=t;
-    ['dash','prac','road','rev','cards'].forEach(x=>{
-      const pg=document.getElementById('pg-'+x);
-      const nav=document.getElementById('nav-'+x);
-      if(pg)pg.classList.toggle('hid',x!==t);
-      if(nav)nav.classList.toggle('on',x===t);
-    });
-
-    if(t==='dash')renderDash();
-    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
-    else if(t==='road')buildRoadmap();
-    else if(t==='rev')renderRev();
-    else if(t==='cards')renderCards();
-  }catch(e){
-    console.error('goTab error:',e);
-  }
+Return ONLY valid JSON in this exact structure:
+{
+  \"diagnosis\": {
+    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},
+    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},
+    \"overall_estimate\": <0-120>
+  },
+  \"toefl_progress\": {
+    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},
+    \"status\": \"Below target|On track|Ahead\"
+  },
+  \"patterns\": {
+    \"recurring_errors\": [\"error 1\", \"error 2\"],
+    \"strengths\": [\"strength 1\", \"strength 2\"],
+    \"next_focus\": \"what to drill next\"
+  },
+  \"actionable\": {
+    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],
+    \"critical_fix\": \"one thing to fix immediately\"
+  },
+  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],
+  \"overall_feedback\": \"1-2 sentence summary\"
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────────
-function render(){
-  const s=streak(),dv=due().length,tm=stats.totalMins||0;
-  document.getElementById('hstr').textContent=s;
-  document.getElementById('hcards').textContent=cards.length;
-  document.getElementById('hhours').textContent=Math.floor(tm/60)+'h';
-  const b=document.getElementById('revbdg');b.textContent=dv;b.classList.toggle('on',dv>0);
-  renderMeters();renderFlight();
-  if(curTab==='dash')renderDash();
-  else if(curTab==='prac')renderPrac();
-  else if(curTab==='road')buildRoadmap();
-  else if(curTab==='rev')renderRev();
-  else if(curTab==='cards')renderCards();
+Be direct and specific. Student text: \"{{T}}\"
+'\n  },\n  {\n    n:9,lb:'Sep',th:'Mock Tests + Refinement',ic:'⏱️',ph:'Phase 3',\n    thbg:'#DBEAFE',thbd:'#93C5FD',thco:'#3B82F6',\n    ds:'Full-length mocks 2x/week. Timing, stamina, error analysis.',\n    sk:['Endurance','Time Management','Error Patterns','Strategy'],\n    dl:'⏱️ Month 5 — Mock Tests (Sep)',\n    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.
+CURRENT MONTH (9): Mock Tests + Refinement phase — Full-length mocks 2x/week. Timing, stamina, error analysis.
+
+Analyze the student's response using ETS TOEFL rubrics:\n- Delivery (Speaking): pronunciation, intonation, fluency\n- Language Use: grammar, vocabulary, accuracy\n- Topic Development: ideas, examples, coherence, organization\n- Overall proficiency estimate per section\n\nReturn ONLY valid JSON in this exact structure:\n{\n  \"diagnosis\": {\n    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},\n    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},\n    \"overall_estimate\": <0-120>\n  },\n  \"toefl_progress\": {\n    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},\n    \"status\": \"Below target|On track|Ahead\"\n  },\n  \"patterns\": {\n    \"recurring_errors\": [\"error 1\", \"error 2\"],\n    \"strengths\": [\"strength 1\", \"strength 2\"],\n    \"next_focus\": \"what to drill next\"\n  },\n  \"actionable\": {\n    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],\n    \"critical_fix\": \"one thing to fix immediately\"\n  },\n  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],\n  \"overall_feedback\": \"1-2 sentence summary\"\n}\n\nBe direct and specific. Student text: \"{{T}}\"\n'
+  },
+  {
+    n:10,lb:'Oct',th:'Sprint + Weak Sections',ic:'🔥',ph:'Phase 3',
+    thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',
+    ds:'Focus on weak section (likely Listening). Final mock tests.',
+    sk:['Listening Deep Dive','Weak Section Focus','Time Strategies','Test Day Prep'],
+    dl:'🔥 Month 6 — Final Push (Oct)',
+    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.\nCURRENT MONTH (10): Sprint + Weak Sections phase — Focus on weak section (likely Listening). Final mock tests.\n\nAnalyze the student's response using ETS TOEFL rubrics:
+- Delivery (Speaking): pronunciation, intonation, fluency
+- Language Use: grammar, vocabulary, accuracy
+- Topic Development: ideas, examples, coherence, organization
+- Overall proficiency estimate per section
+
+Return ONLY valid JSON in this exact structure:
+{
+  \"diagnosis\": {
+    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},
+    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},
+    \"overall_estimate\": <0-120>
+  },
+  \"toefl_progress\": {
+    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},
+    \"status\": \"Below target|On track|Ahead\"
+  },
+  \"patterns\": {
+    \"recurring_errors\": [\"error 1\", \"error 2\"],
+    \"strengths\": [\"strength 1\", \"strength 2\"],
+    \"next_focus\": \"what to drill next\"
+  },
+  \"actionable\": {
+    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],
+    \"critical_fix\": \"one thing to fix immediately\"
+  },
+  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],
+  \"overall_feedback\": \"1-2 sentence summary\"
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────────
-function prevMonth(){
-  displayMonth=(displayMonth-1+12)%12;
-  renderDash();
+Be direct and specific. Student text: \"{{T}}\"
+'\n  },\n  {\n    n:11,lb:'Nov',th:'Buffer & Polish',ic:'✨',ph:'Phase 4',\n    thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',\n    ds:'Buffer month for last-minute review, weak area polish, test day logistics.',\n    sk:['Review AWL','Section Weak Points','Test Logistics','Confidence'],\n    dl:'✨ Month 7 — Buffer & Final Review (Nov)',\n    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.
+CURRENT MONTH (11): Buffer & Polish phase — Buffer month for last-minute review, weak area polish, test day logistics.
+
+Analyze the student's response using ETS TOEFL rubrics:\n- Delivery (Speaking): pronunciation, intonation, fluency\n- Language Use: grammar, vocabulary, accuracy\n- Topic Development: ideas, examples, coherence, organization\n- Overall proficiency estimate per section\n\nReturn ONLY valid JSON in this exact structure:\n{\n  \"diagnosis\": {\n    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},\n    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},\n    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},\n    \"overall_estimate\": <0-120>\n  },\n  \"toefl_progress\": {\n    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},\n    \"status\": \"Below target|On track|Ahead\"\n  },\n  \"patterns\": {\n    \"recurring_errors\": [\"error 1\", \"error 2\"],\n    \"strengths\": [\"strength 1\", \"strength 2\"],\n    \"next_focus\": \"what to drill next\"\n  },\n  \"actionable\": {\n    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],\n    \"critical_fix\": \"one thing to fix immediately\"\n  },\n  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],\n  \"overall_feedback\": \"1-2 sentence summary\"\n}\n\nBe direct and specific. Student text: \"{{T}}\"\n'
+  },
+  {
+    n:1,lb:'Jan',th:'TOEFL Exam',ic:'🎯',ph:'Phase 4',
+    thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',
+    ds:'TOEFL iBT official test. Target: 80+',
+    sk:['Reading 22+','Listening 20+','Speaking 20+','Writing 22+'],
+    dl:'🎯 TOEFL Exam — January 2027',
+    ai:'You are an expert TOEFL coach for a Brazilian English learner targeting 80+ in January 2027.\nCURRENT MONTH (1): TOEFL Exam phase — TOEFL iBT official test. Target: 80+\n\nAnalyze the student's response using ETS TOEFL rubrics:
+- Delivery (Speaking): pronunciation, intonation, fluency
+- Language Use: grammar, vocabulary, accuracy
+- Topic Development: ideas, examples, coherence, organization
+- Overall proficiency estimate per section
+
+Return ONLY valid JSON in this exact structure:
+{
+  \"diagnosis\": {
+    \"reading\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"listening\": {\"score\": <1-10>, \"notes\": \"key observation\"},
+    \"speaking\": {\"score\": <1-10>, \"notes\": \"delivery, fluency, content\"},
+    \"writing\": {\"score\": <1-10>, \"notes\": \"organization, grammar, ideas\"},
+    \"overall_estimate\": <0-120>
+  },
+  \"toefl_progress\": {
+    \"section_scores\": {\"reading\": <0-30>, \"listening\": <0-30>, \"speaking\": <0-30>, \"writing\": <0-30>},
+    \"status\": \"Below target|On track|Ahead\"
+  },
+  \"patterns\": {
+    \"recurring_errors\": [\"error 1\", \"error 2\"],
+    \"strengths\": [\"strength 1\", \"strength 2\"],
+    \"next_focus\": \"what to drill next\"
+  },
+  \"actionable\": {
+    \"next_3_days\": [\"DAY 1: task\", \"DAY 2: task\", \"DAY 3: task\"],
+    \"critical_fix\": \"one thing to fix immediately\"
+  },
+  \"corrections\": [{\"original\": \"...\", \"corrected\": \"...\", \"explanation\": \"...\"}],
+  \"overall_feedback\": \"1-2 sentence summary\"
 }
 
-function nextMonth(){
-  displayMonth=(displayMonth+1)%12;
-  renderDash();
-}
-
-function renderDash(){
-  // Load today's tasks
+Be direct and specific. Student text: \"{{T}}\"
+'\n  },\n];\n\n\n// ── LESSONS — B1→C1 Roadmap (May→December 2026) ──────────────────────────────\n// Practical lessons without textbook dependency — concrete, measurable activities\nconst BL={\n\n  // ══ MONTH 5 — MAY: Foundation Fix (Solidify B2) ════════════════════════════\n  5:[\n    {id:'m5l1',month:5,title:'Week 1 — Daily Routine (200 words)',level:'B2',url:'#',tags:['Writing','Tenses'],desc:'Write 200 words describing your daily routine. Use present simple, present continuous, past simple, and past continuous. Underline each tense to track variety.',prompt:'Analyze this 200-word daily routine for tense accuracy and naturalness. Identify B1-level patterns and suggest B2/C1 upgrades.'},\n    {id:'m5l2',month:5,title:'Week 2 — Rewrite 5 B1→B2 Sentences',level:'B2',url:'#',tags:['Writing','Connectors'],desc:'Take 5 simple B1 sentences you use frequently and rewrite each as B2 using connectors: however, moreover, furthermore, although, despite. Show both versions side-by-side.',prompt:'Compare B1→B2 sentence rewrites. Evaluate connector usage, flow, and suggest more sophisticated alternatives.'},\n    {id:'m5l3',month:5,title:'Week 3 — Recording: "Why C1?" (90 seconds)',level:'B2',url:'#',tags:['Speaking','Motivation'],desc:'Record 90 seconds answering: "Why do you want to reach C1 English level?" No script. Transcribe what you said and submit the transcript.',prompt:'Analyze this spoken-then-transcribed text for natural speech patterns, hesitations, and fluency gaps. Suggest B2+ phrasing.'},\n    {id:'m5l4',month:5,title:'Week 4 — News Summary (150 words)',level:'B2',url:'#',tags:['Reading','Summarizing'],desc:'Choose an English news article (BBC, Guardian, NYT). Read and summarize in 150 words using your own words. Focus: understand complex arguments and paraphrase accurately.',prompt:'Evaluate this news summary for paraphrasing skill, vocabulary range, and accurate representation. Suggest B2+ collocations.'},\n  ],\n\n  // ══ MONTH 6 — JUNE: Grammar & Logic (Solid B2+) ═════════════════════════════\n  6:[\n    {id:'m6l1',month:6,title:'Week 1 — Professional Challenge (200 words)',level:'B2+',url:'#',tags:['Writing','Past Perfect','Conditionals'],desc:'Write 200 words about a professional challenge you overcame. REQUIRED: use past perfect (had + past participle) at least 2x and one 3rd conditional (If I had..., I would have...). Underline each structure.',prompt:'Analyze grammar precision in past perfect and conditionals. Flag any confusion. Suggest sophisticated argumentative structures.'},\n    {id:'m6l2',month:6,title:'Week 2 — Prepared Debate (3 min recording)',level:'B2+',url:'#',tags:['Speaking','Argumentation'],desc:'Choose a controversial topic (remote work, social media, AI). Prepare your position with 2 solid arguments. Record 3 minutes defending it. Transcribe the audio.',prompt:'Evaluate argumentative structure, logical connectors, and rhetorical effectiveness. Suggest C1-level argumentative phrases.'},\n    {id:'m6l3',month:6,title:'Week 3 — Email Rewrite (B1 robotic → B2 natural)',level:'B2+',url:'#',tags:['Writing','Register'],desc:'Take a formal email you wrote (request raise, complaint, etc.) in a robotic B1 style. Rewrite as natural B2. Show both versions side-by-side.',prompt:'Compare formal email versions. Evaluate register, naturalness, politeness markers. Suggest C1 phrasings.'},\n    {id:'m6l4',month:6,title:'Week 4 — Podcast Listening (2 min) + 10 new words',level:'B2+',url:'#',tags:['Listening','Vocabulary'],desc:'Choose a podcast episode. Listen to a specific 2-minute segment 2-3 times. List 10 new words/expressions with their context. Write 1 original sentence using each.',prompt:'Evaluate the 10 new words and self-created sentences for accurate usage and natural collocation. Flag incorrect contexts.'},\n  ],\n\n  // ══ MONTH 7 — JULY: Hedging & Academic Register (B2+ → C1-) ══════════════════\n  7:[\n    {id:'m7l1',month:7,title:'Week 1 — Technology & Work (250 words)',level:'C1-',url:'#',tags:['Writing','Hedging'],desc:'Write 250 words: "How will technology change work in the next 10 years?" REQUIRED: use at least 5 hedging expressions: might, could, tend to, arguably, presumably, it is likely that, one could say that.',prompt:'Evaluate hedging language. Identify over-confident statements needing softening. Suggest C1 academic hedging alternatives.'},\n    {id:'m7l2',month:7,title:'Week 2 — Add Hedging to Claims',level:'C1-',url:'#',tags:['Writing','Hedging'],desc:'Take 5 categorical statements (ex: "Men are better at math") and rewrite each with appropriate academic hedging. Show original + hedged version.',prompt:'Compare original vs hedged versions. Evaluate hedging sophistication and suggest more nuanced academic phrasings.'},\n    {id:'m7l3',month:7,title:'Week 3 — Spontaneous Opinion (2 min recording)',level:'C1-',url:'#',tags:['Speaking','Spontaneity'],desc:'Record 2 minutes sharing your opinion on a social topic (education, environment, etc.) WITHOUT A SCRIPT. Natural hesitations are OK. Transcribe everything.',prompt:'Analyze spontaneous speech for natural fillers, real-time hedging, and C1 register. Identify where planning would help.'},\n    {id:'m7l4',month:7,title:'Week 4 — Academic Abstract + 3 Questions',level:'C1-',url:'#',tags:['Reading','Academic'],desc:'Read an academic paper abstract (Google Scholar). Answer 3 questions in 100 words: (1) What is the hypothesis? (2) What method was used? (3) What are the conclusions?',prompt:'Evaluate academic comprehension and paraphrasing of scholarly language. Identify vocabulary gaps and suggest C1 collocations.'},\n  ],\n\n  // ══ MONTH 8 — AUGUST: Fluency & Spontaneity (C1-) ════════════════════════════\n  8:[\n    {id:'m8l1',month:8,title:'Week 1 — Unexpected Question (2-3 min recording)',level:'C1-',url:'#',tags:['Speaking','Fluency'],desc:'Ask a colleague to ask you an UNEXPECTED question about your professional field. Record 2-3 minutes answering unpreparedly. Transcribe the response.',prompt:'Analyze spontaneous speech under pressure. Evaluate fluency, hesitations, lexical retrieval speed, and improvisation. Identify stuck moments.'},\n    {id:'m8l2',month:8,title:'Week 2 — Your Biggest Error (300 words)',level:'C1-',url:'#',tags:['Writing','Self-Reflection'],desc:'Write 300 words honestly: "What is your biggest English error and why does it persist?" Self-reflection required — don\'t write the obvious. Be real.',prompt:'Evaluate depth of self-reflection and ability to articulate complex personal patterns. Flag if writing sounds natural or rehearsed.'},\n    {id:'m8l3',month:8,title:'Week 3 — Shadowing Podcast (3 min)',level:'C1-',url:'#',tags:['Speaking','Pronunciation'],desc:'Choose a native podcast (Lex Fridman, This American Life, etc.). Shadow 3 minutes (repeat while listening). Record 1 minute of your shadowing. Transcribe.',prompt:'Evaluate shadowing transcript for pronunciation accuracy, intonation match, and natural rhythm. Identify sounds needing practice.'},\n    {id:'m8l4',month:8,title:'Week 4 — Speed Writing (150x2 in 20 min)',level:'C1-',url:'#',tags:['Writing','Speed'],desc:'Choose 2 different topics. Write 150 words on each in 20 minutes total. Focus: SPEED of production, not perfection. Complete both topics.',prompt:'Evaluate writing under time pressure. Compare structural quality between both texts. Identify shortcuts and suggest C1 patterns for speed.'},\n  ],\n\n  // ══ MONTH 9 — SEPTEMBER: C1 Output & Register Switching (C1) ═════════════════\n  9:[\n    {id:'m9l1',month:9,title:'Week 1 — Formal Argumentative Essay (350 words)',level:'C1',url:'#',tags:['Writing','Essay','Formal'],desc:'Choose a topic (ex: "Should universities be free?"). Write 350 words in formal academic essay format: intro, 2 body paragraphs, conclusion. Use clear topic sentences and academic linkers.',prompt:'Evaluate as C1 academic essay: thesis clarity, paragraph cohesion, formal register, structure range. Provide C1/C2 score and areas for C2.'},\n    {id:'m9l2',month:9,title:'Week 2 — Rewrite as Blog Post (informal register)',level:'C1',url:'#',tags:['Writing','Register'],desc:'Take the Week 1 essay and rewrite in INFORMAL BLOG TONE. Same content, completely different register. Show both versions (formal + informal).',prompt:'Compare formal essay vs informal blog versions. Evaluate register-switching skill, idiomatic informal English, argumentative quality.'},\n    {id:'m9l3',month:9,title:'Week 3 — Business Pitch (3 min recording)',level:'C1',url:'#',tags:['Speaking','Persuasion'],desc:'Create a fictional business idea. Record 3 minutes of persuasive pitch (as if seeking investment). Structure: problem → solution → market → differentiator → ask.',prompt:'Evaluate persuasive structure, business English vocabulary, delivery confidence, rhetorical devices. Suggest C1 business idioms.'},\n    {id:'m9l4',month:9,title:'Week 4 — Structured Debate (30 min)',level:'C1',url:'#',tags:['Speaking','Debate'],desc:'Conduct a 30-minute debate with a colleague on a controversial topic. Focus: quick rebuttals, defend with hedging, refute elegantly. Record and extract 3 min for analysis.',prompt:'Evaluate debate excerpt for argumentative agility, refutation techniques, handling counterarguments at C1 level.'},\n  ],\n\n  // ══ MONTH 10 — OCTOBER: Precision & Idiomaticity (C1) ═══════════════════════\n  10:[\n    {id:'m10l1',month:10,title:'Week 1 — Brazil vs Country X (300 words)',level:'C1',url:'#',tags:['Writing','Connotation'],desc:'Write 300 words: "The biggest cultural difference between Brazil and [choose country]." Focus: CONNOTATION PRECISION — avoid generic words, choose each adjective carefully.',prompt:'Evaluate word choice precision and connotation accuracy. Flag neutral words where connotation-loaded words would be powerful. Suggest C1 alternatives.'},\n    {id:'m10l2',month:10,title:'Week 2 — 20 Collocations + 20 Sentences',level:'C1',url:'#',tags:['Vocabulary','Collocations'],desc:'From recent reading, extract 20 new collocations (ex: "raise concerns", "fall short of"). Write 1 original sentence per collocation. Record 5 of them spoken naturally.',prompt:'Evaluate collocation accuracy and sentence naturalness. Flag unnatural usages and suggest more idiomatic variants.'},\n    {id:'m10l3',month:10,title:'Week 3 — Synonyms with Connotation',level:'C1',url:'#',tags:['Vocabulary','Nuance'],desc:'Pick 5 common words (happy, sad, big, small, important). List 5 synonyms each with DIFFERENT connotations. Write 1 sentence showing correct connotation per synonym.',prompt:'Evaluate synonym choices and connotation accuracy in context. Flag misuse of connotation and suggest precise alternatives.'},\n    {id:'m10l4',month:10,title:'Week 4 — Polarizing Debate (3 min recording)',level:'C1',url:'#',tags:['Speaking','Nuance'],desc:'Record 3 minutes on a polarizing topic (abortion, guns, politics). Demonstrate NUANCE, not radicalism. Use hedging, acknowledge other side, show complexity. Transcribe.',prompt:'Evaluate nuanced opinion on polarizing topic. Score hedging quality, acknowledgment of opposing views, sophistication. Flag black-and-white statements.'},\n  ],\n\n  // ══ MONTH 11 — NOVEMBER: C1 Mock Sprint (C1 Ready) ═════════════════════════════\n  11:[\n    {id:'m11l1',month:11,title:'Week 1 — Timed Essay (45 min / 350 words)',level:'C1',url:'#',tags:['Mock Exam','Writing'],desc:'Exam simulation: 45 minutes to write 350 words of formal argumentative essay. No heavy revision. Topic given on the spot. Time yourself strictly.',prompt:'Evaluate using FCE/CAE criteria: Content (5), Communicative Achievement (5), Organization (5), Language (5). Provide individual scores and C1/C2 estimate.'},\n    {id:'m11l2',month:11,title:'Week 2 — Technical Presentation + Q&A (5+5 min)',level:'C1',url:'#',tags:['Mock Exam','Speaking'],desc:'Present a technical work topic in 5 minutes (recorded). Colleague then asks 5 minutes of unexpected questions. Record both. Transcribe everything.',prompt:'Evaluate technical presentation and spontaneous Q&A at C1 level. Score vocabulary range, fluency, accuracy, interaction skills.'},\n    {id:'m11l3',month:11,title:'Week 3 — 2 Academic Articles (30 min timed)',level:'C1',url:'#',tags:['Mock Exam','Reading'],desc:'In 30 minutes: read 2 different academic articles and write 150-word summary for each. Focus: fast synthesis and accuracy under time pressure.',prompt:'Evaluate reading comprehension under time pressure. Score accuracy of synthesis, paraphrasing skill, academic register in summaries.'},\n    {id:'m11l4',month:11,title:'Week 4 — Mock Debate (10 min, opposite position)',level:'C1',url:'#',tags:['Mock Exam','Debate'],desc:'Take a position you DISAGREE with and defend it for 10 minutes in a debate. Record critical 3 min. Focus: genuine argumentation from a disagreed position.',prompt:'Evaluate ability to argue from a disagreed position. Score sophistication, conviction, language flexibility under intellectual challenge.'},\n  ],\n\n  // ══ MONTH 12 — DECEMBER: Final Polish & C1 Consolidation ═════════════════════\n  12:[\n    {id:'m12l1',month:12,title:'Week 1 — Re-record Best 3 (Sept/Oct)',level:'C1',url:'#',tags:['Consolidation','Speaking'],desc:'Select your 3 best recordings from Months 9-10. Re-record each applying all feedback received. Compare before & after. Transcribe new versions.',prompt:'Compare improvement between original and re-recorded versions. Identify successfully integrated feedback and remaining gaps.'},\n    {id:'m12l2',month:12,title:'Week 2 — Portfolio: 5 Best Texts',level:'C1',url:'#',tags:['Consolidation','Portfolio'],desc:'Compile your 5 best texts from the year (250-350 words each). Revise each applying everything learned. Create "My C1 Portfolio 2026" document.',prompt:'Evaluate portfolio as body of work: range, consistency, growth trajectory, overall C1 readiness. Identify strongest piece and why.'},\n    {id:'m12l3',month:12,title:'Week 3 — C1 Self-Assessment Checklist',level:'C1',url:'#',tags:['Consolidation','Self-Assessment'],desc:'Write 250 words honestly: use a C1 checklist (CEFR descriptors) and rate yourself on Grammar, Vocabulary, Fluency, Register, Pronunciation. Don\'t be polite — be real.',prompt:'Evaluate self-assessment accuracy. Does learner see themselves clearly? Compare self-rating with actual text quality. Identify blind spots.'},\n    {id:'m12l4',month:12,title:'Week 4 — Final Recording: "My B1→C1 Journey"',level:'C1',url:'#',tags:['Consolidation','Reflection'],desc:'Record 3-5 minutes reflecting on your B1→C1 journey in the past 8 months. What changed? What\'s still hard? Next steps? Transcribe.',prompt:'Final assessment: evaluate reflection as C1 sample. Provide final C1/C2 estimate. Identify growth markers and remaining gaps.'},\n  ],\n};\n\n\n// ── SM-2 ──────────────────────────────────────────────────────────────────────\nfunction nxtRev(q,idx=0,ef=2.5){\n  const INTERVALS=[1,3,7,14,30,60,90];\n  let newEf=Math.max(1.3,ef+0.1-(5-q)*(0.08+(5-q)*0.02));\n  let newIdx=idx;\n  let days=1;\n\n  if(q<3){\n    days=1;\n  }else if(q===3){\n    days=3;\n    newIdx=Math.min(idx+1,INTERVALS.length-1);\n  }else if(q===5){\n    days=7;\n    newIdx=Math.min(idx+2,INTERVALS.length-1);\n  }else if(q===7){\n    days=15;\n    newIdx=Math.min(idx+3,INTERVALS.length-1);\n  }\n\n  const d=new Date();\n  d.setDate(d.getDate()+days);\n  d.setHours(0,0,0,0);\n  return{date:d.toISOString().split('T')[0],intervalIdx:newIdx,easiness:newEf};\n}\n\n// ── STORAGE ───────────────────────────────────────────────────────────────────\nfunction loadLocal(){\n  try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}\n  try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}\n  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}\n  try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}\n  try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}\n  try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}\n  activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;\n  loadMilestones();\n  loadLessons();\n}\nfunction saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}\nfunction saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}\nfunction saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}\nfunction saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}\nfunction saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}\n\n// ── HELPERS ───────────────────────────────────────────────────────────────────\nconst due=()=>cards.filter(c=>c.nextReview<=today);\nlet revCfg={mode:'all',topic:'',limit:20,random:10};\nlet revSessionCache=null;\ntry{const s=JSON.parse(localStorage.getItem('c1revcfg')||'null');if(s)revCfg=Object.assign(revCfg,s);}catch(e){}\nfunction saveRevCfg(){localStorage.setItem('c1revcfg',JSON.stringify(revCfg));}\nfunction revSession(){\n  if(revSessionCache)return revSessionCache;\n  let pool=due();\n  if(revCfg.mode==='topic'&&revCfg.topic){pool=pool.filter(c=>c.topic===revCfg.topic);}\n  else if(revCfg.mode==='weakest'){pool=pool.slice().sort((a,b)=>(a.easiness||2.5)-(b.easiness||2.5));}\n  else if(revCfg.mode==='random'){pool=pool.slice().sort(()=>Math.random()-0.5);pool=pool.slice(0,Math.max(1,revCfg.random|0));revSessionCache=pool;return pool;}\n  const result=pool.slice(0,Math.max(1,revCfg.limit|0));\n  return result;\n}\nfunction wkDays(){\n  const a=[],n=new Date(),dw=n.getDay(),m=new Date(n);\n  m.setDate(n.getDate()-(dw===0?6:dw-1));\n  for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);a.push({key:d.toISOString().split('T')[0],lb:['Mon','Tue','Wed','Thu','Fri'][i],td:d.toISOString().split('T')[0]===today});}\n  return a;\n}\nfunction streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}\nfunction toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}\nfunction f2(n){return String(n).padStart(2,'0');}\nfunction esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}\nfunction mdata(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}\nfunction lessons(n){return[...(BL[n]||[]).map(l=>({...l,isCustom:false})),...customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}))];}\nfunction openM(id){document.getElementById(id).classList.remove('hid');}\nfunction closeM(id){document.getElementById(id).classList.add('hid');}\n\n// ── NAV ───────────────────────────────────────────────────────────────────────\nfunction goTab(t){\n  try{\n    curTab=t;\n    ['dash','prac','road','rev','cards'].forEach(x=>{\n      const pg=document.getElementById('pg-'+x);\n      const nav=document.getElementById('nav-'+x);\n      if(pg)pg.classList.toggle('hid',x!==t);\n      if(nav)nav.classList.toggle('on',x===t);\n    });\n\n    if(t==='dash')renderDash();\n    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}\n    else if(t==='road')buildRoadmap();\n    else if(t==='rev')renderRev();\n    else if(t==='cards')renderCards();\n  }catch(e){\n    console.error('goTab error:',e);\n  }\n}\n\n// ── RENDER ────────────────────────────────────────────────────────────────────\nfunction render(){\n  const s=streak(),dv=due().length,tm=stats.totalMins||0;\n  document.getElementById('hstr').textContent=s;\n  document.getElementById('hcards').textContent=cards.length;\n  document.getElementById('hhours').textContent=Math.floor(tm/60)+'h';\n  const b=document.getElementById('revbdg');b.textContent=dv;b.classList.toggle('on',dv>0);\n  renderMeters();renderFlight();\n  if(curTab==='dash')renderDash();\n  else if(curTab==='prac')renderPrac();\n  else if(curTab==='road')buildRoadmap();\n  else if(curTab==='rev')renderRev();\n  else if(curTab==='cards')renderCards();\n}\n\n// ── DASHBOARD ─────────────────────────────────────────────────────────────────\nfunction prevMonth(){\n  displayMonth=(displayMonth-1+12)%12;\n  renderDash();\n}\n\nfunction nextMonth(){\n  displayMonth=(displayMonth+1)%12;\n  renderDash();\n}\n\nfunction renderDash(){\n  // Load today's tasks
   const stored=localStorage.getItem('c1dt-'+today);
   const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
 
