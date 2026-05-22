@@ -1102,7 +1102,6 @@ function renderPrac(){
       div.className='lcard'+(activeLesson&&activeLesson.id===l.id?' on':'')+(l.isCustom?' custom':'')+(completed?' completed':'');
       div.style.background=completed?'linear-gradient(135deg,#F0FDF4,#E8F5E9)':'';
       div.style.borderColor=completed?'#86EFAC':'';
-      div.onclick=(e)=>{if(e.target.closest('label')&&e.target.tagName!=='A')return;activeLesson=l;renderPrac();};
       div.innerHTML='<div style="flex:1;min-width:0">'
         +'<div class="ltit">'+esc(l.title)+'<span class="tag tgr">'+esc(l.level||'C1')+'</span>'+(l.isCustom?'<span class="tag tcu">custom</span>':'')+
         (completed?'<span class="tag" style="background:#10B981;color:white;font-weight:600">✓ Done</span>':'')+'</div>'
@@ -1116,6 +1115,9 @@ function renderPrac(){
         +(l.isCustom?'<button onclick="event.stopPropagation();delCustom(\''+l.id+'\')" style="background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
         +'</div>';
       ll.appendChild(div);
+      // Force checkbox state to match completed status
+      const chk=div.querySelector('input[type="checkbox"]');
+      if(chk)chk.checked=completed;
     });
   }
   // Prompt
