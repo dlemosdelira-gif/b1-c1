@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TOEFL 80+ — Prep Hub</title>
+<title>English C1 — v4.7 (X-Ray)</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ── ESTILOS TÉCNICOS (RESPONSIVIDADE E CORES) ── */
@@ -174,7 +174,7 @@ textarea{min-height:120px}
 .fcard{background:#fff;border:1px solid #DDE3F5;border-radius:14px;min-height:220px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;text-align:center;cursor:pointer;transition:border-color .15s;max-width:600px;margin:0 auto}
 .fcard:hover{border-color:#BFDBFE}
 .fhint{font-size:14px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
-.fword{font-size:24px;font-weight:700;margin-bottom:12px;line-height:1.5;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+.fword{font-size:26px;font-weight:700;margin-bottom:12px;line-height:1.5;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fword.bl{color:#1D4ED8;font-weight:600}
 .fcloze{font-size:26px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fblank{display:inline-block;background:#BFDBFE;border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
@@ -183,12 +183,11 @@ textarea{min-height:120px}
 .rbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .rb{padding:10px 6px;border-radius:10px;border:1px solid #DDE3F5;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center;background:#fff}
 .rb:active{transform:scale(.97)}
-.rbl{font-size:13px;font-weight:600;margin-bottom:2px}
-.rbs{font-size:13px;opacity:.75;font-family:'DM Mono',monospace}
+.rbl{font-size:14px;font-weight:600;margin-bottom:2px}
+.rbs{font-size:14px;opacity:.75;font-family:'DM Mono',monospace}
 .rb.hard{background:#FEF2F2;border-color:#FECACA;color:#DC2626}
 .rb.good{background:#FFFBEB;border-color:#FDE68A;color:#D97706}
 .rb.easy{background:#F0FDF4;border-color:#BBF7D0;color:#16A34A}
-.rb.verye{background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
 .pdots{display:flex;gap:4px;margin-bottom:10px}
 .pdot2{flex:1;height:4px;border-radius:4px;background:#DDE3F5;transition:background .2s}
 .pdot2.dn{background:#16A34A}.pdot2.cu{background:#2563EB}
@@ -205,7 +204,7 @@ textarea{min-height:120px}
 .citem:hover{border-color:#BFDBFE;box-shadow:0 2px 8px rgba(37,99,235,.08)}
 .citem.due{border-color:#FECACA;background:#FEF2F2}
 .cisim{font-size:14px;color:#94A3B8;text-decoration:line-through}
-.cic1{font-size:14px;font-weight:600;color:#1D4ED8}.citoefl{font-size:14px;font-weight:600;color:#2563EB}
+.cic1{font-size:14px;font-weight:600;color:#1D4ED8}
 .chunk-form{display:grid;gap:10px}
 .chunk-form input[type=text]{min-height:unset;height:42px;background:#fff;border-color:#BFDBFE}
 .chunk-form input[type=text]:focus{border-color:#2563EB;background:#fff}
@@ -235,12 +234,6 @@ textarea{min-height:120px}
 .mt8{margin-top:8px}.mt10{margin-top:10px}
 .gg{display:grid;gap:8px}
 .wc{font-size:14px;color:#94A3B8;font-family:'DM Mono',monospace}
-
-/* ── SCROLL TO TOP BUTTON ── */
-.scroll-top-btn{position:fixed;bottom:90px;right:16px;width:44px;height:44px;border-radius:50%;background:#2563EB;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,99,235,0.3);transition:all .3s;z-index:99;font-size:0}
-.scroll-top-btn:hover{transform:scale(1.1);box-shadow:0 6px 16px rgba(37,99,235,0.4)}
-.scroll-top-btn:active{transform:scale(0.95)}
-.scroll-top-btn svg{width:16px;height:16px;stroke:currentColor}
 
 /* ── 📱 MEDIA QUERIES ── */
 @media(max-width:768px){
@@ -604,12 +597,6 @@ textarea{min-height:120px}
   <div id="cardslist"></div>
 </div>
 
-<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" style="display:none">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polyline points="18 15 12 9 6 15"></polyline>
-  </svg>
-</button>
-
 </div><script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth();
@@ -631,20 +618,1393 @@ let lessonStats={};
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[{n:5,lb:'May',th:'Foundations',ic:'🌱',ph:'Phase 1',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'TOEFL familiarization, test format, baseline mock.',sk:['Test Format','Note-Taking','Vocabulary','Pacing'],dl:'🌱 Month 1 — TOEFL Foundations (May)',ai:'TOEFL coach analyzing student response. Score reading/listening/speaking/writing (1-10 each). Estimate total (0-120). Identify errors, strengths, next focus.'},{n:6,lb:'Jun',th:'Reading + Listening',ic:'📖',ph:'Phase 1',thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',ds:'Academic reading strategies, intensive listening.',sk:['Skimming','Inference','Note-Taking','Vocabulary'],dl:'📖 Month 2 — Reading & Listening (Jun)',ai:'Evaluate reading/listening performance. Focus on strategies and comprehension. Score sections 0-30 each.'},{n:7,lb:'Jul',th:'Speaking Mastery',ic:'🎤',ph:'Phase 2',thbg:'#FEF3C7',thbd:'#FCD34D',thco:'#D97706',ds:'Speaking: independent + 3 integrated tasks.',sk:['Task 1','Tasks 2-4','Delivery','Organization'],dl:'🎤 Month 3 — Speaking (Jul)',ai:'Grade speaking for delivery, fluency, pronunciation, content depth. Score 0-30.'},{n:8,lb:'Aug',th:'Writing Mastery',ic:'✍️',ph:'Phase 2',thbg:'#FCE7F3',thbd:'#FBCFE8',thco:'#EC4899',ds:'Writing: integrated essay + academic discussion.',sk:['Synthesis','Grammar','Organization','Style'],dl:'✍️ Month 4 — Writing (Aug)',ai:'Grade essays for organization, grammar, vocabulary, coherence. Score 0-30 each.'},{n:9,lb:'Sep',th:'Mock Tests',ic:'⏱️',ph:'Phase 3',thbg:'#DBEAFE',thbd:'#93C5FD',thco:'#3B82F6',ds:'Full-length mocks 2x/week. Timing and error analysis.',sk:['Endurance','Pacing','Accuracy','Strategy'],dl:'⏱️ Month 5 — Mock Tests (Sep)',ai:'Analyze mock test results. Identify weak areas. Recommend study focus. Estimate current level (0-120).'},{n:10,lb:'Oct',th:'Final Push',ic:'🔥',ph:'Phase 3',thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',ds:'Focus weak sections. Final mocks.',sk:['Listening','Speed','Confidence','Refinement'],dl:'🔥 Month 6 — Final Push (Oct)',ai:'Final evaluation before exam. Score estimate (0-120). Confidence assessment.'},{n:11,lb:'Nov',th:'Polish',ic:'✨',ph:'Phase 4',thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',ds:'Buffer month. Final review and confidence building.',sk:['Vocabulary','Strategies','Confidence','Logistics'],dl:'✨ Month 7 — Buffer & Review (Nov)',ai:'Final review assessment. Ready for exam? Any last-minute advice?'},{n:1,lb:'Jan',th:'TOEFL Exam',ic:'🎯',ph:'Phase 4',thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',ds:'Official TOEFL iBT test. Target: 80+ (Reading 22+, Listening 20+, Speaking 20+, Writing 22+)',sk:['Reading 22+','Listening 20+','Speaking 20+','Writing 22+'],dl:'🎯 TOEFL Exam — January 2027',ai:'Post-exam reflection. How did it go? Confidence? Estimated score? Areas to improve for retake?'}];
 
-
-// ── LESSONS — B1→C1 Roadmap (May→December 2026) ──────────────────────────────
-// Practical lessons without textbook dependency — concrete, measurable activities
+// ── LESSONS — Trilha B1→C1 (Maio→Dezembro 2026) ─────────────────────────────
+// Roadmap prático sem dependência de livros — atividades concretas e mensuráveis
 const BL={1:[{id:'m1l1',month:1,section:'Reading',title:'Official TOEFL Reading Section',level:'C1',url:'#',tags:['Exam','Reading','Official'],desc:'Official test. Target: 22+. Format: 2 passages, 20 questions, 35 min.',prompt:'Post-exam: Reading score estimate? Which questions were hard? Did strategies work?'},{id:'m1l2',month:1,section:'Listening',title:'Official TOEFL Listening Section',level:'C1',url:'#',tags:['Exam','Listening','Official'],desc:'Official test. Target: 20+. Format: 6 items, 41 min.',prompt:'Post-exam: Listening score estimate? Lecture or conversation harder? Note-taking worked?'},{id:'m1l3',month:1,section:'Writing',title:'Official TOEFL Writing Section',level:'C1',url:'#',tags:['Exam','Writing','Official'],desc:'Official test. Target: 22+. Format: 2 essays, 50 min.',prompt:'Post-exam: Writing score estimate? Essay quality? Time management OK?'},{id:'m1l4',month:1,section:'Speaking',title:'Official TOEFL Speaking Section',level:'C1',url:'#',tags:['Exam','Speaking','Official'],desc:'Official test. Target: 20+. Format: 4 tasks, 16 min.',prompt:'Post-exam: Speaking score estimate? Delivery confidence? Pronunciation issues?'}],5:[{id:'m5l1',month:5,section:'Reading',title:'TOEFL Reading Format',level:'B2',url:'#',tags:['Reading','Format','Strategies'],desc:'Learn TOEFL Reading: 2 passages, 10 questions each, 35 min total. Practice skimming and scanning.',prompt:'Reading practice: Correct answers? Time spent? Understand passage structure? Faster reading strategies?'},{id:'m5l2',month:5,section:'Listening',title:'Note-Taking for TOEFL Listening',level:'B2',url:'#',tags:['Listening','Note-Taking','Skills'],desc:'Master Cornell note-taking: main idea + key details + examples.',prompt:'Notes review: Clear main ideas? Details organized? Suggestions for improvement?'},{id:'m5l3',month:5,section:'Speaking',title:'Speaking Task 1 (Independent)',level:'B2',url:'#',tags:['Speaking','Independent','45s'],desc:'Personal experience question. Prep: 15s. Speak: 45s. Template: intro + 2 details + conclusion.',prompt:'Speaking sample: Topic addressed? Clear examples? Fluent delivery? Pronunciation suggestions?'},{id:'m5l4',month:5,section:'Writing',title:'Writing Task 1 (Integrated)',level:'B2',url:'#',tags:['Writing','Integrated','Synthesis'],desc:'Read passage + listen lecture + synthesize in 20 min essay (150-225 words).',prompt:'Integrated essay: Good synthesis of reading+lecture? Clear structure? Grammar OK?'}],6:[{id:'m6l1',month:6,section:'Reading',title:'Academic Vocabulary (AWL)',level:'B2+',url:'#',tags:['Reading','Vocabulary','Academic'],desc:'Extract 20 academic words from TOEFL passages. Note: context, pronunciation.',prompt:'Vocabulary: Definitions accurate? Contexts clear? Remember these words?'},{id:'m6l2',month:6,section:'Listening',title:'Academic Lectures',level:'B2+',url:'#',tags:['Listening','Lectures','Comprehension'],desc:'Listen to 2 academic lectures. Take notes. Answer 5-10 inference questions.',prompt:'Comprehension: Which questions hard? Why? Note-taking or listening focus areas?'},{id:'m6l3',month:6,section:'Speaking',title:'Speaking Tasks 2-4 (Integrated)',level:'B2+',url:'#',tags:['Speaking','Integrated','60s'],desc:'Read passage > Listen > Synthesize and speak (60s each). Use transitions.',prompt:'Integrated speaking: Synthesized sources? Transitions smooth? Clear delivery?'},{id:'m6l4',month:6,section:'Writing',title:'Writing Task 2 (Academic Discussion)',level:'B2+',url:'#',tags:['Writing','Discussion','Academic'],desc:'Respond to discussion prompt in 100+ words, 10 min. Agree/disagree with reasons.',prompt:'Discussion response: Opinion clear? Reasons explained? Academic tone? Grammar?'}],7:[{id:'m7l1',month:7,section:'Speaking',title:'Delivery: Pronunciation & Fluency',level:'C1-',url:'#',tags:['Speaking','Delivery','Pronunciation'],desc:'Record 3 min speaking. Self-assess: clarity, speed, stress, intonation.',prompt:'Speech analysis: Pronunciation issues? Pace OK? Intonation natural? Suggest drills.'},{id:'m7l2',month:7,section:'Listening',title:'Detail vs Main Idea Questions',level:'C1-',url:'#',tags:['Listening','Comprehension','Strategy'],desc:'Practice 10 TOEFL listening questions: 5 main idea, 5 detail. Time: 1 min each.',prompt:'Answers review: Main idea or detail harder? Why missed details? Re-listening strategies?'},{id:'m7l3',month:7,section:'Reading',title:'Inference & Implicit Info',level:'C1-',url:'#',tags:['Reading','Inference','Strategy'],desc:'Practice 10 TOEFL reading questions: 5 inference, 5 implied. Time: 2 min per 5.',prompt:'Inference questions: Logic sound? Evidence shown? Better reading strategies?'},{id:'m7l4',month:7,section:'Writing',title:'Organization & Coherence',level:'C1-',url:'#',tags:['Writing','Organization','Flow'],desc:'Write 2 timed essays (20 min each). Focus: structure, transitions, examples.',prompt:'Essay structure: Intro clear? Body organized? Transitions smooth? Ideas coherent?'}],8:[{id:'m8l1',month:8,section:'Writing',title:'Grammar & Sentence Variety',level:'C1-',url:'#',tags:['Writing','Grammar','Style'],desc:'Write 1 essay (30 min). Check: 3+ sentence types, no repeats, grammar accurate.',prompt:'Grammar check: Errors? Sentence variety good? Complex structures?'},{id:'m8l2',month:8,section:'Reading',title:'Speed + Accuracy (Timed)',level:'C1-',url:'#',tags:['Reading','Speed','Accuracy'],desc:'Full TOEFL reading (2 passages, 20 questions, 35 min). Track time and accuracy.',prompt:'Performance: Questions taking too long? Accuracy by type? Pacing strategies?'},{id:'m8l3',month:8,section:'Listening',title:'Note-Taking Refinement',level:'C1-',url:'#',tags:['Listening','Note-Taking','Strategy'],desc:'Listen 2 lectures (5 min each), take notes, answer 10 questions. Review notes.',prompt:'Note-taking: Main ideas captured? Details organized? Better abbreviations?'},{id:'m8l4',month:8,section:'Speaking',title:'All 4 Speaking Tasks',level:'C1-',url:'#',tags:['Speaking','Full','Timing'],desc:'Complete full speaking section (4 tasks, ~16 min). Record, transcribe, self-evaluate.',prompt:'Overall speaking: Task completion? Fluency? Content depth? Top 3 improvements?'}],9:[{id:'m9l1',month:9,section:'Reading',title:'Full-Length Mock (Reading)',level:'C1',url:'#',tags:['Mock','Reading','Timed'],desc:'Complete 1 full reading section timed (35 min). Score and analyze.',prompt:'Mock results: Score? Hard questions? Patterns? Study plan?'},{id:'m9l2',month:9,section:'Listening',title:'Full-Length Mock (Listening)',level:'C1',url:'#',tags:['Mock','Listening','Timed'],desc:'Complete 1 full listening section (6 items, 41 min). Score and analyze.',prompt:'Mock results: Score? Lecture vs conversation? Detail vs main idea? Focus areas?'},{id:'m9l3',month:9,section:'Writing',title:'Full-Length Mock (Writing)',level:'C1',url:'#',tags:['Mock','Writing','Timed'],desc:'Complete 1 full writing section (2 essays, 50 min). Grade both.',prompt:'Essay grades: Synthesis clear? Discussion strong? Grammar/vocab? Suggestions?'},{id:'m9l4',month:9,section:'Speaking',title:'Full-Length Mock (Speaking)',level:'C1',url:'#',tags:['Mock','Speaking','Timed'],desc:'Complete 1 full speaking section (4 tasks, ~16 min). Grade for delivery, language, content.',prompt:'Speaking grades: Each task clear? Fluency? Pronunciation? Content? Score estimate?'}],10:[{id:'m10l1',month:10,section:'Listening',title:'Listening Intensive',level:'C1',url:'#',tags:['Listening','Intensive','Focus'],desc:'3 full mock listening sections (3 days). Focus: note-taking and inference.',prompt:'Progress: Score trend? Questions still missed? Note-taking improving? Strategy shift?'},{id:'m10l2',month:10,section:'Reading',title:'Reading Intensive',level:'C1',url:'#',tags:['Reading','Intensive','Focus'],desc:'3 full mock reading sections. Focus: weak question types.',prompt:'Progress: Score trend? Question types? Speed improving? Final recommendations?'},{id:'m10l3',month:10,section:'Writing',title:'Writing Final Polish',level:'C1',url:'#',tags:['Writing','Polish','Refinement'],desc:'Write 2 essays under test conditions. Proofread for grammar and organization.',prompt:'Essays: Both strong? Grammar errors? Time management OK? Final score estimate?'},{id:'m10l4',month:10,section:'Speaking',title:'Speaking Final Drills',level:'C1',url:'#',tags:['Speaking','Drills','Polish'],desc:'Record 3 sets of all 4 tasks. Focus: pacing, examples, transitions.',prompt:'Speaking: Improvement? Delivery confidence? Content clarity? Final estimate?'}],11:[{id:'m11l1',month:11,section:'Reading',title:'Vocabulary Final Review',level:'C1',url:'#',tags:['Vocabulary','Reading','Review'],desc:'Flashcard review: 100+ academic words. Daily practice. Target: 80%+ recognition.',prompt:'Vocabulary: Still weak words? Context drills needed? Confident for exam?'},{id:'m11l2',month:11,section:'Listening',title:'Confidence Review',level:'C1',url:'#',tags:['Listening','Review','Confidence'],desc:'Listen to 2-3 full mock sections. Aim for 90%+ accuracy. Boost confidence.',prompt:'Final check: Confidence level? Remaining weak areas? Pronunciation issues?'},{id:'m11l3',month:11,section:'Writing',title:'Templates & Examples',level:'C1',url:'#',tags:['Writing','Templates','Review'],desc:'Memorize strong essay templates. Collect 5 powerful examples per task.',prompt:'Templates: Ready? Examples strong? Can write 350+ words in 30 min?'},{id:'m11l4',month:11,section:'Speaking',title:'Pronunciation Final Tune',level:'C1',url:'#',tags:['Speaking','Pronunciation','Polish'],desc:'Focus: top 5 pronunciation issues. Daily minimal pairs practice.',prompt:'Pronunciation: Improved? Native-like delivery? Speaking confidence ready?'}]};
 
+// ── SM-2 ──────────────────────────────────────────────────────────────────────
+function nxtRev(q,idx=0,ef=2.5){
+  const INTERVALS=[1,3,7,14,30,60,90];
+  let newEf=Math.max(1.3,ef+0.1-(5-q)*(0.08+(5-q)*0.02));
+  let newIdx=idx;
+  let days=1;
 
+  if(q<3){
+    days=1;
+  }else if(q===3){
+    days=3;
+    newIdx=Math.min(idx+1,INTERVALS.length-1);
+  }else if(q===5){
+    days=7;
+    newIdx=Math.min(idx+2,INTERVALS.length-1);
+  }
+
+  const d=new Date();
+  d.setDate(d.getDate()+days);
+  d.setHours(0,0,0,0);
+  return{date:d.toISOString().split('T')[0],intervalIdx:newIdx,easiness:newEf};
+}
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+function loadLocal(){
+  try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}
+  try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
+  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
+  try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
+  try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
+  try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
+  activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
+  loadMilestones();
+  loadLessons();
+}
+function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
+function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
+function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}
+function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
+function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const due=()=>cards.filter(c=>c.nextReview<=today);
+let revCfg={mode:'all',topic:'',limit:20,random:10};
+let revSessionCache=null;
+try{const s=JSON.parse(localStorage.getItem('c1revcfg')||'null');if(s)revCfg=Object.assign(revCfg,s);}catch(e){}
+function saveRevCfg(){localStorage.setItem('c1revcfg',JSON.stringify(revCfg));}
+function revSession(){
+  if(revSessionCache)return revSessionCache;
+  let pool=due();
+  if(revCfg.mode==='topic'&&revCfg.topic){pool=pool.filter(c=>c.topic===revCfg.topic);}
+  else if(revCfg.mode==='weakest'){pool=pool.slice().sort((a,b)=>(a.easiness||2.5)-(b.easiness||2.5));}
+  else if(revCfg.mode==='random'){pool=pool.slice().sort(()=>Math.random()-0.5);pool=pool.slice(0,Math.max(1,revCfg.random|0));revSessionCache=pool;return pool;}
+  const result=pool.slice(0,Math.max(1,revCfg.limit|0));
+  return result;
+}
+function wkDays(){
+  const a=[],n=new Date(),dw=n.getDay(),m=new Date(n);
+  m.setDate(n.getDate()-(dw===0?6:dw-1));
+  for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);a.push({key:d.toISOString().split('T')[0],lb:['Mon','Tue','Wed','Thu','Fri'][i],td:d.toISOString().split('T')[0]===today});}
+  return a;
+}
+function streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
+function f2(n){return String(n).padStart(2,'0');}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function mdata(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}
+function lessons(n){return[...(BL[n]||[]).map(l=>({...l,isCustom:false})),...customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}))];}
+function openM(id){document.getElementById(id).classList.remove('hid');}
+function closeM(id){document.getElementById(id).classList.add('hid');}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function goTab(t){
+  try{
+    curTab=t;
+    ['dash','prac','road','rev','cards'].forEach(x=>{
+      const pg=document.getElementById('pg-'+x);
+      const nav=document.getElementById('nav-'+x);
+      if(pg)pg.classList.toggle('hid',x!==t);
+      if(nav)nav.classList.toggle('on',x===t);
+    });
+
+    if(t==='dash')renderDash();
+    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+    else if(t==='road')buildRoadmap();
+    else if(t==='rev')renderRev();
+    else if(t==='cards')renderCards();
+  }catch(e){
+    console.error('goTab error:',e);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const s=streak(),dv=due().length,tm=stats.totalMins||0;
+  document.getElementById('hstr').textContent=s;
+  document.getElementById('hcards').textContent=cards.length;
+  document.getElementById('hhours').textContent=Math.floor(tm/60)+'h';
+  const b=document.getElementById('revbdg');b.textContent=dv;b.classList.toggle('on',dv>0);
+  renderMeters();renderFlight();
+  if(curTab==='dash')renderDash();
+  else if(curTab==='prac')renderPrac();
+  else if(curTab==='road')buildRoadmap();
+  else if(curTab==='rev')renderRev();
+  else if(curTab==='cards')renderCards();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function prevMonth(){
+  displayMonth=(displayMonth-1+12)%12;
+  renderDash();
+}
+
+function nextMonth(){
+  displayMonth=(displayMonth+1)%12;
+  renderDash();
+}
+
+function renderDash(){
+  // Load today's tasks
+  const stored=localStorage.getItem('c1dt-'+today);
+  const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
+
+  // Update checkboxes
+  document.querySelectorAll('#dashChecklistContainer input[type="checkbox"]').forEach((inp,i)=>{
+    const task=['preply','reading','listening','writing'][i];
+    if(task)inp.checked=tasks[task]||false;
+  });
+
+  // Render Monthly + Yearly Progress
+  const hm=document.getElementById('yearHeatmapContainer');
+  if(hm){
+    const y=new Date().getFullYear();
+    const m=new Date().getMonth();
+    const d=new Date().getDate();
+    const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // ══ MONTHLY DATA ══
+    let monthDays=[],monthTotal=0,monthDone=0;
+    for(let i=1;i<=31;i++){
+      const dt=new Date(y,m,i);
+      if(dt.getMonth()!==m)break;
+      const key=dt.toISOString().split('T')[0];
+      const v=localStorage.getItem('c1dt-'+key);
+      const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
+      monthDays.push({day:i,count:c,key:key});
+      monthTotal++;
+      if(c>0)monthDone++;
+    }
+
+    const maxCount=Math.max(...monthDays.map(x=>x.count),4);
+
+    let html=`
+      <div style="width:100%;box-sizing:border-box">
+        <!-- Monthly Progress -->
+        <div style="margin-bottom:20px;width:100%;box-sizing:border-box">
+          <div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px;white-space:nowrap">📊 ${monthNames[m]} Progress</div>
+          <div style="display:flex;gap:2px;height:70px;background:#F8FAFF;border-radius:8px;padding:10px;margin-bottom:10px;width:100%;overflow-x:auto">`;
+
+    monthDays.slice(-14).forEach(day=>{
+      const h=Math.max(2,Math.round(day.count/maxCount*50));
+      const bg=day.count===0?'#E5E7EB':day.count<2?'#D1FAE5':day.count<3?'#6EE7B7':'#10B981';
+      html+=`<div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;height:60px;width:25px" title="${day.key}: ${day.count}/4 tasks" onclick="editDayTasks('${day.key}')">
+        <div style="width:14px;height:${h}px;background:${bg};border-radius:2px;cursor:pointer"></div>
+        <div style="font-size:8px;color:#94A3B8">${day.day}</div>
+      </div>`;
+    });
+
+    html+=`</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+            <div style="background:#F0FDF4;padding:10px;border-radius:8px;border-left:3px solid #10B981;text-align:center">
+              <div style="font-size:26px;font-weight:600;color:#16A34A">${monthDone}</div>
+              <div style="font-size:14px;color:#6B7280;margin-top:4px">Days active</div>
+            </div>
+            <div style="background:#EFF6FF;padding:10px;border-radius:8px;border-left:3px solid #2563EB;text-align:center">
+              <div style="font-size:26px;font-weight:600;color:#2563EB">${Math.round(monthDone/monthTotal*100)}%</div>
+              <div style="font-size:14px;color:#6B7280;margin-top:4px">Completion</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Yearly Progress -->
+        <div style="width:100%">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:14px;font-weight:600;color:#0F172A;white-space:nowrap">📅 Year Overview</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn bsm" onclick="prevMonth()" style="padding:6px 10px;font-size:14px">←</button>
+              <div style="font-size:14px;font-weight:600;color:#0F172A;min-width:80px;text-align:center;padding:6px 8px">${monthNames[displayMonth]}</div>
+              <button class="btn bsm" onclick="nextMonth()" style="padding:6px 10px;font-size:14px">→</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:12px;font-size:14px;align-items:center;padding:10px;background:#F8FAFF;border-radius:6px;flex-wrap:wrap;width:100%">
+            <span style="color:#6B7280;font-weight:500">Less</span>
+            <div style="width:12px;height:12px;background:#E5E7EB;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#D1FAE5;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#A7F3D0;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#6EE7B7;border-radius:2px"></div>
+            <div style="width:12px;height:12px;background:#10B981;border-radius:2px"></div>
+            <span style="color:#6B7280;font-weight:500">More</span>
+          </div>`;
+
+    // Create calendar grid for selected month
+    const month=displayMonth;
+    html+=`<div style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%">`;
+
+    const firstDay=new Date(y,month,1).getDay();
+
+    // Empty cells for days before month starts
+    for(let i=0;i<firstDay;i++){
+      html+=`<div></div>`;
+    }
+
+    const end=new Date(y,month+1,0).getDate();
+    for(let day=1;day<=end;day++){
+      const dt=new Date(y,month,day);
+      const key=dt.toISOString().split('T')[0];
+      const v=localStorage.getItem('c1dt-'+key);
+      const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
+      const levels=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
+      const bg=levels[Math.min(c,4)];
+      const isFuture=dt>new Date();
+      const border=(key===today)?'3px solid #2563EB':'1px solid transparent';
+      html+=`<div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:${bg};border:${border};border-radius:3px;cursor:pointer;opacity:${isFuture?'0.4':'1'};font-size:14px;color:#475569;font-weight:600;transition:all 0.2s" title="${key}: ${c}/4 tasks" onclick="editDayTasks('${key}')">${day}</div>`;
+    }
+
+    html+=`</div></div></div>`;
+    hm.innerHTML=html;
+  }
+}
+
+function toggleCI(k){
+  if(checkins[k]){
+    delete checkins[k];
+    stats.totalMins=Math.max(0,(stats.totalMins||0)-30);
+    if(stats.studyDays&&stats.studyDays[k]){
+      stats.studyDays[k]=Math.max(0,(stats.studyDays[k]||0)-30);
+      if(stats.studyDays[k]===0)delete stats.studyDays[k];
+    }
+    saveST();toast('↩ Check-in removed');
+  }else{
+    checkins[k]=true;
+    stats.totalMins=(stats.totalMins||0)+30;
+    if(!stats.studyDays)stats.studyDays={};
+    stats.studyDays[k]=(stats.studyDays[k]||0)+30;
+    saveST();
+  }
+  saveCI();renderDash();
+}
+
+function logSession(dir){
+  stats.totalMins=Math.max(0,(stats.totalMins||0)+dir*30);
+  if(!stats.studyDays)stats.studyDays={};
+  stats.studyDays[today]=Math.max(0,(stats.studyDays[today]||0)+dir*30);
+  if(stats.studyDays[today]===0)delete stats.studyDays[today];
+  saveST();toast(dir>0?'✈ +30 min logged!':'↩ 30 min removed');
+  renderFlight();updateLogBtn();
+}
+function updateLogBtn(){
+  const mins=(stats.studyDays&&stats.studyDays[today])||0;
+  const lbl=document.getElementById('sesminlbl');
+  const minus=document.getElementById('logminus');
+  if(lbl)lbl.textContent=mins>0?mins+' min logged today':'0 min logged';
+  if(minus)minus.style.display=mins>0?'':'none';
+}
+
+// ── ROADMAP ───────────────────────────────────────────────────────────────────
+function buildRoadmap(){
+  // Selector (12 month buttons in 2 rows of 6)
+  const sel=document.getElementById('rmsel');sel.innerHTML='';
+  MONTHS.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='rm-btn'+(m.n===activeMonth?' on':'');
+    b.innerHTML=m.ic+'<br>'+m.lb;
+    b.onclick=()=>setMonth(m.n);
+    sel.appendChild(b);
+  });
+  // Theme display
+  const md=mdata(activeMonth);
+  document.getElementById('rmtheme').innerHTML=
+    '<div class="rm-icon">'+md.ic+'</div>'
+    +'<div style="flex:1;min-width:0;">'
+    +'<div class="rm-ph" style="color:'+md.thco+'">'+md.ph+' · Month '+md.n+'</div>'
+    +'<div class="rm-name">'+md.th+'</div>'
+    +'<div class="rm-desc" style="white-space:normal;">'+md.ds+'</div>'
+    +'</div>';
+  document.getElementById('rmtheme').style.cssText='display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;background:'+md.thbg+';border:1px solid '+md.thbd+';margin-top:4px';
+}
+
+function setMonth(n){
+  activeMonth=n;saveMO();
+  const ls=lessons(n);activeLesson=ls[0]||null;
+  buildRoadmap();
+  if(curTab==='prac')renderPrac();
+  toast('📅 Month '+n+': '+mdata(n).th);
+}
+
+// ── HEATMAP (CORRIGIDO PARA O ANO ATUAL) ──────────────────────────────────────
+function renderHeatmap(){
+  const g=document.getElementById('hmg'),ml=document.getElementById('hmml');
+  g.innerHTML='';ml.innerHTML='';
+  
+  const yr=new Date().getFullYear();
+  const yrEl = document.getElementById('curYear');
+  if(yrEl) yrEl.textContent = yr;
+  
+  const end=new Date(yr,11,31);
+  const start=new Date(yr,0,1);
+  const fs=new Date(start);fs.setDate(start.getDate()-start.getDay());
+  const wks=[];let c=new Date(fs);
+  while(c<=end){const w=[];for(let i=0;i<7;i++){w.push(new Date(c));c.setDate(c.getDate()+1);}wks.push(w);}
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let lm=-1;
+  wks.forEach((wk,wi)=>{
+    const mo=wk[0].getMonth();
+    if(mo!==lm&&wk[0].getFullYear()===yr){
+      lm=mo;
+      const l=document.createElement('div');l.className='hm-ml';
+      l.style.minWidth=Math.max(12,(wks.slice(wi,wi+5).length)*14)+'px';
+      l.textContent=months[mo];ml.appendChild(l);
+    }
+  });
+  
+  const now=new Date();
+  wks.forEach(wk=>{
+    const col=document.createElement('div');col.className='hm-col';
+    wk.forEach(d=>{
+      const cell=document.createElement('div');cell.className='hm-c';
+      const k=d.toISOString().split('T')[0];
+      if(d.getFullYear()===yr){
+        if(d<=now){
+          if(checkins[k]) cell.classList.add('l4');
+        }else{
+          cell.style.background='#F1F5F9';
+        }
+      }
+      cell.title=k;
+      col.appendChild(cell);
+    });
+    g.appendChild(col);
+  });
+}
+
+// ── FLIGHT & METERS ───────────────────────────────────────────────────────────
+function renderFlight(){
+  const tm=stats.totalMins||0,h=Math.floor(tm/60),m=tm%60;
+  const e=document.getElementById('fhours');if(e)e.textContent=h+'h '+f2(m)+'m';
+  const ds=Object.keys(stats.studyDays||{}).length,av=ds>0?Math.round(tm/ds):0;
+  ['fdays','favg','fstrk'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=[ds,av+'m',streak()][i];
+  });
+  const hh=document.getElementById('hhours');if(hh)hh.textContent=Math.floor(tm/60)+'h';
+}
+function renderMeters(){
+  const last=localStorage.getItem('c1ld');
+  if(last&&last!==today){stats.wordsToday=0;stats.minsSpoken=0;saveST();}
+  localStorage.setItem('c1ld',today);
+  const w=stats.wordsToday||0,m=stats.minsSpoken||0;
+  const we=document.getElementById('wtoday');if(we)we.textContent=w;
+  const me=document.getElementById('mspoken');if(me)me.textContent=m;
+  const wp=document.getElementById('wprog');if(wp)wp.style.width=Math.min(w/150*100,100)+'%';
+  const mp=document.getElementById('mprog');if(mp)mp.style.width=Math.min(m/10*100,100)+'%';
+}
+
+// ── PRACTICE ──────────────────────────────────────────────────────────────────
+function isLessonCompleted(lessonId){
+  const completed=JSON.parse(localStorage.getItem('c1completed')||'{}');
+  return completed[lessonId]||false;
+}
+
+function toggleLessonComplete(lessonId,isCompleted){
+  const completed=JSON.parse(localStorage.getItem('c1completed')||'{}');
+  if(isCompleted){
+    completed[lessonId]=true;
+  }else{
+    delete completed[lessonId];
+  }
+  localStorage.setItem('c1completed',JSON.stringify(completed));
+  if(window.firebase&&RDR){
+    RDR.child('completed').set(completed).catch(()=>{});
+  }
+  renderPrac();
+  toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
+}
+
+function renderPrac(){
+  const m=mdata(activeMonth),ls=lessons(activeMonth);
+  if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
+  // Month context
+  document.getElementById('pmctx').innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span class="tag tbl">'+m.ic+' Month '+m.n+': '+m.th+'</span><span style="font-size:14px;color:#94A3B8">'+ls.length+' lesson'+(ls.length!==1?'s':'')+'</span></div>';
+  // Lessons
+  const ll=document.getElementById('lessonlist');ll.innerHTML='';
+  if(ls.length===0){
+    ll.innerHTML='<div class="card" style="text-align:center;padding:20px"><p style="color:#475569;font-size:14px;margin-bottom:10px">No lessons for Month '+activeMonth+'.</p><button class="btn bte bsm" onclick="openM(\'mCL\')">Add Custom Lesson</button></div>';
+  }else{
+    ls.forEach(l=>{
+      const div=document.createElement('div');
+      const completed=isLessonCompleted(l.id);
+      div.className='lcard'+(activeLesson&&activeLesson.id===l.id?' on':'')+(l.isCustom?' custom':'')+(completed?' completed':'');
+      div.style.background=completed?'linear-gradient(135deg,#F0FDF4,#E8F5E9)':'';
+      div.style.borderColor=completed?'#86EFAC':'';
+      div.onclick=()=>{activeLesson=l;renderPrac();};
+      div.innerHTML='<div style="flex:1;min-width:0">'
+        +'<div class="ltit">'+esc(l.title)+'<span class="tag tgr">'+esc(l.level||'C1')+'</span>'+(l.isCustom?'<span class="tag tcu">custom</span>':'')+
+        (completed?'<span class="tag" style="background:#10B981;color:white;font-weight:600">✓ Done</span>':'')+'</div>'
+        +'<div class="ldsc">'+esc(l.desc||'')+'</div>'
+        +'<div style="display:flex;gap:5px;flex-wrap:wrap">'+(l.tags||[]).map(t=>'<span class="tag tgr">'+t+'</span>').join('')+'</div></div>'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none" onclick="event.stopPropagation()"><input type="checkbox" '+(completed?'checked':'')+' onchange="toggleLessonComplete(\''+l.id+'\',this.checked)" style="width:14px;height:14px;cursor:pointer"><span style="font-size:14px;color:#6B7280;font-weight:500">Done</span></label>'
+        +'<a href="'+esc(l.url)+'" target="_blank" onclick="event.stopPropagation()" style="color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>'
+        +'</div>'
+        +(l.isCustom?'<button onclick="event.stopPropagation();delCustom(\''+l.id+'\')" style="background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
+        +'</div>';
+      ll.appendChild(div);
+    });
+  }
+  // Prompt
+  const pb=document.getElementById('promptbox'),db2=document.getElementById('dbadge'),ap=document.getElementById('activeprompt');
+  pb.className='pbox'+(m.dc?' '+m.dc:'');
+  db2.className='dbadge'+(m.dc?' '+m.dc:'');
+  db2.textContent=m.dl;
+  ap.textContent=activeLesson?activeLesson.prompt:'Select a lesson above.';
+  renderActivities();
+}
+function onInput(){
+  const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wcount').textContent=w+' words';
+  document.getElementById('anlbtn').disabled=w<2;
+  document.getElementById('claudebtn').disabled=w<2;
+}
+
+// ── SESSION TIMER ─────────────────────────────────────────────────────────────
+function initSesTimer(){
+  sesStart=Date.now();
+  setInterval(()=>{
+    const el=document.getElementById('sestimer');if(!el)return;
+    const e=Math.floor((Date.now()-sesStart)/1000);
+    el.textContent=f2(Math.floor(e/60))+':'+f2(e%60);
+  },1000);
+}
+
+// ── SHADOWING ─────────────────────────────────────────────────────────────────
+function toggleShadow(){
+  const t=document.getElementById('shtimer'),b=document.getElementById('shbtn');
+  if(!shadowOn){
+    shadowOn=true;shadowSecs=300;t.classList.remove('hid');
+    b.textContent='⏹ Stop';b.className='btn bdn bsm';
+    shadowIv=setInterval(()=>{
+      shadowSecs--;
+      document.getElementById('shdsp').textContent=Math.floor(shadowSecs/60)+':'+f2(shadowSecs%60);
+      if(shadowSecs<=0){
+        clearInterval(shadowIv);shadowOn=false;
+        b.textContent='▶ Start 5-min';b.className='btn bpu bsm';
+        stats.minsSpoken=(stats.minsSpoken||0)+5;stats.totalMins=(stats.totalMins||0)+5;
+        if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+5;
+        saveST();toast('🎙 5 min shadowing logged!');renderMeters();
+      }
+    },1000);
+  }else{clearInterval(shadowIv);shadowOn=false;t.classList.add('hid');b.textContent='▶ Start 5-min';b.className='btn bpu bsm';}
+}
+
+// ── SPEECH ────────────────────────────────────────────────────────────────────
+function toggleListen(){
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Speech recognition requires Chrome.');return;}
+  if(listening){recognition&&recognition.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
+  const t0=Date.now();let committed='';
+  recognition.onresult=e=>{
+    const d=document.getElementById('trdsp');d.classList.remove('hid');
+    let ihtml='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const r=e.results[i],cf=r[0].confidence;
+      r[0].transcript.trim().split(' ').forEach(w=>{if(!w)return;let cl='';if(cf>0&&cf<0.6)cl='vlo';else if(cf>0&&cf<0.8)cl='lo';ihtml+='<span class="tword '+cl+'">'+w+' </span>';});
+      if(r.isFinal){committed+=(committed?' ':'')+r[0].transcript.trim();document.getElementById('rtxt').value=committed;onInput();}
+    }
+    const ch=committed.split(' ').filter(Boolean).map(w=>'<span class="tword">'+w+' </span>').join('');
+    d.innerHTML=(ch+ihtml)||'<span style="color:#94A3B8">Listening…</span>';
+  };
+  recognition.onend=()=>{
+    listening=false;updMic();
+    const mn=Math.round((Date.now()-t0)/60000);
+    if(mn>0){stats.minsSpoken=(stats.minsSpoken||0)+mn;stats.totalMins=(stats.totalMins||0)+mn;if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+mn;saveST();renderMeters();}
+  };
+  recognition.onerror=()=>{listening=false;updMic();};
+  recognition.start();listening=true;updMic();
+}
+function updMic(){
+  const b=document.getElementById('micbtn'),bar=document.getElementById('lisbar');
+  if(listening){b.className='btn bdn bsm';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Stop';bar.classList.remove('hid');}
+  else{b.className='btn bsm';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';bar.classList.add('hid');}
+}
+
+// ── AI BRIDGE ─────────────────────────────────────────────────────────────────
+function openInClaude(){
+  const t=document.getElementById('rtxt').value.trim();
+  if(!t){toast('⚠️ Write something first');return;}
+  curText=t;
+  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
+  navigator.clipboard.writeText(fp).then(()=>{
+    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+    document.getElementById('mpbox').textContent=fp;
+    document.getElementById('jsonin').value='';
+    document.getElementById('cpbdg').classList.add('on');
+    openM('mAI');
+  }).catch(()=>{
+    toast('⚠️ Copy failed — use Analyze & Level Up instead');
+  });
+}
+function openAIModal(){
+  const t=document.getElementById('rtxt').value.trim();if(!t)return;
+  curText=t;
+  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
+  navigator.clipboard.writeText(t).catch(()=>{});
+  document.getElementById('mpbox').textContent=fp;
+  document.getElementById('jsonin').value='';
+  document.getElementById('cpbdg').classList.remove('on');
+  openM('mAI');
+}
+function copyPrompt(){
+  const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
+  navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
+}
+function processJSON(){
+  const raw=document.getElementById('jsonin').value.trim();
+  if(!raw){toast('⚠️ Paste Claude\'s JSON first');return;}
+  let r;
+  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+  catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  closeM('mAI');
+  const w=curText.trim().split(/\s+/).filter(Boolean).length;
+  stats.wordsToday=(stats.wordsToday||0)+w;
+  stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
+  if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(w/100)*5);
+  saveST();renderMeters();renderAnalysis(r);
+}
+function renderAnalysis(r){
+  const lc={B1:'#D97706','B2':'#2563EB','B2+':'#0891B2','C1-':'#0D9488','C1':'#16A34A','C1+':'#059669','C2':'#7C3AED'};
+  const level=r.level_estimate||(r.diagnosis&&r.diagnosis.c1_distance&&r.diagnosis.c1_distance.level_estimate)||'—';
+  let h='<div class="card fb" style="align-items:flex-start">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Estimated Level</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+(lc[level]||'#2563EB')+'">'+esc(level)+'</div></div>'
+    +'<div style="max-width:60%;text-align:right;font-size:14px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
+  // ── C1 PATHWAY (expanded analysis) ──
+  if(r.diagnosis){
+    const d=r.diagnosis,pct=(d.c1_distance&&d.c1_distance.score)||0;
+    const scoreBar=(s)=>{const w=Math.max(0,Math.min(10,s||0))*10;const col=s>=8?'#16A34A':s>=6?'#2563EB':s>=4?'#D97706':'#DC2626';return '<div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-top:4px"><div style="height:100%;width:'+w+'%;background:'+col+';border-radius:4px"></div></div>';};
+    h+='<div class="card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE">'
+      +'<div class="ctit" style="color:#1D4ED8">📊 C1 Pathway — Skills Snapshot</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px">';
+    const skills=[['Grammar',d.grammar],['Vocabulary',d.vocabulary],['Fluency',d.fluency],['Register',d.register]];
+    skills.forEach(([n,sk])=>{
+      if(!sk)return;
+      h+='<div style="background:#fff;border:1px solid #DDE3F5;border-radius:8px;padding:10px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#475569;font-weight:500">'+n+'</span><span style="font-size:18px;font-weight:700;color:#1D4ED8;font-family:\'DM Mono\',monospace">'+(sk.score||0)+'/10</span></div>'
+        +scoreBar(sk.score)
+        +'<div style="font-size:13px;color:#475569;margin-top:6px;line-height:1.4">'+esc(sk.notes||'')+'</div>'
+        +'</div>';
+    });
+    h+='</div>';
+    if(d.c1_distance){
+      h+='<div style="background:#fff;border:1px solid #BFDBFE;border-radius:8px;padding:12px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+        +'<span style="font-size:14px;font-weight:600;color:#1D4ED8">Distance to C1</span>'
+        +'<span style="font-size:18px;font-weight:700;font-family:\'DM Mono\',monospace;color:#1D4ED8">'+esc(d.c1_distance.percentage||(pct+'%'))+'</span></div>'
+        +'<div style="height:10px;background:#E2E8F0;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:6px;transition:width .6s"></div></div>'
+        +'</div>';
+    }
+    h+='</div>';
+  }
+  if(r.patterns){
+    const p=r.patterns;
+    h+='<div class="card" style="background:#FEF2F2;border-color:#FECACA">'
+      +'<div class="ctit" style="color:#DC2626">⚠️ Patterns & Bottleneck</div>'
+      +'<div style="display:grid;grid-template-columns:1fr;gap:10px">';
+    if(p.bottleneck){
+      h+='<div style="background:#fff;border:1px solid #FCA5A5;border-radius:8px;padding:10px"><div style="font-size:13px;font-weight:600;color:#DC2626;margin-bottom:4px">🎯 Bottleneck (#1 limiter)</div><div style="font-size:14px;color:#0F172A;line-height:1.5">'+esc(p.bottleneck)+'</div></div>';
+    }
+    if(p.recurring_errors&&p.recurring_errors.length){
+      h+='<div style="background:#fff;border:1px solid #DDE3F5;border-radius:8px;padding:10px"><div style="font-size:13px;font-weight:600;color:#DC2626;margin-bottom:6px">🔁 Recurring Errors</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#475569;line-height:1.6">';
+      p.recurring_errors.forEach(e=>{h+='<li>'+esc(e)+'</li>';});
+      h+='</ul></div>';
+    }
+    if(p.strengths&&p.strengths.length){
+      h+='<div style="background:#fff;border:1px solid #BBF7D0;border-radius:8px;padding:10px"><div style="font-size:13px;font-weight:600;color:#16A34A;margin-bottom:6px">💪 Strengths</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#475569;line-height:1.6">';
+      p.strengths.forEach(s=>{h+='<li>'+esc(s)+'</li>';});
+      h+='</ul></div>';
+    }
+    h+='</div></div>';
+  }
+  if(r.actionable){
+    const a=r.actionable;
+    h+='<div class="card" style="background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border-color:#BBF7D0">'
+      +'<div class="ctit" style="color:#16A34A">🎯 Next 3 Days — Action Plan</div>';
+    if(a.next_3_days&&a.next_3_days.length){
+      h+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">';
+      a.next_3_days.forEach((t,i)=>{h+='<div style="background:#fff;border-left:3px solid #16A34A;padding:8px 12px;border-radius:6px;font-size:13px;color:#0F172A;line-height:1.5">'+esc(t)+'</div>';});
+      h+='</div>';
+    }
+    if(a.avoid){h+='<div style="background:#fff;border:1px solid #FCA5A5;border-radius:8px;padding:10px;margin-bottom:8px"><span style="font-size:13px;font-weight:600;color:#DC2626">🚫 Avoid: </span><span style="font-size:13px;color:#475569">'+esc(a.avoid)+'</span></div>';}
+    if(a.focus_skill){h+='<div style="background:#fff;border:1px solid #BFDBFE;border-radius:8px;padding:10px"><span style="font-size:13px;font-weight:600;color:#2563EB">🔍 Focus skill: </span><span style="font-size:13px;color:#475569">'+esc(a.focus_skill)+'</span></div>';}
+    h+='</div>';
+  }
+  if(r.roadmap_alignment){
+    const ra=r.roadmap_alignment;
+    const statusColor=ra.status==='On track'?'#16A34A':ra.status==='Ahead'?'#7C3AED':'#D97706';
+    h+='<div class="card" style="background:#F8FAFF;border-color:#BFDBFE">'
+      +'<div class="ctit" style="color:#1D4ED8">📍 Roadmap Alignment</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">'
+      +'<div><span style="font-size:13px;color:#94A3B8">Month '+(ra.current_month||activeMonth)+' Status</span></div>'
+      +'<div style="padding:4px 10px;background:'+statusColor+';color:#fff;border-radius:12px;font-size:13px;font-weight:600">'+esc(ra.status||'—')+'</div></div>';
+    if(ra.next_activity){h+='<div style="background:#fff;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-size:13px;color:#94A3B8;margin-bottom:4px">Next activity</div><div style="font-size:14px;color:#0F172A;line-height:1.5">'+esc(ra.next_activity)+'</div></div>';}
+    if(ra.recommendation){h+='<div style="background:#fff;border:1px solid #DDE3F5;border-radius:8px;padding:10px"><div style="font-size:13px;color:#94A3B8;margin-bottom:4px">Recommendation</div><div style="font-size:14px;color:#0F172A;line-height:1.5;font-style:italic">"'+esc(ra.recommendation)+'"</div></div>';}
+    h+='</div>';
+  }
+  if(r.corrections?.length){
+    h+='<div class="card"><div class="ctit"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="gg">';
+    r.corrections.forEach(c=>{h+='<div class="corr"><div class="cwrong">✗ '+esc(c.original)+'</div><div class="cright">✓ '+esc(c.corrected)+'</div><div class="cwhy">'+esc(c.explanation)+'</div></div>';});
+    h+='</div></div>';
+  }
+  if(r.c1_upgrades?.length){
+    pendingUpgrades=r.c1_upgrades;
+    h+='<div class="card"><div class="fb" style="margin-bottom:12px"><div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>C1 Vocabulary Upgrades</div></div><div class="gg">';
+    r.c1_upgrades.forEach((u,i)=>{
+      h+='<div class="upitem"><div style="flex:1">'
+        +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">'
+        +'<span style="font-size:14px;color:#94A3B8;text-decoration:line-through">'+esc(u.simple)+'</span>'
+        +'<span style="color:#94A3B8">→</span>'
+        +'<span style="font-size:14px;font-weight:600;color:#1D4ED8">'+esc(u.c1)+'</span></div>'
+        +'<div style="font-size:14px;color:#475569;font-style:italic">"'+esc(u.example)+'"</div></div>'
+        +'<button class="btn bpr bsm" id="sub'+i+'" onclick="saveUpgrade('+i+')">'
+        +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save</button></div>';
+    });
+    h+='</div></div>';
+  }
+  const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
+}
+function saveUpgrade(i){
+  const u=pendingUpgrades[i];if(!u)return;
+  saveCard(u.simple,u.c1,u.example,'upgrade');
+  const b=document.getElementById('sub'+i);
+  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:14px;border-radius:8px;cursor:default';}
+}
+
+// ── CARDS ─────────────────────────────────────────────────────────────────────
+function saveCard(simple,c1,example,type='upgrade',topic=''){
+  if(cards.find(c=>c.simple===simple)){toast('Already saved!');return;}
+  const{date,intervalIdx,easiness}=nxtRev(2,-1,2.5);
+  const cardObj={id:Date.now().toString(),simple,c1,example,type,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today};
+  if(topic)cardObj.topic=topic;
+  cards.unshift(cardObj);
+  saveCA();toast('Saved to SRS! 🎉');render();
+}
+function saveChunk(){
+  const simple=document.getElementById('chkw')?.value.trim(),c1=document.getElementById('chex')?.value.trim(),example=document.getElementById('chex2')?.value.trim()||'';
+  if(!simple||!c1){toast('Fill Simple and Back fields');return;}
+  const topicSel=document.getElementById('chtopic')?.value||'',customTopic=document.getElementById('chcustom')?.value.trim()||'';
+  const topic=customTopic||topicSel||'';
+  saveCard(simple,c1,example,'chunk',topic);
+  document.getElementById('chkw').value='';
+  document.getElementById('chex').value='';
+  document.getElementById('chex2').value='';
+  document.getElementById('chtopic').value='';
+  document.getElementById('chcustom').value='';
+}
+function formatText(text){
+  if(!text)return'';
+  let safe=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+}
+function openEdit(id){
+  const c=cards.find(x=>x.id===id);if(!c)return;
+  editCardId=id;
+  document.getElementById('ec_sim').value=c.simple||'';
+  document.getElementById('ec_c1').value=c.c1||'';
+  document.getElementById('ec_ex').value=c.example||'';
+  const sel=document.getElementById('ec_topic');
+  sel.innerHTML='<option value="">No topic</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom...</option>';
+  if(c.topic&&TOPICS.includes(c.topic)){sel.value=c.topic;document.getElementById('ec_custom').value='';}
+  else if(c.topic){sel.value='__custom__';document.getElementById('ec_custom').value=c.topic;}
+  else{sel.value='';document.getElementById('ec_custom').value='';}
+  openM('mEC');
+}
+function saveEdit(){
+  const s=document.getElementById('ec_sim').value.trim(),c=document.getElementById('ec_c1').value.trim(),e=document.getElementById('ec_ex').value.trim();
+  if(!s||!c){toast('⚠️ Simple and C1 are required');return;}
+  const topicSel=document.getElementById('ec_topic')?.value||'',customTopic=document.getElementById('ec_custom')?.value.trim()||'';
+  const topic=customTopic||topicSel||'';
+  const i=cards.findIndex(x=>x.id===editCardId);
+  if(i>=0){cards[i].simple=s;cards[i].c1=c;cards[i].example=e;if(topic){cards[i].topic=topic;}else{delete cards[i].topic;}}
+  saveCA();closeM('mEC');toast('✅ Card updated!');renderCards();render();
+}
+function confirmDel(){
+  const c=cards.find(x=>x.id===editCardId);if(!c)return;
+  if(confirm('Delete "'+c.simple+' → '+c.c1+'"?')){closeM('mEC');cards=cards.filter(x=>x.id!==editCardId);saveCA();toast('Deleted');renderCards();render();}
+}
+
+// ── REVIEW ────────────────────────────────────────────────────────────────────
+function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
+function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
+function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
+function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
+function revUsedTopics(){
+  const s=new Set();
+  cards.forEach(c=>{if(c.topic)s.add(c.topic);});
+  return Array.from(s).sort();
+}
+function renderRev(){
+  const allDue=due();
+  const dv=revSession();
+  document.getElementById('duecnt').textContent=dv.length+' / '+allDue.length+' due today';
+  const c=document.getElementById('revcontent');
+  const topics=revUsedTopics();
+  const modes=[['all','All Due','📚'],['topic','By Topic','🏷️'],['random','Random','🎲'],['weakest','Weakest','🔥']];
+  let ctrls='<div class="card rev-ctrls" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
+    +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;flex:1 1 calc(50% - 4px);">'+m[2]+' '+m[1]+'</button>').join('')
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+  if(revCfg.mode==='topic'){
+    ctrls+='<select onchange="setRevTopic(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;flex:1;min-width:160px;font-family:\'DM Sans\',sans-serif"><option value="">— Select topic —</option>'
+      +topics.map(t=>'<option value="'+esc(t)+'"'+(revCfg.topic===t?' selected':'')+'>'+esc(t)+'</option>').join('')
+      +'</select>';
+  }
+  if(revCfg.mode==='random'){
+    ctrls+='<label style="font-size:14px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
+  }
+  ctrls+='<label style="font-size:14px;color:#475569;margin-left:auto">Daily limit:</label><input type="number" min="1" max="500" value="'+revCfg.limit+'" onchange="setRevLimit(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
+  ctrls+='</div></div>';
+  if(allDue.length===0){c.innerHTML=ctrls+'<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>';return;}
+  if(dv.length===0){c.innerHTML=ctrls+'<div class="card empty"><div class="etit">No cards match this filter</div><div class="esub">'+(revCfg.mode==='topic'&&!revCfg.topic?'Select a topic above.':'Try a different filter or add cards with this topic.')+'</div></div>';return;}
+  if(flashIdx>=dv.length)flashIdx=0;
+  const card=dv[flashIdx];
+  let dots='<div class="pdots">';
+  dv.forEach((_,i)=>dots+='<div class="pdot2'+(i<flashIdx?' dn':i===flashIdx?' cu':'')+'"></div>');
+  dots+='</div>';
+  let ch='';
+  const navBtns='<div class="rev-nav"><button class="rnb" onclick="navRev(-1)" '+(dv.length<=1?'disabled':'')+' title="Previous">←</button><button class="rnb" onclick="navRev(1)" '+(dv.length<=1?'disabled':'')+' title="Next">→</button></div>';
+  if(!flipped){
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
+      +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+  }else{
+    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+      +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>'
+      +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+  }
+  c.innerHTML=ctrls+dots+ch;
+}
+function flipCard(){flipped=!flipped;renderRev();}
+function navRev(dir){
+  const dv=revSession();if(dv.length<=1)return;
+  flashIdx=(flashIdx+dir+dv.length)%dv.length;
+  flipped=false;renderRev();
+}
+function handleRev(q){
+  const dv=revSession(),card=dv[flashIdx];if(!card)return;
+  const reviewedId=card.id;
+  const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
+  const i=cards.findIndex(c=>c.id===card.id);
+  if(i>=0){cards[i].nextReview=date;cards[i].intervalIdx=intervalIdx;cards[i].easiness=easiness;}
+  flipped=false;
+  const nd=revSession();
+  if(nd.length===0){
+    flashIdx=0;
+  }else{
+    const stillThereIdx=nd.findIndex(c=>c.id===reviewedId);
+    if(stillThereIdx>=0){
+      flashIdx=(stillThereIdx+1)%nd.length;
+    }else if(flashIdx>=nd.length){
+      flashIdx=0;
+    }
+  }
+  renderRev();
+  saveCA();
+  render();
+}
+
+// ── MY CARDS ──────────────────────────────────────────────────────────────────
+function renderCards(){
+  const el=document.getElementById('cardslist');
+  if(cards.length===0){el.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Add C1 upgrades or import from Anki.</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;width:100%"><button class="btn bpr" onclick="goTab(\'prac\')">Go to Practice →</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn bte" style="margin:0;cursor:pointer" onclick="openImportModal()">📊 Import CSV</button><button class="btn bte" style="margin:0;cursor:pointer" onclick="openImportModal()">📚 Import Anki</button></div></div></div>';return;}
+  let h='<div class="cards-actions">'
+    +'<button class="action-btn imp" onclick="openImportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>+ Import</button>'
+    +'<button class="action-btn exp" onclick="openExportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'
+    +'</div>'
+    +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:14px;margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:14px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
+    +'<div class="chunk-form">'
+    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:14px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:14px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:14px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
+    +'</div>'
+    +'<div class="topic-row">'
+    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
+    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
+    +'</div>'
+    +'<div style="margin-top:14px;padding:12px;background:#fff;border-radius:8px;border:1px solid #E5E7EB">'
+    +'<div style="font-size:14px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Preview</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Front:</div><div id="chkwPreview" style="font-size:14px;color:#0F172A;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Back:</div><div id="chexPreview" style="font-size:14px;color:#1D4ED8;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'</div>'
+    +'</div>'
+    +'<button class="btn bpr" onclick="saveChunk()" style="padding:12px 20px;font-size:14px;font-weight:600;margin-top:14px;display:block;margin-left:auto;margin-right:auto">💾 Save Card</button>'
+    +'</div>';
+  h+='<div class="cards-grid">'+cards.map(c=>{
+    const id=c.nextReview<=today;
+    return '<div class="citem'+(id?' due':'')+'"><div style="flex:1;min-width:0">'
+      +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">'
+      +'<span class="cisim">'+esc(c.simple)+'</span><span style="color:#94A3B8;font-size:14px">→</span>'
+      +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+(c.topic?'<span class="tag tbl" style="font-size:14px;padding:2px 6px">'+esc(c.topic)+'</span>':'')+'</div>'
+      +(c.example?'<div style="font-size:14px;color:#475569;font-style:italic;margin:2px 0 5px;word-break:break-word">"'+esc(c.example)+'"</div>':'')
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+      +'<span class="tag '+(id?'trd':'tgg')+'">'+(id?'Due today':'Next: '+c.nextReview)+'</span>'
+      +'<span style="font-size:14px;color:#94A3B8;font-family:\'DM Mono\',monospace">EF '+(c.easiness||2.5).toFixed(1)+'</span>'
+      +'</div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px">'
+      +'<button onclick="openEdit(\''+c.id+'\')" title="Edit" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      +'<button onclick="editCardId=\''+c.id+'\';confirmDel()" title="Delete" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
+      +'</div></div>';
+  }).join('')+'</div>';
+  el.innerHTML=h;
+  setupCardTextareas();
+}
+
+function setupCardTextareas(){
+  const tareas=['chkw','chex','chex2'];
+  const updatePreview=()=>{
+    const front=document.getElementById('chkw')?.value||'';
+    const back=document.getElementById('chex')?.value||'';
+    document.getElementById('chkwPreview').innerHTML=formatText(front)||'<span style="color:#CBD5E1">—</span>';
+    document.getElementById('chexPreview').innerHTML=formatText(back)||'<span style="color:#CBD5E1">—</span>';
+  };
+  const insertMarkdown=(ta,before,after)=>{
+    const start=ta.selectionStart,end=ta.selectionEnd;
+    const selected=ta.value.substring(start,end)||'text';
+    const newText=ta.value.substring(0,start)+before+selected+after+ta.value.substring(end);
+    ta.value=newText;
+    ta.selectionStart=start+before.length;
+    ta.selectionEnd=start+before.length+selected.length;
+    ta.focus();
+    updatePreview();
+  };
+  tareas.forEach(id=>{
+    const ta=document.getElementById(id);
+    if(!ta)return;
+    const growIfNeeded=()=>{
+      if(ta.scrollHeight>ta.clientHeight){
+        ta.style.height=ta.scrollHeight+'px';
+      }
+      updatePreview();
+    };
+    ta.addEventListener('input',growIfNeeded);
+    ta.addEventListener('paste',(e)=>{
+      setTimeout(()=>{
+        const v=ta.value;
+        const cleaned=v.split('\n').map(line=>line.trim()).filter(line=>line).join('\n');
+        if(cleaned!==v){ta.value=cleaned;}
+        growIfNeeded();
+      },0);
+    });
+    ta.addEventListener('keydown',(e)=>{
+      if(!e.ctrlKey&&!e.metaKey)return;
+      if(e.key==='b'||e.key==='B'){e.preventDefault();insertMarkdown(ta,'**','**');}
+      else if(e.key==='i'||e.key==='I'){e.preventDefault();insertMarkdown(ta,'*','*');}
+    });
+  });
+  updatePreview();
+}
+
+// ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
+const CTAGS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Science','Tech','Philosophy','Culture','Business'];
+const TOPICS=['Sentence Structure','Connectors','Word Formation','Verb Tenses','Prepositions','Modal Verbs','Reported Speech','Active vs Passive Voice','Pronouns & Determiners','Conditional','Discourse Markers & Hedging','Questions & Indirect Questions','General English','Commom Themes'];
+function openM(id){
+  document.getElementById(id).classList.remove('hid');
+  if(id==='mCL'){
+    selTags=[];
+    document.getElementById('cltaggrid').innerHTML=CTAGS.map(t=>'<button onclick="toggleTag(\''+t+'\',this)" style="padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:14px;font-family:\'DM Mono\',monospace;cursor:pointer;transition:all .15s;color:#475569">'+t+'</button>').join('');
+  }
+}
+function toggleTag(t,b){
+  if(selTags.includes(t)){selTags=selTags.filter(x=>x!==t);b.style.cssText='padding:4px 9px;border-radius:20px;border:1px solid #DDE3F5;background:transparent;font-size:14px;font-family:DM Mono,monospace;cursor:pointer;color:#475569';}
+  else{selTags.push(t);b.style.cssText='padding:4px 9px;border-radius:20px;border:none;background:#2563EB;color:#fff;font-size:14px;font-family:DM Mono,monospace;cursor:pointer';}
+}
+function saveCustomLesson(){
+  const tit=document.getElementById('cltit').value.trim(),url=document.getElementById('clurl').value.trim(),prom=document.getElementById('clprompt').value.trim();
+  if(!tit||!url){toast('⚠️ Title and URL required');return;}
+  const l={id:'cl'+Date.now(),month:activeMonth,title:tit,url,desc:'Custom lesson.',tags:selTags.length?selTags:['Custom'],level:'C1',prompt:prom||'Study this resource. Write a 150-200 word response using new vocabulary naturally.',isCustom:true,created:today};
+  customLessons.push(l);saveCU();
+  document.getElementById('cltit').value='';document.getElementById('clurl').value='';document.getElementById('clprompt').value='';
+  closeM('mCL');toast('✅ Custom lesson saved!');renderPrac();
+}
+function delCustom(id){
+  customLessons=customLessons.filter(l=>l.id!==id);saveCU();
+  if(activeLesson&&activeLesson.id===id){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}
+  renderPrac();toast('Lesson removed');
+}
+
+// ── MODAL FUNCTIONS ───────────────────────────────────────────────────────────
+function openImportModal(){
+  document.getElementById('importModal').classList.add('open');
+}
+function closeImportModal(){
+  document.getElementById('importModal').classList.remove('open');
+}
+function openExportModal(){
+  document.getElementById('exportModal').classList.add('open');
+}
+function closeExportModal(){
+  document.getElementById('exportModal').classList.remove('open');
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportCSV(){
+  const rows=[['Front','Back','My Sentences','Topic','Custom Topic','Type','Next Review','EF','Created']];
+  cards.forEach(c=>{
+    const t=c.topic||'';
+    const isStd=t&&TOPICS.includes(t);
+    rows.push([c.simple||'',c.c1||'',c.example||'',isStd?t:'',isStd?'':t,c.type||'upgrade',c.nextReview||'',(c.easiness||2.5).toFixed(2),c.created||'']);
+  });
+  const csv='﻿sep=,\n'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  dl(csv,'c1-cards.csv','text/csv;charset=utf-8');
+  toast('✅ CSV exported');
+}
+function exportAnki(){dl(cards.map(c=>c.simple+'\t'+c.c1+'\t'+(c.example||'')).join('\n'),'c1-anki.txt','text/plain');toast('✅ Anki file exported');}
+function dl(ct,fn,mt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ct],{type:mt}));a.download=fn;a.click();}
+
+// ── BOOT (UI FIRST, FIREBASE IN BACKGROUND) ───────────────────────────────────
+function initApp(){
+  loadLocal();
+  setSS('offline'); 
+  buildRoadmap();
+  renderDash();
+  render();
+  initSesTimer();
+}
+
+function startSync(){
+  try{
+    if(typeof firebase==='undefined'){setSS('offline', 'Erro: Firebase não carregou');return;}
+    if(!firebase.apps||!firebase.apps.length){
+      firebase.initializeApp({apiKey:"AIzaSyCCw02GjKT2fdEi6UHX52I2Cc8fbPsodPo",authDomain:"b1-c1-80aa1.firebaseapp.com",databaseURL:"https://b1-c1-80aa1-default-rtdb.firebaseio.com",projectId:"b1-c1-80aa1",storageBucket:"b1-c1-80aa1.firebasestorage.app",messagingSenderId:"204603766052",appId:"1:204603766052:web:c78deb4be6b0a48cc7efb1"});
+    }
+    
+    setSS('sy'); 
+
+    firebase.auth().signInAnonymously().catch(err => {
+      setSS('offline', 'Auth Error: ' + err.code);
+    });
+
+    db = firebase.database();
+    RCI = db.ref('checkins');
+    RCA = db.ref('cards');
+    RST = db.ref('stats');
+    RCU = db.ref('customLessons');
+    RMO = db.ref('activeMonth');
+    RSE = db.ref('sentences');
+    RMS = db.ref('milestones');
+    RDT = db.ref('dailyTasks');
+    
+    RCI.on('value', s=>{
+      const v=s.val();
+      if(v){checkins=v; localStorage.setItem('c1ci',JSON.stringify(v));} 
+      setSS('online'); 
+      if(curTab==='dash')renderDash();
+    }, err => {
+      setSS('offline', 'DB Error: ' + err.code);
+    });
+
+    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); render();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
+    RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online'); renderMilestones();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
+    RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
+
+  }catch(e){
+      setSS('offline', 'Erro: ' + e.message);
+  }
+}
+
+function setSS(s, errMsg = ''){
+  const d=document.getElementById('sdot'), l=document.getElementById('slbl');
+  if(!d||!l)return;
+  if(s === 'online') {
+    d.className='sdot'; 
+    l.textContent='Synced'; 
+    l.style.color='#16A34A';
+  } else if (s === 'offline') {
+    d.className='sdot off'; 
+    l.textContent = errMsg ? errMsg : 'Local only'; 
+    l.style.color='#DC2626';
+  } else {
+    d.className='sdot sy'; 
+    l.textContent='Syncing…'; 
+    l.style.color='#D97706';
+  }
+}
+
+// ── SENTENCE MANAGEMENT ────────────────────────────────────────────
+let mysentences = JSON.parse(localStorage.getItem('mysentences')) || [];
+let selectedSentenceIdx = -1;
+let editingSentenceIdx = -1;
+
+function renderSentences(){
+  const lst = document.getElementById('sentencesList');
+  if(!lst) return;
+  lst.innerHTML = '';
+  if(mysentences.length === 0){
+    lst.innerHTML = '<div style="color:#94A3B8;font-size:14px;padding:8px">Adicione suas primeiras frases</div>';
+    return;
+  }
+  mysentences.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'sentence-item' + (i === selectedSentenceIdx ? ' selected' : '');
+    const contextText = s.context ? `<div style="font-size:14px;color:#6B7280;margin-top:4px">${s.context}</div>` : '';
+    div.innerHTML = `<div style="flex:1"><div class="sentence-text">${s.text}</div>${contextText}</div><div class="sentence-actions"><button class="sentence-btn" onclick="openEditModal(${i})" title="Editar">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Deletar">🗑️</button></div>`;
+    div.addEventListener('click',(e)=>{if(!e.target.closest('.sentence-btn')) selectSentence(i);});
+    lst.appendChild(div);
+  });
+}
+
+function selectSentence(idx){
+  selectedSentenceIdx = idx;
+  const ta = document.getElementById('rtxt');
+  if(ta) ta.value = mysentences[idx].text;
+  renderSentences();
+  onInput();
+}
+
+function openAddSentenceModal(){
+  editingSentenceIdx = -1;
+  document.getElementById('sentenceInput').value = '';
+  document.getElementById('contextSelect').value = '';
+  document.getElementById('customContext').value = '';
+  document.getElementById('sentenceModal').classList.remove('hid');
+}
+
+function openEditModal(idx){
+  editingSentenceIdx = idx;
+  document.getElementById('sentenceInput').value = mysentences[idx].text;
+  document.getElementById('contextSelect').value = mysentences[idx].context || '';
+  document.getElementById('customContext').value = '';
+  document.getElementById('sentenceModal').classList.remove('hid');
+}
+
+function closeSentenceModal(){
+  document.getElementById('sentenceModal').classList.add('hid');
+}
+
+function saveSentenceFromModal(){
+  const text = document.getElementById('sentenceInput').value.trim();
+  const context = document.getElementById('customContext').value.trim() || document.getElementById('contextSelect').value;
+
+  if(!text){alert('Frase vazia');return;}
+
+  const sentence = {text, context};
+
+  if(editingSentenceIdx >= 0){
+    mysentences[editingSentenceIdx] = sentence;
+    if(selectedSentenceIdx === editingSentenceIdx){
+      const ta = document.getElementById('rtxt');
+      if(ta) ta.value = text;
+      onInput();
+    }
+  } else {
+    mysentences.push(sentence);
+  }
+
+  saveSentences();
+  renderSentences();
+  closeSentenceModal();
+}
+
+function deleteSentence(idx){
+  if(!confirm('Deletar esta frase?')) return;
+  mysentences.splice(idx,1);
+  if(selectedSentenceIdx === idx) selectedSentenceIdx = -1;
+  if(selectedSentenceIdx > idx) selectedSentenceIdx--;
+  saveSentences();
+  renderSentences();
+  if(selectedSentenceIdx >= 0) selectSentence(selectedSentenceIdx);
+}
+
+function saveSentences(){
+  localStorage.setItem('mysentences',JSON.stringify(mysentences));
+  if(RSE)RSE.set(mysentences&&mysentences.length>0?mysentences:null).catch(()=>{});
+}
+
+window.addEventListener('load',()=>{
+  renderSentences();
+});
+
+// ── DAILY CHECKLIST ────────────────────────────────────────────────────
+
+function toggleDailyTask(task){
+  try{
+    const stored=localStorage.getItem('c1dt-'+today);
+    const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
+    tasks[task]=!tasks[task];
+    localStorage.setItem('c1dt-'+today,JSON.stringify(tasks));
+    if(RDT)RDT.child(today).set(tasks).catch(()=>{});
+    renderDash();
+    toast('✓ Saved');
+  }catch(e){
+    console.error('toggleDailyTask error:',e);
+  }
+}
+
+function editDayTasks(dateStr){
+  try{
+    const val=localStorage.getItem('c1dt-'+dateStr);
+    const dayTasks=val?JSON.parse(val):{preply:false,reading:false,listening:false,writing:false};
+
+    let html='<div class="modal-title">Edit '+dateStr+'</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px">';
+
+    Object.entries(TASK_LABELS).forEach(([task,label])=>{
+      const checked=dayTasks[task];
+      html+=`<label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="edit_${task}" ${checked?'checked':''} style="width:14px;height:14px">
+        <span style="color:#0F172A">${label}</span>
+      </label>`;
+    });
+
+    html+='</div>';
+    html+=`<div class="modal-buttons">
+      <button class="btn bte bsm" onclick="closeEditDayModal()">Cancel</button>
+      <button class="btn bpr bsm" onclick="saveDayTasks('${dateStr}')">Save</button>
+    </div>`;
+
+    document.getElementById('editDayContent').innerHTML=html;
+    document.getElementById('editDayModal').classList.remove('hid');
+  }catch(e){
+    console.error('editDayTasks error:',e);
+  }
+}
+
+function saveDayTasks(dateStr){
+  try{
+    const dayTasks={};
+    Object.keys(TASK_LABELS).forEach(task=>{
+      dayTasks[task]=document.getElementById('edit_'+task).checked;
+    });
+    localStorage.setItem('c1dt-'+dateStr,JSON.stringify(dayTasks));
+    if(RDT)RDT.child(dateStr).set(dayTasks).catch(()=>{});
+    closeEditDayModal();
+    renderDash();
+    toast('✓ Day updated');
+  }catch(e){
+    console.error('saveDayTasks error:',e);
+  }
+}
+
+function closeEditDayModal(){
+  document.getElementById('editDayModal').classList.add('hid');
+}
+
+// ── PRACTICE ACTIVITIES ────────────────────────────────────────────────
+let lessonsDB={};
+let activities=[];
+const ACTIVITY_TYPES=['multiple-choice','cloze','true-false','matching','transcription'];
+
+function loadLessons(){
+  if(lessonsDB.lessons)return;
+
+  // Try cached first
+  const cached=localStorage.getItem('c1lessons');
+  if(cached){
+    lessonsDB=JSON.parse(cached);
+    return;
+  }
+
+  // Load from file async
+  fetch('lessons-c1.json').then(r=>r.json()).then(data=>{
+    lessonsDB=data;
+    localStorage.setItem('c1lessons',JSON.stringify(data));
+  }).catch(()=>{
+    console.log('Could not load lessons file, will use empty');
+    lessonsDB={lessons:[]};
+  });
+}
+
+function getLessonStats(lessonId){
+  if(!lessonStats[lessonId]){
+    lessonStats[lessonId]={attempts:0,correct:0,incorrect:0,lastAttempt:null,nextReviewDate:null};
+  }
+  return lessonStats[lessonId];
+}
+
+function recordLessonAttempt(lessonId,isCorrect){
+  const stats=getLessonStats(lessonId);
+  stats.attempts++;
+  if(isCorrect){
+    stats.correct++;
+    stats.nextReviewDate=new Date(Date.now()+7*24*60*60*1000).toISOString().split('T')[0];
+  }else{
+    stats.incorrect++;
+    stats.nextReviewDate=new Date(Date.now()+1*24*60*60*1000).toISOString().split('T')[0];
+  }
+  stats.lastAttempt=new Date().toISOString().split('T')[0];
+  localStorage.setItem('c1lesstats',JSON.stringify(lessonStats));
+  if(RDT)RDT.child('lessonStats').set(lessonStats).catch(()=>{});
+}
+
+function getNeedsReviewLessons(){
+  if(!lessonsDB.lessons)return[];
+  const today=new Date().toISOString().split('T')[0];
+  return lessonsDB.lessons.filter(l=>{
+    const stats=getLessonStats(l.id);
+    if(stats.incorrect===0)return false;
+    const nextReview=stats.nextReviewDate||'1970-01-01';
+    return nextReview<=today;
+  });
+}
+
+function getRandomLesson(){
+  if(!lessonsDB.lessons)return null;
+  const reviewLessons=getNeedsReviewLessons();
+  let pool=reviewLessons.length>0?reviewLessons:lessonsDB.lessons;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function generateNewActivity(){
+  // Ensure lessons are loaded
+  if(!lessonsDB.lessons||lessonsDB.lessons.length===0){
+    loadLessons();
+    setTimeout(generateNewActivity,500);
+    return;
+  }
+
+  const lesson=getRandomLesson();
+  if(!lesson){toast('⚠️ No lessons available');return;}
+
+  let activity={id:Date.now(),lessonId:lesson.id,type:lesson.type,completed:false,question:lesson.question,text:lesson.text,statement:lesson.statement,correct:lesson.correct,options:lesson.options,blank:lesson.blank,explanation:lesson.explanation};
+
+  activities.unshift(activity);
+  if(activities.length>5)activities.pop();
+  renderActivities();
+}
+
+function renderActivities(){
+  const container=document.getElementById('activitiesContainer');
+  if(!container||activities.length===0){if(container)container.innerHTML='<div style="color:#94A3B8;font-size:14px;padding:8px">Click "Generate New" to create an activity</div>';return;}
+
+  let html='';
+  activities.forEach(act=>{
+    let content='';
+    const isPending=!act.answered;
+
+    if(act.type==='multiple-choice'){
+      content=`<div style="font-size:14px;color:#0F172A;margin-bottom:8px">${act.question}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${act.options.map((opt,i)=>{
+          let bgc='transparent';
+          let border='1px solid #DDE3F5';
+          if(act.answered){
+            if(i===act.correct&&i===act.userAnswer)bgc='#D1FAE5';
+            else if(i===act.correct)bgc='#D1FAE5';
+            else if(i===act.userAnswer)bgc='#FEE2E2';
+          }
+          return `<label style="display:flex;gap:8px;cursor:${isPending?'pointer':'default'};font-size:14px;padding:8px;background:${bgc};border:${border};border-radius:6px" onclick="${isPending?`recordAnswer(${act.id},${i})`:''}">${isPending?`<input type="radio" name="q${act.id}">`:''} ${opt}</label>`;
+        }).join('')}</div>`;
+    }else if(act.type==='cloze'){
+      content=`<div style="font-size:14px;color:#0F172A;line-height:1.6;margin-bottom:8px">${act.text}</div>
+        <input type="text" id="cloze${act.id}" placeholder="Type the missing word" style="padding:8px;border:1px solid #DDE3F5;border-radius:6px;width:100%;box-sizing:border-box;font-size:14px" ${act.answered?'disabled':''} onkeyup="if(event.key==='Enter')recordClozeAnswer(${act.id})">`;
+    }else if(act.type==='true-false'){
+      content=`<div style="font-size:14px;color:#0F172A;margin-bottom:8px">${act.statement}</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},true)`:''}" style="flex:1;font-size:14px;background:${act.answered&&act.userAnswer===true&&act.correct?'#10B981':act.answered&&act.userAnswer===true?'#EF4444':''}${act.answered&&act.userAnswer===true?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✓ True</button>
+          <button class="btn bsm" onclick="${isPending?`recordAnswer(${act.id},false)`:''}" style="flex:1;font-size:14px;background:${act.answered&&act.userAnswer===false&&!act.correct?'#10B981':act.answered&&act.userAnswer===false?'#EF4444':''}${act.answered&&act.userAnswer===false?';color:#fff':''};opacity:${act.answered?'1':'0.7'}" ${act.answered?'disabled':''}>✗ False</button>
+        </div>`;
+    }
+
+    let feedback='';
+    if(act.answered){
+      const isCorrect=(act.type==='multiple-choice'?act.userAnswer===act.correct:act.type==='cloze'?act.userAnswer.toLowerCase()===act.blank.toLowerCase():act.userAnswer===act.correct);
+      feedback=`<div style="margin-top:10px;padding:10px;border-radius:6px;background:${isCorrect?'#D1FAE5':'#FEE2E2'};border-left:4px solid ${isCorrect?'#10B981':'#EF4444'}">
+        <div style="font-size:14px;color:${isCorrect?'#047857':'#B91C1C'};font-weight:600">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div>
+        <div style="font-size:14px;color:#0F172A;margin-top:4px">${act.explanation}</div>
+      </div>`;
+    }
+
+    html+=`<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">
+      <div style="font-size:14px;color:#94A3B8;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">${act.type.replace('-',' ')} • C1</div>
+      ${content}
+      ${feedback}
+      <button class="btn bsm" style="margin-top:10px;width:100%;font-size:14px" onclick="activities=activities.filter(a=>a.id!==${act.id});renderActivities()">Dismiss</button>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+function recordAnswer(actId,answer){
+  const act=activities.find(a=>a.id===actId);
+  if(!act)return;
+  act.userAnswer=answer;
+  act.answered=true;
+  const isCorrect=(act.type==='multiple-choice'?answer===act.correct:answer===act.correct);
+  recordLessonAttempt(act.lessonId,isCorrect);
+  renderActivities();
+  toast(isCorrect?'✓ Great!':'Try again next time');
+}
+
+function recordClozeAnswer(actId){
+  const act=activities.find(a=>a.id===actId);
+  if(!act)return;
+  act.userAnswer=document.getElementById('cloze'+actId).value;
+  act.answered=true;
+  const isCorrect=act.userAnswer.toLowerCase()===act.blank.toLowerCase();
+  recordLessonAttempt(act.lessonId,isCorrect);
+  renderActivities();
+  toast(isCorrect?'✓ Correct!':'Not quite right');
+}
+
+// ── ROADMAP FEATURE ────────────────────────────────────────────────────
+const ROADMAP_COLORS={'1':'#00a878','2':'#00a878','3':'#00a878','4':'#00a878','5':'#0066cc','6':'#0066cc','7':'#0066cc','8':'#ff6b35','9':'#ff6b35','10':'#8b4dff','11':'#8b4dff','12':'#8b4dff'};
+const ROADMAP_PHASES={'1':'1','2':'1','3':'1','4':'1','5':'2','6':'2','7':'2','8':'3','9':'3','10':'4','11':'4','12':'4'};
+const ROADMAP_EMOJI=['','🌱','🌱','🌱','🌱','🔧','🔧','🔧','📚','📚','🎓','🎓','🎓'];
+
+function buildRoadmap(){
+  const rc=document.getElementById('roadmapContent');
+  if(!rc)return;
+  rc.innerHTML='';
+  MONTHS.forEach((m,i)=>{
+    const num=i+1,phase=ROADMAP_PHASES[num],bg=ROADMAP_COLORS[num];
+    const btn=document.createElement('div');
+    btn.className='month-card'+(activeMonth===num?' active':'');
+    btn.style.borderColor=bg;
+    btn.style.backgroundColor=activeMonth===num?bg+'15':'#fff';
+    const focusItems=(m.sk||[]).slice(0,3).map(sk=>'<li>'+sk+'</li>').join('');
+    btn.innerHTML=`<div class="month-emoji">${ROADMAP_EMOJI[num]}</div>
+      <div class="month-name">${m.lb}</div>
+      <div class="month-phase phase${phase}">Phase ${phase}</div>
+      <div style="font-size:14px;color:#6B7280;margin:4px 0">${m.th}</div>
+      <ul class="month-focus">${focusItems}</ul>`;
+    btn.onclick=()=>{activeMonth=num;saveMO();goTab('prac');toast('📅 '+m.lb);renderDash();buildRoadmap();};
+    rc.appendChild(btn);
+  });
+}
+
+// ── MONTHLY PROGRESS ────────────────────────────────────────────────────
+function renderMonthProgress(){
+  const lsns=lessons(activeMonth);
+  const completed=lsns.filter(l=>{const c=cards.find(x=>x.id===l.id);return c&&c.nextReview;}).length;
+  const total=lsns.length;
+  const pct=total>0?Math.round(completed*100/total):0;
+  const daysActive=Object.keys(checkins).filter(k=>k.slice(5,7)===String(activeMonth).padStart(2,'0')).length;
+  let color='#ff6b35';if(pct>30)color='#fbbf24';if(pct>70)color='#00a878';
+
+  const html=`<div class="card" style="margin-bottom:14px">
+    <div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:12px">📊 Month Progress</div>
+    <div style="font-size:14px;color:#6B7280;margin-bottom:8px">${completed} / ${total} lessons completed</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+    <div style="display:flex;gap:14px;font-size:14px;margin-top:10px">
+      <div><span style="font-weight:600;color:#0F172A">${daysActive}</span> days active</div>
+      <div>Est. ${new Date(new Date().setDate(new Date().getDate()+Math.ceil((total-completed)*7/Math.max(daysActive,1)))).toLocaleDateString('pt-BR')}</div>
+    </div>
+  </div>`;
+  const dashCard=document.querySelector('[data-card="progress"]');
+  if(dashCard)dashCard.innerHTML=html;
+}
+
+// ── MILESTONES TRACKER ────────────────────────────────────────────────────
+const DEFAULT_MILESTONES={
+  'obsidian':{name:'Obsidian Vault Setup',completed:false},
+  'podcast':{name:'Native Podcast 100%',completed:false},
+  'escrita':{name:'Escrita Fluida (200+ words)',completed:false},
+  'fala':{name:'Fala Confiante com Nuance',completed:false},
+  'academic':{name:'Academic Writing Mastery',completed:false},
+  'exam':{name:'C1 Exam Ready',completed:false}
+};
 
 function loadMilestones(){
-  const stored=localStorage.getItem('toeflms');
+  const stored=localStorage.getItem('c1ms');
   milestones=stored?JSON.parse(stored):{...DEFAULT_MILESTONES};
 }
 
 function saveMilestones(){
-  localStorage.setItem('toeflms',JSON.stringify(milestones));
+  localStorage.setItem('c1ms',JSON.stringify(milestones));
   if(RMS)RMS.set(Object.keys(milestones).length?milestones:null).catch(()=>{});
 }
 
@@ -685,8 +2045,7 @@ async function handleCSVImport(file){
   reader.onload=(e)=>{
     try{
       const csv=e.target.result;
-      const lines=csv.split('
-').filter(l=>l.trim());
+      const lines=csv.split('\n').filter(l=>l.trim());
 
       if(lines.length<2){
         toast('❌ CSV is empty or invalid');
@@ -816,13 +2175,7 @@ async function handleAnkiImport(file){
           }
         }
 
-        toast('❌ No valid Anki export found.
-
-How to export from Anki:
-1. Right-click the deck
-2. Click "Export"
-3. Choose "Notes in CSV format"
-4. Save and import here');
+        toast('❌ No valid Anki export found.\n\nHow to export from Anki:\n1. Right-click the deck\n2. Click "Export"\n3. Choose "Notes in CSV format"\n4. Save and import here');
       }catch(err){
         console.error('Anki import error:',err);
         toast('❌ Error: '+err.message);
@@ -838,20 +2191,14 @@ How to export from Anki:
 function cleanCardText(text){
   if(!text)return'';
   return text
-    .replace(/&nbsp;/g,'
-')
-    .replace(/<br\s*\/?>/gi,'
-')
+    .replace(/&nbsp;/g,'\n')
+    .replace(/<br\s*\/?>/gi,'\n')
     .replace(/<[^>]*>/g,'')
-    .replace(/
-+/g,'
-')
-    .split('
-')
+    .replace(/\n+/g,'\n')
+    .split('\n')
     .map(line=>line.replace(/\s+/g,' ').trim())
     .filter(line=>line.length>0)
-    .join('
-');
+    .join('\n');
 }
 function handleAnkiXMLImport(xmlContent){
   try{
@@ -1010,8 +2357,7 @@ function tryExtractCardsFromXMLStructure(xmlDoc){
 
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-  if(/^sep=/i.test(text))text=text.replace(/^sep=.*\r?
-/i,'');
+  if(/^sep=/i.test(text))text=text.replace(/^sep=.*\r?\n/i,'');
   const rows=[];let row=[],field='',inQ=false;
   for(let i=0;i<text.length;i++){
     const ch=text[i];
@@ -1024,8 +2370,7 @@ function parseCSV(text){
       if(ch==='"')inQ=true;
       else if(ch===','){row.push(field);field='';}
       else if(ch==='\r'){}
-      else if(ch==='
-'){row.push(field);rows.push(row);row=[];field='';}
+      else if(ch==='\n'){row.push(field);rows.push(row);row=[];field='';}
       else field+=ch;
     }
   }
@@ -1121,21 +2466,6 @@ function importAnkiCards(){
   renderCards();
   closeM('mAnkiImport');
 }
-
-function scrollToTop(){
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function updateScrollButton(){
-  const btn=document.getElementById('scrollTopBtn');
-  if(window.scrollY>300){
-    btn.style.display='flex';
-  }else{
-    btn.style.display='none';
-  }
-}
-
-window.addEventListener('scroll',updateScrollButton);
 
 window.onload = function(){
   initApp();
