@@ -1110,20 +1110,12 @@ function renderPrac(){
         +'<div style="display:flex;gap:5px;flex-wrap:wrap">'+(l.tags||[]).map(t=>'<span class="tag tgr">'+t+'</span>').join('')+'</div></div>'
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">'
         +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><input type="checkbox" '+(completed?'checked':'')+' style="width:14px;height:14px;cursor:pointer"><span style="font-size:14px;color:#6B7280;font-weight:500">Done</span></label>'
+        +'<label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none" onclick="event.stopPropagation()"><input type="checkbox" '+(completed?'checked':'')+' onclick="event.stopPropagation();toggleLessonComplete(\''+l.id+'\',this.checked)" style="width:14px;height:14px;cursor:pointer"><span style="font-size:14px;color:#6B7280;font-weight:500">Done</span></label>'
         +'<a href="'+esc(l.url)+'" target="_blank" onclick="event.stopPropagation()" style="color:#2563EB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>'
         +'</div>'
         +(l.isCustom?'<button onclick="event.stopPropagation();delCustom(\''+l.id+'\')" style="background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>':'')
         +'</div>';
       ll.appendChild(div);
-      // Add checkbox listener after appending
-      const chk = div.querySelector('input[type="checkbox"]');
-      if(chk) {
-        chk.addEventListener('change', (e) => {
-          e.stopPropagation();
-          toggleLessonComplete(l.id, e.target.checked);
-        });
-      }
     });
   }
   // Prompt
