@@ -610,7 +610,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null;
 
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
@@ -1004,7 +1004,7 @@ function toggleLessonComplete(lessonId,isCompleted){
   }
   localStorage.setItem('c1completed',JSON.stringify(completed));
   if(window.firebase&&RDR){
-    RDR.child('completed').set(completed).catch(()=>{});
+    RDR.set(completed).catch(()=>{});
   }
   renderPrac();
   toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
@@ -1675,6 +1675,7 @@ function startSync(){
     RSE = db.ref('sentences');
     RMS = db.ref('milestones');
     RDT = db.ref('dailyTasks');
+    RDR = db.ref('completed');
     
     RCI.on('value', s=>{
       const v=s.val();
@@ -1691,6 +1692,7 @@ function startSync(){
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
+    RDR.on('value',s=>{const v=s.val();if(v){localStorage.setItem('c1completed',JSON.stringify(v));} setSS('online'); if(curTab==='prac')renderPrac();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
