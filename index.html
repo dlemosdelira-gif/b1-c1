@@ -1006,7 +1006,7 @@ function toggleLessonComplete(lessonId,isCompleted){
   if(window.firebase&&RDR){
     RDR.child('completed').set(completed).catch(()=>{});
   }
-  renderPrac();
+  setTimeout(()=>renderPrac(),50);
   toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
 }
 
