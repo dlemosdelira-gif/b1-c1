@@ -2307,18 +2307,16 @@ async function handleCSVImport(file){
       const seen=new Set();
 
       lines.forEach((line,idx)=>{
-        if(idx===0)return; // Skip header
-
-        const parts=line.split('\t').map(p=>p.trim());
+        if(idx===0)return;
+        let parts=[];
+        if(line.includes(',')){parts=line.split(',').map(p=>p.replace(/^"|"$/g,'').trim());}
+        else if(line.includes('\t')){parts=line.split('\t').map(p=>p.trim());}
+        else{parts=line.split('\t').map(p=>p.trim());}
         if(parts.length<2)return;
-
         let simple=parts[0]||'';
         let c1=parts[1]||'';
-
-        // Remove HTML tags
         simple=simple.replace(/<[^>]*>/g,'').slice(0,100);
         c1=c1.replace(/<[^>]*>/g,'').slice(0,200);
-
         if(simple.length>0&&c1.length>0&&!seen.has(simple)){
           seen.add(simple);
           importedCards.push({
