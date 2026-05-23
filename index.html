@@ -602,6 +602,11 @@ textarea{min-height:120px}
   <div id="cardslist"></div>
 </div>
 
+<div id="scrollBtns" style="position:fixed;bottom:80px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:99">
+  <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#2563EB;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .2s" title="Subir para o topo">↑</button>
+  <button id="scrollBottom" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#7C3AED;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(124,58,237,.3);transition:all .2s" title="Descer para o fim">⬇️</button>
+</div>
+
 </div><script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth(),toeflScores=[];
