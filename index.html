@@ -870,20 +870,24 @@ function renderScoreTracker(){
   if(!el)return;
   const targets={reading:22,listening:20,speaking:20,writing:22,total:80};
   const latest=toeflScores&&toeflScores.length>0?toeflScores[0]:null;
+  let bestReading=0,bestListening=0,bestSpeaking=0,bestWriting=0;
+  if(toeflScores&&toeflScores.length>0){
+    toeflScores.forEach(s=>{if(s.reading)bestReading=Math.max(bestReading,s.reading);if(s.listening)bestListening=Math.max(bestListening,s.listening);if(s.speaking)bestSpeaking=Math.max(bestSpeaking,s.speaking);if(s.writing)bestWriting=Math.max(bestWriting,s.writing);});
+  }
+  const bestTotal=bestReading+bestListening+bestSpeaking+bestWriting;
   let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
   const sects=[{k:'reading',l:'Reading',ic:'📖',c:'#2563EB'},{k:'listening',l:'Listening',ic:'🎧',c:'#16A34A'},{k:'speaking',l:'Speaking',ic:'🎤',c:'#D97706'},{k:'writing',l:'Writing',ic:'✍️',c:'#7C3AED'}];
   sects.forEach(s=>{
-    const score=latest?latest[s.k]:null;
+    const score=s.k==='reading'?bestReading:s.k==='listening'?bestListening:s.k==='speaking'?bestSpeaking:bestWriting;
     const t=targets[s.k];
-    const pct=score!=null?Math.min(100,Math.round(score/t*100)):0;
-    const color=score==null?'#94A3B8':score>=t?'#16A34A':score>=t*0.8?'#D97706':'#DC2626';
-    html+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#0F172A">${s.ic} ${s.l}</span><span style="font-size:14px;font-family:'DM Mono',monospace;color:${color};font-weight:700">${score!=null?score:'-'}/${t}</span></div><div style="height:4px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:${s.c};width:${pct}%;transition:width .4s"></div></div></div>`;
+    const pct=score>0?Math.min(100,Math.round(score/t*100)):0;
+    const color=score===0?'#94A3B8':score>=t?'#16A34A':score>=t*0.8?'#D97706':'#DC2626';
+    html+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#0F172A">${s.ic} ${s.l}</span><span style="font-size:14px;font-family:'DM Mono',monospace;color:${color};font-weight:700">${score>0?score:'-'}/${t}</span></div><div style="height:4px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:${s.c};width:${pct}%;transition:width .4s"></div></div></div>`;
   });
   html+='</div>';
-  const total=latest?latest.total:null;
-  const totalPct=total!=null?Math.min(100,Math.round(total/80*100)):0;
-  const totalColor=total==null?'#94A3B8':total>=80?'#16A34A':total>=65?'#D97706':'#DC2626';
-  html+=`<div class="card" style="padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#1E3A8A,#2563EB)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#fff">🎯 TOEFL Total</span><span style="font-size:22px;font-family:'DM Mono',monospace;color:#fff;font-weight:700">${total!=null?total:'-'}<span style="font-size:14px;font-weight:400;color:rgba(255,255,255,.7)">/120 (meta 80)</span></span></div><div style="height:6px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:#fff;width:${totalPct}%;transition:width .4s"></div></div>${latest?`<div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:6px">Último registro: ${latest.date}</div>`:''}</div>`;
+  const totalPct=bestTotal>0?Math.min(100,Math.round(bestTotal/80*100)):0;
+  const totalColor=bestTotal===0?'#94A3B8':bestTotal>=80?'#16A34A':bestTotal>=65?'#D97706':'#DC2626';
+  html+=`<div class="card" style="padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#1E3A8A,#2563EB)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#fff">🎯 TOEFL Total (Melhor Score)</span><span style="font-size:22px;font-family:'DM Mono',monospace;color:#fff;font-weight:700">${bestTotal>0?bestTotal:'-'}<span style="font-size:14px;font-weight:400;color:rgba(255,255,255,.7)">/120 (meta 80)</span></span></div><div style="height:6px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:#fff;width:${totalPct}%;transition:width .4s"></div></div>${latest?`<div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:6px">Melhor soma de seções (R:${bestReading}+L:${bestListening}+S:${bestSpeaking}+W:${bestWriting})</div>`:''}</div>`;
   html+=`<button class="btn bpr" onclick="openScoreModal()" style="width:100%;margin-bottom:12px">+ Registrar Score de Mock Test</button>`;
   if(toeflScores&&toeflScores.length>0){
     html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:10px 14px;font-size:14px;font-weight:600;color:#475569;border-bottom:1px solid #EEF2FF">Histórico</div>';
