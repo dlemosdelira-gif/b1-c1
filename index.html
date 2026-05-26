@@ -411,6 +411,7 @@ textarea{min-height:120px}
     <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards</button>
     <button class="nb" onclick="goTab('sched')" id="nav-sched"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
+    <button class="nb" onclick="goTab('peua')" id="nav-peua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>PEUA</button>
   </div>
 </div>
 
@@ -608,6 +609,12 @@ textarea{min-height:120px}
   <div id="scheduleContent"></div>
 </div>
 
+<div class="pg hid" id="pg-peua">
+  <div style="margin-bottom:14px"><div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:10px">🎓 PHDNOSEUA — Cronograma de Preparação</div></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="peuaMonthSelector"></div>
+  <div id="peuaContent"></div>
+</div>
+
 <div id="scrollBtns" style="position:fixed;bottom:80px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:99">
   <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#2563EB;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .2s" title="Subir para o topo">↑</button>
   <button id="scrollBottom" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#7C3AED;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(124,58,237,.3);transition:all .2s" title="Descer para o fim">⬇️</button>
@@ -626,6 +633,8 @@ const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RSC=null;
 let scheduleCompleted={};
+let peuaCompleted={};
+let activePeuaMonth=5;
 
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
@@ -634,6 +643,100 @@ let lessonStats={};
 
 // ── MONTHS ────────────────────────────────────────────────────────────────────
 const MONTHS=[{n:5,lb:'May',th:'Foundations',ic:'🌱',ph:'Phase 1',thbg:'#EFF6FF',thbd:'#BFDBFE',thco:'#1D4ED8',ds:'TOEFL familiarization, test format, baseline mock.',sk:['Test Format','Note-Taking','Vocabulary','Pacing'],dl:'🌱 Month 1 — TOEFL Foundations (May)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: TOEFL Foundations — test format, note-taking, baseline mock. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:6,lb:'Jun',th:'Reading + Listening',ic:'📖',ph:'Phase 1',thbg:'#F0FDF4',thbd:'#BBF7D0',thco:'#16A34A',ds:'Academic reading strategies, intensive listening.',sk:['Skimming','Inference','Note-Taking','Vocabulary'],dl:'📖 Month 2 — Reading & Listening (Jun)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: Reading + Listening — academic reading strategies, intensive listening. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:7,lb:'Jul',th:'Speaking Mastery',ic:'🎤',ph:'Phase 2',thbg:'#FEF3C7',thbd:'#FCD34D',thco:'#D97706',ds:'Speaking: independent + 3 integrated tasks.',sk:['Task 1','Tasks 2-4','Delivery','Organization'],dl:'🎤 Month 3 — Speaking (Jul)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: Speaking Mastery — independent + integrated speaking tasks. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:8,lb:'Aug',th:'Writing Mastery',ic:'✍️',ph:'Phase 2',thbg:'#FCE7F3',thbd:'#FBCFE8',thco:'#EC4899',ds:'Writing: integrated essay + academic discussion.',sk:['Synthesis','Grammar','Organization','Style'],dl:'✍️ Month 4 — Writing (Aug)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: Writing Mastery — integrated essay + academic discussion. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:9,lb:'Sep',th:'Mock Tests',ic:'⏱️',ph:'Phase 3',thbg:'#DBEAFE',thbd:'#93C5FD',thco:'#3B82F6',ds:'Full-length mocks 2x/week. Timing and error analysis.',sk:['Endurance','Pacing','Accuracy','Strategy'],dl:'⏱️ Month 5 — Mock Tests (Sep)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: Mock Tests — full-length mocks 2x/week, error analysis. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:10,lb:'Oct',th:'Final Push',ic:'🔥',ph:'Phase 3',thbg:'#F5F3FF',thbd:'#DDD6FE',thco:'#7C3AED',ds:'Focus weak sections. Final mocks.',sk:['Listening','Speed','Confidence','Refinement'],dl:'🔥 Month 6 — Final Push (Oct)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: Final Push — weak section focus, final mocks. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:11,lb:'Nov',th:'Polish',ic:'✨',ph:'Phase 4',thbg:'#F0FDFA',thbd:'#99F6E4',thco:'#0D9488',ds:'Buffer month. Final review and confidence building.',sk:['Vocabulary','Strategies','Confidence','Logistics'],dl:'✨ Month 7 — Buffer & Review (Nov)',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: Polish — vocabulary, strategies, confidence building. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'},{n:1,lb:'Jan',th:'TOEFL Exam',ic:'🎯',ph:'Phase 4',thbg:'#FEF2F2',thbd:'#FECACA',thco:'#DC2626',ds:'Official TOEFL iBT test. Target: 80+ (Reading 22+, Listening 20+, Speaking 20+, Writing 22+)',sk:['Reading 22+','Listening 20+','Speaking 20+','Writing 22+'],dl:'🎯 TOEFL Exam — January 2027',ai:'You are an expert TOEFL iBT coach for a Brazilian B2 learner targeting 80+ in January 2027. Current focus: TOEFL Exam Day — post-exam reflection. Analyze the student response. Be honest and specific, not generic. Return ONLY valid JSON: {"diagnosis":{"grammar":{"score":<1-10>,"notes":"key observation","examples":["err1","err2"]},"vocabulary":{"score":<1-10>,"notes":"academic word range","gaps":["word 1","word 2"]},"fluency":{"score":<1-10>,"notes":"naturalness","improvement":"specific tip"},"toefl_estimate":{"reading":<0-30>,"listening":<0-30>,"speaking":<0-30>,"writing":<0-30>,"total":<0-120>}},"patterns":{"recurring_errors":["error 1","error 2","error 3"],"strengths":["strength 1","strength 2","strength 3"],"bottleneck":"ONE thing most limiting TOEFL score"},"actionable":{"next_3_days":["DAY 1: specific TOEFL task","DAY 2: task","DAY 3: task"],"avoid":"specific pattern to stop","focus_skill":"reading|listening|speaking|writing"},"corrections":[{"original":"...","corrected":"...","explanation":"..."}],"c1_upgrades":[{"simple":"...","c1":"...","example":"..."}],"overall_feedback":"2-3 sentence summary","level_estimate":"B1|B2|B2+|C1-|C1|C1+|C2"} Student response: {{T}}'}];
+
+// ── PEUA (PhD Estados Unidos) ──────────────────────────────────────────────────
+const PEUA_DATA=[
+  {month:5,name:'🌱 MAI/26',tasks:[
+    'Assistir a todas as aulas e baixar os materiais do Passo 1',
+    'Assistir todas as aulas e baixar os materiais dos Passos 2 e 3',
+    'Entrar na Escola do TOEFL e fazer o fase que está lá dentro de acordo com seu Cronograma de Preparação',
+    'Verificar todos os FAQs e TASKs dos Passos 1 ao 3',
+    'Fazer seu Diagnóstico e comparar a aplicar as soluções EGX pertinentes',
+    'Calcular seu GPA',
+    'Início da procura por programas, bolsas e requisitos mínimos',
+    'Baixar a planilha da Lista de Universidades por área',
+    'Caso faça parte das mesmas estratégias participar de algum congresso, submeter trabalho',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:6,name:'📚 JUNHO/26',tasks:[
+    'Assistir todas as aulas e baixar os materiais do Passo 4',
+    'Verificar todos os FAQs e TASKs do Passo 4',
+    'Construir seu CV, Baixar o Checklist de CV',
+    'Enviar seu CV para correção através do link de envios de documentos',
+    'Assistir pelo menos 1 Módulo completo de "Preparação para Pesquisa Científica"',
+    'Iniciar o "tira-dúvidas" com o departamento/coordenador sobre requisitos e bolsa',
+    'Falar com Graduate School sobre GPA, se tiver',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:7,name:'🔬 JULHO/26',tasks:[
+    'Assistir todas as aulas e baixar os materiais dos Passos 5 e 6',
+    'Verificar todos os FAQs e TASKs dos Passos 5 e 6',
+    'Assistir todas as aulas de "Mentoria com Professores Americanos"',
+    'Começar a selecionar pelo menos 3 professores de cada programa',
+    'Redigir EGV para um professor de cada programa',
+    'Foco em construir sua Lista de Oportunidades, fazer a prova do TOEFL',
+    'Se inscrever nos sites dos programas para participar das Infosessions',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:8,name:'📝 AGOSTO/26',tasks:[
+    'Agendar a prova do TOEFL a partir do próximo mês',
+    'Fazer o primeiro rascunho do SOP/PS geral',
+    'Assistir às aulas da "Biblioteca dos Aprovados"',
+    'Começar o envio dos EGVs para os professores de interesse na pesquisa',
+    'Redução juramentada dos documentos acadêmicos',
+    'Em caso de uso de serviços como da ScorReport ou ECE, já realizado o envio',
+    'Dos documentos oficiais por correio para as empresas',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:9,name:'✍️ SETEMBRO/26',tasks:[
+    'Primeira quinzena: Se ainda não fez o TOEFL, avalie conforme cronograma',
+    'Fazer o segundo rascunho do SOP/PS geral',
+    'Assistir todas as aulas e baixar os materiais do Passo 7',
+    'Verificar todos os FAQs e TASKs do Passo 7',
+    'Definir quem serão seus recomendantes e já comunicá-los',
+    'Escrita ou orientação sobre cartas de recomendação',
+    'Baixar o Checklist de Cartas de Recomendação',
+    'Segunda quinzena: Fazer o terceiro rascunho do SOP/PS Geral',
+    'Verificar Checklist da Carta de Motivação',
+    'Criar conta nos sites das universidades que você pretende aplicar',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:10,name:'🎯 OUTUBRO/26',tasks:[
+    'Preparar documentos adicionais que possam surgir nas aplicações (diversity statement, etc)',
+    'Envio do seu Pacote de Documentos para revisão do inglês',
+    'Agendar a prova do GRE para novembro (de aplicar)',
+    'Assista o módulo inicial sobre GRE na Escola do GRE',
+    'Segunda quinzena: Finalização dos envios dos EGVs para professores',
+    'Revisão final da Régua de Feedbacks',
+    'Decisão final da Carreira de Aplicações',
+    'Lembre de usar as duas planilhas disponíveis',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:11,name:'📤 NOVEMBRO/26',tasks:[
+    'Se ainda não fez o TOEFL, agende a prova do TOEFL a partir do próximo mês',
+    'Agendar a prova do GRE para novembro (de aplicar)',
+    'Submeter aplicações que tiverem deadline após Dezembro',
+    'Lembre-se: cartas de recomendação já devem estar submetidas',
+    'Pagar a taxa caso não tenha conseguido fee waiver',
+    'Preparar documentos adicionais (diversity statement, etc)',
+    'Envio do seu Pacote de Documentos para revisão do inglês',
+    'Baixar o Checklist de Aplicação',
+    'Começar a submeter as aplicações que tiverem deadline em Novembro',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]},
+  {month:12,name:'🚀 DEZEMBRO/26',tasks:[
+    'Caso não seja necessário envio de histórico físico, já providência',
+    'Lembrando que universidades que exigem isso são exceção a 4',
+    'Submeter aplicações que tiverem deadline após Dezembro',
+    'Não esquecer que as cartas de recomendação já devem estar submetidas',
+    'Pagar a taxa caso não tenha conseguido fee waiver',
+    'Ignorar se ainda não fez o TOEFL',
+    'Agendar a prova do GRE para novembro (de aplicar)',
+    'Preparar documentos adicionais que possam surgir',
+    'Envio do seu Pacote de Documentos para revisão do inglês',
+    'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
+  ]}
+];
 
 // ── SCHEDULE ──────────────────────────────────────────────────────────────────
 const SCHEDULE_DATA=[
@@ -712,6 +815,7 @@ function loadLocal(){
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
   try{scheduleCompleted=JSON.parse(localStorage.getItem('c1sched')||'{}');}catch(e){scheduleCompleted={};}
+  try{peuaCompleted=JSON.parse(localStorage.getItem('c1peua')||'{}');}catch(e){peuaCompleted={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
@@ -723,6 +827,7 @@ function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.
 function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 function saveSC(){localStorage.setItem('c1sched',JSON.stringify(scheduleCompleted));if(RSC)RSC.set(scheduleCompleted).catch(()=>{});}
+function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RSC)RSC.set(peuaCompleted).catch(()=>{});}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const due=()=>cards.filter(c=>c.nextReview<=today);
@@ -758,7 +863,7 @@ function closeM(id){document.getElementById(id).classList.add('hid');}
 function goTab(t){
   try{
     curTab=t;
-    ['dash','prac','road','rev','cards','sched'].forEach(x=>{
+    ['dash','prac','road','rev','cards','sched','peua'].forEach(x=>{
       const pg=document.getElementById('pg-'+x);
       const nav=document.getElementById('nav-'+x);
       if(pg)pg.classList.toggle('hid',x!==t);
@@ -771,6 +876,7 @@ function goTab(t){
     else if(t==='rev')renderRev();
     else if(t==='cards')renderCards();
     else if(t==='sched')renderSchedule();
+    else if(t==='peua')renderPeua();
   }catch(e){
     console.error('goTab error:',e);
   }
@@ -790,6 +896,7 @@ function render(){
   else if(curTab==='rev')renderRev();
   else if(curTab==='cards')renderCards();
   else if(curTab==='sched')renderSchedule();
+  else if(curTab==='peua')renderPeua();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
@@ -1774,6 +1881,66 @@ function toggleScheduleTask(monthNum,taskIdx,isCompleted){
   saveSC();
   renderSchedule();
   toast(isCompleted?'✅ Task completed':'📋 Task marked pending');
+}
+
+function renderPeua(){
+  const monthSelector=document.getElementById('peuaMonthSelector');
+  const content=document.getElementById('peuaContent');
+
+  const months=[5,6,7,8,9,10,11,12];
+  const monthNames={5:'MAI',6:'JUN',7:'JUL',8:'AGO',9:'SET',10:'OUT',11:'NOV',12:'DEZ'};
+
+  monthSelector.innerHTML=months.map(m=>`<button onclick="switchPeuaMonth(${m})" style="padding:8px 14px;border-radius:8px;border:1px solid ${activePeuaMonth===m?'#2563EB':'#DDE3F5'};background:${activePeuaMonth===m?'#2563EB':'transparent'};color:${activePeuaMonth===m?'#fff':'#475569'};cursor:pointer;font-weight:600;font-size:14px;transition:all 0.2s">${monthNames[m]}</button>`).join('');
+
+  const monthData=PEUA_DATA.find(m=>m.month===activePeuaMonth);
+  if(!monthData){content.innerHTML='';return;}
+
+  const monthKey=`${activePeuaMonth}`;
+  const completed=peuaCompleted[monthKey]||{};
+  const totalTasks=monthData.tasks.length;
+  const completedCount=Object.values(completed).filter(v=>v).length;
+  const progress=totalTasks>0?(completedCount/totalTasks*100).toFixed(0):'0';
+
+  let html=`<div class="card" style="border:1px solid #DDE3F5;padding:14px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:10px">
+      <div><div style="font-size:18px;font-weight:700;color:#0F172A">${monthData.name}</div></div>
+      <div style="text-align:right;font-size:14px"><div style="font-weight:600;color:#2563EB">${completedCount}/${totalTasks}</div><div style="font-size:13px;color:#94A3B8">${progress}%</div></div>
+    </div>
+    <div style="width:100%;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;margin-bottom:12px">
+      <div style="height:100%;background:#10B981;width:${progress}%;transition:width 0.3s"></div>
+    </div>
+    <div style="display:grid;gap:6px">`;
+
+  monthData.tasks.forEach((task,idx)=>{
+    const taskId=`${activePeuaMonth}-${idx}`;
+    const isDone=completed[taskId]||false;
+    html+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s">
+      <input type="checkbox" ${isDone?'checked':''} onchange="togglePeuaTask(${activePeuaMonth},${idx},this.checked)" style="width:14px;height:14px;margin-top:2px;cursor:pointer;flex-shrink:0">
+      <span style="font-size:14px;color:${isDone?'#6B7280':'#0F172A'};${isDone?'text-decoration:line-through;':''}flex:1;line-height:1.4">${task}</span>
+      ${isDone?'<span style="color:#10B981;font-weight:600;font-size:12px">✓</span>':''}
+    </div>`;
+  });
+
+  html+='</div></div>';
+  content.innerHTML=html;
+}
+
+function switchPeuaMonth(month){
+  activePeuaMonth=month;
+  renderPeua();
+}
+
+function togglePeuaTask(monthNum,taskIdx,isCompleted){
+  if(!peuaCompleted[monthNum])peuaCompleted[monthNum]={};
+  const taskId=`${monthNum}-${taskIdx}`;
+  if(isCompleted){
+    peuaCompleted[monthNum][taskId]=true;
+  }else{
+    delete peuaCompleted[monthNum][taskId];
+  }
+  savePeua();
+  renderPeua();
+  toast(isCompleted?'✅ Tarefa concluída':'📋 Tarefa marcada como pendente');
 }
 
 function openM(id){
