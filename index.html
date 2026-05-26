@@ -1837,6 +1837,11 @@ function renderPeua(){
     </div>`;
   });
 
+  html+='</div>';
+
+  // Add button
+  html+=`<button onclick="openAddPeuaTaskModal()" style="width:100%;padding:12px;margin-top:8px;border:2px dashed #BFDBFE;background:#EFF6FF;border-radius:8px;cursor:pointer;color:#2563EB;font-weight:600;font-size:14px;transition:all 0.2s">+ Adicionar Tarefa</button>`;
+
   html+='</div></div>';
   content.innerHTML=html;
 }
@@ -1867,15 +1872,25 @@ function initPeuaTasks(){
   }
 }
 
+function openAddPeuaTaskModal(){
+  initPeuaTasks();
+  editingPeuaTask={month:activePeuaMonth,idx:-1,isNew:true};
+  document.getElementById('peuaEditInput').value='';
+  document.querySelector('#peuaEditModal .mtit').textContent='➕ Adicionar Tarefa';
+  document.getElementById('peuaEditModal').classList.remove('hid');
+}
+
 function openEditPeuaTask(monthNum,taskIdx,taskText){
   initPeuaTasks();
-  editingPeuaTask={month:monthNum,idx:taskIdx};
+  editingPeuaTask={month:monthNum,idx:taskIdx,isNew:false};
   document.getElementById('peuaEditInput').value=taskText;
+  document.querySelector('#peuaEditModal .mtit').textContent='✏️ Editar Tarefa';
   document.getElementById('peuaEditModal').classList.remove('hid');
 }
 
 function closePeuaEditModal(){
   document.getElementById('peuaEditModal').classList.add('hid');
+  document.querySelector('#peuaEditModal .mtit').textContent='✏️ Editar Tarefa';
   editingPeuaTask=null;
 }
 
@@ -1885,11 +1900,20 @@ function savePeuaTaskEdit(){
   if(!newText){toast('⚠️ Tarefa não pode ser vazia');return;}
 
   if(!peuaTasks[editingPeuaTask.month])peuaTasks[editingPeuaTask.month]=[];
-  peuaTasks[editingPeuaTask.month][editingPeuaTask.idx]=newText;
+
+  if(editingPeuaTask.isNew){
+    // Adding a new task
+    peuaTasks[editingPeuaTask.month].push(newText);
+    toast('➕ Tarefa adicionada');
+  }else{
+    // Editing existing task
+    peuaTasks[editingPeuaTask.month][editingPeuaTask.idx]=newText;
+    toast('✏️ Tarefa atualizada');
+  }
+
   savePeuaTasks();
   closePeuaEditModal();
   renderPeua();
-  toast('✏️ Tarefa atualizada');
 }
 
 function movePeuaTask(monthNum,fromIdx,direction){
