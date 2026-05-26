@@ -460,6 +460,20 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="peuaEditModal" onclick="if(event.target===this)closePeuaEditModal()">
+  <div class="modal">
+    <div class="mhdr"><div class="mtit">✏️ Editar Tarefa</div><button class="btn bsm" onclick="closePeuaEditModal()">✕</button></div>
+    <div class="mbdy">
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:8px">Texto da tarefa</label>
+      <textarea id="peuaEditInput" style="width:100%;min-height:100px;padding:10px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical"></textarea>
+      <div class="fl g8" style="justify-content:flex-end;margin-top:14px">
+        <button class="btn bsm" onclick="closePeuaEditModal()">Cancelar</button>
+        <button class="btn bpr bsm" onclick="savePeuaTaskEdit()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
@@ -628,7 +642,8 @@ let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null;
 let peuaCompleted={};
 let activePeuaMonth=5;
-
+let peuaTasks=null;
+let editingPeuaTask=null;
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
 let dailyTasks={preply:false,reading:false,listening:false,writing:false};
@@ -766,6 +781,7 @@ function loadLocal(){
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
   try{peuaCompleted=JSON.parse(localStorage.getItem('c1peua')||'{}');}catch(e){peuaCompleted={};}
+  try{const stored=localStorage.getItem('c1peuaTasks');if(stored)peuaTasks=JSON.parse(stored);}catch(e){}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
@@ -777,6 +793,7 @@ function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.
 function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));}
+function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const due=()=>cards.filter(c=>c.nextReview<=today);
@@ -1776,12 +1793,14 @@ function renderPeua(){
 
   monthSelector.innerHTML=months.map(m=>`<button onclick="switchPeuaMonth(${m})" style="padding:8px 14px;border-radius:8px;border:1px solid ${activePeuaMonth===m?'#2563EB':'#DDE3F5'};background:${activePeuaMonth===m?'#2563EB':'transparent'};color:${activePeuaMonth===m?'#fff':'#475569'};cursor:pointer;font-weight:600;font-size:14px;transition:all 0.2s">${monthNames[m]}</button>`).join('');
 
-  const monthData=PEUA_DATA.find(m=>m.month===activePeuaMonth);
-  if(!monthData){content.innerHTML='';return;}
+  // Load custom tasks if available
+  const tasks=peuaTasks&&peuaTasks[activePeuaMonth]?peuaTasks[activePeuaMonth]:PEUA_DATA.find(m=>m.month===activePeuaMonth)?.tasks||[];
+  if(!tasks||tasks.length===0){content.innerHTML='';return;}
 
+  const monthData=PEUA_DATA.find(m=>m.month===activePeuaMonth);
   const monthKey=`${activePeuaMonth}`;
   const completed=peuaCompleted[monthKey]||{};
-  const totalTasks=monthData.tasks.length;
+  const totalTasks=tasks.length;
   const completedCount=Object.values(completed).filter(v=>v).length;
   const progress=totalTasks>0?(completedCount/totalTasks*100).toFixed(0):'0';
 
@@ -1795,12 +1814,18 @@ function renderPeua(){
     </div>
     <div style="display:grid;gap:6px">`;
 
-  monthData.tasks.forEach((task,idx)=>{
+  tasks.forEach((task,idx)=>{
     const taskId=`${activePeuaMonth}-${idx}`;
     const isDone=completed[taskId]||false;
-    html+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s">
+    html+=`<div style="display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s">
       <input type="checkbox" ${isDone?'checked':''} onchange="togglePeuaTask(${activePeuaMonth},${idx},this.checked)" style="width:14px;height:14px;margin-top:2px;cursor:pointer;flex-shrink:0">
       <span style="font-size:14px;color:${isDone?'#6B7280':'#0F172A'};${isDone?'text-decoration:line-through;':''}flex:1;line-height:1.4">${task}</span>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        ${idx>0?`<button onclick="movePeuaTask(${activePeuaMonth},${idx},-1)" style="padding:4px 6px;border-radius:4px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;font-size:12px;color:#475569;transition:all 0.2s" title="Mover para cima">↑</button>`:''}
+        ${idx<tasks.length-1?`<button onclick="movePeuaTask(${activePeuaMonth},${idx},1)" style="padding:4px 6px;border-radius:4px;border:1px solid #DDE3F5;background:#fff;cursor:pointer;font-size:12px;color:#475569;transition:all 0.2s" title="Mover para baixo">↓</button>`:''}
+        <button onclick="openEditPeuaTask(${activePeuaMonth},${idx},'${task.replace(/'/g,"\\'")}')" style="padding:4px 6px;border-radius:4px;border:1px solid #BFDBFE;background:#EFF6FF;cursor:pointer;font-size:12px;color:#2563EB;transition:all 0.2s" title="Editar">✏️</button>
+        <button onclick="deletePeuaTask(${activePeuaMonth},${idx})" style="padding:4px 6px;border-radius:4px;border:1px solid #FECACA;background:#FEF2F2;cursor:pointer;font-size:12px;color:#DC2626;transition:all 0.2s" title="Deletar">🗑️</button>
+      </div>
       ${isDone?'<span style="color:#10B981;font-weight:600;font-size:12px">✓</span>':''}
     </div>`;
   });
@@ -1825,6 +1850,72 @@ function togglePeuaTask(monthNum,taskIdx,isCompleted){
   savePeua();
   renderPeua();
   toast(isCompleted?'✅ Tarefa concluída':'📋 Tarefa marcada como pendente');
+}
+
+function initPeuaTasks(){
+  if(!peuaTasks){
+    peuaTasks={};
+    PEUA_DATA.forEach(m=>{peuaTasks[m.month]=[...m.tasks];});
+    savePeuaTasks();
+  }
+}
+
+function openEditPeuaTask(monthNum,taskIdx,taskText){
+  initPeuaTasks();
+  editingPeuaTask={month:monthNum,idx:taskIdx};
+  document.getElementById('peuaEditInput').value=taskText;
+  document.getElementById('peuaEditModal').classList.remove('hid');
+}
+
+function closePeuaEditModal(){
+  document.getElementById('peuaEditModal').classList.add('hid');
+  editingPeuaTask=null;
+}
+
+function savePeuaTaskEdit(){
+  if(!editingPeuaTask)return;
+  const newText=document.getElementById('peuaEditInput').value.trim();
+  if(!newText){toast('⚠️ Tarefa não pode ser vazia');return;}
+
+  if(!peuaTasks[editingPeuaTask.month])peuaTasks[editingPeuaTask.month]=[];
+  peuaTasks[editingPeuaTask.month][editingPeuaTask.idx]=newText;
+  savePeuaTasks();
+  closePeuaEditModal();
+  renderPeua();
+  toast('✏️ Tarefa atualizada');
+}
+
+function movePeuaTask(monthNum,fromIdx,direction){
+  initPeuaTasks();
+  const toIdx=fromIdx+direction;
+  if(toIdx<0||toIdx>=peuaTasks[monthNum].length)return;
+
+  const temp=peuaTasks[monthNum][fromIdx];
+  peuaTasks[monthNum][fromIdx]=peuaTasks[monthNum][toIdx];
+  peuaTasks[monthNum][toIdx]=temp;
+  savePeuaTasks();
+  renderPeua();
+  toast(direction>0?'📍 Tarefa movida para baixo':'📍 Tarefa movida para cima');
+}
+
+function deletePeuaTask(monthNum,taskIdx){
+  if(!confirm('🗑️ Deletar esta tarefa?'))return;
+  initPeuaTasks();
+  peuaTasks[monthNum].splice(taskIdx,1);
+
+  // Remove completion state for this task
+  const completed=peuaCompleted[monthNum]||{};
+  for(let i=taskIdx;i<Object.keys(completed).length;i++){
+    if(completed[`${monthNum}-${i+1}`]){
+      completed[`${monthNum}-${i}`]=true;
+      delete completed[`${monthNum}-${i+1}`];
+    }
+  }
+
+  savePeuaTasks();
+  savePeua();
+  renderPeua();
+  toast('🗑️ Tarefa deletada');
 }
 
 function openM(id){
