@@ -410,7 +410,6 @@ textarea{min-height:120px}
     <button class="nb" onclick="goTab('road')" id="nav-road"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h20v4H2V3zm0 8h20v4H2v-4zm0 8h20v4H2v-4z"/></svg>Roadmap</button>
     <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards</button>
-    <button class="nb" onclick="goTab('sched')" id="nav-sched"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedule</button>
     <button class="nb" onclick="goTab('peua')" id="nav-peua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>PEUA</button>
   </div>
 </div>
@@ -604,11 +603,6 @@ textarea{min-height:120px}
   <div id="cardslist"></div>
 </div>
 
-<div class="pg hid" id="pg-sched">
-  <div class="fb" style="margin-bottom:14px"><div style="font-size:14px;font-weight:600;color:#0F172A">📅 TOEFL Preparation Schedule</div></div>
-  <div id="scheduleContent"></div>
-</div>
-
 <div class="pg hid" id="pg-peua">
   <div style="margin-bottom:14px"><div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:10px">🎓 PHDNOSEUA — Cronograma de Preparação</div></div>
   <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="peuaMonthSelector"></div>
@@ -631,8 +625,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RSC=null;
-let scheduleCompleted={};
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null;
 let peuaCompleted={};
 let activePeuaMonth=5;
 
@@ -737,48 +730,6 @@ const PEUA_DATA=[
     'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
   ]}
 ];
-
-// ── SCHEDULE ──────────────────────────────────────────────────────────────────
-const SCHEDULE_DATA=[
-  {month:5,name:'🌱 MAIO/26',phase:'Phase 1',tasks:[
-    'Take official diagnostic TOEFL test','Score each section (Reading/Listening/Speaking/Writing)','Identify weakest area for priority focus','Create comprehensive study schedule (5-7 days/week)',
-    'Set realistic section targets: Reading 22+, Listening 20+, Speaking 20+, Writing 22+','Join study group or find accountability partner','Review official TOEFL rubrics for Speaking & Writing','Watch 2-3 official TOEFL format videos'
-  ]},
-  {month:6,name:'📖 JUNHO/26',phase:'Phase 1',tasks:[
-    'Master TOEFL reading format (2 passages, 10 questions each, 35 min)','Practice skimming 5 passages with 5-7 min target per passage','Extract 50 academic words from reading passages','Practice 15 vocabulary-in-context questions','Complete 6 official conversations with note-taking',
-    'Master Cornell note-taking technique (main idea + key details)','Complete 6 official lectures (5 min each)','Practice 24 listening questions total'
-  ]},
-  {month:7,name:'🎤 JULHO/26',phase:'Phase 2',tasks:[
-    'Master Task 1: Independent Speaking (45s on personal experience)','Understand Tasks 2-4: Integrated speaking with synthesis','Record 5 independent speaking responses on different topics','Practice 3 complete sets of integrated tasks 2-4','Record all 4 speaking tasks (10 min total) for self-evaluation',
-    'Identify pronunciation issues: stress placement, intonation, connected speech','Practice 10 minimal pairs for challenging sounds (th, r/l, vowels)','Complete 3 full mock speaking sections (4 tasks back-to-back, 16 min each)'
-  ]},
-  {month:8,name:'✍️ AGOSTO/26',phase:'Phase 2',tasks:[
-    'Master Task 1: Integrated Essay (read + listen + write, 20 min, 150-225 words)','Understand Essay structure: Intro + Body (3 paragraphs) + Conclusion','Write 3 integrated essays from official test materials','Master Task 2: Academic Discussion (10 min, 100+ words, agree/disagree)','Write 5 discussion responses on different topics',
-    'Review all essays for: subject-verb agreement, tense consistency, article usage','Add sentence variety: 50%+ complex sentences, smooth transitions','Complete 3 full writing sections (2 essays, 50 min total) under timed conditions'
-  ]},
-  {month:9,name:'⏱️ SETEMBRO/26',phase:'Phase 3',tasks:[
-    'Take full-length Mock Test 1 (Reading + Listening + Speaking + Writing, 3+ hours)','Score all 4 sections on 0-30 scale','Analyze: which questions did you rush? which were unclear?','Categorize errors: careless, unclear, too slow, knowledge gap',
-    'Identify top 5 weak areas for targeted drills','Take full-length Mock Test 2 with targeted drills before it','Score again and compare - aim for 3-5 point improvement','Take Mock Test 3 (optional) for consistency check'
-  ]},
-  {month:10,name:'🔥 OUTUBRO/26',phase:'Phase 3',tasks:[
-    'Take 3 full listening sections (3 days) with detailed note review - Goal: 25+/30 on each','Identify: lectures vs conversations easier? Main idea vs detail harder?','Drill weak question types 20 times before next mock','Take 3 full reading sections (timed 35 min) - Goal: 25+/30 on each',
-    'Track which passages are faster and which are harder','Drill weak vocabulary/inference questions','Record 2 full speaking sections (8 tasks total, self-grade by rubric)','Write 4 essays under timed conditions, grade both tasks'
-  ]},
-  {month:11,name:'✨ NOVEMBRO/26',phase:'Phase 4',tasks:[
-    'Review 150+ academic words learned throughout preparation','Daily flashcard review: 30 minutes per day - Goal: 90%+ recognition','Memorize strong essay templates for both writing tasks','Collect 10 powerful real-world examples for essays',
-    'Practice: Can you write 350+ words in 30 min?','Do 2 full writing sections under exam conditions','Record 2 full speaking sections - Focus: pronunciation, pace, examples','Do 20 independent speaking topics practice',
-    'Take 1 final full mock - Goal: 78-82/120 to confirm readiness','Review any remaining weak spots','Prep logistics: test center address, photo ID requirements, what to bring on test day'
-  ]},
-  {month:12,name:'🎯 DEZEMBRO/26',phase:'Phase 4',tasks:[
-    'Light review only - trust 8 months of preparation','Review problem areas identified in previous mocks','Do 1-2 final practice sections (Reading or Listening)','Get good sleep and stay healthy',
-    'Confirm test date, center location, and time','Prepare: valid passport/ID, admission ticket, calculator','Pack test day essentials: water, snacks, watch','Relax and build confidence for January exam'
-  ]},
-  {month:1,name:'🎉 JANEIRO/27',phase:'Phase 4',tasks:[
-    '✅ Test Day: Read all instructions carefully (2 min)','✅ Reading: 35 min, target 22+/30','✅ Listening: 41 min, target 20+/30','✅ Speaking: 16 min, target 20+/30 (fluent, clear delivery)',
-    '✅ Writing: 50 min, target 22+/30 (error-free, 350+ words)','Receive official TOEFL score (usually 2-3 days)','If 80+: Celebrate achievement! 🎉','If <80: Identify weak areas and plan retake strategy'
-  ]}
-];
-
 // ── LESSONS — Trilha B1→C1 (Maio→Dezembro 2026) ─────────────────────────────
 // Roadmap prático sem dependência de livros — atividades concretas e mensuráveis
 const BL={1:[{id:'m1l1',month:1,section:'Reading',title:'Official TOEFL Reading Section',level:'C1',url:'#',tags:['Exam','Reading','Official'],desc:'Official test. Target: 22+. Format: 2 passages, 20 questions, 35 min.',prompt:'Post-exam: Reading score estimate? Which questions were hard? Did strategies work?'},{id:'m1l2',month:1,section:'Listening',title:'Official TOEFL Listening Section',level:'C1',url:'#',tags:['Exam','Listening','Official'],desc:'Official test. Target: 20+. Format: 6 items, 41 min.',prompt:'Post-exam: Listening score estimate? Lecture or conversation harder? Note-taking worked?'},{id:'m1l3',month:1,section:'Writing',title:'Official TOEFL Writing Section',level:'C1',url:'#',tags:['Exam','Writing','Official'],desc:'Official test. Target: 22+. Format: 2 essays, 50 min.',prompt:'Post-exam: Writing score estimate? Essay quality? Time management OK?'},{id:'m1l4',month:1,section:'Speaking',title:'Official TOEFL Speaking Section',level:'C1',url:'#',tags:['Exam','Speaking','Official'],desc:'Official test. Target: 20+. Format: 4 tasks, 16 min.',prompt:'Post-exam: Speaking score estimate? Delivery confidence? Pronunciation issues?'}],5:[{id:'m5l1',month:5,section:'Reading',title:'TOEFL Reading Format',level:'B2',url:'#',tags:['Reading','Format','Strategies'],desc:'Learn TOEFL Reading: 2 passages, 10 questions each, 35 min total. Practice skimming and scanning.',prompt:'Reading practice: Correct answers? Time spent? Understand passage structure? Faster reading strategies?'},{id:'m5l2',month:5,section:'Listening',title:'Note-Taking for TOEFL Listening',level:'B2',url:'#',tags:['Listening','Note-Taking','Skills'],desc:'Master Cornell note-taking: main idea + key details + examples.',prompt:'Notes review: Clear main ideas? Details organized? Suggestions for improvement?'},{id:'m5l3',month:5,section:'Speaking',title:'Speaking Task 1 (Independent)',level:'B2',url:'#',tags:['Speaking','Independent','45s'],desc:'Personal experience question. Prep: 15s. Speak: 45s. Template: intro + 2 details + conclusion.',prompt:'Speaking sample: Topic addressed? Clear examples? Fluent delivery? Pronunciation suggestions?'},{id:'m5l4',month:5,section:'Writing',title:'Writing Task 1 (Integrated)',level:'B2',url:'#',tags:['Writing','Integrated','Synthesis'],desc:'Read passage + listen lecture + synthesize in 20 min essay (150-225 words).',prompt:'Integrated essay: Good synthesis of reading+lecture? Clear structure? Grammar OK?'}],6:[{id:'m6l1',month:6,section:'Reading',title:'Academic Vocabulary (AWL)',level:'B2+',url:'#',tags:['Reading','Vocabulary','Academic'],desc:'Extract 20 academic words from TOEFL passages. Note: context, pronunciation.',prompt:'Vocabulary: Definitions accurate? Contexts clear? Remember these words?'},{id:'m6l2',month:6,section:'Listening',title:'Academic Lectures',level:'B2+',url:'#',tags:['Listening','Lectures','Comprehension'],desc:'Listen to 2 academic lectures. Take notes. Answer 5-10 inference questions.',prompt:'Comprehension: Which questions hard? Why? Note-taking or listening focus areas?'},{id:'m6l3',month:6,section:'Speaking',title:'Speaking Tasks 2-4 (Integrated)',level:'B2+',url:'#',tags:['Speaking','Integrated','60s'],desc:'Read passage > Listen > Synthesize and speak (60s each). Use transitions.',prompt:'Integrated speaking: Synthesized sources? Transitions smooth? Clear delivery?'},{id:'m6l4',month:6,section:'Writing',title:'Writing Task 2 (Academic Discussion)',level:'B2+',url:'#',tags:['Writing','Discussion','Academic'],desc:'Respond to discussion prompt in 100+ words, 10 min. Agree/disagree with reasons.',prompt:'Discussion response: Opinion clear? Reasons explained? Academic tone? Grammar?'}],7:[{id:'m7l1',month:7,section:'Speaking',title:'Delivery: Pronunciation & Fluency',level:'C1-',url:'#',tags:['Speaking','Delivery','Pronunciation'],desc:'Record 3 min speaking. Self-assess: clarity, speed, stress, intonation.',prompt:'Speech analysis: Pronunciation issues? Pace OK? Intonation natural? Suggest drills.'},{id:'m7l2',month:7,section:'Listening',title:'Detail vs Main Idea Questions',level:'C1-',url:'#',tags:['Listening','Comprehension','Strategy'],desc:'Practice 10 TOEFL listening questions: 5 main idea, 5 detail. Time: 1 min each.',prompt:'Answers review: Main idea or detail harder? Why missed details? Re-listening strategies?'},{id:'m7l3',month:7,section:'Reading',title:'Inference & Implicit Info',level:'C1-',url:'#',tags:['Reading','Inference','Strategy'],desc:'Practice 10 TOEFL reading questions: 5 inference, 5 implied. Time: 2 min per 5.',prompt:'Inference questions: Logic sound? Evidence shown? Better reading strategies?'},{id:'m7l4',month:7,section:'Writing',title:'Organization & Coherence',level:'C1-',url:'#',tags:['Writing','Organization','Flow'],desc:'Write 2 timed essays (20 min each). Focus: structure, transitions, examples.',prompt:'Essay structure: Intro clear? Body organized? Transitions smooth? Ideas coherent?'}],8:[{id:'m8l1',month:8,section:'Writing',title:'Grammar & Sentence Variety',level:'C1-',url:'#',tags:['Writing','Grammar','Style'],desc:'Write 1 essay (30 min). Check: 3+ sentence types, no repeats, grammar accurate.',prompt:'Grammar check: Errors? Sentence variety good? Complex structures?'},{id:'m8l2',month:8,section:'Reading',title:'Speed + Accuracy (Timed)',level:'C1-',url:'#',tags:['Reading','Speed','Accuracy'],desc:'Full TOEFL reading (2 passages, 20 questions, 35 min). Track time and accuracy.',prompt:'Performance: Questions taking too long? Accuracy by type? Pacing strategies?'},{id:'m8l3',month:8,section:'Listening',title:'Note-Taking Refinement',level:'C1-',url:'#',tags:['Listening','Note-Taking','Strategy'],desc:'Listen 2 lectures (5 min each), take notes, answer 10 questions. Review notes.',prompt:'Note-taking: Main ideas captured? Details organized? Better abbreviations?'},{id:'m8l4',month:8,section:'Speaking',title:'All 4 Speaking Tasks',level:'C1-',url:'#',tags:['Speaking','Full','Timing'],desc:'Complete full speaking section (4 tasks, ~16 min). Record, transcribe, self-evaluate.',prompt:'Overall speaking: Task completion? Fluency? Content depth? Top 3 improvements?'}],9:[{id:'m9l1',month:9,section:'Reading',title:'Full-Length Mock (Reading)',level:'C1',url:'#',tags:['Mock','Reading','Timed'],desc:'Complete 1 full reading section timed (35 min). Score and analyze.',prompt:'Mock results: Score? Hard questions? Patterns? Study plan?'},{id:'m9l2',month:9,section:'Listening',title:'Full-Length Mock (Listening)',level:'C1',url:'#',tags:['Mock','Listening','Timed'],desc:'Complete 1 full listening section (6 items, 41 min). Score and analyze.',prompt:'Mock results: Score? Lecture vs conversation? Detail vs main idea? Focus areas?'},{id:'m9l3',month:9,section:'Writing',title:'Full-Length Mock (Writing)',level:'C1',url:'#',tags:['Mock','Writing','Timed'],desc:'Complete 1 full writing section (2 essays, 50 min). Grade both.',prompt:'Essay grades: Synthesis clear? Discussion strong? Grammar/vocab? Suggestions?'},{id:'m9l4',month:9,section:'Speaking',title:'Full-Length Mock (Speaking)',level:'C1',url:'#',tags:['Mock','Speaking','Timed'],desc:'Complete 1 full speaking section (4 tasks, ~16 min). Grade for delivery, language, content.',prompt:'Speaking grades: Each task clear? Fluency? Pronunciation? Content? Score estimate?'}],10:[{id:'m10l1',month:10,section:'Listening',title:'Listening Intensive',level:'C1',url:'#',tags:['Listening','Intensive','Focus'],desc:'3 full mock listening sections (3 days). Focus: note-taking and inference.',prompt:'Progress: Score trend? Questions still missed? Note-taking improving? Strategy shift?'},{id:'m10l2',month:10,section:'Reading',title:'Reading Intensive',level:'C1',url:'#',tags:['Reading','Intensive','Focus'],desc:'3 full mock reading sections. Focus: weak question types.',prompt:'Progress: Score trend? Question types? Speed improving? Final recommendations?'},{id:'m10l3',month:10,section:'Writing',title:'Writing Final Polish',level:'C1',url:'#',tags:['Writing','Polish','Refinement'],desc:'Write 2 essays under test conditions. Proofread for grammar and organization.',prompt:'Essays: Both strong? Grammar errors? Time management OK? Final score estimate?'},{id:'m10l4',month:10,section:'Speaking',title:'Speaking Final Drills',level:'C1',url:'#',tags:['Speaking','Drills','Polish'],desc:'Record 3 sets of all 4 tasks. Focus: pacing, examples, transitions.',prompt:'Speaking: Improvement? Delivery confidence? Content clarity? Final estimate?'}],11:[{id:'m11l1',month:11,section:'Reading',title:'Vocabulary Final Review',level:'C1',url:'#',tags:['Vocabulary','Reading','Review'],desc:'Flashcard review: 100+ academic words. Daily practice. Target: 80%+ recognition.',prompt:'Vocabulary: Still weak words? Context drills needed? Confident for exam?'},{id:'m11l2',month:11,section:'Listening',title:'Confidence Review',level:'C1',url:'#',tags:['Listening','Review','Confidence'],desc:'Listen to 2-3 full mock sections. Aim for 90%+ accuracy. Boost confidence.',prompt:'Final check: Confidence level? Remaining weak areas? Pronunciation issues?'},{id:'m11l3',month:11,section:'Writing',title:'Templates & Examples',level:'C1',url:'#',tags:['Writing','Templates','Review'],desc:'Memorize strong essay templates. Collect 5 powerful examples per task.',prompt:'Templates: Ready? Examples strong? Can write 350+ words in 30 min?'},{id:'m11l4',month:11,section:'Speaking',title:'Pronunciation Final Tune',level:'C1',url:'#',tags:['Speaking','Pronunciation','Polish'],desc:'Focus: top 5 pronunciation issues. Daily minimal pairs practice.',prompt:'Pronunciation: Improved? Native-like delivery? Speaking confidence ready?'}]};
@@ -814,7 +765,6 @@ function loadLocal(){
   try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
-  try{scheduleCompleted=JSON.parse(localStorage.getItem('c1sched')||'{}');}catch(e){scheduleCompleted={};}
   try{peuaCompleted=JSON.parse(localStorage.getItem('c1peua')||'{}');}catch(e){peuaCompleted={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
@@ -826,8 +776,7 @@ function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){con
 function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}
 function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
-function saveSC(){localStorage.setItem('c1sched',JSON.stringify(scheduleCompleted));if(RSC)RSC.set(scheduleCompleted).catch(()=>{});}
-function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RSC)RSC.set(peuaCompleted).catch(()=>{});}
+function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const due=()=>cards.filter(c=>c.nextReview<=today);
@@ -863,7 +812,7 @@ function closeM(id){document.getElementById(id).classList.add('hid');}
 function goTab(t){
   try{
     curTab=t;
-    ['dash','prac','road','rev','cards','sched','peua'].forEach(x=>{
+    ['dash','prac','road','rev','cards','peua'].forEach(x=>{
       const pg=document.getElementById('pg-'+x);
       const nav=document.getElementById('nav-'+x);
       if(pg)pg.classList.toggle('hid',x!==t);
@@ -875,7 +824,6 @@ function goTab(t){
     else if(t==='road')buildRoadmap();
     else if(t==='rev')renderRev();
     else if(t==='cards')renderCards();
-    else if(t==='sched')renderSchedule();
     else if(t==='peua')renderPeua();
   }catch(e){
     console.error('goTab error:',e);
@@ -895,7 +843,6 @@ function render(){
   else if(curTab==='road')buildRoadmap();
   else if(curTab==='rev')renderRev();
   else if(curTab==='cards')renderCards();
-  else if(curTab==='sched')renderSchedule();
   else if(curTab==='peua')renderPeua();
 }
 
@@ -1820,69 +1767,6 @@ function setupCardTextareas(){
 // ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
 const CTAGS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Science','Tech','Philosophy','Culture','Business'];
 const TOPICS=['Sentence Structure','Connectors','Word Formation','Verb Tenses','Prepositions','Modal Verbs','Reported Speech','Active vs Passive Voice','Pronouns & Determiners','Conditional','Discourse Markers & Hedging','Questions & Indirect Questions','General English','Commom Themes'];
-function renderSchedule(){
-  const el=document.getElementById('scheduleContent');
-  let html='<div style="display:grid;gap:12px">';
-
-  const monthOrder=[5,6,7,8,9,10,11,12,1];
-  const months=SCHEDULE_DATA.reduce((a,m)=>{a[m.month]=m;return a;},{});
-
-  monthOrder.forEach(monthNum=>{
-    const monthData=months[monthNum];
-    if(!monthData)return;
-
-    const monthKey=`${monthData.month}`;
-    const completed=scheduleCompleted[monthKey]||{};
-    const totalTasks=monthData.tasks.length;
-    const completedCount=Object.values(completed).filter(v=>v).length;
-    const progress=totalTasks>0?(completedCount/totalTasks*100).toFixed(0):'0';
-
-    html+=`<div class="card" style="border:1px solid #DDE3F5;padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:10px">
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:4px">${monthData.name}</div>
-          <div style="font-size:14px;color:#6B7280">${monthData.phase}</div>
-        </div>
-        <div style="text-align:right;font-size:14px">
-          <div style="font-weight:600;color:#2563EB">${completedCount}/${totalTasks}</div>
-          <div style="font-size:13px;color:#94A3B8">${progress}%</div>
-        </div>
-      </div>
-      <div style="width:100%;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;margin-bottom:12px">
-        <div style="height:100%;background:#10B981;width:${progress}%;transition:width 0.3s"></div>
-      </div>
-      <div style="display:grid;gap:6px">`;
-
-    monthData.tasks.forEach((task,idx)=>{
-      const taskId=`${monthNum}-${idx}`;
-      const isDone=completed[taskId]||false;
-      html+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s">
-        <input type="checkbox" ${isDone?'checked':''} onchange="toggleScheduleTask(${monthNum},${idx},this.checked)" style="width:14px;height:14px;margin-top:2px;cursor:pointer;flex-shrink:0">
-        <span style="font-size:14px;color:${isDone?'#6B7280':'#0F172A'};${isDone?'text-decoration:line-through;':''}flex:1;line-height:1.4">${task}</span>
-        ${isDone?'<span style="color:#10B981;font-weight:600;font-size:12px">✓</span>':''}
-      </div>`;
-    });
-
-    html+='</div></div>';
-  });
-
-  html+='</div>';
-  el.innerHTML=html;
-}
-
-function toggleScheduleTask(monthNum,taskIdx,isCompleted){
-  if(!scheduleCompleted[monthNum])scheduleCompleted[monthNum]={};
-  const taskId=`${monthNum}-${taskIdx}`;
-  if(isCompleted){
-    scheduleCompleted[monthNum][taskId]=true;
-  }else{
-    delete scheduleCompleted[monthNum][taskId];
-  }
-  saveSC();
-  renderSchedule();
-  toast(isCompleted?'✅ Task completed':'📋 Task marked pending');
-}
-
 function renderPeua(){
   const monthSelector=document.getElementById('peuaMonthSelector');
   const content=document.getElementById('peuaContent');
@@ -2032,7 +1916,6 @@ function startSync(){
     RDT = db.ref('dailyTasks');
     RDR = db.ref('completed');
     RSS = db.ref('toeflScores');
-    RSC = db.ref('schedule');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -2051,7 +1934,6 @@ function startSync(){
     RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RDR.on('value',s=>{const v=s.val();if(v){localStorage.setItem('c1completed',JSON.stringify(v));} setSS('online'); if(curTab==='prac')renderPrac();}, err => setSS('offline', 'DB Error: ' + err.code));
     RSS.on('value',s=>{const v=s.val();if(v){toeflScores=Array.isArray(v)?v:Object.values(v)||[];toeflScores.sort((a,b)=>b.date.localeCompare(a.date));localStorage.setItem('c1scores',JSON.stringify(toeflScores));} setSS('online'); renderScoreTracker();}, err=>setSS('offline','DB Error: '+err.code));
-    RSC.on('value',s=>{const v=s.val();if(v){scheduleCompleted=v; localStorage.setItem('c1sched',JSON.stringify(v));} setSS('online'); if(curTab==='sched')renderSchedule();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
