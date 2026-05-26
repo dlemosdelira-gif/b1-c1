@@ -639,7 +639,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null;
 let peuaCompleted={};
 let activePeuaMonth=5;
 let peuaTasks=null;
@@ -792,8 +792,8 @@ function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){con
 function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}
 function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
-function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));}
-function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));}
+function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RPE)RPE.set(peuaCompleted||null).catch(()=>{});}
+function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));if(RPET&&peuaTasks)RPET.set(peuaTasks).catch(()=>{});}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const due=()=>cards.filter(c=>c.nextReview<=today);
@@ -1945,12 +1945,46 @@ function dropPeua(e,monthNum,taskIdx){
 
   if(fromIdx===toIdx)return;
 
+  // Prepare completion state remapping
+  if(!peuaCompleted[monthNum])peuaCompleted[monthNum]={};
+  const oldCompleted={...peuaCompleted[monthNum]};
+  const newCompleted={};
+
+  // Calculate actual insertion position
+  const newPosition=toIdx>fromIdx?toIdx-1:toIdx;
+
+  // Create index mapping: old index -> new index
+  for(let oldIdx=0;oldIdx<Object.keys(oldCompleted).length+1;oldIdx++){
+    let newIdx;
+    if(oldIdx===fromIdx){
+      newIdx=newPosition;
+    }else if(fromIdx<newPosition){
+      // Task moving down: tasks between shift up
+      if(oldIdx>fromIdx&&oldIdx<=toIdx)newIdx=oldIdx-1;
+      else newIdx=oldIdx;
+    }else{
+      // Task moving up: tasks between shift down
+      if(oldIdx>=newPosition&&oldIdx<fromIdx)newIdx=oldIdx+1;
+      else newIdx=oldIdx;
+    }
+
+    const oldTaskId=`${monthNum}-${oldIdx}`;
+    if(oldCompleted[oldTaskId]){
+      const newTaskId=`${monthNum}-${newIdx}`;
+      newCompleted[newTaskId]=true;
+    }
+  }
+
+  peuaCompleted[monthNum]=newCompleted;
+
+  // Reorder tasks
   const tasks=peuaTasks[monthNum];
   const dragged=tasks[fromIdx];
   tasks.splice(fromIdx,1);
-  tasks.splice(toIdx>fromIdx?toIdx-1:toIdx,0,dragged);
+  tasks.splice(newPosition,0,dragged);
 
   savePeuaTasks();
+  savePeua();
   renderPeua();
   toast('📍 Tarefa reordenada');
 }
@@ -2052,6 +2086,8 @@ function startSync(){
     RDT = db.ref('dailyTasks');
     RDR = db.ref('completed');
     RSS = db.ref('toeflScores');
+    RPE = db.ref('peuaCompleted');
+    RPET = db.ref('peuaTasks');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -2070,6 +2106,8 @@ function startSync(){
     RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RDR.on('value',s=>{const v=s.val();if(v){localStorage.setItem('c1completed',JSON.stringify(v));} setSS('online'); if(curTab==='prac')renderPrac();}, err => setSS('offline', 'DB Error: ' + err.code));
     RSS.on('value',s=>{const v=s.val();if(v){toeflScores=Array.isArray(v)?v:Object.values(v)||[];toeflScores.sort((a,b)=>b.date.localeCompare(a.date));localStorage.setItem('c1scores',JSON.stringify(toeflScores));} setSS('online'); renderScoreTracker();}, err=>setSS('offline','DB Error: '+err.code));
+    RPE.on('value',s=>{const v=s.val();if(v){peuaCompleted=v; localStorage.setItem('c1peua',JSON.stringify(v));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
+    RPET.on('value',s=>{const v=s.val();if(v){peuaTasks=v; localStorage.setItem('c1peuaTasks',JSON.stringify(v));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
