@@ -1817,9 +1817,15 @@ function renderPeua(){
   tasks.forEach((task,idx)=>{
     const taskId=`${activePeuaMonth}-${idx}`;
     const isDone=completed[taskId]||false;
+    const canMoveUp=idx>0;
+    const canMoveDown=idx<tasks.length-1;
     html+=`<div draggable="true" ondragstart="dragStartPeua(event,${activePeuaMonth},${idx})" ondragover="dragOverPeua(event)" ondrop="dropPeua(event,${activePeuaMonth},${idx})" ondragend="dragEndPeua(event)" style="display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s;cursor:grab;user-select:none" class="peuaTaskItem">
       <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
-        <span style="font-size:16px;opacity:0.5;cursor:grab;flex-shrink:0">⋮⋮</span>
+        <div style="display:flex;flex-direction:column;gap:2px;opacity:0.6">
+          <button onclick="movePeuaTask(${activePeuaMonth},${idx},-1)" ${canMoveUp?'':'disabled'} style="width:20px;height:16px;padding:0;border-radius:3px;border:1px solid #DDE3F5;background:#fff;cursor:${canMoveUp?'pointer':'not-allowed'};font-size:10px;color:#475569;opacity:${canMoveUp?'1':'0.3'};transition:all 0.2s" title="Mover para cima">▲</button>
+          <button onclick="movePeuaTask(${activePeuaMonth},${idx},1)" ${canMoveDown?'':'disabled'} style="width:20px;height:16px;padding:0;border-radius:3px;border:1px solid #DDE3F5;background:#fff;cursor:${canMoveDown?'pointer':'not-allowed'};font-size:10px;color:#475569;opacity:${canMoveDown?'1':'0.3'};transition:all 0.2s" title="Mover para baixo">▼</button>
+        </div>
+        <span style="font-size:16px;opacity:0.5;cursor:grab;flex-shrink:0;display:none;@media(max-width:768px){display:none}">⋮⋮</span>
         <input type="checkbox" ${isDone?'checked':''} onchange="togglePeuaTask(${activePeuaMonth},${idx},this.checked)" style="width:14px;height:14px;margin-top:2px;cursor:pointer;flex-shrink:0">
         <span style="font-size:14px;color:${isDone?'#6B7280':'#0F172A'};${isDone?'text-decoration:line-through;':''}flex:1;line-height:1.4;min-width:0;word-break:break-word">${task}</span>
       </div>
@@ -1891,10 +1897,37 @@ function movePeuaTask(monthNum,fromIdx,direction){
   const toIdx=fromIdx+direction;
   if(toIdx<0||toIdx>=peuaTasks[monthNum].length)return;
 
+  // Remap completion states when swapping
+  if(!peuaCompleted[monthNum])peuaCompleted[monthNum]={};
+  const oldCompleted={...peuaCompleted[monthNum]};
+  const newCompleted={};
+
+  const fromTaskId=`${monthNum}-${fromIdx}`;
+  const toTaskId=`${monthNum}-${toIdx}`;
+
+  // Swap completion states
+  if(oldCompleted[fromTaskId]){
+    newCompleted[toTaskId]=true;
+  }
+  if(oldCompleted[toTaskId]){
+    newCompleted[fromTaskId]=true;
+  }
+
+  // Copy other completion states
+  for(const [taskId, val] of Object.entries(oldCompleted)){
+    if(taskId!==fromTaskId&&taskId!==toTaskId){
+      newCompleted[taskId]=val;
+    }
+  }
+
+  peuaCompleted[monthNum]=newCompleted;
+
   const temp=peuaTasks[monthNum][fromIdx];
   peuaTasks[monthNum][fromIdx]=peuaTasks[monthNum][toIdx];
   peuaTasks[monthNum][toIdx]=temp;
+
   savePeuaTasks();
+  savePeua();
   renderPeua();
   toast(direction>0?'📍 Tarefa movida para baixo':'📍 Tarefa movida para cima');
 }
@@ -1950,11 +1983,11 @@ function dropPeua(e,monthNum,taskIdx){
   const oldCompleted={...peuaCompleted[monthNum]};
   const newCompleted={};
 
-  // Calculate actual insertion position
+  const tasks=peuaTasks[monthNum];
   const newPosition=toIdx>fromIdx?toIdx-1:toIdx;
 
-  // Create index mapping: old index -> new index
-  for(let oldIdx=0;oldIdx<Object.keys(oldCompleted).length+1;oldIdx++){
+  // Create index mapping: old index -> new index for ALL tasks
+  for(let oldIdx=0;oldIdx<tasks.length;oldIdx++){
     let newIdx;
     if(oldIdx===fromIdx){
       newIdx=newPosition;
@@ -1978,7 +2011,6 @@ function dropPeua(e,monthNum,taskIdx){
   peuaCompleted[monthNum]=newCompleted;
 
   // Reorder tasks
-  const tasks=peuaTasks[monthNum];
   const dragged=tasks[fromIdx];
   tasks.splice(fromIdx,1);
   tasks.splice(newPosition,0,dragged);
