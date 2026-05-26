@@ -426,6 +426,7 @@ textarea{min-height:120px}
           <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
+            <button class="btn bsm" style="background:#E0F2FE;color:#0369A1;border-color:#BAE6FD" onclick="copyPromptAndOpenChat()">📲 Open in Chat</button>
             <span class="cbdg" id="cpbdg">✓ Copied!</span>
           </div>
         </div>
@@ -1433,6 +1434,15 @@ function openAIModal(){
 function copyPrompt(){
   const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
   navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
+}
+function copyPromptAndOpenChat(){
+  const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
+  navigator.clipboard.writeText(fp).then(()=>{
+    document.getElementById('cpbdg').classList.add('on');
+    setTimeout(()=>{
+      window.open('https://claude.ai/share/dd91e436-c8fc-4c68-b311-226bb6c773c2','_blank');
+    },300);
+  });
 }
 function processJSON(){
   const raw=document.getElementById('jsonin').value.trim();
