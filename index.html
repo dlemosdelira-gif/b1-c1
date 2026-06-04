@@ -1545,7 +1545,7 @@ function renderEnsurance(){
   document.getElementById('lessonlist').appendChild(cyclesDiv);
 
   // Hide other practice sections
-  ['renderWeeklyActivities','renderActivities','promptbox'].forEach(el=>{
+  ['weeklyActivitiesContainer','renderActivities','promptbox'].forEach(el=>{
     const e=document.getElementById(el);
     if(e)e.style.display='none';
   });
@@ -1557,6 +1557,11 @@ function renderPrac(){
     renderEnsurance();
     return;
   }
+  // Show normal practice sections when not in ENSURANCE mode
+  ['weeklyActivitiesContainer','renderActivities','promptbox'].forEach(el=>{
+    const e=document.getElementById(el);
+    if(e)e.style.display='';
+  });
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
   // Month context
