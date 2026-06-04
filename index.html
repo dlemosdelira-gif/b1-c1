@@ -645,7 +645,7 @@ let peuaCompleted={};
 let activePeuaMonth=5;
 let peuaTasks=null;
 let editingPeuaTask=null;
-let ensuranceWeek=0,ensuranceCycle=1;
+let ensuranceWeek=1,ensuranceCycle=1;
 let ensuranceCompleted={};
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
@@ -756,197 +756,493 @@ const ENSURANCE_CRONOGRAMA = {
   ciclosPorSemana: 6,
   recomendacao: 'Faça 1 ciclo por dia',
   semanas: {
-
-    1: {
-      nome: 'Semana 1',
-      ciclos: {
-        1: ["Veja a aula Introdução ao TOEFL iBT 2026", "Veja como é o software da prova com amostras de questões*: link"],
-        2: ["Veja com atenção as informações relevantes sobre a prova (link)", "Clique aqui para ver a aula e fazer os exercícios da Lista 1A."],
-        3: ["Veja a aula da seção de Reading: Complete the Words (link)", "Faça a lista de exercícios: Reading set 1 (link)"],
-        4: ["Clique aqui para ver a aula e fazer os exercícios da lista 1B."],
-        5: ["Veja a aula Entendendo perguntas e como respondê-las (link)", "Faça a lista de exercícios: Listening set 1 (link)"],
-      }
-    },
-
-    2: {
-      nome: 'Semana 2',
-      ciclos: {
-        1: ["Clique aqui para ver a aula e fazer exercícios da Lista 1D.", "Veja a aula da seção de Listening: Listening and Choose a Response (link)", "Faça a lista de exercícios: Listening set 2 (link)"],
-        2: ["Clique aqui para rever o conteúdo e fazer exercícios da Lista 1E."],
-        3: ["Veja a aula Pronúncia em inglês (link)", "Pratique repetição de frases com esta história: First snowfall (link)", "Faça a lista de exercícios: Speaking set 1 (link). Lembre-se de seguir as regras de correção"],
-        4: ["Clique aqui para rever o conteúdo e fazer os exercícios da Lista 2A."],
-        5: ["Veja a aula da seção de Listening: Listen to a Conversation (link)", "Faça a lista de exercícios: Writing set 1 (link). Lembre-se de seguir as regras de"],
-      }
-    },
-
-    3: {
-      nome: 'Semana 3',
-      ciclos: {
-        2: ["Veja a aula e faça os exercícios no link abaixo dela: Construindo frases mais avançadas em"],
-        3: ["Veja a aula da seção de Reading: Read in Daily Life (link)", "Faça a lista de exercícios: Reading set 3 (link)"],
-        4: ["Veja a aula da seção de Listening: Listen to an Announcement (link)", "Faça a lista de exercícios: Listening set 3 (link)"],
-        5: ["Veja a aula Formação de palavras em inglês: afixos (link)", "Faça a lista de exercícios: Writing set 2 (link)"],
-      }
-    },
-
-    4: {
-      nome: 'Semana 4',
-      ciclos: {
-        1: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 3A.", "Pratique repetição e pronúncia com a história: If I were a giant (link)"],
-        2: ["Veja a aula sobre Writing: Write an Email (link)", "Faça a lista de exercícios Writing set 4 (link)"],
-        3: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4A.", "Pratique repetição com a seguinte história: My Worst Fear (link)"],
-        4: ["Veja a aula sobre Writing: Write for an Academic Discussion (link)", "Faça o quiz disponível no vídeo: Simple Tenses Quiz (link)"],
-        5: ["Veja a aula sobre Speaking: Listen and Repeat (link)", "Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link)"],
-        6: ["Veja a aula e faça os exercícios abaixo dela: Classes de palavras (link)", "Pratique repetição e pronúncia com a história: If I found a magic lamp (link)"],
-      }
-    },
-
-    6: {
-      nome: 'Semana 6',
-      ciclos: {
-        1: ["Veja a aula e faça os exercícios abaixo dela: Formação de palavras em inglês (link)", "Pratique repetição de frases e pronúncia com a história: The Trunk in the Attic (link)"],
-        2: ["Assista à aula: Tipos de questões na seção de Reading (parte 1)", "Faça a lista de exercícios: Reading set 5 (link)"],
-        3: ["Assista à aula Melhorando o Listening dia a dia (link)", "Faça a lista de exercícios: Listening set 5 (link)"],
-        4: ["Assista à aula Formação de perguntas em inglês - parte 1 (link)", "Faça a lista de exercícios: Writing set 5 (link)"],
-        5: ["Assista à aula: Padrões de Pronúncia em Inglês (link)", "Faça a lista de exercícios: Speaking set 4 (link)"],
-      }
-    },
-
-    7: {
-      nome: 'Semana 7',
-      ciclos: {
-        1: ["Assista à aula: Dúvidas sobre o TOEFL iBT 2026 (link)", "Faça a lista de exercícios: Listening set 6 (link)"],
-        2: ["Assista à aula: Expressões para aumentar seu vocabulário e fluência (link)", "Faça a lista de exercícios: Speaking set 5 (link)"],
-        3: ["Assista à aula: Formação de perguntas em inglês (parte 2)", "Faça a lista de exercícios: Writing set 6 (link)"],
-        4: ["Dia de self-assessment (auto-avaliação): após estas semanas e ciclos, separe um momento", "É muito importante que você aprenda com seus erros, e não apenas acumule atividades feitas.", "Entender (até o ponto de decorar) a prova é grande parte do sucesso na nota. Não ignore essa", "Não se esqueça do motivo pelo qual começou sua jornada! Queremos você em nosso Hall da", "Tem ideias de temas de aulas? Poste na comunidade da Escola do TOEFL!"],
-        5: ["Assista à aula Critérios de nota para a seção de Speaking (link)", "Faça a lista de exercícios: Speaking set 6 (link)"],
-      }
-    },
-
-    8: {
-      nome: 'Semana 8',
-      ciclos: {
-        1: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça a lista de exercícios: Listening set 7 (link)"],
-        2: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4B.", "Pratique repetição de frases com esta história: A Day at the Art Show (link)"],
-        3: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4C.", "Faça a lista de exercícios: Writing set 7 (link)"],
-        4: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a lista de exercícios: Speaking set 7 (link)"],
-        5: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça a lista de exercícios: Speaking set 8 (link)"],
-      }
-    },
-
-    9: {
-      nome: 'Semana 9',
-      ciclos: {
-        1: ["Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o", "Faça a lista de exercícios: Listening set 8 (link)"],
-        2: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4E.", "Pratique repetição de frases com esta história : New Year's Day (link)"],
-        3: ["Assista à aula: Critério de nota da seção Writing (link)", "Faça a lista de exercícios: Writing set 8 (link)"],
-        4: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 5A.", "Pratique repetição de frases com esta história: Psycology (link)"],
-        5: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Reading set 9 (link)", "Pratique repetição de frases e pronúncia com esta história: Yellowstone National Part"],
-      }
-    },
-
-    10: {
-      nome: 'Semana 10',
-      ciclos: {
-        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Writing set 9 (link)"],
-        2: ["Pratique repetição de frases com esta história: Preservation of Forests (link)"],
-        3: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Speaking set 9 (link)"],
-        4: ["Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é", "Assista à alguma aula do módulo de English for Real Beginners referente aos problemas"],
-        5: ["Faça a listas de exercícios: Reading set 10 (link)", "Pratique repetição de frases e pronúncia com esta história: The Planetarium (link)"],
-      }
-    },
-
-    11: {
-      nome: 'Semana 11',
-      ciclos: {
-        1: ["Colete os arquivos de feedback para seus últimos 5 exercícios de Writing. Releia-os", "Busque por aulas que abordem esses seus erros frequentes. Se desejar, peça um"],
-        2: ["Colete os arquivos de feedback para seus últimos 5 exercícios de Speaking. Releia-os", "Busque por aulas que abordem esses seus erros frequentes. Se desejar, peça um"],
-        3: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Writing set 10 (link)"],
-        4: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
-        5: ["Faça a listas de exercícios: Speaking set 10 (link)", "Pratique repetição de frases e pronúncia com esta história: The War that Both Sides Won"],
-      }
-    },
-
-    12: {
-      nome: 'Semana 12',
-      ciclos: {
-        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Reading set 11 (link)"],
-        2: ["Faça a lista de exercícios: Listening set 11 (link)", "Pratique repetição de frases e pronúncia com esta história: Henry Ford (link)", "Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Writing set 11 (link)"],
-        4: ["Pratique repetição e pronúncia com esta história: Hiroshima (link)", "Faça a listas de exercícios: Speaking set 11 (link)"],
-        5: ["Acesse o simulado TOEFL iBT aqui (link)."],
-      }
-    },
-
-    13: {
-      nome: 'Semana 13',
-      ciclos: {
-        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Reading set 12 (link)"],
-        2: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
-        3: ["Faça a lista de exercícios: Listening set 12 (link)", "Pratique repetição e pronúncia com esta história: The Internet (link)", "Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
-      }
-    },
-
-    14: {
-      nome: 'Semana 14',
-      ciclos: {
-        1: ["Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
-        2: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça o exercício de Reading: Reading set 13 (link)"],
-        3: ["Pratique repetição de frases com esta história: Anastasia and the Russian revolution (link)", "Assista à aula Estratégias para Listen and Repeat (Speaking)"],
-        4: ["Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é", "Faça a lista de exercícios: Listening set 13 (link)"],
-      }
-    },
-
-    15: {
-      nome: 'Semana 15',
-      ciclos: {
-        1: ["Assista à aula Estratégias para Build a Sentence (link)", "Faça a lista de exercícios: Writing set 13 (link)"],
-        2: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
-        3: ["Assista à aula: Estratégias para Take an Interview (link)", "Faça a lista de exercícios: Speaking set 13 (link)"],
-        4: ["Assista à aula: Como melhorar o listening (link)", "Refaça o exercpicio de Listening: Listening set 1 (link)", "Pratique repetição de frases com esta história: The Origins of Canada and The United"],
-        5: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
-      }
-    },
-
-    16: {
-      nome: 'Semana 16',
-      ciclos: {
-        1: ["Assista à aula: Estratégias para Write an Email (link)"],
-        2: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Refaça o exercpicio de Listening: Listening set 2 (link)", "Pratique repetição de frases com esta história: Cultural Differences : Individualism and"],
-        3: ["Assista o vídeo no link a seguir e faça as questões do quiz ao lado do vídeo. Em seguida,"],
-        4: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Refaça o exercpicio de Listening: Listening set 14 (link)", "Pratique repetição de frases com esta história: Cultural Differences : Individualism and"],
-        5: ["Assista à aula: Guia para Write for an Academic Discussion (link)", "Faça o exercício de Writing: Writing set 14 (link)"],
-      }
-    },
-
-    17: {
-      nome: 'Semana 17',
-      ciclos: {
-        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referente a formas de ajustar", "Faça o exercício: Reading set 15 (link)", "Refaça o exercício de Reading: Reading set 3 (link). Ao final, compare seu resultado de"],
-        3: ["Assista à alguma aula do módulo Estratégias para o TOEFL referente a formas de ajustar", "Faça o exercício: Writing set 15 (link)"],
-      }
-    },
-    }
-};
-
-// Mapa de recursos e links
-const ENSURANCE_RESOURCES = {
-  'Introdução ao TOEFL iBT 2026': 'https://hotmart.com/en/club/phdnoseua/products/3784297/content/V73Dy102O3',
-  'DailyDictation - TOEFL Listening': 'https://dailydictation.com/exercises/toefl-listening',
-  'Leituras Recomendadas': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'Reading sets': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'Listening sets': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'Writing sets': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'Speaking sets': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'Pronúncia em inglês': 'https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n',
-  'Formação de palavras': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'Técnicas de leitura': 'https://hotmart.com/en/club/phdnoseua/products/3784297',
-  'First snowfall': 'https://engnovate.com/dictation-shadowing-exercises/first-snowfall/?mode=shadowing',
-  'Jessica\'s First Day of School': 'https://engnovate.com/dictation-shadowing-exercises/jessicas-first-day-of-school/?mode=shadowing',
-  'Super Heroes': 'https://engnovate.com/dictation-shadowing-exercises/super-heroes/?mode=shadowing',
-  'The Planetarium': 'https://engnovate.com/dictation-shadowing-exercises/the-planetarium/?mode=shadowing',
-  'Modern Engineering Wonders': 'https://engnovate.com/dictation-shadowing-exercises/modern-engineering-wonders/?mode=shadowing',
-  'New Years Day': 'https://engnovate.com/dictation-shadowing-exercises/new-years-day/',
-  'ETS TOEFL Practice Test': 'https://ibt2-toefl-pt.ets.org/dg?code=A01'
+    1: { nome: 'Semana 1', ciclos: {
+      1: [
+        {t:"Veja a aula Introdução ao TOEFL iBT 2026",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/V73Dy102O3"]},
+        {t:"Veja como é o software da prova com amostras de questões*: link",l:["https://ibt2-toefl-pt.ets.org/dg?code=A01&tst=TELENKSAM"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Veja com atenção as informações relevantes sobre a prova (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/RO9q0JV3OP"]},
+        {t:"Clique aqui para ver a aula e fazer os exercícios da Lista 1A.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmZL7n"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Veja a aula da seção de Reading: Complete the Words (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/oODgVaq67P"]},
+        {t:"Faça a lista de exercícios: Reading set 1 (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/E4z8qQ0j7l"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Clique aqui para ver a aula e fazer os exercícios da lista 1B.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/V4VxMm0k72"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Veja a aula Entendendo perguntas e como respondê-las (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/2OMJn1do46"]},
+        {t:"Faça a lista de exercícios: Listening set 1 (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/o4Egjr6g7z"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Clique aqui para ver a aula e fazer os exercícios da Lista 1C.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/r48xrJ9v4R"]},
+        {t:"Faça a lista de exercícios: Reading set 2 (link)",l:["https://www.flexiquiz.com/SC/N/1d23c388-8c51-4192-8389-761c5cc79eec"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    2: { nome: 'Semana 2', ciclos: {
+      1: [
+        {t:"Clique aqui para ver a aula e fazer exercícios da Lista 1D.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/M7qabM0W7x"]},
+        {t:"Veja a aula da seção de Listening: Listening and Choose a Response (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/y4bV0a9y4R"]},
+        {t:"Faça a lista de exercícios: Listening set 2 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/oODgVNd67P"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Clique aqui para rever o conteúdo e fazer exercícios da Lista 1E.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/o4E5mJ0g4z"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Veja a aula Pronúncia em inglês (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZJ0ej"]},
+        {t:"Pratique repetição de frases com esta história: First snowfall (link)",l:["https://engnovate.com/dictation-shadowing-exercises/first-snowfall/?mode=shadowing"]},
+        {t:"Faça a lista de exercícios: Speaking set 1 (link). Lembre-se de seguir as regras de correção explicitadas no módulo de Introdução sempre que enviar seus áudios para correção.",l:["https://www.flexiquiz.com/SC/N/e98459ca-5573-49a8-a339-7f0a6f726a4b","https://hotmart.com/en/club/phdnoseua/products/3784297/content/Me1BrKQw7Y"]}
+      ],
+      4: [
+        {t:"Clique aqui para rever o conteúdo e fazer os exercícios da Lista 2A.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/Me1BrJPa7Y"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Veja a aula da seção de Listening: Listen to a Conversation (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/EOg2MPJV76"]},
+        {t:"Faça a lista de exercícios: Writing set 1 (link). Lembre-se de seguir as regras de correção explicitadas no módulo de Introdução sempre que enviar seus textos para correção.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/Me1BrKQw7Y","https://hotmart.com/en/club/phdnoseua/products/3784297/content/0OvaQvvx7j"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 2B.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/BeZybmY54w"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    3: { nome: 'Semana 3', ciclos: {
+      1: [
+        {t:"Assista à aula: Módulos adaptativos do TOEFL em detalhes (Reading & Listening)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/y4P2vyWD7x"]},
+        {t:"Pratique repetição de frases com esta história: Jessica's First Day of School (link)",l:["https://engnovate.com/dictation-shadowing-exercises/jessicas-first-day-of-school/?mode=shadowing"]}
+      ],
+      2: [
+        {t:"Veja a aula e faça os exercícios no link abaixo dela: Construindo frases mais avançadas em inglês (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/M7Gnrm2Bew"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Veja a aula da seção de Reading: Read in Daily Life (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/146Vgl0K4d"]},
+        {t:"Faça a lista de exercícios: Reading set 3 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/64lwBgRPOj"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Veja a aula da seção de Listening: Listen to an Announcement (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/64lwYA23Oj"]},
+        {t:"Faça a lista de exercícios: Listening set 3 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/r488ALDX4R"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Veja a aula Formação de palavras em inglês: afixos (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/146QrrWoOd"]},
+        {t:"Faça a lista de exercícios: Writing set 2 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/64lwjV99Oj"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Faça a lista de exercícios: Speaking set 2 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/V73Dyw93O3"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    4: { nome: 'Semana 4', ciclos: {
+      1: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 2C.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/Z72vwJ8q7N"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Veja a aula da seção de Writing: Build a Sentence (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/y4PEkGr0ex"]},
+        {t:"Faça a lista de exercícios: Writing set 3 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/ROxV1rWxeD"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Pratique repetição com a seguinte história: Super Heroes (link)",l:["https://engnovate.com/dictation-shadowing-exercises/super-heroes/?mode=shadowing"]},
+        {t:"Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture",l:["https://dailydictation.com/exercises/toefl-listening"]}
+      ],
+      4: [
+        {t:"Veja a aula sobre Técnicas de leitura em inglês (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/ROxv12nxeD"]},
+        {t:"Faça a lista de exercícios: Reading set 4 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/RONqr9oG7P"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 2D.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/R4jpxD9d7a"]},
+        {t:"Veja a aula sobre Listening: Listen to an Academic Talk (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/r48EWW1neR"]},
+        {t:"Faça a lista de exercícios: Listening set 4 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/b4KV9dM5OX"]}
+      ],
+      6: [
+        {t:"Veja a aula e faça os exercícios abaixo dela: Classes de palavras (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/y4bk6ZokeR"]},
+        {t:"Pratique repetição e pronúncia com a história: If I found a magic lamp (link)",l:["https://engnovate.com/dictation-shadowing-exercises/if-i-found-a-magic-lamp/?mode=shadowing"]}
+      ]
+    }},
+    5: { nome: 'Semana 5', ciclos: {
+      1: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 3A.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/146QrJ1KOd"]},
+        {t:"Pratique repetição e pronúncia com a história: If I were a giant (link)",l:["https://engnovate.com/dictation-shadowing-exercises/if-i-were-a-giant/?mode=shadowing"]}
+      ],
+      2: [
+        {t:"Veja a aula sobre Writing: Write an Email (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/y4PE2xbbex"]},
+        {t:"Faça a lista de exercícios Writing set 4 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/NOwAQZDKem"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4A.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/k45arpyr4l"]},
+        {t:"Pratique repetição com a seguinte história: My Worst Fear (link)",l:["https://engnovate.com/dictation-shadowing-exercises/my-worst-fear/?mode=shadowing"]}
+      ],
+      4: [
+        {t:"Veja a aula sobre Writing: Write for an Academic Discussion (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/64l2mGLQ7j"]},
+        {t:"Faça o quiz disponível no vídeo: Simple Tenses Quiz (link)",l:["https://youtu.be/trcUBvIbajk?si=Un-ptao6eDr4S9_U&t=2","https://youtu.be/trcUBvIbajk?si=R71O-j5g9jQr98zs&t=2"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Veja a aula sobre Speaking: Listen and Repeat (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/97B2NWml7p"]},
+        {t:"Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link)",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Veja a aula sobre Speaking: Take an Interview (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7r2GG9x7j"]},
+        {t:"Faça a lista de exercícios: Speaking set 3 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/kOXxgEKdOW"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    6: { nome: 'Semana 6', ciclos: {
+      1: [
+        {t:"Veja a aula e faça os exercícios abaixo dela: Formação de palavras em inglês (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/97BErmdqep"]},
+        {t:"Pratique repetição de frases e pronúncia com a história: The Trunk in the Attic (link)",l:["https://engnovate.com/dictation-shadowing-exercises/the-trunk-in-the-attic/?mode=shadowing"]}
+      ],
+      2: [
+        {t:"Assista à aula: Tipos de questões na seção de Reading (parte 1)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/0OvoXapV4j"]},
+        {t:"Faça a lista de exercícios: Reading set 5 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/oODzpzzmeP"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à aula Melhorando o Listening dia a dia (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/2OMJ2BMy46"]},
+        {t:"Faça a lista de exercícios: Listening set 5 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/m7Y8AKBZe6"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Assista à aula Formação de perguntas em inglês - parte 1 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/NOwAmVGEem"]},
+        {t:"Faça a lista de exercícios: Writing set 5 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/37dpaZjB7L"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à aula: Padrões de Pronúncia em Inglês (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/V4VxM31272"]},
+        {t:"Faça a lista de exercícios: Speaking set 4 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/2OM8kgjn76"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Assista à aula: Tipos de questões na seção de Reading (parte 2)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/meL2EwmlOn"]},
+        {t:"Faça a lista de exercícios: Reading set 6 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/M7qpb9lNex"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    7: { nome: 'Semana 7', ciclos: {
+      1: [
+        {t:"Assista à aula: Dúvidas sobre o TOEFL iBT 2026 (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/oODzobEQeP"]},
+        {t:"Faça a lista de exercícios: Listening set 6 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/97B2rRqL7p"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Assista à aula: Expressões para aumentar seu vocabulário e fluência (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/k7QRQP8kOy"]},
+        {t:"Faça a lista de exercícios: Speaking set 5 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/37dpPyJL7L"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à aula: Formação de perguntas em inglês (parte 2)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/oODzqgMgeP"]},
+        {t:"Faça a lista de exercícios: Writing set 6 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/2OM8jonL76"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Dia de self-assessment (auto-avaliação): após estas semanas e ciclos, separe um momento para refletir sobre sua evolução até agora. Neste momento do cronograma, você já teve a oportunidade de ver aulas sobre todos os tipos de questões da prova e praticar exercícios simulados de todas as seções. Pergunte-se: Eu já decorei as características de todos os tipos de tasks da prova, de todas as seções? Eu fiz e enviei para o e-mail de correção todas as atividades de Speaking e Writing? Se ainda não, por quê? Poste sua dúvida ou seus motivos na comunidade para os professores. Se enviou todos, pegue os arquivos de feedback de todos eles. Analise as notas estimadas e as sugestões de melhoria. As recomendações de melhoria continuam as mesmas ou conseguiu eliminar os erros dos primeiros sets? Sinto mais confiança ao responder? É muito importante que você aprenda com seus erros, e não apenas acumule atividades feitas. Entender (até o ponto de decorar) a prova é grande parte do sucesso na nota. Não ignore essa parte. Se necessário, veja e reveja as aulas quantas vezes quiser. E o principal: envie-nos suas atividades de speaking e writing para correção; somente assim poderemos entender seus pontos fracos e sugerir melhorias. Não se esqueça do motivo pelo qual começou sua jornada! Queremos você em nosso Hall da Aprovação! Tem ideias de temas de aulas? Poste na comunidade da Escola do TOEFL!",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/r48E9QgveR"]}
+      ],
+      5: [
+        {t:"Assista à aula Critérios de nota para a seção de Speaking (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/M7qpRXVjex"]},
+        {t:"Faça a lista de exercícios: Speaking set 6 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/RO92Gmj84P"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Assista à aula: Tipos de questões na seção de Reading (parte 3)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/k7Q2x0x2Oy"]},
+        {t:"Faça a lista de exercícios: Reading set 7 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/m7Y8myxDe6"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    8: { nome: 'Semana 8', ciclos: {
+      1: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça a lista de exercícios: Listening set 7 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/b4KVDbvDOX"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4B.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/EOgYaB9Pe6"]},
+        {t:"Pratique repetição de frases com esta história: A Day at the Art Show (link)",l:["https://engnovate.com/dictation-shadowing-exercises/a-day-at-the-art-show-oxford-3000-vocabulary-series/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4C.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/b4Kdrm0beX"]},
+        {t:"Faça a lista de exercícios: Writing set 7 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/Z72QMjV6eN"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a lista de exercícios: Speaking set 7 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/2OM8xmyo76"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça a lista de exercícios: Speaking set 8 (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/94JQjKRkOg"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4D.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/E4zDBXKj7l"]},
+        {t:"Faça a lista de exercícios: Reading set 8 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/Me1anw2aeY"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    9: { nome: 'Semana 9', ciclos: {
+      1: [
+        {t:"Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Faça a lista de exercícios: Listening set 8 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/BOnw239p4R"]}
+      ],
+      2: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4E.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/PeAArJ5JeW"]},
+        {t:"Pratique repetição de frases com esta história: New Year's Day (link)",l:["https://engnovate.com/dictation-shadowing-exercises/new-years-day/"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à aula: Critério de nota da seção Writing (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/gOpy9dyP4J"]},
+        {t:"Faça a lista de exercícios: Writing set 8 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/EOgpJDxG46"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 5A.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/BOnvExYqOR"]},
+        {t:"Pratique repetição de frases com esta história: Psycology (link)",l:["https://engnovate.com/dictation-shadowing-exercises/psychology/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Reading set 9 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/BeZqXKX54w"]},
+        {t:"Pratique repetição de frases e pronúncia com esta história: Yellowstone National Part (link)",l:["https://engnovate.com/dictation-shadowing-exercises/yellowstone-national-park/?mode=shadowing"]}
+      ],
+      6: [
+        {t:"Clique aqui para ver o conteúdo e fazer os exercícios da Lista 5B.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/RO98oJ9N7P"]},
+        {t:"Faça a lista de exercícios: Listening set 9 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/3eapzKg94g"]}
+      ]
+    }},
+    10: { nome: 'Semana 10', ciclos: {
+      1: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Writing set 9 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/m7Y8BNAJe6"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Pratique repetição de frases com esta história: Preservation of Forests (link)",l:["https://engnovate.com/dictation-shadowing-exercises/preservation-of-forests/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Speaking set 9 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/BeZqwK254w"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Faça a listas de exercícios: Reading set 10 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/o4EB6669ez"]},
+        {t:"Pratique repetição de frases e pronúncia com esta história: The Planetarium (link)",l:["https://engnovate.com/dictation-shadowing-exercises/the-planetarium/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Faça a listas de exercícios: Listening set 10 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/K4k2pGYyOY"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    11: { nome: 'Semana 11', ciclos: {
+      1: [
+        {t:"Colete os arquivos de feedback para seus últimos 5 exercícios de Writing. Releia-os atentamente. Pergunte-se: o quê já consegui melhorar desde o inicio? (releia seus textos) quais erros tenho cometido com mais frequência? Busque por aulas que abordem esses seus erros frequentes. Se desejar, peça um indicação aos professores nos comentários ou na comunidade."},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Colete os arquivos de feedback para seus últimos 5 exercícios de Speaking. Releia-os atentamente. Pergunte-se: o quê já consegui melhorar desde o inicio? (reescute seus áudios) quais erros tenho cometido com mais frequência? Busque por aulas que abordem esses seus erros frequentes. Se desejar, peça um indicação aos professores nos comentários ou na comunidade."},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Writing set 10 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/kOXx3WDoOW"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Faça a listas de exercícios: Speaking set 10 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/b4KVBlGWOX"]},
+        {t:"Pratique repetição de frases e pronúncia com esta história: The War that Both Sides Won (link)",l:["https://engnovate.com/dictation-shadowing-exercises/the-war-that-both-sides-won/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    12: { nome: 'Semana 12', ciclos: {
+      1: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Reading set 11 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rwogqmOj"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Faça a lista de exercícios: Listening set 11 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/o4E3AJNm7z"]},
+        {t:"Pratique repetição de frases e pronúncia com esta história: Henry Ford (link)",l:["https://engnovate.com/dictation-shadowing-exercises/henry-ford/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Writing set 11 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/o4E3A2nm7z"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Pratique repetição e pronúncia com esta história: Hiroshima (link)",l:["https://engnovate.com/dictation-shadowing-exercises/hiroshima/?mode=shadowing"]},
+        {t:"Faça a listas de exercícios: Speaking set 11 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/37d51YaPOL"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Hoje, você fará um simulado completo do TOEFL iBT. Reserve, no mínimo, 90 minutos para tal, sem pausas ou interrupções. Ao final, envie seus áudios e textos no mesmo email para correção. Caso não seja possível, reserve este ciclo do simulado e avance para o ciclo seguinte; retorne ao simulado quando puder cumprir as condições."},
+        {t:"Acesse o simulado TOEFL iBT aqui (link).",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/V4VKk2lxe2"]}
+      ],
+      6: [
+        {t:"Revise cuidadosamente todos seus erros do simulado de ontem. Reflita: Meus erros foram por questão de gramática? Vocabulário? Tempo para responder? Qual seção foi a mais difícil para mim? Qual foi a mais fácil?"}
+      ]
+    }},
+    13: { nome: 'Semana 13', ciclos: {
+      1: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a listas de exercícios: Reading set 12 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/K4kkWNp14Y"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Faça a lista de exercícios: Listening set 12 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/3ealAXkq4g"]},
+        {t:"Pratique repetição e pronúncia com esta história: The Internet (link)",l:["https://engnovate.com/dictation-shadowing-exercises/the-internet/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça a lista de exercícios: Writing set 12 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/3ealgAvp4g"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Faça a lista de exercícios: Speaking set 12 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4R2Dv014n"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    14: { nome: 'Semana 14', ciclos: {
+      1: [
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça o exercício de Reading: Reading set 13 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/V7ykqj3P4J"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Pratique repetição de frases com esta história: Anastasia and the Russian revolution (link)",l:["https://engnovate.com/dictation-shadowing-exercises/anastasia-and-the-russian-revoluion/?mode=shadowing"]},
+        {t:"Assista à aula Estratégias para Listen and Repeat (Speaking)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/37dpAXlP7L"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Faça a lista de exercícios: Listening set 13 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/2OMNnVgr46"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à aula Tipo de questões na seção de Reading (parte 2) Raça o exercício de Reading: Reading set 1 (link). Ao final, compare seu resultado de agora com a primeira vez que você fez ese set.",l:["https://hotmart.com/pt-br/club/phdnoseua/products/3784297/content/meL2EwmlOn","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/E4z8qQ0j7l"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Pratique repetição de frases com esta história: Modern Engineering Wonders (link)",l:["https://engnovate.com/dictation-shadowing-exercises/modern-engineering-wonders/?mode=shadowing"]},
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    15: { nome: 'Semana 15', ciclos: {
+      1: [
+        {t:"Assista à aula Estratégias para Build a Sentence (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/k45bxodPel"]},
+        {t:"Faça a lista de exercícios: Writing set 13 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4R2W9Er4n"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      2: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista à aula: Estratégias para Take an Interview (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/RONJvWPPOP"]},
+        {t:"Faça a lista de exercícios: Speaking set 13 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/K4kkE0d04Y"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Assista à aula: Como melhorar o listening (link) Refaça o exercpicio de Listening: Listening set 1 (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/M7qykpVN7x","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/o4Egjr6g7z"]},
+        {t:"Pratique repetição de frases com esta história: The Origins of Canada and The United States",l:["https://engnovate.com/dictation-shadowing-exercises/the-origins-of-canada-and-the-united-states/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej"]},
+        {t:"Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.",l:["https://dailydictation.com/exercises/toefl-listening"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Assista à aula Tipo de questões na seção de Reading (parte 3)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/k7Q2x0x2Oy"]},
+        {t:"Faça o exercício: Reading set 14 (link) Raça o exercício de Reading: Reading set 2 (link). Ao final, compare seu resultado de agora com a primeira vez que você fez ese set.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/LO0bmjkAeG","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/NOwQVR5Aem"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }},
+    16: { nome: 'Semana 16', ciclos: {
+      1: [
+        {t:"Assista à aula: Estratégias para Write an Email (link) Volte aos seus textos do Writing set 1. Releia-os e reveja o feedback enviado para eles. Refaça o exercício de Writing: Writing set 1 (link). Compare sua performance de Build a Sentence hoje com a primeira vez que você fez o esse set.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/3eapJbE94g","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/0OvaQvvx7j"]}
+      ],
+      2: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções. Refaça o exercpicio de Listening: Listening set 2 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/oODgVNd67P"]},
+        {t:"Pratique repetição de frases com esta história: Cultural Differences : Individualism and Collectivism",l:["https://engnovate.com/dictation-shadowing-exercises/cultural-differences-individualism-and-collectivism/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      3: [
+        {t:"Assista o vídeo no link a seguir e faça as questões do quiz ao lado do vídeo. Em seguida, confira o Transcript para checar partes que você não entendeu na primeira vez. Por fim, pratique seu speaking com o Chattybot. Link: Human Body 101",l:["https://eslvideo.com/quiz.php?id=62154"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      4: [
+        {t:"Assista à alguma aula do módulo de English for Real Beginners referente aos problemas gramaticais recorrentes no feedback que você tem recebido das correções. Refaça o exercpicio de Listening: Listening set 14 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej","https://hotmart.com/en/club/phdnoseua/products/3784297/content/97BVrqPJ7p"]},
+        {t:"Pratique repetição de frases com esta história: Cultural Differences : Individualism and Collectivism",l:["https://engnovate.com/dictation-shadowing-exercises/cultural-differences-individualism-and-collectivism/?mode=shadowing"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      5: [
+        {t:"Assista à aula: Guia para Write for an Academic Discussion (link)",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/a4Rvl08N4n"]},
+        {t:"Faça o exercício de Writing: Writing set 14 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/3ealbwXn4g"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ],
+      6: [
+        {t:"Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar sua performance às tasks da prova.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/PeAArYb1eW"]},
+        {t:"Faça o exercício de Speaking: Speaking set 14 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/RO9lGB2v7P"]},
+        {t:"Na aba Leituras Recomendadas, escolha uma leitura. Leia com atenção, fazendo uma lista das palavras que não sabe o significado.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
+      ]
+    }}
+  }
 };
 // ── LESSONS — Trilha B1→C1 (Maio→Dezembro 2026) ─────────────────────────────
 // Roadmap prático sem dependência de livros — atividades concretas e mensuráveis
@@ -1519,22 +1815,23 @@ function renderEnsurance(){
     const activitiesDiv=document.createElement('div');
     activitiesDiv.style.cssText='display:flex;flex-direction:column;gap:6px';
 
-    activities.forEach((activity,idx)=>{
+    activities.forEach(activity=>{
       const actDiv=document.createElement('div');
       actDiv.style.cssText='font-size:14px;color:#475569;line-height:1.5;padding:6px;background:rgba(255,255,255,0.5);border-radius:4px';
 
-      // Find and linkify activity text
-      let actText=activity;
-      let actLink='';
-
-      Object.entries(ENSURANCE_RESOURCES).forEach(([key,url])=>{
-        if(activity.includes(key)){
-          actText=activity.replace(key,`<a href="${url}" target="_blank" style="color:#2563EB;text-decoration:none;font-weight:600;border-bottom:1px solid #2563EB">${key}</a>`);
-          actLink=url;
-        }
-      });
-
-      actDiv.innerHTML=actText;
+      const txt=esc(activity.t||'');
+      const links=activity.l||[];
+      if(links.length===1){
+        // Whole activity text is the link
+        actDiv.innerHTML=`<a href="${links[0]}" target="_blank" style="color:#2563EB;text-decoration:none;border-bottom:1px solid #93C5FD">${txt}</a>`;
+      }else if(links.length>1){
+        // Multiple resources: plain text + numbered link chips
+        let chips=links.map((u,i)=>`<a href="${u}" target="_blank" style="display:inline-block;margin:2px 4px 0 0;padding:1px 8px;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:10px;font-size:12px;font-weight:600;text-decoration:none">🔗 Link ${i+1}</a>`).join('');
+        actDiv.innerHTML=`<div>${txt}</div><div style="margin-top:4px">${chips}</div>`;
+      }else{
+        // No link
+        actDiv.textContent=activity.t||'';
+      }
       activitiesDiv.appendChild(actDiv);
     });
 
@@ -1552,16 +1849,12 @@ function renderEnsurance(){
 }
 
 function renderPrac(){
-  // Check if in ENSURANCE mode
-  if(ensuranceWeek>0){
-    renderEnsurance();
-    return;
-  }
-  // Show normal practice sections when not in ENSURANCE mode
-  ['weeklyActivitiesContainer','renderActivities','promptbox'].forEach(el=>{
-    const e=document.getElementById(el);
-    if(e)e.style.display='';
-  });
+  // ENSURANCE cronograma is the only schedule in Practice (monthly schedule removed)
+  if(!ensuranceWeek||ensuranceWeek<1)ensuranceWeek=1;
+  renderEnsurance();
+  return;
+}
+function renderPracMonthly_UNUSED(){
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
   // Month context
