@@ -645,7 +645,7 @@ let peuaCompleted={};
 let activePeuaMonth=5;
 let peuaTasks=null;
 let editingPeuaTask=null;
-let ensuranceWeek=1,ensuranceCycle=1;
+let ensuranceWeek=0,ensuranceCycle=1;
 let ensuranceCompleted={};
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
@@ -982,6 +982,7 @@ function loadLocal(){
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
   try{peuaCompleted=JSON.parse(localStorage.getItem('c1peua')||'{}');}catch(e){peuaCompleted={};}
   try{const stored=localStorage.getItem('c1peuaTasks');if(stored)peuaTasks=JSON.parse(stored);}catch(e){}
+  try{ensuranceCompleted=JSON.parse(localStorage.getItem('c1ensurance')||'{}');}catch(e){ensuranceCompleted={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
@@ -993,6 +994,7 @@ function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.
 function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RPE)RPE.set(peuaCompleted||null).catch(()=>{});}
+function saveEnsurance(){localStorage.setItem('c1ensurance',JSON.stringify(ensuranceCompleted));if(RMS)RMS.set(ensuranceCompleted||null).catch(()=>{});}
 function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));if(RPET&&peuaTasks)RPET.set(peuaTasks).catch(()=>{});}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -1297,28 +1299,6 @@ function updateLogBtn(){
 }
 
 // ── ROADMAP ───────────────────────────────────────────────────────────────────
-function buildRoadmap(){
-  // Selector (12 month buttons in 2 rows of 6)
-  const sel=document.getElementById('rmsel');sel.innerHTML='';
-  MONTHS.forEach(m=>{
-    const b=document.createElement('button');
-    b.className='rm-btn'+(m.n===activeMonth?' on':'');
-    b.innerHTML=m.ic+'<br>'+m.lb;
-    b.onclick=()=>setMonth(m.n);
-    sel.appendChild(b);
-  });
-  // Theme display
-  const md=mdata(activeMonth);
-  document.getElementById('rmtheme').innerHTML=
-    '<div class="rm-icon">'+md.ic+'</div>'
-    +'<div style="flex:1;min-width:0;">'
-    +'<div class="rm-ph" style="color:'+md.thco+'">'+md.ph+' · Month '+md.n+'</div>'
-    +'<div class="rm-name">'+md.th+'</div>'
-    +'<div class="rm-desc" style="white-space:normal;">'+md.ds+'</div>'
-    +'</div>';
-  document.getElementById('rmtheme').style.cssText='display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;background:'+md.thbg+';border:1px solid '+md.thbd+';margin-top:4px';
-}
-
 function setMonth(n){
   activeMonth=n;saveMO();
   const ls=lessons(n);activeLesson=ls[0]||null;
@@ -1490,7 +1470,90 @@ function renderWeeklyActivities(monthNum){
   el.innerHTML = html;
 }
 
+// ── ENSURANCE CRONOGRAMA RENDER ────────────────────────────────────────────────
+function renderEnsurance(){
+  const week=ENSURANCE_CRONOGRAMA.semanas[ensuranceWeek];
+  if(!week){
+    document.getElementById('pmctx').innerHTML='<div style="color:#94A3B8">Semana não encontrada</div>';
+    document.getElementById('lessonlist').innerHTML='';
+    return;
+  }
+
+  // Context: show week info
+  const totalWeeks=16;
+  const progress=Math.round((ensuranceWeek/totalWeeks)*100);
+  document.getElementById('pmctx').innerHTML=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+    <span class="tag tbl">📅 ${week.nome}</span>
+    <span style="font-size:14px;color:#94A3B8">${Object.keys(week.ciclos).length} ciclos</span>
+    <span style="font-size:14px;color:#2563EB;font-weight:600">${progress}% progresso</span>
+  </div>`;
+
+  // Navigation buttons
+  const navHTML=`<div style="display:flex;gap:8px;margin:12px 0">
+    <button onclick="ensuranceWeek=Math.max(1,ensuranceWeek-1);ensuranceCycle=1;renderEnsurance()" ${ensuranceWeek===1?'disabled':''}  style="flex:1;padding:8px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;cursor:${ensuranceWeek===1?'not-allowed':'pointer'};color:#475569;font-weight:600;transition:all 0.2s" title="Semana anterior">← Semana Anterior</button>
+    <button onclick="ensuranceWeek=Math.min(16,ensuranceWeek+1);ensuranceCycle=1;renderEnsurance()" ${ensuranceWeek===16?'disabled':''} style="flex:1;padding:8px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;cursor:${ensuranceWeek===16?'not-allowed':'pointer'};color:#475569;font-weight:600;transition:all 0.2s" title="Próxima semana">Próxima Semana →</button>
+  </div>`;
+  document.getElementById('lessonlist').innerHTML=navHTML;
+
+  // Render cycles
+  const cyclesDiv=document.createElement('div');
+  cyclesDiv.style.cssText='display:grid;gap:8px;margin-top:12px';
+
+  Object.keys(week.ciclos).forEach(cycleNum=>{
+    const activities=week.ciclos[cycleNum];
+    const cycleKey=`${ensuranceWeek}-${cycleNum}`;
+    const isDone=ensuranceCompleted[cycleKey]||false;
+
+    const card=document.createElement('div');
+    card.style.cssText=`padding:12px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s`;
+
+    const header=document.createElement('div');
+    header.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px';
+    header.innerHTML=`<div style="font-weight:600;color:#0F172A">Ciclo ${cycleNum}</div>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" ${isDone?'checked':''} onchange="ensuranceCompleted['${cycleKey}']=this.checked;saveEnsurance();renderEnsurance()" style="width:14px;height:14px"><span style="font-size:12px;color:#6B7280">Concluído</span></label>`;
+    card.appendChild(header);
+
+    const activitiesDiv=document.createElement('div');
+    activitiesDiv.style.cssText='display:flex;flex-direction:column;gap:6px';
+
+    activities.forEach((activity,idx)=>{
+      const actDiv=document.createElement('div');
+      actDiv.style.cssText='font-size:14px;color:#475569;line-height:1.5;padding:6px;background:rgba(255,255,255,0.5);border-radius:4px';
+
+      // Find and linkify activity text
+      let actText=activity;
+      let actLink='';
+
+      Object.entries(ENSURANCE_RESOURCES).forEach(([key,url])=>{
+        if(activity.includes(key)){
+          actText=activity.replace(key,`<a href="${url}" target="_blank" style="color:#2563EB;text-decoration:none;font-weight:600;border-bottom:1px solid #2563EB">${key}</a>`);
+          actLink=url;
+        }
+      });
+
+      actDiv.innerHTML=actText;
+      activitiesDiv.appendChild(actDiv);
+    });
+
+    card.appendChild(activitiesDiv);
+    cyclesDiv.appendChild(card);
+  });
+
+  document.getElementById('lessonlist').appendChild(cyclesDiv);
+
+  // Hide other practice sections
+  ['renderWeeklyActivities','renderActivities','promptbox'].forEach(el=>{
+    const e=document.getElementById(el);
+    if(e)e.style.display='none';
+  });
+}
+
 function renderPrac(){
+  // Check if in ENSURANCE mode
+  if(ensuranceWeek>0){
+    renderEnsurance();
+    return;
+  }
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
   // Month context
@@ -2722,21 +2785,44 @@ function buildRoadmap(){
   const rc=document.getElementById('roadmapContent');
   if(!rc)return;
   rc.innerHTML='';
-  MONTHS.forEach((m,i)=>{
-    const num=m.n,phase=ROADMAP_PHASES[num],bg=ROADMAP_COLORS[num];
-    const btn=document.createElement('div');
-    btn.className='month-card'+(activeMonth===num?' active':'');
-    btn.style.borderColor=bg;
-    btn.style.backgroundColor=activeMonth===num?bg+'15':'#fff';
-    const focusItems=(m.sk||[]).slice(0,3).map(sk=>'<li>'+sk+'</li>').join('');
-    btn.innerHTML=`<div class="month-emoji">${ROADMAP_EMOJI[num]}</div>
-      <div class="month-name">${m.lb}</div>
-      <div class="month-phase phase${phase}">Phase ${phase}</div>
-      <div style="font-size:14px;color:#6B7280;margin:4px 0">${m.th}</div>
-      <ul class="month-focus">${focusItems}</ul>`;
-    btn.onclick=()=>{activeMonth=num;saveMO();goTab('prac');toast('📅 '+m.lb);renderDash();buildRoadmap();renderPrac();};
-    rc.appendChild(btn);
-  });
+
+  // Render ENSURANCE Cronograma (16 weeks)
+  let totalCycles=0;
+  for(let w=1;w<=16;w++){
+    if(ENSURANCE_CRONOGRAMA.semanas[w]){
+      totalCycles+=Object.keys(ENSURANCE_CRONOGRAMA.semanas[w].ciclos).length;
+    }
+  }
+
+  for(let w=1;w<=16;w++){
+    const sem=ENSURANCE_CRONOGRAMA.semanas[w];
+    if(!sem)continue;
+
+    const ciclosCnt=Object.keys(sem.ciclos).length;
+    const progress=Math.round((w/16)*100);
+    const isActive=ensuranceWeek===w;
+
+    const card=document.createElement('div');
+    card.style.cssText=`padding:12px;border-radius:8px;border:2px ${isActive?'solid #2563EB':'solid #DDE3F5'};background:${isActive?'#EFF6FF':'#fff'};cursor:pointer;transition:all 0.2s`;
+    card.innerHTML=`
+      <div style="font-size:14px;font-weight:600;color:#0F172A">Semana ${w}</div>
+      <div style="font-size:12px;color:#6B7280;margin:4px 0">${ciclosCnt} ciclos</div>
+      <div style="width:100%;height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden;margin:6px 0">
+        <div style="height:100%;background:#10B981;width:${isActive?100:0}%;transition:width 0.3s"></div>
+      </div>
+      <div style="font-size:11px;color:#94A3B8">${progress}% do cronograma</div>
+    `;
+
+    card.onclick=()=>{
+      ensuranceWeek=w;
+      ensuranceCycle=1;
+      buildRoadmap();
+      if(curTab==='prac')renderPrac();
+      toast(`📍 Semana ${w} - ${ciclosCnt} ciclos`);
+    };
+
+    rc.appendChild(card);
+  }
 }
 
 // ── MONTHLY PROGRESS ────────────────────────────────────────────────────
