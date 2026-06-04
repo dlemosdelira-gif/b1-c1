@@ -1098,9 +1098,50 @@ function renderDash(){
     const d=new Date().getDate();
     const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+    // ══ MONTHLY DATA ══
+    let monthDays=[],monthTotal=0,monthDone=0;
+    for(let i=1;i<=31;i++){
+      const dt=new Date(y,m,i);
+      if(dt.getMonth()!==m)break;
+      const key=dt.toISOString().split('T')[0];
+      const v=localStorage.getItem('c1dt-'+key);
+      const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
+      monthDays.push({day:i,count:c,key:key});
+      monthTotal++;
+      if(c>0)monthDone++;
+    }
+
+    const maxCount=Math.max(...monthDays.map(x=>x.count),4);
 
     let html=`
       <div style="width:100%;box-sizing:border-box">
+        <!-- Monthly Progress -->
+        <div style="margin-bottom:20px;width:100%;box-sizing:border-box">
+          <div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px;white-space:nowrap">📊 ${monthNames[m]} Progress</div>
+          <div style="display:flex;gap:2px;height:70px;background:#F8FAFF;border-radius:8px;padding:10px;margin-bottom:10px;width:100%;overflow-x:auto">`;
+
+    monthDays.slice(-14).forEach(day=>{
+      const h=Math.max(2,Math.round(day.count/maxCount*50));
+      const bg=day.count===0?'#E5E7EB':day.count<2?'#D1FAE5':day.count<3?'#6EE7B7':'#10B981';
+      html+=`<div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;height:60px;width:25px" title="${day.key}: ${day.count}/4 tasks" onclick="editDayTasks('${day.key}')">
+        <div style="width:14px;height:${h}px;background:${bg};border-radius:2px;cursor:pointer"></div>
+        <div style="font-size:8px;color:#94A3B8">${day.day}</div>
+      </div>`;
+    });
+
+    html+=`</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+            <div style="background:#F0FDF4;padding:10px;border-radius:8px;border-left:3px solid #10B981;text-align:center">
+              <div style="font-size:26px;font-weight:600;color:#16A34A">${monthDone}</div>
+              <div style="font-size:14px;color:#6B7280;margin-top:4px">Days active</div>
+            </div>
+            <div style="background:#EFF6FF;padding:10px;border-radius:8px;border-left:3px solid #2563EB;text-align:center">
+              <div style="font-size:26px;font-weight:600;color:#2563EB">${Math.round(monthDone/monthTotal*100)}%</div>
+              <div style="font-size:14px;color:#6B7280;margin-top:4px">Completion</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Yearly Progress -->
         <div style="width:100%">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -1504,7 +1545,7 @@ function renderEnsurance(){
   document.getElementById('lessonlist').appendChild(cyclesDiv);
 
   // Hide other practice sections
-  ['renderWeeklyActivities','renderActivities','promptbox'].forEach(el=>{
+  ['weeklyActivitiesContainer','renderActivities','promptbox'].forEach(el=>{
     const e=document.getElementById(el);
     if(e)e.style.display='none';
   });
@@ -1516,6 +1557,11 @@ function renderPrac(){
     renderEnsurance();
     return;
   }
+  // Show normal practice sections when not in ENSURANCE mode
+  ['weeklyActivitiesContainer','renderActivities','promptbox'].forEach(el=>{
+    const e=document.getElementById(el);
+    if(e)e.style.display='';
+  });
   const m=mdata(activeMonth),ls=lessons(activeMonth);
   if(!activeLesson||!ls.find(l=>l.id===activeLesson.id))activeLesson=ls[0]||null;
   // Month context
