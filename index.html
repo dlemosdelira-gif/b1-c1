@@ -645,6 +645,8 @@ let peuaCompleted={};
 let activePeuaMonth=5;
 let peuaTasks=null;
 let editingPeuaTask=null;
+let ensuranceWeek=1,ensuranceCycle=1;
+let ensuranceCompleted={};
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
 let dailyTasks={preply:false,reading:false,listening:false,writing:false};
@@ -746,6 +748,203 @@ const PEUA_DATA=[
     'Participar das Mentorias semanais (link de Zoom na nossa plataforma)'
   ]}
 ];
+// ── ENSURANCE CRONOGRAMA ──────────────────────────────────────────────────────────
+const ENSURANCE_CRONOGRAMA = {
+  nome: 'Cronograma ENSURANCE',
+  descricao: 'Plano de estudos de 16 semanas para o TOEFL iBT 2026 - Nível Intermediário',
+  totalSemanas: 16,
+  ciclosPorSemana: 6,
+  recomendacao: 'Faça 1 ciclo por dia',
+  semanas: {
+
+    1: {
+      nome: 'Semana 1',
+      ciclos: {
+        1: ["Veja a aula Introdução ao TOEFL iBT 2026", "Veja como é o software da prova com amostras de questões*: link"],
+        2: ["Veja com atenção as informações relevantes sobre a prova (link)", "Clique aqui para ver a aula e fazer os exercícios da Lista 1A."],
+        3: ["Veja a aula da seção de Reading: Complete the Words (link)", "Faça a lista de exercícios: Reading set 1 (link)"],
+        4: ["Clique aqui para ver a aula e fazer os exercícios da lista 1B."],
+        5: ["Veja a aula Entendendo perguntas e como respondê-las (link)", "Faça a lista de exercícios: Listening set 1 (link)"],
+      }
+    },
+
+    2: {
+      nome: 'Semana 2',
+      ciclos: {
+        1: ["Clique aqui para ver a aula e fazer exercícios da Lista 1D.", "Veja a aula da seção de Listening: Listening and Choose a Response (link)", "Faça a lista de exercícios: Listening set 2 (link)"],
+        2: ["Clique aqui para rever o conteúdo e fazer exercícios da Lista 1E."],
+        3: ["Veja a aula Pronúncia em inglês (link)", "Pratique repetição de frases com esta história: First snowfall (link)", "Faça a lista de exercícios: Speaking set 1 (link). Lembre-se de seguir as regras de correção"],
+        4: ["Clique aqui para rever o conteúdo e fazer os exercícios da Lista 2A."],
+        5: ["Veja a aula da seção de Listening: Listen to a Conversation (link)", "Faça a lista de exercícios: Writing set 1 (link). Lembre-se de seguir as regras de"],
+      }
+    },
+
+    3: {
+      nome: 'Semana 3',
+      ciclos: {
+        2: ["Veja a aula e faça os exercícios no link abaixo dela: Construindo frases mais avançadas em"],
+        3: ["Veja a aula da seção de Reading: Read in Daily Life (link)", "Faça a lista de exercícios: Reading set 3 (link)"],
+        4: ["Veja a aula da seção de Listening: Listen to an Announcement (link)", "Faça a lista de exercícios: Listening set 3 (link)"],
+        5: ["Veja a aula Formação de palavras em inglês: afixos (link)", "Faça a lista de exercícios: Writing set 2 (link)"],
+      }
+    },
+
+    4: {
+      nome: 'Semana 4',
+      ciclos: {
+        1: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 3A.", "Pratique repetição e pronúncia com a história: If I were a giant (link)"],
+        2: ["Veja a aula sobre Writing: Write an Email (link)", "Faça a lista de exercícios Writing set 4 (link)"],
+        3: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4A.", "Pratique repetição com a seguinte história: My Worst Fear (link)"],
+        4: ["Veja a aula sobre Writing: Write for an Academic Discussion (link)", "Faça o quiz disponível no vídeo: Simple Tenses Quiz (link)"],
+        5: ["Veja a aula sobre Speaking: Listen and Repeat (link)", "Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link)"],
+        6: ["Veja a aula e faça os exercícios abaixo dela: Classes de palavras (link)", "Pratique repetição e pronúncia com a história: If I found a magic lamp (link)"],
+      }
+    },
+
+    6: {
+      nome: 'Semana 6',
+      ciclos: {
+        1: ["Veja a aula e faça os exercícios abaixo dela: Formação de palavras em inglês (link)", "Pratique repetição de frases e pronúncia com a história: The Trunk in the Attic (link)"],
+        2: ["Assista à aula: Tipos de questões na seção de Reading (parte 1)", "Faça a lista de exercícios: Reading set 5 (link)"],
+        3: ["Assista à aula Melhorando o Listening dia a dia (link)", "Faça a lista de exercícios: Listening set 5 (link)"],
+        4: ["Assista à aula Formação de perguntas em inglês - parte 1 (link)", "Faça a lista de exercícios: Writing set 5 (link)"],
+        5: ["Assista à aula: Padrões de Pronúncia em Inglês (link)", "Faça a lista de exercícios: Speaking set 4 (link)"],
+      }
+    },
+
+    7: {
+      nome: 'Semana 7',
+      ciclos: {
+        1: ["Assista à aula: Dúvidas sobre o TOEFL iBT 2026 (link)", "Faça a lista de exercícios: Listening set 6 (link)"],
+        2: ["Assista à aula: Expressões para aumentar seu vocabulário e fluência (link)", "Faça a lista de exercícios: Speaking set 5 (link)"],
+        3: ["Assista à aula: Formação de perguntas em inglês (parte 2)", "Faça a lista de exercícios: Writing set 6 (link)"],
+        4: ["Dia de self-assessment (auto-avaliação): após estas semanas e ciclos, separe um momento", "É muito importante que você aprenda com seus erros, e não apenas acumule atividades feitas.", "Entender (até o ponto de decorar) a prova é grande parte do sucesso na nota. Não ignore essa", "Não se esqueça do motivo pelo qual começou sua jornada! Queremos você em nosso Hall da", "Tem ideias de temas de aulas? Poste na comunidade da Escola do TOEFL!"],
+        5: ["Assista à aula Critérios de nota para a seção de Speaking (link)", "Faça a lista de exercícios: Speaking set 6 (link)"],
+      }
+    },
+
+    8: {
+      nome: 'Semana 8',
+      ciclos: {
+        1: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça a lista de exercícios: Listening set 7 (link)"],
+        2: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4B.", "Pratique repetição de frases com esta história: A Day at the Art Show (link)"],
+        3: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4C.", "Faça a lista de exercícios: Writing set 7 (link)"],
+        4: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a lista de exercícios: Speaking set 7 (link)"],
+        5: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça a lista de exercícios: Speaking set 8 (link)"],
+      }
+    },
+
+    9: {
+      nome: 'Semana 9',
+      ciclos: {
+        1: ["Faça o exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o", "Faça a lista de exercícios: Listening set 8 (link)"],
+        2: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 4E.", "Pratique repetição de frases com esta história : New Year's Day (link)"],
+        3: ["Assista à aula: Critério de nota da seção Writing (link)", "Faça a lista de exercícios: Writing set 8 (link)"],
+        4: ["Clique aqui para ver o conteúdo e fazer os exercícios da Lista 5A.", "Pratique repetição de frases com esta história: Psycology (link)"],
+        5: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Reading set 9 (link)", "Pratique repetição de frases e pronúncia com esta história: Yellowstone National Part"],
+      }
+    },
+
+    10: {
+      nome: 'Semana 10',
+      ciclos: {
+        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Writing set 9 (link)"],
+        2: ["Pratique repetição de frases com esta história: Preservation of Forests (link)"],
+        3: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Speaking set 9 (link)"],
+        4: ["Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é", "Assista à alguma aula do módulo de English for Real Beginners referente aos problemas"],
+        5: ["Faça a listas de exercícios: Reading set 10 (link)", "Pratique repetição de frases e pronúncia com esta história: The Planetarium (link)"],
+      }
+    },
+
+    11: {
+      nome: 'Semana 11',
+      ciclos: {
+        1: ["Colete os arquivos de feedback para seus últimos 5 exercícios de Writing. Releia-os", "Busque por aulas que abordem esses seus erros frequentes. Se desejar, peça um"],
+        2: ["Colete os arquivos de feedback para seus últimos 5 exercícios de Speaking. Releia-os", "Busque por aulas que abordem esses seus erros frequentes. Se desejar, peça um"],
+        3: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Writing set 10 (link)"],
+        4: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
+        5: ["Faça a listas de exercícios: Speaking set 10 (link)", "Pratique repetição de frases e pronúncia com esta história: The War that Both Sides Won"],
+      }
+    },
+
+    12: {
+      nome: 'Semana 12',
+      ciclos: {
+        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Reading set 11 (link)"],
+        2: ["Faça a lista de exercícios: Listening set 11 (link)", "Pratique repetição de frases e pronúncia com esta história: Henry Ford (link)", "Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Writing set 11 (link)"],
+        4: ["Pratique repetição e pronúncia com esta história: Hiroshima (link)", "Faça a listas de exercícios: Speaking set 11 (link)"],
+        5: ["Acesse o simulado TOEFL iBT aqui (link)."],
+      }
+    },
+
+    13: {
+      nome: 'Semana 13',
+      ciclos: {
+        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça a listas de exercícios: Reading set 12 (link)"],
+        2: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
+        3: ["Faça a lista de exercícios: Listening set 12 (link)", "Pratique repetição e pronúncia com esta história: The Internet (link)", "Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
+      }
+    },
+
+    14: {
+      nome: 'Semana 14',
+      ciclos: {
+        1: ["Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
+        2: ["Assista à alguma aula do módulo Estratégias para o TOEFL referentes a formas de ajustar", "Faça o exercício de Reading: Reading set 13 (link)"],
+        3: ["Pratique repetição de frases com esta história: Anastasia and the Russian revolution (link)", "Assista à aula Estratégias para Listen and Repeat (Speaking)"],
+        4: ["Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é", "Faça a lista de exercícios: Listening set 13 (link)"],
+      }
+    },
+
+    15: {
+      nome: 'Semana 15',
+      ciclos: {
+        1: ["Assista à aula Estratégias para Build a Sentence (link)", "Faça a lista de exercícios: Writing set 13 (link)"],
+        2: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
+        3: ["Assista à aula: Estratégias para Take an Interview (link)", "Faça a lista de exercícios: Speaking set 13 (link)"],
+        4: ["Assista à aula: Como melhorar o listening (link)", "Refaça o exercpicio de Listening: Listening set 1 (link)", "Pratique repetição de frases com esta história: The Origins of Canada and The United"],
+        5: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é"],
+      }
+    },
+
+    16: {
+      nome: 'Semana 16',
+      ciclos: {
+        1: ["Assista à aula: Estratégias para Write an Email (link)"],
+        2: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Refaça o exercpicio de Listening: Listening set 2 (link)", "Pratique repetição de frases com esta história: Cultural Differences : Individualism and"],
+        3: ["Assista o vídeo no link a seguir e faça as questões do quiz ao lado do vídeo. Em seguida,"],
+        4: ["Assista à alguma aula do módulo de English for Real Beginners referente aos problemas", "Refaça o exercpicio de Listening: Listening set 14 (link)", "Pratique repetição de frases com esta história: Cultural Differences : Individualism and"],
+        5: ["Assista à aula: Guia para Write for an Academic Discussion (link)", "Faça o exercício de Writing: Writing set 14 (link)"],
+      }
+    },
+
+    17: {
+      nome: 'Semana 17',
+      ciclos: {
+        1: ["Assista à alguma aula do módulo Estratégias para o TOEFL referente a formas de ajustar", "Faça o exercício: Reading set 15 (link)", "Refaça o exercício de Reading: Reading set 3 (link). Ao final, compare seu resultado de"],
+        3: ["Assista à alguma aula do módulo Estratégias para o TOEFL referente a formas de ajustar", "Faça o exercício: Writing set 15 (link)"],
+      }
+    },
+    }
+};
+
+// Mapa de recursos e links
+const ENSURANCE_RESOURCES = {
+  'Introdução ao TOEFL iBT 2026': 'https://school.toeflibt.org/lessons/introducao-toefl',
+  'DailyDictation - TOEFL Listening': 'https://dailydictation.com/toefl',
+  'Leituras Recomendadas': 'https://school.toeflibt.org/leituras',
+  'Reading sets': 'https://exercises.toeflibt.org/reading',
+  'Listening sets': 'https://exercises.toeflibt.org/listening',
+  'Writing sets': 'https://exercises.toeflibt.org/writing',
+  'Speaking sets': 'https://exercises.toeflibt.org/speaking',
+  'English for Real Beginners': 'https://school.toeflibt.org/modulos/english-beginners',
+  'Estratégias para o TOEFL': 'https://school.toeflibt.org/modulos/estrategias',
+  'Pronúncia em inglês': 'https://school.toeflibt.org/lessons/pronuncia',
+  'Formação de palavras': 'https://school.toeflibt.org/lessons/formacao-palavras',
+  'Técnicas de leitura': 'https://school.toeflibt.org/lessons/tecnicas-leitura',
+  'ChattyBot': 'https://chattybot.toeflibt.org',
+  'Simulado TOEFL iBT': 'https://mock.toeflibt.org/simulado-completo'
+};
 // ── LESSONS — Trilha B1→C1 (Maio→Dezembro 2026) ─────────────────────────────
 // Roadmap prático sem dependência de livros — atividades concretas e mensuráveis
 const BL={1:[{id:'m1l1',month:1,section:'Reading',title:'Official TOEFL Reading Section',level:'C1',url:'#',tags:['Exam','Reading','Official'],desc:'Official test. Target: 22+. Format: 2 passages, 20 questions, 35 min.',prompt:'Post-exam: Reading score estimate? Which questions were hard? Did strategies work?'},{id:'m1l2',month:1,section:'Listening',title:'Official TOEFL Listening Section',level:'C1',url:'#',tags:['Exam','Listening','Official'],desc:'Official test. Target: 20+. Format: 6 items, 41 min.',prompt:'Post-exam: Listening score estimate? Lecture or conversation harder? Note-taking worked?'},{id:'m1l3',month:1,section:'Writing',title:'Official TOEFL Writing Section',level:'C1',url:'#',tags:['Exam','Writing','Official'],desc:'Official test. Target: 22+. Format: 2 essays, 50 min.',prompt:'Post-exam: Writing score estimate? Essay quality? Time management OK?'},{id:'m1l4',month:1,section:'Speaking',title:'Official TOEFL Speaking Section',level:'C1',url:'#',tags:['Exam','Speaking','Official'],desc:'Official test. Target: 20+. Format: 4 tasks, 16 min.',prompt:'Post-exam: Speaking score estimate? Delivery confidence? Pronunciation issues?'}],5:[{id:'m5l1',month:5,section:'Reading',title:'TOEFL Reading Format',level:'B2',url:'#',tags:['Reading','Format','Strategies'],desc:'Learn TOEFL Reading: 2 passages, 10 questions each, 35 min total. Practice skimming and scanning.',prompt:'Reading practice: Correct answers? Time spent? Understand passage structure? Faster reading strategies?'},{id:'m5l2',month:5,section:'Listening',title:'Note-Taking for TOEFL Listening',level:'B2',url:'#',tags:['Listening','Note-Taking','Skills'],desc:'Master Cornell note-taking: main idea + key details + examples.',prompt:'Notes review: Clear main ideas? Details organized? Suggestions for improvement?'},{id:'m5l3',month:5,section:'Speaking',title:'Speaking Task 1 (Independent)',level:'B2',url:'#',tags:['Speaking','Independent','45s'],desc:'Personal experience question. Prep: 15s. Speak: 45s. Template: intro + 2 details + conclusion.',prompt:'Speaking sample: Topic addressed? Clear examples? Fluent delivery? Pronunciation suggestions?'},{id:'m5l4',month:5,section:'Writing',title:'Writing Task 1 (Integrated)',level:'B2',url:'#',tags:['Writing','Integrated','Synthesis'],desc:'Read passage + listen lecture + synthesize in 20 min essay (150-225 words).',prompt:'Integrated essay: Good synthesis of reading+lecture? Clear structure? Grammar OK?'}],6:[{id:'m6l1',month:6,section:'Reading',title:'Academic Vocabulary (AWL)',level:'B2+',url:'#',tags:['Reading','Vocabulary','Academic'],desc:'Extract 20 academic words from TOEFL passages. Note: context, pronunciation.',prompt:'Vocabulary: Definitions accurate? Contexts clear? Remember these words?'},{id:'m6l2',month:6,section:'Listening',title:'Academic Lectures',level:'B2+',url:'#',tags:['Listening','Lectures','Comprehension'],desc:'Listen to 2 academic lectures. Take notes. Answer 5-10 inference questions.',prompt:'Comprehension: Which questions hard? Why? Note-taking or listening focus areas?'},{id:'m6l3',month:6,section:'Speaking',title:'Speaking Tasks 2-4 (Integrated)',level:'B2+',url:'#',tags:['Speaking','Integrated','60s'],desc:'Read passage > Listen > Synthesize and speak (60s each). Use transitions.',prompt:'Integrated speaking: Synthesized sources? Transitions smooth? Clear delivery?'},{id:'m6l4',month:6,section:'Writing',title:'Writing Task 2 (Academic Discussion)',level:'B2+',url:'#',tags:['Writing','Discussion','Academic'],desc:'Respond to discussion prompt in 100+ words, 10 min. Agree/disagree with reasons.',prompt:'Discussion response: Opinion clear? Reasons explained? Academic tone? Grammar?'}],7:[{id:'m7l1',month:7,section:'Speaking',title:'Delivery: Pronunciation & Fluency',level:'C1-',url:'#',tags:['Speaking','Delivery','Pronunciation'],desc:'Record 3 min speaking. Self-assess: clarity, speed, stress, intonation.',prompt:'Speech analysis: Pronunciation issues? Pace OK? Intonation natural? Suggest drills.'},{id:'m7l2',month:7,section:'Listening',title:'Detail vs Main Idea Questions',level:'C1-',url:'#',tags:['Listening','Comprehension','Strategy'],desc:'Practice 10 TOEFL listening questions: 5 main idea, 5 detail. Time: 1 min each.',prompt:'Answers review: Main idea or detail harder? Why missed details? Re-listening strategies?'},{id:'m7l3',month:7,section:'Reading',title:'Inference & Implicit Info',level:'C1-',url:'#',tags:['Reading','Inference','Strategy'],desc:'Practice 10 TOEFL reading questions: 5 inference, 5 implied. Time: 2 min per 5.',prompt:'Inference questions: Logic sound? Evidence shown? Better reading strategies?'},{id:'m7l4',month:7,section:'Writing',title:'Organization & Coherence',level:'C1-',url:'#',tags:['Writing','Organization','Flow'],desc:'Write 2 timed essays (20 min each). Focus: structure, transitions, examples.',prompt:'Essay structure: Intro clear? Body organized? Transitions smooth? Ideas coherent?'}],8:[{id:'m8l1',month:8,section:'Writing',title:'Grammar & Sentence Variety',level:'C1-',url:'#',tags:['Writing','Grammar','Style'],desc:'Write 1 essay (30 min). Check: 3+ sentence types, no repeats, grammar accurate.',prompt:'Grammar check: Errors? Sentence variety good? Complex structures?'},{id:'m8l2',month:8,section:'Reading',title:'Speed + Accuracy (Timed)',level:'C1-',url:'#',tags:['Reading','Speed','Accuracy'],desc:'Full TOEFL reading (2 passages, 20 questions, 35 min). Track time and accuracy.',prompt:'Performance: Questions taking too long? Accuracy by type? Pacing strategies?'},{id:'m8l3',month:8,section:'Listening',title:'Note-Taking Refinement',level:'C1-',url:'#',tags:['Listening','Note-Taking','Strategy'],desc:'Listen 2 lectures (5 min each), take notes, answer 10 questions. Review notes.',prompt:'Note-taking: Main ideas captured? Details organized? Better abbreviations?'},{id:'m8l4',month:8,section:'Speaking',title:'All 4 Speaking Tasks',level:'C1-',url:'#',tags:['Speaking','Full','Timing'],desc:'Complete full speaking section (4 tasks, ~16 min). Record, transcribe, self-evaluate.',prompt:'Overall speaking: Task completion? Fluency? Content depth? Top 3 improvements?'}],9:[{id:'m9l1',month:9,section:'Reading',title:'Full-Length Mock (Reading)',level:'C1',url:'#',tags:['Mock','Reading','Timed'],desc:'Complete 1 full reading section timed (35 min). Score and analyze.',prompt:'Mock results: Score? Hard questions? Patterns? Study plan?'},{id:'m9l2',month:9,section:'Listening',title:'Full-Length Mock (Listening)',level:'C1',url:'#',tags:['Mock','Listening','Timed'],desc:'Complete 1 full listening section (6 items, 41 min). Score and analyze.',prompt:'Mock results: Score? Lecture vs conversation? Detail vs main idea? Focus areas?'},{id:'m9l3',month:9,section:'Writing',title:'Full-Length Mock (Writing)',level:'C1',url:'#',tags:['Mock','Writing','Timed'],desc:'Complete 1 full writing section (2 essays, 50 min). Grade both.',prompt:'Essay grades: Synthesis clear? Discussion strong? Grammar/vocab? Suggestions?'},{id:'m9l4',month:9,section:'Speaking',title:'Full-Length Mock (Speaking)',level:'C1',url:'#',tags:['Mock','Speaking','Timed'],desc:'Complete 1 full speaking section (4 tasks, ~16 min). Grade for delivery, language, content.',prompt:'Speaking grades: Each task clear? Fluency? Pronunciation? Content? Score estimate?'}],10:[{id:'m10l1',month:10,section:'Listening',title:'Listening Intensive',level:'C1',url:'#',tags:['Listening','Intensive','Focus'],desc:'3 full mock listening sections (3 days). Focus: note-taking and inference.',prompt:'Progress: Score trend? Questions still missed? Note-taking improving? Strategy shift?'},{id:'m10l2',month:10,section:'Reading',title:'Reading Intensive',level:'C1',url:'#',tags:['Reading','Intensive','Focus'],desc:'3 full mock reading sections. Focus: weak question types.',prompt:'Progress: Score trend? Question types? Speed improving? Final recommendations?'},{id:'m10l3',month:10,section:'Writing',title:'Writing Final Polish',level:'C1',url:'#',tags:['Writing','Polish','Refinement'],desc:'Write 2 essays under test conditions. Proofread for grammar and organization.',prompt:'Essays: Both strong? Grammar errors? Time management OK? Final score estimate?'},{id:'m10l4',month:10,section:'Speaking',title:'Speaking Final Drills',level:'C1',url:'#',tags:['Speaking','Drills','Polish'],desc:'Record 3 sets of all 4 tasks. Focus: pacing, examples, transitions.',prompt:'Speaking: Improvement? Delivery confidence? Content clarity? Final estimate?'}],11:[{id:'m11l1',month:11,section:'Reading',title:'Vocabulary Final Review',level:'C1',url:'#',tags:['Vocabulary','Reading','Review'],desc:'Flashcard review: 100+ academic words. Daily practice. Target: 80%+ recognition.',prompt:'Vocabulary: Still weak words? Context drills needed? Confident for exam?'},{id:'m11l2',month:11,section:'Listening',title:'Confidence Review',level:'C1',url:'#',tags:['Listening','Review','Confidence'],desc:'Listen to 2-3 full mock sections. Aim for 90%+ accuracy. Boost confidence.',prompt:'Final check: Confidence level? Remaining weak areas? Pronunciation issues?'},{id:'m11l3',month:11,section:'Writing',title:'Templates & Examples',level:'C1',url:'#',tags:['Writing','Templates','Review'],desc:'Memorize strong essay templates. Collect 5 powerful examples per task.',prompt:'Templates: Ready? Examples strong? Can write 350+ words in 30 min?'},{id:'m11l4',month:11,section:'Speaking',title:'Pronunciation Final Tune',level:'C1',url:'#',tags:['Speaking','Pronunciation','Polish'],desc:'Focus: top 5 pronunciation issues. Daily minimal pairs practice.',prompt:'Pronunciation: Improved? Native-like delivery? Speaking confidence ready?'}]};
