@@ -635,7 +635,7 @@ let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,total
 let activeMonth=5,activeLesson=null,curTab='dash';
 let flashIdx=0,flipped=false,listening=false,recognition=null;
 let shadowOn=false,shadowIv=null,shadowSecs=300;
-let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[];
+let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[],pendingCorrections=[];
 let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
@@ -2054,39 +2054,6 @@ function renderAnalysis(r){
     }
     h+='</div>';
   }
-  if(r.patterns){
-    const p=r.patterns;
-    h+='<div class="card" style="background:#FEF2F2;border-color:#FECACA">'
-      +'<div class="ctit" style="color:#DC2626">⚠️ Patterns & Bottleneck</div>'
-      +'<div style="display:grid;grid-template-columns:1fr;gap:10px">';
-    if(p.bottleneck){
-      h+='<div style="background:#fff;border:1px solid #FCA5A5;border-radius:8px;padding:10px"><div style="font-size:13px;font-weight:600;color:#DC2626;margin-bottom:4px">🎯 Bottleneck (#1 limiter)</div><div style="font-size:14px;color:#0F172A;line-height:1.5">'+esc(p.bottleneck)+'</div></div>';
-    }
-    if(p.recurring_errors&&p.recurring_errors.length){
-      h+='<div style="background:#fff;border:1px solid #DDE3F5;border-radius:8px;padding:10px"><div style="font-size:13px;font-weight:600;color:#DC2626;margin-bottom:6px">🔁 Recurring Errors</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#475569;line-height:1.6">';
-      p.recurring_errors.forEach(e=>{h+='<li>'+esc(e)+'</li>';});
-      h+='</ul></div>';
-    }
-    if(p.strengths&&p.strengths.length){
-      h+='<div style="background:#fff;border:1px solid #BBF7D0;border-radius:8px;padding:10px"><div style="font-size:13px;font-weight:600;color:#16A34A;margin-bottom:6px">💪 Strengths</div><ul style="margin:0;padding-left:18px;font-size:13px;color:#475569;line-height:1.6">';
-      p.strengths.forEach(s=>{h+='<li>'+esc(s)+'</li>';});
-      h+='</ul></div>';
-    }
-    h+='</div></div>';
-  }
-  if(r.actionable){
-    const a=r.actionable;
-    h+='<div class="card" style="background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border-color:#BBF7D0">'
-      +'<div class="ctit" style="color:#16A34A">🎯 Next 3 Days — Action Plan</div>';
-    if(a.next_3_days&&a.next_3_days.length){
-      h+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">';
-      a.next_3_days.forEach((t,i)=>{h+='<div style="background:#fff;border-left:3px solid #16A34A;padding:8px 12px;border-radius:6px;font-size:13px;color:#0F172A;line-height:1.5">'+esc(t)+'</div>';});
-      h+='</div>';
-    }
-    if(a.avoid){h+='<div style="background:#fff;border:1px solid #FCA5A5;border-radius:8px;padding:10px;margin-bottom:8px"><span style="font-size:13px;font-weight:600;color:#DC2626">🚫 Avoid: </span><span style="font-size:13px;color:#475569">'+esc(a.avoid)+'</span></div>';}
-    if(a.focus_skill){h+='<div style="background:#fff;border:1px solid #BFDBFE;border-radius:8px;padding:10px"><span style="font-size:13px;font-weight:600;color:#2563EB">🔍 Focus skill: </span><span style="font-size:13px;color:#475569">'+esc(a.focus_skill)+'</span></div>';}
-    h+='</div>';
-  }
   if(r.roadmap_alignment){
     const ra=r.roadmap_alignment;
     const statusColor=ra.status==='On track'?'#16A34A':ra.status==='Ahead'?'#7C3AED':'#D97706';
@@ -2100,8 +2067,16 @@ function renderAnalysis(r){
     h+='</div>';
   }
   if(r.corrections?.length){
-    h+='<div class="card"><div class="ctit"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div><div class="gg">';
-    r.corrections.forEach(c=>{h+='<div class="corr"><div class="cwrong">✗ '+esc(c.original)+'</div><div class="cright">✓ '+esc(c.corrected)+'</div><div class="cwhy">'+esc(c.explanation)+'</div></div>';});
+    pendingCorrections=r.corrections;
+    h+='<div class="card"><div class="fb" style="margin-bottom:12px"><div class="ctit" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Grammar Corrections</div></div><div class="gg">';
+    r.corrections.forEach((c,i)=>{h+='<div class="upitem"><div style="flex:1">'
+      +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:4px">'
+      +'<span style="font-size:14px;color:#EF4444;text-decoration:line-through">'+esc(c.original)+'</span>'
+      +'<span style="color:#94A3B8">→</span>'
+      +'<span style="font-size:14px;font-weight:600;color:#16A34A">'+esc(c.corrected)+'</span></div>'
+      +'<div style="font-size:14px;color:#475569;font-style:italic">"'+esc(c.explanation)+'"</div></div>'
+      +'<button class="btn bpr bsm" id="cor'+i+'" onclick="saveCorrection('+i+')">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Save</button></div>';});
     h+='</div></div>';
   }
   if(r.c1_upgrades?.length){
@@ -2125,6 +2100,12 @@ function saveUpgrade(i){
   const u=pendingUpgrades[i];if(!u)return;
   saveCard(u.simple,u.c1,u.example,'upgrade');
   const b=document.getElementById('sub'+i);
+  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:14px;border-radius:8px;cursor:default';}
+}
+function saveCorrection(i){
+  const c=pendingCorrections[i];if(!c)return;
+  saveCard(c.original,c.corrected,c.explanation,'correction');
+  const b=document.getElementById('cor'+i);
   if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:14px;border-radius:8px;cursor:default';}
 }
 
