@@ -647,6 +647,7 @@ let peuaTasks=null;
 let editingPeuaTask=null;
 let ensuranceWeek=1,ensuranceCycle=1;
 let ensuranceCompleted={};
+let customCycleActivities={};
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
 let dailyTasks={preply:false,reading:false,listening:false,writing:false};
@@ -1282,6 +1283,7 @@ function loadLocal(){
   try{peuaCompleted=JSON.parse(localStorage.getItem('c1peua')||'{}');}catch(e){peuaCompleted={};}
   try{const stored=localStorage.getItem('c1peuaTasks');if(stored)peuaTasks=JSON.parse(stored);}catch(e){}
   try{ensuranceCompleted=JSON.parse(localStorage.getItem('c1ensurance')||'{}');}catch(e){ensuranceCompleted={};}
+  try{customCycleActivities=JSON.parse(localStorage.getItem('c1cycleact')||'{}');}catch(e){customCycleActivities={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
@@ -1294,6 +1296,32 @@ function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RPE)RPE.set(peuaCompleted||null).catch(()=>{});}
 function saveEnsurance(){localStorage.setItem('c1ensurance',JSON.stringify(ensuranceCompleted));if(RMS)RMS.set(ensuranceCompleted||null).catch(()=>{});}
+function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}
+function addCycleActivity(week,cycle){
+  const key=`${week}-${cycle}`;
+  const txt=(document.getElementById(`addtxt-${key}`)||{}).value||'';
+  const url=(document.getElementById(`addurl-${key}`)||{}).value||'';
+  if(!txt.trim())return;
+  if(!customCycleActivities[key])customCycleActivities[key]=[];
+  const act={t:txt.trim()};
+  if(url.trim())act.l=[url.trim()];
+  customCycleActivities[key].push(act);
+  saveCustomCycleAct();
+  renderEnsurance();
+}
+function removeCycleActivity(week,cycle,idx){
+  const key=`${week}-${cycle}`;
+  if(customCycleActivities[key]){
+    customCycleActivities[key].splice(idx,1);
+    if(!customCycleActivities[key].length)delete customCycleActivities[key];
+    saveCustomCycleAct();
+    renderEnsurance();
+  }
+}
+function toggleAddForm(key){
+  const f=document.getElementById('addform-'+key);
+  if(f)f.style.display=f.style.display==='none'?'flex':'none';
+}
 function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));if(RPET&&peuaTasks)RPET.set(peuaTasks).catch(()=>{});}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -1798,6 +1826,28 @@ function renderEnsurance(){
   const cyclesDiv=document.createElement('div');
   cyclesDiv.style.cssText='display:grid;gap:8px;margin-top:12px';
 
+  const renderActivityItem=(activity,extraStyle,deleteBtn)=>{
+    const actDiv=document.createElement('div');
+    actDiv.style.cssText=`font-size:14px;color:#475569;line-height:1.5;padding:6px;background:rgba(255,255,255,0.5);border-radius:4px;${extraStyle||''}`;
+    const txt=esc(activity.t||'');
+    const links=activity.l||[];
+    let contentHTML='';
+    if(links.length===1){
+      contentHTML=`<a href="${links[0]}" target="_blank" style="color:#2563EB;text-decoration:none;border-bottom:1px solid #93C5FD">${txt}</a>`;
+    }else if(links.length>1){
+      let chips=links.map((u,i)=>`<a href="${u}" target="_blank" style="display:inline-block;margin:2px 4px 0 0;padding:1px 8px;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:10px;font-size:12px;font-weight:600;text-decoration:none">🔗 Link ${i+1}</a>`).join('');
+      contentHTML=`<div>${txt}</div><div style="margin-top:4px">${chips}</div>`;
+    }else{
+      contentHTML=`<span>${esc(activity.t||'')}</span>`;
+    }
+    if(deleteBtn){
+      actDiv.innerHTML=`<div style="display:flex;align-items:flex-start;gap:6px"><div style="flex:1">${contentHTML}</div>${deleteBtn}</div>`;
+    }else{
+      actDiv.innerHTML=contentHTML;
+    }
+    return actDiv;
+  };
+
   Object.keys(week.ciclos).forEach(cycleNum=>{
     const activities=week.ciclos[cycleNum];
     const cycleKey=`${ensuranceWeek}-${cycleNum}`;
@@ -1815,25 +1865,47 @@ function renderEnsurance(){
     const activitiesDiv=document.createElement('div');
     activitiesDiv.style.cssText='display:flex;flex-direction:column;gap:6px';
 
+    // Render static activities
     activities.forEach(activity=>{
-      const actDiv=document.createElement('div');
-      actDiv.style.cssText='font-size:14px;color:#475569;line-height:1.5;padding:6px;background:rgba(255,255,255,0.5);border-radius:4px';
-
-      const txt=esc(activity.t||'');
-      const links=activity.l||[];
-      if(links.length===1){
-        // Whole activity text is the link
-        actDiv.innerHTML=`<a href="${links[0]}" target="_blank" style="color:#2563EB;text-decoration:none;border-bottom:1px solid #93C5FD">${txt}</a>`;
-      }else if(links.length>1){
-        // Multiple resources: plain text + numbered link chips
-        let chips=links.map((u,i)=>`<a href="${u}" target="_blank" style="display:inline-block;margin:2px 4px 0 0;padding:1px 8px;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:10px;font-size:12px;font-weight:600;text-decoration:none">🔗 Link ${i+1}</a>`).join('');
-        actDiv.innerHTML=`<div>${txt}</div><div style="margin-top:4px">${chips}</div>`;
-      }else{
-        // No link
-        actDiv.textContent=activity.t||'';
-      }
-      activitiesDiv.appendChild(actDiv);
+      activitiesDiv.appendChild(renderActivityItem(activity,'',''));
     });
+
+    // Auto-add DailyDictation if not already present in this cycle
+    const hasDD=activities.some(a=>(a.l||[]).some(u=>u.includes('dailydictation.com')));
+    if(!hasDD){
+      const ddActivity={t:'Faça um exercício ditado neste link: DailyDictation - TOEFL Listening (link) - o objetivo é praticar o listening e ortografia das palavras para o writing. Para acessar o exercício, clique em uma Section, escolha uma TOEFL Conversation ou TOEFL Lecture e transcreva o que ouvir. Faça, no mínimo, 15 frases; preferencialmente, faça todas as frases da conversation/lecture.',l:['https://dailydictation.com/exercises/toefl-listening']};
+      activitiesDiv.appendChild(renderActivityItem(ddActivity,'background:#EFF6FF;border:1px solid #BFDBFE;',''));
+    }
+
+    // Render custom user-added activities
+    const customActs=customCycleActivities[cycleKey]||[];
+    customActs.forEach((act,idx)=>{
+      const delBtn=`<button onclick="removeCycleActivity(${ensuranceWeek},${cycleNum},${idx})" title="Remover atividade" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px;line-height:1" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='#94A3B8'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+      activitiesDiv.appendChild(renderActivityItem(act,'background:#FFF7ED;border:1px solid #FED7AA;',delBtn));
+    });
+
+    // Add-activity form (hidden by default)
+    const addFormDiv=document.createElement('div');
+    addFormDiv.id=`addform-${cycleKey}`;
+    addFormDiv.style.cssText='display:none;flex-direction:column;gap:6px;margin-top:6px;padding:8px;background:#F8FAFF;border:1px dashed #93C5FD;border-radius:6px';
+    addFormDiv.innerHTML=`
+      <input id="addtxt-${cycleKey}" type="text" placeholder="Descrição da atividade..." style="font-size:13px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;outline:none;width:100%;box-sizing:border-box" />
+      <input id="addurl-${cycleKey}" type="url" placeholder="URL (opcional)" style="font-size:13px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;outline:none;width:100%;box-sizing:border-box" />
+      <div style="display:flex;gap:6px">
+        <button onclick="addCycleActivity(${ensuranceWeek},${cycleNum})" style="flex:1;padding:6px;background:#2563EB;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">Salvar</button>
+        <button onclick="toggleAddForm('${cycleKey}')" style="flex:1;padding:6px;background:#F1F5F9;color:#64748B;border:none;border-radius:6px;font-size:13px;cursor:pointer">Cancelar</button>
+      </div>`;
+
+    // Toggle button for add form
+    const addToggleBtn=document.createElement('button');
+    addToggleBtn.onclick=()=>toggleAddForm(cycleKey);
+    addToggleBtn.style.cssText='margin-top:8px;width:100%;padding:5px;background:none;border:1px dashed #CBD5E1;border-radius:6px;font-size:12px;color:#94A3B8;cursor:pointer;transition:all 0.2s';
+    addToggleBtn.onmouseover=()=>{addToggleBtn.style.borderColor='#2563EB';addToggleBtn.style.color='#2563EB';};
+    addToggleBtn.onmouseout=()=>{addToggleBtn.style.borderColor='#CBD5E1';addToggleBtn.style.color='#94A3B8';};
+    addToggleBtn.innerHTML='+ Adicionar atividade';
+
+    activitiesDiv.appendChild(addFormDiv);
+    activitiesDiv.appendChild(addToggleBtn);
 
     card.appendChild(activitiesDiv);
     cyclesDiv.appendChild(card);
