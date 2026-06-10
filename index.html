@@ -2216,8 +2216,8 @@ function openEdit(id){
   document.getElementById('ec_c1').value=c.c1||'';
   document.getElementById('ec_ex').value=c.example||'';
   const sel=document.getElementById('ec_topic');
-  sel.innerHTML='<option value="">No topic</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom...</option>';
-  if(c.topic&&TOPICS.includes(c.topic)){sel.value=c.topic;document.getElementById('ec_custom').value='';}
+  sel.innerHTML='<option value="">No topic</option>'+allTopics().map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom...</option>';
+  if(c.topic&&allTopics().includes(c.topic)){sel.value=c.topic;document.getElementById('ec_custom').value='';}
   else if(c.topic){sel.value='__custom__';document.getElementById('ec_custom').value=c.topic;}
   else{sel.value='';document.getElementById('ec_custom').value='';}
   openM('mEC');
@@ -2358,7 +2358,7 @@ function renderCards(){
       +'<span style="font-size:14px;font-weight:700;color:#1D4ED8;white-space:nowrap">'+selectedCardIds.size+' selecionado(s)</span>'
       +'<button onclick="selectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #BFDBFE;background:#fff;color:#2563EB;cursor:pointer;white-space:nowrap">Todos ('+cards.length+')</button>'
       +'<button onclick="deselectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #DDE3F5;background:#fff;color:#64748B;cursor:pointer;white-space:nowrap">Nenhum</button>'
-      +'<div style="flex:1;min-width:120px"><select id="bulk-topic-sel" style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;background:#fff;color:#0F172A"><option value="">Atribuir tópico...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Personalizado...</option></select></div>'
+      +'<div style="flex:1;min-width:120px"><select id="bulk-topic-sel" style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;background:#fff;color:#0F172A"><option value="">Atribuir tópico...</option>'+allTopics().map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Personalizado...</option></select></div>'
       +'<div style="flex:1;min-width:100px"><input type="text" id="bulk-topic-custom" placeholder="Tópico personalizado..." style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;box-sizing:border-box;background:#fff"></div>'
       +'<button onclick="applyBulkTopic()" style="padding:6px 12px;border-radius:6px;border:none;background:#2563EB;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Aplicar tópico</button>'
       +'<button onclick="removeBulkTopic()" style="padding:6px 10px;border-radius:6px;border:1px solid #DDE3F5;background:#fff;color:#64748B;font-size:13px;cursor:pointer;white-space:nowrap">Remover tópico</button>'
@@ -2373,7 +2373,7 @@ function renderCards(){
     +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">My Sentences</label><textarea id="chex2" placeholder="Add example sentences with context…" style="font-size:14px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
     +'</div>'
     +'<div class="topic-row">'
-    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
+    +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Topic</label><select id="chtopic" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;background:#fff;color:#0F172A"><option value="">Select topic...</option>'+allTopics().map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Add custom...</option></select></div>'
     +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Custom Topic</label><input type="text" id="chcustom" placeholder="Type custom topic…" style="width:100%;padding:8px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;background:#fff"></div>'
     +'</div>'
     +'<div style="margin-top:14px;padding:12px;background:#fff;border-radius:8px;border:1px solid #E5E7EB">'
@@ -2464,6 +2464,7 @@ function setupCardTextareas(){
 // ── CUSTOM LESSONS ────────────────────────────────────────────────────────────
 const CTAGS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Science','Tech','Philosophy','Culture','Business'];
 const TOPICS=['Sentence Structure','Connectors','Word Formation','Verb Tenses','Prepositions','Modal Verbs','Reported Speech','Active vs Passive Voice','Pronouns & Determiners','Conditional','Discourse Markers & Hedging','Questions & Indirect Questions','General English','Commom Themes'];
+function allTopics(){const custom=[...new Set(cards.filter(c=>c.topic&&!TOPICS.includes(c.topic)).map(c=>c.topic))].sort();return[...TOPICS,...custom];}
 function renderPeua(){
   const monthSelector=document.getElementById('peuaMonthSelector');
   const content=document.getElementById('peuaContent');
