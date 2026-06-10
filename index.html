@@ -648,6 +648,8 @@ let editingPeuaTask=null;
 let ensuranceWeek=1,ensuranceCycle=1;
 let ensuranceCompleted={};
 let customCycleActivities={};
+let bulkSelectMode=false;
+let selectedCardIds=new Set();
 // ── DAILY CHECKLIST CONSTANTS ──────────────────────────────────────────────────
 const TASK_LABELS={preply:'🎤 Preply/Speaking',reading:'📖 Reading',listening:'🎧 Listening',writing:'✍️ Writing'};
 let dailyTasks={preply:false,reading:false,listening:false,writing:false};
@@ -2233,6 +2235,32 @@ function confirmDel(){
   const c=cards.find(x=>x.id===editCardId);if(!c)return;
   if(confirm('Delete "'+c.simple+' → '+c.c1+'"?')){closeM('mEC');cards=cards.filter(x=>x.id!==editCardId);saveCA();toast('Deleted');renderCards();render();}
 }
+function toggleBulkMode(){bulkSelectMode=!bulkSelectMode;if(!bulkSelectMode)selectedCardIds.clear();renderCards();}
+function toggleCardSel(id){if(selectedCardIds.has(id))selectedCardIds.delete(id);else selectedCardIds.add(id);renderCards();}
+function selectAllCards(){cards.forEach(c=>selectedCardIds.add(c.id));renderCards();}
+function deselectAllCards(){selectedCardIds.clear();renderCards();}
+function applyBulkTopic(){
+  const sel=document.getElementById('bulk-topic-sel'),custom=document.getElementById('bulk-topic-custom');
+  const topic=(custom&&custom.value.trim())||((sel&&sel.value!=='__custom__'&&sel.value)||'');
+  if(!selectedCardIds.size){toast('Selecione ao menos 1 card');return;}
+  if(!topic&&topic!==null){toast('Escolha um tópico');return;}
+  const n=selectedCardIds.size;
+  selectedCardIds.forEach(id=>{const i=cards.findIndex(c=>c.id===id);if(i>=0){if(topic)cards[i].topic=topic;else delete cards[i].topic;}});
+  saveCA();toast('✅ Tópico aplicado em '+n+' card(s)');selectedCardIds.clear();bulkSelectMode=false;renderCards();render();
+}
+function removeBulkTopic(){
+  if(!selectedCardIds.size){toast('Selecione ao menos 1 card');return;}
+  const n=selectedCardIds.size;
+  selectedCardIds.forEach(id=>{const i=cards.findIndex(c=>c.id===id);if(i>=0)delete cards[i].topic;});
+  saveCA();toast('✅ Tópico removido de '+n+' card(s)');selectedCardIds.clear();bulkSelectMode=false;renderCards();render();
+}
+function applyBulkDelete(){
+  const n=selectedCardIds.size;
+  if(!n){toast('Selecione ao menos 1 card');return;}
+  if(!confirm('Excluir '+n+' card(s) selecionado(s)?'))return;
+  cards=cards.filter(c=>!selectedCardIds.has(c.id));
+  saveCA();toast('🗑 '+n+' card(s) excluído(s)');selectedCardIds.clear();bulkSelectMode=false;renderCards();render();
+}
 
 // ── REVIEW ────────────────────────────────────────────────────────────────────
 function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
@@ -2321,7 +2349,22 @@ function renderCards(){
   let h='<div class="cards-actions">'
     +'<button class="action-btn imp" onclick="openImportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>+ Import</button>'
     +'<button class="action-btn exp" onclick="openExportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'
+    +(bulkSelectMode
+      ?'<button class="action-btn" onclick="toggleBulkMode()" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626">✕ Cancelar</button>'
+      :'<button class="action-btn" onclick="toggleBulkMode()" style="background:#F0FDF4;border:1px solid #BBF7D0;color:#16A34A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="9 11 12 14 22 4"/></svg>Selecionar</button>'
+    )
     +'</div>'
+    +(bulkSelectMode?'<div style="position:sticky;top:0;z-index:10;padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">'
+      +'<span style="font-size:14px;font-weight:700;color:#1D4ED8;white-space:nowrap">'+selectedCardIds.size+' selecionado(s)</span>'
+      +'<button onclick="selectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #BFDBFE;background:#fff;color:#2563EB;cursor:pointer;white-space:nowrap">Todos ('+cards.length+')</button>'
+      +'<button onclick="deselectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #DDE3F5;background:#fff;color:#64748B;cursor:pointer;white-space:nowrap">Nenhum</button>'
+      +'<div style="flex:1;min-width:120px"><select id="bulk-topic-sel" style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;background:#fff;color:#0F172A"><option value="">Atribuir tópico...</option>'+TOPICS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Personalizado...</option></select></div>'
+      +'<div style="flex:1;min-width:100px"><input type="text" id="bulk-topic-custom" placeholder="Tópico personalizado..." style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;box-sizing:border-box;background:#fff"></div>'
+      +'<button onclick="applyBulkTopic()" style="padding:6px 12px;border-radius:6px;border:none;background:#2563EB;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Aplicar tópico</button>'
+      +'<button onclick="removeBulkTopic()" style="padding:6px 10px;border-radius:6px;border:1px solid #DDE3F5;background:#fff;color:#64748B;font-size:13px;cursor:pointer;white-space:nowrap">Remover tópico</button>'
+      +'<button onclick="applyBulkDelete()" style="padding:6px 10px;border-radius:6px;border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;font-size:13px;cursor:pointer;white-space:nowrap">🗑 Excluir</button>'
+      +'</div>':''
+    )
     +'<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:14px;margin-bottom:14px">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:14px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
     +'<div class="chunk-form">'
@@ -2343,16 +2386,27 @@ function renderCards(){
     +'<button class="btn bpr" onclick="saveChunk()" style="padding:12px 20px;font-size:14px;font-weight:600;margin-top:14px;display:block;margin-left:auto;margin-right:auto">💾 Save Card</button>'
     +'</div>';
   h+='<div class="cards-grid">'+cards.map(c=>{
-    const id=c.nextReview<=today;
-    return '<div class="citem'+(id?' due':'')+'"><div style="flex:1;min-width:0">'
+    const isDue=c.nextReview<=today;
+    const isSel=bulkSelectMode&&selectedCardIds.has(c.id);
+    const cardContent=''
       +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px">'
       +'<span class="cisim">'+esc(c.simple)+'</span><span style="color:#94A3B8;font-size:14px">→</span>'
       +'<span class="cic1">'+esc(c.c1)+'</span>'+(c.type==='chunk'?'<span class="tag tpu">chunk</span>':'')+(c.topic?'<span class="tag tbl" style="font-size:14px;padding:2px 6px">'+esc(c.topic)+'</span>':'')+'</div>'
       +(c.example?'<div style="font-size:14px;color:#475569;font-style:italic;margin:2px 0 5px;word-break:break-word">"'+esc(c.example)+'"</div>':'')
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-      +'<span class="tag '+(id?'trd':'tgg')+'">'+(id?'Due today':'Next: '+c.nextReview)+'</span>'
+      +'<span class="tag '+(isDue?'trd':'tgg')+'">'+(isDue?'Due today':'Next: '+c.nextReview)+'</span>'
       +'<span style="font-size:14px;color:#94A3B8;font-family:\'DM Mono\',monospace">EF '+(c.easiness||2.5).toFixed(1)+'</span>'
-      +'</div></div>'
+      +'</div>';
+    if(bulkSelectMode){
+      return '<div class="citem'+(isDue?' due':'')+'" onclick="toggleCardSel(\''+c.id+'\')" style="cursor:pointer;'+(isSel?'background:#EFF6FF!important;border:2px solid #2563EB!important;':'')+'display:flex;align-items:flex-start">'
+        +'<div style="flex-shrink:0;margin-right:10px;margin-top:2px">'
+        +'<div style="width:18px;height:18px;border-radius:4px;border:2px solid '+(isSel?'#2563EB':'#CBD5E1')+';background:'+(isSel?'#2563EB':'#fff')+';display:flex;align-items:center;justify-content:center;transition:all 0.15s">'
+        +(isSel?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>':'')
+        +'</div></div>'
+        +'<div style="flex:1;min-width:0">'+cardContent+'</div>'
+        +'</div>';
+    }
+    return '<div class="citem'+(isDue?' due':'')+'"><div style="flex:1;min-width:0">'+cardContent+'</div>'
       +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px">'
       +'<button onclick="openEdit(\''+c.id+'\')" title="Edit" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
       +'<button onclick="editCardId=\''+c.id+'\';confirmDel()" title="Delete" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;cursor:pointer;padding:5px 7px;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
