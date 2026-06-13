@@ -640,7 +640,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null;
 let peuaCompleted={};
 let activePeuaMonth=5;
 let peuaTasks=null;
@@ -1299,7 +1299,7 @@ function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(
 function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
 function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RPE)RPE.set(peuaCompleted||null).catch(()=>{});}
 function saveEnsurance(){localStorage.setItem('c1ensurance',JSON.stringify(ensuranceCompleted));if(RMS)RMS.set(ensuranceCompleted||null).catch(()=>{});}
-function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}
+function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));if(RAC)RAC.set(Object.keys(customCycleActivities).length?JSON.stringify(customCycleActivities):null).catch(()=>{});}
 function addCycleActivity(week,cycle){
   const key=`${week}-${cycle}`;
   const txt=(document.getElementById(`addtxt-${key}`)||{}).value||'';
@@ -2369,14 +2369,15 @@ function renderCards(){
     );
   const usedTopics=[...new Set(cards.filter(c=>c.topic).map(c=>c.topic))].sort();
   if(usedTopics.length>0){
-    h+='<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px;padding:10px 12px;background:#F8FAFF;border:1px solid #E0E7FF;border-radius:10px">'
-      +'<span style="font-size:14px;font-weight:600;color:#475569;margin-right:2px">Tópico:</span>'
-      +'<button onclick="setCardsTopicFilter(\'\')" style="padding:4px 12px;border-radius:20px;border:1px solid '+(cardsTopicFilter===''?'#2563EB':'#DDE3F5')+';background:'+(cardsTopicFilter===''?'#2563EB':'#fff')+';color:'+(cardsTopicFilter===''?'#fff':'#475569')+';font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s">Todos ('+cards.length+')</button>'
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+      +'<label for="cardsTopicFilterSel" style="font-size:14px;font-weight:600;color:#475569;white-space:nowrap">Tópico:</label>'
+      +'<select id="cardsTopicFilterSel" onchange="setCardsTopicFilter(this.value)" style="flex:1;max-width:320px;padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;background:#fff;color:#0F172A;font-family:\'DM Sans\',sans-serif;cursor:pointer">'
+      +'<option value=""'+(cardsTopicFilter===''?' selected':'')+'>Todos ('+cards.length+')</option>'
       +usedTopics.map(t=>{
         const cnt=cards.filter(c=>c.topic===t).length;
-        const active=cardsTopicFilter===t;
-        return '<button onclick="setCardsTopicFilter(\''+esc(t)+'\')" style="padding:4px 12px;border-radius:20px;border:1px solid '+(active?'#2563EB':'#DDE3F5')+';background:'+(active?'#2563EB':'#fff')+';color:'+(active?'#fff':'#475569')+';font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s">'+esc(t)+' <span style="opacity:0.7">('+cnt+')</span></button>';
+        return '<option value="'+esc(t)+'"'+(cardsTopicFilter===t?' selected':'')+'>'+esc(t)+' ('+cnt+')</option>';
       }).join('')
+      +'</select>'
       +'</div>';
   }
   h+='<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:14px;margin-bottom:14px">'
@@ -2844,6 +2845,7 @@ function startSync(){
     RSS = db.ref('toeflScores');
     RPE = db.ref('peuaCompleted');
     RPET = db.ref('peuaTasks');
+    RAC = db.ref('cycleActivities');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -2864,6 +2866,7 @@ function startSync(){
     RSS.on('value',s=>{const v=s.val();if(v){toeflScores=Array.isArray(v)?v:Object.values(v)||[];toeflScores.sort((a,b)=>b.date.localeCompare(a.date));localStorage.setItem('c1scores',JSON.stringify(toeflScores));} setSS('online'); renderScoreTracker();}, err=>setSS('offline','DB Error: '+err.code));
     RPE.on('value',s=>{const v=s.val();if(v){peuaCompleted=v; localStorage.setItem('c1peua',JSON.stringify(v));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RPET.on('value',s=>{const v=s.val();if(v){peuaTasks=v; localStorage.setItem('c1peuaTasks',JSON.stringify(v));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
+    RAC.on('value',s=>{const v=s.val();if(v){try{customCycleActivities=JSON.parse(v); localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
