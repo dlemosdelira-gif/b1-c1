@@ -2253,7 +2253,7 @@ function confirmDel(){
 }
 function toggleBulkMode(){bulkSelectMode=!bulkSelectMode;if(!bulkSelectMode)selectedCardIds.clear();renderCards();}
 function toggleCardSel(id){if(selectedCardIds.has(id))selectedCardIds.delete(id);else selectedCardIds.add(id);renderCards();}
-function selectAllCards(){cards.forEach(c=>selectedCardIds.add(c.id));renderCards();}
+function selectAllCards(){const pool=cardsTopicFilter?cards.filter(c=>c.topic===cardsTopicFilter):cards;pool.forEach(c=>selectedCardIds.add(c.id));renderCards();}
 function deselectAllCards(){selectedCardIds.clear();renderCards();}
 function applyBulkTopic(){
   const sel=document.getElementById('bulk-topic-sel'),custom=document.getElementById('bulk-topic-custom');
@@ -2373,7 +2373,7 @@ function renderCards(){
     +'</div>'
     +(bulkSelectMode?'<div style="position:sticky;top:0;z-index:10;padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">'
       +'<span style="font-size:14px;font-weight:700;color:#1D4ED8;white-space:nowrap">'+selectedCardIds.size+' selecionado(s)</span>'
-      +'<button onclick="selectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #BFDBFE;background:#fff;color:#2563EB;cursor:pointer;white-space:nowrap">Todos ('+cards.length+')</button>'
+      +'<button onclick="selectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #BFDBFE;background:#fff;color:#2563EB;cursor:pointer;white-space:nowrap">'+(cardsTopicFilter?'Tópico ('+(cards.filter(c=>c.topic===cardsTopicFilter).length)+')':'Todos ('+cards.length+')')+'</button>'
       +'<button onclick="deselectAllCards()" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #DDE3F5;background:#fff;color:#64748B;cursor:pointer;white-space:nowrap">Nenhum</button>'
       +'<div style="flex:1;min-width:120px"><select id="bulk-topic-sel" style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;background:#fff;color:#0F172A"><option value="">Atribuir tópico...</option>'+allTopics().map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Personalizado...</option></select></div>'
       +'<div style="flex:1;min-width:100px"><input type="text" id="bulk-topic-custom" placeholder="Tópico personalizado..." style="width:100%;padding:6px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:13px;box-sizing:border-box;background:#fff"></div>'
@@ -3438,60 +3438,9 @@ let ankiImportData=null;
 async function handleCSVImport(file){
   if(!file)return;
   toast('📥 Reading CSV...');
-
   const reader=new FileReader();
   reader.onerror=()=>toast('❌ Failed to read file');
-  reader.onload=(e)=>{
-    try{
-      const csv=e.target.result;
-      const lines=csv.split('\n').filter(l=>l.trim());
-
-      if(lines.length<2){
-        toast('❌ CSV is empty or invalid');
-        return;
-      }
-
-      const importedCards=[];
-      const seen=new Set();
-
-      lines.forEach((line,idx)=>{
-        if(idx===0)return;
-        let parts=[];
-        if(line.includes(',')){parts=line.split(',').map(p=>p.replace(/^"|"$/g,'').trim());}
-        else if(line.includes('\t')){parts=line.split('\t').map(p=>p.trim());}
-        else{parts=line.split('\t').map(p=>p.trim());}
-        if(parts.length<2)return;
-        let simple=parts[0]||'';
-        let c1=parts[1]||'';
-        simple=simple.replace(/<[^>]*>/g,'').slice(0,100);
-        c1=c1.replace(/<[^>]*>/g,'').slice(0,200);
-        if(simple.length>0&&c1.length>0&&!seen.has(simple)){
-          seen.add(simple);
-          importedCards.push({
-            id:''+Date.now()+Math.floor(Math.random()*100000),
-            simple:simple,
-            c1:c1,
-            example:'',
-            type:'chunk',
-            nextReview:today,
-            intervalIdx:0,
-            easiness:2.5
-          });
-        }
-      });
-
-      if(importedCards.length===0){
-        toast('❌ No valid cards in CSV');
-        return;
-      }
-
-      ankiImportData={count:importedCards.length, cards:importedCards};
-      showImportPreview(importedCards);
-    }catch(err){
-      console.error(err);
-      toast('❌ Error: '+err.message);
-    }
-  };
+  reader.onload=(e)=>{try{handleCSVImportContent(e.target.result);}catch(err){console.error(err);toast('❌ Error: '+err.message);}};
   reader.readAsText(file);
 }
 
