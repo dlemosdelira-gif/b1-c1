@@ -3703,7 +3703,16 @@ function tryExtractCardsFromXMLStructure(xmlDoc){
 
 function parseCSV(text){
   if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-  if(/^sep=/i.test(text))text=text.replace(/^sep=.*\r?\n/i,'');
+  let delim=',';
+  const sepMatch=text.match(/^sep=(.)\r?\n/i);
+  if(sepMatch){delim=sepMatch[1];text=text.replace(/^sep=.*\r?\n/i,'');}
+  else{
+    // Auto-detect delimiter from the header line (handles ; from pt-BR Excel, tabs, etc.)
+    const firstLine=text.split(/\r?\n/)[0]||'';
+    const counts={',':0,';':0,'\t':0};let q=false;
+    for(const ch of firstLine){if(ch==='"')q=!q;else if(!q&&counts[ch]!==undefined)counts[ch]++;}
+    delim=Object.keys(counts).reduce((a,b)=>counts[b]>counts[a]?b:a,',');
+  }
   const rows=[];let row=[],field='',inQ=false;
   for(let i=0;i<text.length;i++){
     const ch=text[i];
@@ -3714,7 +3723,7 @@ function parseCSV(text){
       }else field+=ch;
     }else{
       if(ch==='"')inQ=true;
-      else if(ch===','){row.push(field);field='';}
+      else if(ch===delim){row.push(field);field='';}
       else if(ch==='\r'){}
       else if(ch==='\n'){row.push(field);rows.push(row);row=[];field='';}
       else field+=ch;
