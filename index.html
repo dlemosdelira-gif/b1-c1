@@ -532,6 +532,9 @@ textarea{min-height:120px}
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
   <div id="yearHeatmapContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
 
+  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">🧠 Review Performance</div>
+  <div id="reviewPerfContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
+
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">🎯 TOEFL Score Progress</div>
   <div id="scoreTrackerContainer"></div>
 
@@ -1280,7 +1283,7 @@ function nxtRev(q,idx=0,ef=2.5){
 function loadLocal(){
   try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}
   try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
-  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
+  try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
   try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
@@ -1521,7 +1524,69 @@ function renderDash(){
     html+=`</div></div></div>`;
     hm.innerHTML=html;
   }
+  renderReviewPerf();
   renderScoreTracker();
+}
+
+function renderReviewPerf(){
+  const el=document.getElementById('reviewPerfContainer');
+  if(!el)return;
+  const log=stats.reviewLog||{};
+  const COL={h:'#DC2626',g:'#2563EB',e:'#16A34A'};
+  const LBL={h:'Hard',g:'Good',e:'Easy'};
+  const pct=(n,d)=>d>0?Math.round(n/d*100):0;
+  const bar=(h,g,e,sum,ht)=>{
+    if(sum===0)return `<div style="height:${ht}px;background:#F1F5F9;border-radius:4px"></div>`;
+    return `<div style="display:flex;height:${ht}px;border-radius:4px;overflow:hidden">`
+      +`<div style="width:${h/sum*100}%;background:${COL.h}"></div>`
+      +`<div style="width:${g/sum*100}%;background:${COL.g}"></div>`
+      +`<div style="width:${e/sum*100}%;background:${COL.e}"></div></div>`;
+  };
+  // Build last 14 days (oldest -> newest)
+  const days=[];
+  for(let i=13;i>=0;i--){
+    const dt=new Date();dt.setDate(dt.getDate()-i);
+    const key=dt.toISOString().split('T')[0];
+    const r=log[key]||{};
+    const h=r.h||0,g=r.g||0,e=r.e||0;
+    days.push({key,h,g,e,total:h+g+e});
+  }
+  const tot=days.reduce((a,d)=>{a.h+=d.h;a.g+=d.g;a.e+=d.e;return a;},{h:0,g:0,e:0});
+  const sum=tot.h+tot.g+tot.e;
+  if(sum===0){
+    el.innerHTML='<div style="text-align:center;color:#94A3B8;font-size:14px;padding:10px 0;line-height:1.6">Ainda não há revisões registradas nos últimos 14 dias.<br>Faça revisões na aba Review para acompanhar seu desempenho aqui. 📈</div>';
+    return;
+  }
+  const tr=log[today]||{};const th=tr.h||0,tg=tr.g||0,te=tr.e||0,ts=th+tg+te;
+  const legend='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:14px">'
+    +Object.keys(LBL).map(k=>`<span style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;border-radius:3px;background:${COL[k]};display:inline-block"></span>${LBL[k]}</span>`).join('')
+    +'</div>';
+  const todayBlk='<div style="margin-bottom:16px">'
+    +`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#0F172A">Hoje</span><span style="font-size:14px;color:#94A3B8">${ts} revis${ts===1?'ão':'ões'}</span></div>`
+    +bar(th,tg,te,ts,16)
+    +(ts>0?`<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:14px;font-weight:600"><span style="color:${COL.h}">${pct(th,ts)}% Hard</span><span style="color:${COL.g}">${pct(tg,ts)}% Good</span><span style="color:${COL.e}">${pct(te,ts)}% Easy</span></div>`:'<div style="font-size:13px;color:#94A3B8;margin-top:4px">Nenhuma revisão hoje ainda.</div>')
+    +'</div>';
+  let daysBlk='<div style="font-size:14px;font-weight:600;color:#0F172A;margin:0 0 8px">Últimos 14 dias</div>';
+  daysBlk+=days.map(d=>{
+    const label=d.key.slice(5);
+    if(d.total===0){
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;opacity:0.45"><span style="width:38px;font-size:12px;color:#94A3B8;font-family:'DM Mono',monospace">${label}</span><div style="flex:1">${bar(0,0,0,0,12)}</div><span style="width:26px;text-align:right;font-size:12px;color:#CBD5E1">—</span></div>`;
+    }
+    return '<div style="margin-bottom:9px">'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+        +`<span style="width:38px;font-size:12px;color:#475569;font-family:'DM Mono',monospace">${label}</span>`
+        +`<div style="flex:1">${bar(d.h,d.g,d.e,d.total,14)}</div>`
+        +`<span style="width:26px;text-align:right;font-size:12px;color:#0F172A;font-weight:700">${d.total}</span>`
+      +'</div>'
+      +`<div style="display:flex;gap:12px;margin-left:46px;margin-top:3px;font-size:11px;font-family:'DM Mono',monospace"><span style="color:${COL.h}">${pct(d.h,d.total)}% H</span><span style="color:${COL.g}">${pct(d.g,d.total)}% G</span><span style="color:${COL.e}">${pct(d.e,d.total)}% E</span></div>`
+    +'</div>';
+  }).join('');
+  const aggBlk='<div style="margin-top:14px;padding-top:12px;border-top:1px solid #EEF2FF">'
+    +`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#0F172A">Resumo (14 dias)</span><span style="font-size:14px;color:#94A3B8">${sum} revisões</span></div>`
+    +bar(tot.h,tot.g,tot.e,sum,18)
+    +`<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:14px;font-weight:700"><span style="color:${COL.h}">${pct(tot.h,sum)}% Hard</span><span style="color:${COL.g}">${pct(tot.g,sum)}% Good</span><span style="color:${COL.e}">${pct(tot.e,sum)}% Easy</span></div>`
+    +'</div>';
+  el.innerHTML=legend+todayBlk+daysBlk+aggBlk;
 }
 
 function renderScoreTracker(){
@@ -2341,6 +2406,11 @@ function handleRev(q){
   const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
   const i=cards.findIndex(c=>c.id===card.id);
   if(i>=0){cards[i].nextReview=date;cards[i].intervalIdx=intervalIdx;cards[i].easiness=easiness;}
+  // Log review grade for the Dashboard performance report (h=Hard,g=Good,e=Easy)
+  if(!stats.reviewLog)stats.reviewLog={};
+  if(!stats.reviewLog[today])stats.reviewLog[today]={h:0,g:0,e:0};
+  stats.reviewLog[today][q===1?'h':q===5?'e':'g']++;
+  saveST();
   flipped=false;
   const nd=revSession();
   if(nd.length===0){
@@ -2873,7 +2943,7 @@ function startSync(){
     });
 
     RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); render();}, err => setSS('offline', 'DB Error: ' + err.code));
-    RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight(); if(curTab==='dash')renderReviewPerf();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
