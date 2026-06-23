@@ -626,7 +626,7 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null;
 let peuaCompleted={};
 let activePeuaMonth=5;
 let peuaTasks=null;
@@ -635,6 +635,7 @@ let ensuranceWeek=1,ensuranceCycle=1;
 let ensuranceCompleted={};
 let customCycleActivities={};
 let cycleItemChecked={};
+let cycleNotes={};
 let bulkSelectMode=false;
 let selectedCardIds=new Set();
 let cardsTopicFilter='';
@@ -1275,6 +1276,7 @@ function loadLocal(){
   try{ensuranceCompleted=JSON.parse(localStorage.getItem('c1ensurance')||'{}');}catch(e){ensuranceCompleted={};}
   try{customCycleActivities=JSON.parse(localStorage.getItem('c1cycleact')||'{}');}catch(e){customCycleActivities={};}
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
+  try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
@@ -1290,6 +1292,8 @@ function saveEnsurance(){localStorage.setItem('c1ensurance',JSON.stringify(ensur
 function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));if(RAC)RAC.set(Object.keys(customCycleActivities).length?JSON.stringify(customCycleActivities):null).catch(()=>{});}
 function saveCycleItemChecked(){localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));if(RCIC)RCIC.set(Object.keys(cycleItemChecked).length?JSON.stringify(cycleItemChecked):null).catch(()=>{});}
 function toggleCycleItem(itemKey){cycleItemChecked[itemKey]=!cycleItemChecked[itemKey];saveCycleItemChecked();renderEnsurance();}
+function saveCycleNotes(){localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));if(RCN)RCN.set(Object.keys(cycleNotes).length?JSON.stringify(cycleNotes):null).catch(()=>{});}
+function setCycleNote(key,val){cycleNotes[key]=val.trim();if(!cycleNotes[key])delete cycleNotes[key];saveCycleNotes();}
 function addCycleActivity(week,cycle){
   const key=`${week}-${cycle}`;
   const txt=(document.getElementById(`addtxt-${key}`)||{}).value||'';
@@ -1877,6 +1881,24 @@ function renderEnsurance(){
   </div>`;
   document.getElementById('lessonlist').innerHTML=navHTML;
 
+  // Recap banner: show previous week's last cycle notes
+  if(ensuranceWeek>1){
+    const prevW=ensuranceWeek-1;
+    const prevWeekData=ENSURANCE_CRONOGRAMA.semanas[prevW];
+    if(prevWeekData){
+      const lastC=Object.keys(prevWeekData.ciclos).sort((a,b)=>Number(b)-Number(a))[0];
+      const recapKey=`${prevW}-${lastC}`;
+      const recapNotes=cycleNotes[recapKey]||'';
+      const hasNotes=!!recapNotes;
+      const recapDiv=document.createElement('div');
+      recapDiv.style.cssText='background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;margin-bottom:12px;overflow:hidden';
+      const bodyDisplay=hasNotes?'block':'none';
+      const arrowChar=hasNotes?'▾':'▸';
+      recapDiv.innerHTML=`<div onclick="const c=document.getElementById('recap-prev-body');const open=c.style.display==='block';c.style.display=open?'none':'block';document.getElementById('recap-prev-arrow').textContent=open?'▸':'▾'" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none"><div style="font-size:13px;font-weight:600;color:#92400E">📖 Revisão — Semana ${prevW}, Ciclo ${lastC}</div><span id="recap-prev-arrow" style="color:#92400E;font-size:12px">${arrowChar}</span></div><div id="recap-prev-body" style="display:${bodyDisplay};padding:0 14px 12px;font-size:13px;color:#78350F;line-height:1.6;white-space:pre-wrap">${hasNotes?esc(recapNotes):'<span style="color:#D97706;font-style:italic">Sem anotações para este ciclo. Use o ícone ✏️ no ciclo para adicionar um resumo da aula.</span>'}</div>`;
+      document.getElementById('lessonlist').appendChild(recapDiv);
+    }
+  }
+
   // Render cycles
   const cyclesDiv=document.createElement('div');
   cyclesDiv.style.cssText='display:grid;gap:8px;margin-top:12px';
@@ -1974,6 +1996,20 @@ function renderEnsurance(){
     activitiesDiv.appendChild(addToggleBtn);
 
     card.appendChild(activitiesDiv);
+
+    // Notes section
+    const existingNote=cycleNotes[cycleKey]||'';
+    const hasNote=!!existingNote;
+    const notesSection=document.createElement('div');
+    notesSection.style.cssText=`margin-top:10px;padding-top:8px;border-top:1px solid ${isGreen?'#BBF7D0':'#E5E7EB'}`;
+    const notesAreaId=`notesarea-${cycleKey}`;
+    const notesArrowId=`notesarrow-${cycleKey}`;
+    const notesBorderColor=isGreen?'#BBF7D0':'#DDE3F5';
+    const notesIconColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
+    const notesLabelColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
+    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Anotações ✓':'Anotações da aula'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><textarea placeholder="Resumo da aula, vocabulário novo, expressões, pontos importantes..." style="width:100%;min-height:80px;font-size:13px;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;outline:none;resize:vertical;box-sizing:border-box;color:#0F172A;line-height:1.5;font-family:inherit" onblur="setCycleNote('${cycleKey}',this.value)">${esc(existingNote)}</textarea></div>`;
+    card.appendChild(notesSection);
+
     cyclesDiv.appendChild(card);
   });
 
@@ -2915,6 +2951,7 @@ function startSync(){
     RPET = db.ref('peuaTasks');
     RAC = db.ref('cycleActivities');
     RCIC = db.ref('cycleItemChecked');
+    RCN = db.ref('cycleNotes');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -2937,6 +2974,7 @@ function startSync(){
     RPET.on('value',s=>{const v=s.val();if(v){peuaTasks=v; localStorage.setItem('c1peuaTasks',JSON.stringify(v));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAC.on('value',s=>{const v=s.val();if(v){try{customCycleActivities=JSON.parse(v); localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
+    RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
