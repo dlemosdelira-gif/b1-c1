@@ -1573,7 +1573,38 @@ function renderReviewPerf(){
     +bar(tot.h,tot.g,tot.e,sum,18)
     +`<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:14px;font-weight:700"><span style="color:${COL.h}">${pct(tot.h,sum)}% Hard</span><span style="color:${COL.g}">${pct(tot.g,sum)}% Good</span><span style="color:${COL.e}">${pct(tot.e,sum)}% Easy</span></div>`
     +'</div>';
-  el.innerHTML=legend+todayBlk+daysBlk+aggBlk;
+  // Topics by difficulty (aggregate last 14 days)
+  const topicTotals={};
+  days.forEach(d=>{
+    const tLog=((log[d.key])||{}).topics||{};
+    Object.keys(tLog).forEach(t=>{
+      if(!topicTotals[t])topicTotals[t]={h:0,g:0,e:0};
+      topicTotals[t].h+=(tLog[t].h||0);
+      topicTotals[t].g+=(tLog[t].g||0);
+      topicTotals[t].e+=(tLog[t].e||0);
+    });
+  });
+  const topicList=Object.keys(topicTotals)
+    .map(t=>({t,h:topicTotals[t].h,g:topicTotals[t].g,e:topicTotals[t].e,total:topicTotals[t].h+topicTotals[t].g+topicTotals[t].e}))
+    .filter(x=>x.total>=5)
+    .sort((a,b)=>(b.h/b.total)-(a.h/a.total));
+  const topicBlkInner=topicList.length===0
+    ?'<div style="font-size:13px;color:#94A3B8;margin-top:4px">Dados insuficientes. Continue revisando — tópicos com ≥ 5 revisões aparecerão aqui.</div>'
+    :topicList.map(x=>{
+      const hp=pct(x.h,x.total),col=hp>=50?'#DC2626':hp>=30?'#D97706':'#16A34A';
+      return '<div style="margin-bottom:10px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+        +`<span style="font-size:13px;font-weight:600;color:#0F172A">${esc(x.t)}</span>`
+        +`<span style="font-size:12px;color:${col};font-weight:700">${hp}% Hard · ${x.total} rev</span>`
+        +'</div>'
+        +bar(x.h,x.g,x.e,x.total,10)
+        +'</div>';
+    }).join('');
+  const topicsBlk='<div style="margin-top:16px;padding-top:12px;border-top:1px solid #EEF2FF">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px">📚 Tópicos por dificuldade (14 dias)</div>'
+    +topicBlkInner
+    +'</div>';
+  el.innerHTML=legend+todayBlk+daysBlk+aggBlk+topicsBlk;
 }
 
 function renderScoreTracker(){
@@ -2428,7 +2459,12 @@ function handleRev(q){
   // Log review grade for the Dashboard performance report (h=Hard,g=Good,e=Easy)
   if(!stats.reviewLog)stats.reviewLog={};
   if(!stats.reviewLog[today])stats.reviewLog[today]={h:0,g:0,e:0};
-  stats.reviewLog[today][q===1?'h':q===5?'e':'g']++;
+  const gradeKey=q===1?'h':q===5?'e':'g';
+  stats.reviewLog[today][gradeKey]++;
+  const topicKey=card.topic||'Sem tópico';
+  if(!stats.reviewLog[today].topics)stats.reviewLog[today].topics={};
+  if(!stats.reviewLog[today].topics[topicKey])stats.reviewLog[today].topics[topicKey]={h:0,g:0,e:0};
+  stats.reviewLog[today].topics[topicKey][gradeKey]++;
   saveST();
   flipped=false;
   const nd=revSession();
