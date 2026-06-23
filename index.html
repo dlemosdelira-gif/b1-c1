@@ -1352,6 +1352,35 @@ function openM(id){document.getElementById(id).classList.remove('hid');}
 function closeM(id){document.getElementById(id).classList.add('hid');}
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
+function findCurrentEnsuranceWeek(){
+  for(let w=1;w<=16;w++){
+    const week=ENSURANCE_CRONOGRAMA.semanas[w];
+    if(!week)continue;
+    const cycleNums=Object.keys(week.ciclos);
+    for(const cycleNum of cycleNums){
+      const cycleKey=`${w}-${cycleNum}`;
+      if(ensuranceCompleted[cycleKey])continue;
+      const activities=week.ciclos[cycleNum];
+      const allItemKeys=[];
+      activities.forEach((_,i)=>allItemKeys.push(`${cycleKey}-s-${i}`));
+      const hasDD=activities.some(a=>(a.l||[]).some(u=>u.includes('dailydictation.com')));
+      if(!hasDD)allItemKeys.push(`${cycleKey}-dd`);
+      (customCycleActivities[cycleKey]||[]).forEach((_,i)=>allItemKeys.push(`${cycleKey}-c-${i}`));
+      if(allItemKeys.length===0||!allItemKeys.every(k=>cycleItemChecked[k]))return w;
+    }
+  }
+  return 16;
+}
+function findCurrentPeuaMonth(){
+  const months=[5,6,7,8,9,10,11,12];
+  for(const m of months){
+    const tasks=(peuaTasks&&peuaTasks[m])?peuaTasks[m]:((PEUA_DATA.find(d=>d.month===m)||{}).tasks||[]);
+    if(!tasks.length)continue;
+    const done=peuaCompleted[`${m}`]||{};
+    if(!tasks.every((_,i)=>done[i]))return m;
+  }
+  return months[months.length-1];
+}
 function goTab(t){
   try{
     curTab=t;
@@ -1363,11 +1392,11 @@ function goTab(t){
     });
 
     if(t==='dash')renderDash();
-    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}renderPrac();}
+    else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}ensuranceWeek=findCurrentEnsuranceWeek();renderPrac();}
     else if(t==='road')buildRoadmap();
     else if(t==='rev')renderRev();
     else if(t==='cards')renderCards();
-    else if(t==='peua')renderPeua();
+    else if(t==='peua'){activePeuaMonth=findCurrentPeuaMonth();renderPeua();}
   }catch(e){
     console.error('goTab error:',e);
   }
