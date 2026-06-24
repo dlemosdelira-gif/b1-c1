@@ -1616,28 +1616,21 @@ function renderReviewPerf(){
     .map(t=>({t,h:topicTotals[t].h,g:topicTotals[t].g,e:topicTotals[t].e,total:topicTotals[t].h+topicTotals[t].g+topicTotals[t].e}))
     .filter(x=>x.total>=MIN_TOPIC_REV)
     .sort((a,b)=>(b.h/b.total)-(a.h/a.total));
-  const topicTotalRev=Object.keys(topicTotals).reduce((a,t)=>a+topicTotals[t].h+topicTotals[t].g+topicTotals[t].e,0);
-  const diffBadge=(hp)=>{
-    if(hp>=50)return{lbl:'Difícil',bg:'#FCEBEB',color:'#A32D2D'};
-    if(hp>=30)return{lbl:'Médio',bg:'#FAEEDA',color:'#854F0B'};
-    return{lbl:'Fácil',bg:'#E7F6EC',color:'#15803D'};
-  };
   const topicBlkInner=topicList.length===0
-    ?'<div style="font-size:13px;color:#94A3B8;margin-top:4px">Sem dados suficientes ainda. Cada tópico aparece após '+MIN_TOPIC_REV+' revisões. O rastreamento por tópico começou recentemente, então só conta revisões feitas a partir de agora.</div>'
+    ?'<div style="font-size:13px;color:#94A3B8;margin-top:4px">Not enough data yet. Each topic appears after '+MIN_TOPIC_REV+' reviews. Per-topic tracking started recently, so it only counts reviews made from now on.</div>'
     :topicList.map(x=>{
-      const hp=pct(x.h,x.total),b=diffBadge(hp);
-      return '<div style="margin-bottom:11px">'
-        +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">'
+      return '<div style="margin-bottom:13px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px">'
         +`<span style="font-size:13px;font-weight:600;color:#0F172A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.t)}</span>`
-        +`<span style="display:flex;align-items:center;gap:8px;flex-shrink:0"><span style="padding:2px 9px;border-radius:12px;background:${b.bg};color:${b.color};font-size:11px;font-weight:700">${b.lbl}</span><span style="font-size:12px;color:#94A3B8;font-family:'DM Mono',monospace">${hp}% H · ${x.total}</span></span>`
+        +`<span style="font-size:12px;color:#94A3B8;flex-shrink:0">${x.total} review${x.total!==1?'s':''}</span>`
         +'</div>'
-        +bar(x.h,x.g,x.e,x.total,10)
+        +bar(x.h,x.g,x.e,x.total,12)
+        +`<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:12px;font-weight:700"><span style="color:${COL.h}">${pct(x.h,x.total)}% Hard</span><span style="color:${COL.g}">${pct(x.g,x.total)}% Good</span><span style="color:${COL.e}">${pct(x.e,x.total)}% Easy</span></div>`
         +'</div>';
     }).join('');
-  const topicCountNote=topicList.length>0?`<div style="font-size:12px;color:#94A3B8;margin-bottom:10px">${topicList.length} tópico${topicList.length!==1?'s':''} · ${topicTotalRev} revisões classificadas (vermelho = mais difícil)</div>`:'';
   const topicsBlk='<div style="margin-top:16px;padding-top:12px;border-top:1px solid #EEF2FF">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">📚 Tópicos por dificuldade (14 dias)</div>'
-    +topicCountNote
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">📚 Topics by difficulty (14 days)</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:12px">Sorted hardest first · highest % Hard at the top</div>'
     +topicBlkInner
     +'</div>';
   el.innerHTML=legend+todayBlk+daysBlk+aggBlk+topicsBlk;
