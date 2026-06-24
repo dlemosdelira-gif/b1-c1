@@ -2502,7 +2502,10 @@ function navRev(dir){
   flipped=false;renderRev();
 }
 function handleRev(q){
-  const dv=revSession(),card=dv[flashIdx];if(!card)return;
+  const dv=revSession();
+  if(flashIdx>=dv.length)flashIdx=0;
+  const card=dv[flashIdx];
+  if(!card){renderRev();return;}
   const reviewedId=card.id;
   const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
   const i=cards.findIndex(c=>c.id===card.id);
@@ -3057,7 +3060,7 @@ function startSync(){
       setSS('offline', 'DB Error: ' + err.code);
     });
 
-    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); render();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); if(curTab==='rev'&&flipped){const dv2=due().length;const b=document.getElementById('revbdg');if(b){b.textContent=dv2;b.classList.toggle('on',dv2>0);}const hc=document.getElementById('hcards');if(hc)hc.textContent=cards.length;renderMeters();renderFlight();}else{render();}}, err => setSS('offline', 'DB Error: ' + err.code));
     RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight(); if(curTab==='dash')renderReviewPerf();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
