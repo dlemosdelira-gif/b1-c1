@@ -1267,6 +1267,8 @@ function nxtRev(q,idx=0,ef=2.5){
 function loadLocal(){
   try{checkins=JSON.parse(localStorage.getItem('c1ci')||'{}');}catch(e){checkins={};}
   try{cards=JSON.parse(localStorage.getItem('c1ca')||'[]');}catch(e){cards=[];}
+  if(!Array.isArray(cards))cards=[];
+  dedupeCardIds();
   try{stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},JSON.parse(localStorage.getItem('c1st')||'{}'));}catch(e){}
   try{customLessons=JSON.parse(localStorage.getItem('c1cu')||'[]');}catch(e){customLessons=[];}
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
@@ -1322,6 +1324,24 @@ function toggleAddForm(key){
 function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));if(RPET&&peuaTasks)RPET.set(peuaTasks).catch(()=>{});}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
+// Collision-proof unique id. Date.now() alone collides when several cards are
+// created in the same millisecond (bulk import, rapid adds), which produced
+// duplicate ids — and because grading looks cards up by id (findIndex), a
+// duplicate meant the wrong card got updated, so cards never left the review
+// queue and Hard/Good/Easy appeared to stop working.
+let _uidSeq=0;
+function uid(){return Date.now().toString(36)+'-'+(_uidSeq++).toString(36)+'-'+Math.floor(Math.random()*1e9).toString(36);}
+// Reassign ids to any card with a missing or duplicate id so every card is
+// addressable individually. Returns true if anything changed.
+function dedupeCardIds(){
+  const seen=new Set();let changed=false;
+  for(const c of cards){
+    if(!c||typeof c!=='object')continue;
+    if(c.id==null||c.id===''||seen.has(c.id)){c.id=uid();changed=true;}
+    seen.add(c.id);
+  }
+  return changed;
+}
 const due=()=>cards.filter(c=>c.nextReview<=today);
 let revCfg={mode:'all',topic:'',limit:20,random:10};
 let revSessionCache=null;
@@ -1345,7 +1365,7 @@ function wkDays(){
 function streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
 function f2(n){return String(n).padStart(2,'0');}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function mdata(n){return MONTHS.find(m=>m.n===n)||MONTHS[0];}
 function lessons(n){return[...(BL[n]||[]).map(l=>({...l,isCustom:false})),...customLessons.filter(l=>l.month===n||l.month===0).map(l=>({...l,isCustom:true}))];}
 function openM(id){document.getElementById(id).classList.remove('hid');}
@@ -1407,13 +1427,17 @@ function render(){
   document.getElementById('hcards').textContent=cards.length;
   document.getElementById('hhours').textContent=Math.floor(tm/60)+'h';
   const b=document.getElementById('revbdg');b.textContent=dv;b.classList.toggle('on',dv>0);
-  renderMeters();renderFlight();
-  if(curTab==='dash')renderDash();
-  else if(curTab==='prac')renderPrac();
-  else if(curTab==='road')buildRoadmap();
-  else if(curTab==='rev')renderRev();
-  else if(curTab==='cards')renderCards();
-  else if(curTab==='peua')renderPeua();
+  // Sub-renders are isolated: a throw in one (bad data on some tab) must not skip
+  // the header/badge update above or break the caller (e.g. handleRev's grade flow).
+  try{
+    renderMeters();renderFlight();
+    if(curTab==='dash')renderDash();
+    else if(curTab==='prac')renderPrac();
+    else if(curTab==='road')buildRoadmap();
+    else if(curTab==='rev')renderRev();
+    else if(curTab==='cards')renderCards();
+    else if(curTab==='peua')renderPeua();
+  }catch(err){console.error('render error on tab '+curTab+':',err);}
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
@@ -2347,7 +2371,7 @@ function saveCorrection(i){
 function saveCard(simple,c1,example,type='upgrade',topic=''){
   if(cards.find(c=>c.simple===simple)){toast('Already saved!');return;}
   const{date,intervalIdx,easiness}=nxtRev(2,-1,2.5);
-  const cardObj={id:Date.now().toString(),simple,c1,example,type,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today};
+  const cardObj={id:uid(),simple,c1,example,type,nextReview:date,intervalIdx,easiness:easiness||2.5,created:today};
   if(topic)cardObj.topic=topic;
   cards.unshift(cardObj);
   saveCA();toast('Saved to SRS! 🎉');render();
@@ -2365,8 +2389,8 @@ function saveChunk(){
   document.getElementById('chcustom').value='';
 }
 function formatText(text){
-  if(!text)return'';
-  let safe=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if(text==null||text==='')return'';
+  let safe=String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   return safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
 }
 // Wrap the current selection in a text field with markdown markers (** bold, * italic).
@@ -2483,15 +2507,32 @@ function renderRev(){
   let dots='<div class="pdots">';
   dv.forEach((_,i)=>dots+='<div class="pdot2'+(i<flashIdx?' dn':i===flashIdx?' cu':'')+'"></div>');
   dots+='</div>';
-  let ch='';
   const navBtns='<div class="rev-nav"><button class="rnb" onclick="navRev(-1)" '+(dv.length<=1?'disabled':'')+' title="Previous">←</button><button class="rnb" onclick="navRev(1)" '+(dv.length<=1?'disabled':'')+' title="Next">→</button></div>';
-  if(!flipped){
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
-      +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
-  }else{
-    ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
-      +'<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>'
-      +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+  const gradeBtns='<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>';
+  // Build the card inside try/catch: if any card has malformed content, fall back
+  // to a plain-text version that still has working flip/grade/nav buttons, so a
+  // single bad card can never freeze the whole Review tab.
+  let ch='';
+  try{
+    if(!flipped){
+      ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
+        +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+    }else{
+      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+        +gradeBtns
+        +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+    }
+  }catch(err){
+    console.error('renderRev card error:',err,card);
+    const sFront=esc(card&&card.simple),sBack=esc(card&&card.c1),sEx=esc(card&&card.example);
+    if(!flipped){
+      ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front</div><div class="fword">'+sFront+'</div><div class="ftap">Tap to reveal →</div></div>'
+        +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+    }else{
+      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div></div>'
+        +gradeBtns
+        +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
+    }
   }
   c.innerHTML=ctrls+dots+ch;
 }
@@ -3060,7 +3101,7 @@ function startSync(){
       setSS('offline', 'DB Error: ' + err.code);
     });
 
-    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); if(curTab==='rev'&&flipped){const dv2=due().length;const b=document.getElementById('revbdg');if(b){b.textContent=dv2;b.classList.toggle('on',dv2>0);}const hc=document.getElementById('hcards');if(hc)hc.textContent=cards.length;renderMeters();renderFlight();}else{render();}}, err => setSS('offline', 'DB Error: ' + err.code));
+    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; if(!Array.isArray(cards))cards=[]; if(dedupeCardIds())saveCA(); localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); if(curTab==='rev'&&flipped){const dv2=due().length;const b=document.getElementById('revbdg');if(b){b.textContent=dv2;b.classList.toggle('on',dv2>0);}const hc=document.getElementById('hcards');if(hc)hc.textContent=cards.length;renderMeters();renderFlight();}else{render();}}, err => setSS('offline', 'DB Error: ' + err.code));
     RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight(); if(curTab==='dash')renderReviewPerf();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
@@ -3698,7 +3739,7 @@ async function handleAnkiImport(file){
               const back=(parts[1]||'').replace(/\s+/g,' ').trim();
               if(front.length>2&&back.length>2&&!seen.has(front)){
                 seen.add(front);
-                importedCards.push({id:''+Date.now()+Math.floor(Math.random()*100000),simple:front.slice(0,100),c1:back.slice(0,200),example:'',type:'chunk',nextReview:today,intervalIdx:0,easiness:2.5});
+                importedCards.push({id:uid(),simple:front.slice(0,100),c1:back.slice(0,200),example:'',type:'chunk',nextReview:today,intervalIdx:0,easiness:2.5});
                 if(importedCards.length>=100)return;
               }
             });
@@ -3773,7 +3814,7 @@ function handleAnkiXMLImport(xmlContent){
           if(front.length>2&&back.length>2&&!seen.has(front)){
             seen.add(front);
             importedCards.push({
-              id:''+Date.now()+Math.floor(Math.random()*100000),
+              id:uid(),
               simple:front,
               c1:back,
               example:'',
@@ -3832,7 +3873,7 @@ function tryExtractCardsFromXMLText(xmlContent){
         if(front.length>2&&back.length>2&&!seen.has(front)){
           seen.add(front);
           importedCards.push({
-            id:''+Date.now()+Math.floor(Math.random()*100000),
+            id:uid(),
             simple:front,
             c1:back,
             example:'',
@@ -3874,7 +3915,7 @@ function tryExtractCardsFromXMLStructure(xmlDoc){
     if(front.length>3&&back.length>5&&!seen.has(front)){
       seen.add(front);
       importedCards.push({
-        id:''+Date.now()+Math.floor(Math.random()*100000),
+        id:uid(),
         simple:front,
         c1:back,
         example:'',
@@ -3942,7 +3983,7 @@ function handleCSVImportContent(csvContent){
     if(simple.length>0&&c1.length>0&&!seen.has(simple)){
       seen.add(simple);
       const card={
-        id:''+Date.now()+Math.floor(Math.random()*100000)+r,
+        id:uid(),
         simple,c1,example,
         type:'chunk',
         nextReview:today,
