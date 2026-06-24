@@ -2507,6 +2507,14 @@ function handleRev(q){
   const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
   const i=cards.findIndex(c=>c.id===card.id);
   if(i>=0){cards[i].nextReview=date;cards[i].intervalIdx=intervalIdx;cards[i].easiness=easiness;}
+  // Keep the cached (Random mode) session in sync: drop the card just reviewed so it
+  // doesn't keep reappearing, and rebuild a fresh batch once the cache empties. Without
+  // this, after grading the first random batch the same cards cycle forever, the due
+  // counter freezes and Hard/Good/Easy appear to stop working.
+  if(revSessionCache){
+    revSessionCache=revSessionCache.filter(c=>c.id!==reviewedId);
+    if(!revSessionCache.length)revSessionCache=null;
+  }
   // Log review grade for the Dashboard performance report (h=Hard,g=Good,e=Easy)
   if(!stats.reviewLog)stats.reviewLog={};
   if(!stats.reviewLog[today])stats.reviewLog[today]={h:0,g:0,e:0};
