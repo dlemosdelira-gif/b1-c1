@@ -394,7 +394,7 @@ textarea{min-height:120px}
     <div class="logo">
       <div class="logo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
-        <div class="logo-name">TOEFL 80+ <span style="font-size:14px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">Prep Hub</span></div>
+        <div class="logo-name">TOEFL 80+ <span style="font-size:14px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">Prep Hub</span> <span style="font-size:11px;font-weight:600;color:#2563EB;font-family:'DM Mono',monospace;background:#EFF6FF;padding:1px 6px;border-radius:6px" title="App version">v5</span></div>
         <div class="logo-sub"><span class="sdot off" id="sdot"></span><span id="slbl">Local only</span></div>
       </div>
     </div>
@@ -1284,17 +1284,43 @@ function loadLocal(){
   loadMilestones();
   loadLessons();
 }
-function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));if(RCI)RCI.set(checkins||null).catch(()=>{});}
-function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});RCA.set(Object.keys(o).length?o:null).catch(()=>{});}}
-function saveST(){localStorage.setItem('c1st',JSON.stringify(stats));if(RST)RST.set(stats).catch(()=>{});}
-function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});RCU.set(Object.keys(o).length?o:null).catch(()=>{});}}
-function saveMO(){localStorage.setItem('c1mo',activeMonth);if(RMO)RMO.set(activeMonth).catch(()=>{});}
-function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));if(RPE)RPE.set(peuaCompleted||null).catch(()=>{});}
-function saveEnsurance(){localStorage.setItem('c1ensurance',JSON.stringify(ensuranceCompleted));if(RMS)RMS.set(ensuranceCompleted||null).catch(()=>{});}
-function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));if(RAC)RAC.set(Object.keys(customCycleActivities).length?JSON.stringify(customCycleActivities):null).catch(()=>{});}
-function saveCycleItemChecked(){localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));if(RCIC)RCIC.set(Object.keys(cycleItemChecked).length?JSON.stringify(cycleItemChecked):null).catch(()=>{});}
+// Firebase keys cannot contain . # $ / [ ] or be empty. User-derived keys (e.g.
+// a card topic like "FORMAL / ACADEMIC") would otherwise make ref.set() throw
+// SYNCHRONOUSLY — which .catch() does NOT catch — aborting the caller (handleRev)
+// before it re-renders or persists, which is what froze the Review buttons.
+function safeKey(k){const s=String(k==null?'':k).replace(/[.#$\/\[\]]/g,'_').replace(/\s+/g,' ').trim();return s||'_';}
+// Wrap every Firebase .set() so a synchronous validation throw can never break
+// the app flow. localStorage persistence still happens regardless.
+function fbSet(ref,val){if(!ref)return;try{const p=ref.set(val);if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(e){console.error('Firebase set skipped:',e&&e.message);}}
+// Repair any reviewLog topic keys that contain Firebase-forbidden characters so
+// stats can be saved again (legacy data created before keys were sanitized).
+function sanitizeStatsKeys(){
+  if(!stats||!stats.reviewLog||typeof stats.reviewLog!=='object')return false;
+  let changed=false;
+  for(const date of Object.keys(stats.reviewLog)){
+    const day=stats.reviewLog[date];
+    if(!day||typeof day!=='object'||!day.topics||typeof day.topics!=='object')continue;
+    const clean={};
+    for(const t of Object.keys(day.topics)){
+      const sk=safeKey(t);if(sk!==t)changed=true;
+      if(clean[sk]){const a=clean[sk],b=day.topics[t]||{};['h','g','e'].forEach(k=>{a[k]=(a[k]||0)+(b[k]||0);});}
+      else clean[sk]=day.topics[t];
+    }
+    day.topics=clean;
+  }
+  return changed;
+}
+function saveCI(){localStorage.setItem('c1ci',JSON.stringify(checkins));fbSet(RCI,checkins||null);}
+function saveCA(){localStorage.setItem('c1ca',JSON.stringify(cards));if(RCA){const o=cards.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RCA,Object.keys(o).length?o:null);}}
+function saveST(){sanitizeStatsKeys();localStorage.setItem('c1st',JSON.stringify(stats));fbSet(RST,stats);}
+function saveCU(){localStorage.setItem('c1cu',JSON.stringify(customLessons));if(RCU){const o=customLessons.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RCU,Object.keys(o).length?o:null);}}
+function saveMO(){localStorage.setItem('c1mo',activeMonth);fbSet(RMO,activeMonth);}
+function savePeua(){localStorage.setItem('c1peua',JSON.stringify(peuaCompleted));fbSet(RPE,peuaCompleted||null);}
+function saveEnsurance(){localStorage.setItem('c1ensurance',JSON.stringify(ensuranceCompleted));fbSet(RMS,ensuranceCompleted||null);}
+function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));fbSet(RAC,Object.keys(customCycleActivities).length?JSON.stringify(customCycleActivities):null);}
+function saveCycleItemChecked(){localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));fbSet(RCIC,Object.keys(cycleItemChecked).length?JSON.stringify(cycleItemChecked):null);}
 function toggleCycleItem(itemKey){cycleItemChecked[itemKey]=!cycleItemChecked[itemKey];saveCycleItemChecked();renderEnsurance();}
-function saveCycleNotes(){localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));if(RCN)RCN.set(Object.keys(cycleNotes).length?JSON.stringify(cycleNotes):null).catch(()=>{});}
+function saveCycleNotes(){localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));fbSet(RCN,Object.keys(cycleNotes).length?JSON.stringify(cycleNotes):null);}
 function setCycleNote(key,val){cycleNotes[key]=val.trim();if(!cycleNotes[key])delete cycleNotes[key];saveCycleNotes();}
 function addCycleActivity(week,cycle){
   const key=`${week}-${cycle}`;
@@ -1321,7 +1347,7 @@ function toggleAddForm(key){
   const f=document.getElementById('addform-'+key);
   if(f)f.style.display=f.style.display==='none'?'flex':'none';
 }
-function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));if(RPET&&peuaTasks)RPET.set(peuaTasks).catch(()=>{});}
+function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));if(peuaTasks)fbSet(RPET,peuaTasks);}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 // Collision-proof unique id. Date.now() alone collides when several cards are
@@ -1720,7 +1746,7 @@ function saveToeflScore(){
   toeflScores.unshift(entry);
   toeflScores.sort((a,b)=>b.date.localeCompare(a.date));
   localStorage.setItem('c1scores',JSON.stringify(toeflScores));
-  if(RSS){const o=toeflScores.reduce((a,c)=>{a[c.id]=c;return a;},{});RSS.set(Object.keys(o).length?o:null).catch(()=>{});}
+  if(RSS){const o=toeflScores.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RSS,Object.keys(o).length?o:null);}
   document.getElementById('scoreModal').remove();
   renderScoreTracker();
   toast(`✅ Score saved! Total: ${total}/120`);
@@ -1729,7 +1755,7 @@ function saveToeflScore(){
 function deleteToeflScore(id){
   toeflScores=toeflScores.filter(s=>s.id!==id);
   localStorage.setItem('c1scores',JSON.stringify(toeflScores));
-  if(RSS){const o=toeflScores.reduce((a,c)=>{a[c.id]=c;return a;},{});RSS.set(Object.keys(o).length?o:null).catch(()=>{});}
+  if(RSS){const o=toeflScores.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RSS,Object.keys(o).length?o:null);}
   renderScoreTracker();
 }
 
@@ -1860,7 +1886,7 @@ function toggleLessonComplete(lessonId,isCompleted){
   }
   localStorage.setItem('c1completed',JSON.stringify(completed));
   if(window.firebase&&RDR){
-    RDR.set(completed).catch(()=>{});
+    fbSet(RDR,completed);
   }
   renderPrac();
   toast(isCompleted?'✅ Lesson marked as done':'📋 Lesson marked as pending');
@@ -2564,7 +2590,7 @@ function handleRev(q){
   if(!stats.reviewLog[today])stats.reviewLog[today]={h:0,g:0,e:0};
   const gradeKey=q===1?'h':q===5?'e':'g';
   stats.reviewLog[today][gradeKey]++;
-  const topicKey=card.topic||'No topic';
+  const topicKey=safeKey(card.topic||'No topic');
   if(!stats.reviewLog[today].topics)stats.reviewLog[today].topics={};
   if(!stats.reviewLog[today].topics[topicKey])stats.reviewLog[today].topics[topicKey]={h:0,g:0,e:0};
   stats.reviewLog[today].topics[topicKey][gradeKey]++;
@@ -3226,7 +3252,7 @@ function deleteSentence(idx){
 
 function saveSentences(){
   localStorage.setItem('mysentences',JSON.stringify(mysentences));
-  if(RSE)RSE.set(mysentences&&mysentences.length>0?mysentences:null).catch(()=>{});
+  fbSet(RSE,mysentences&&mysentences.length>0?mysentences:null);
 }
 
 window.addEventListener('load',()=>{
@@ -3542,7 +3568,7 @@ function loadMilestones(){
 
 function saveMilestones(){
   localStorage.setItem('c1ms',JSON.stringify(milestones));
-  if(RMS)RMS.set(Object.keys(milestones).length?milestones:null).catch(()=>{});
+  fbSet(RMS,Object.keys(milestones).length?milestones:null);
 }
 
 function toggleMilestone(id){
