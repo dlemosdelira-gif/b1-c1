@@ -173,6 +173,9 @@ textarea{min-height:120px}
 .rteditor:focus{border-color:#BFDBFE}
 .rteditor ul,.rteditor ol{margin:6px 0;padding-left:24px}
 .rteditor:empty:before{content:attr(data-ph);color:#94A3B8;pointer-events:none}
+.noteprev{position:relative}
+.noteprev.clamped{max-height:4.6em;overflow:hidden}
+.noteprev.clamped::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.8em;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)}
 .mstep{display:flex;gap:10px;align-items:flex-start}
 .mnum{width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
 .cbdg{display:none;font-size:14px;color:#16A34A;font-weight:500;align-items:center;gap:4px}
@@ -643,7 +646,7 @@ textarea{min-height:120px}
 
 <div id="scrollBtns" style="position:fixed;bottom:80px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:99">
   <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#2563EB;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .2s" title="Scroll to top">↑</button>
-  <button id="scrollBottom" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#7C3AED;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(124,58,237,.3);transition:all .2s" title="Scroll to bottom">⬇️</button>
+  <button id="scrollBottom" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" style="width:44px;height:44px;border-radius:50%;background:#2563EB;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .2s" title="Scroll to bottom">↓</button>
 </div>
 
 </div><script>
@@ -2143,6 +2146,7 @@ function renderEnsurance(){
     // Notes section
     const existingNote=cycleNotes[cycleKey]||'';
     const hasNote=!!existingNote;
+    const noteLong=hasNote&&noteTextLen(existingNote)>200;
     const notesSection=document.createElement('div');
     notesSection.style.cssText=`margin-top:10px;padding-top:8px;border-top:1px solid ${isGreen?'#BBF7D0':'#E5E7EB'}`;
     const notesAreaId=`notesarea-${cycleKey}`;
@@ -2150,7 +2154,7 @@ function renderEnsurance(){
     const notesBorderColor=isGreen?'#BBF7D0':'#DDE3F5';
     const notesIconColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
     const notesLabelColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
-    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Notes ✓':'Lesson notes'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><div style="font-size:13px;color:#0F172A;line-height:1.6;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;background:rgba(255,255,255,0.6);word-break:break-word">${hasNote?noteToHtml(existingNote):'<span style="color:#94A3B8;font-style:italic">No notes yet — click “Open editor” to add a rich-text summary.</span>'}</div><button onclick="openCycleNotesModal('${cycleKey}','Cycle ${cycleNum} · Week ${ensuranceWeek}')" style="margin-top:6px;width:100%;padding:7px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer">📝 Open editor</button></div>`;
+    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Notes ✓':'Lesson notes'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><div id="notesprev-${cycleKey}" class="noteprev${noteLong?' clamped':''}" style="font-size:13px;color:#0F172A;line-height:1.6;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;background:rgba(255,255,255,0.6);word-break:break-word">${hasNote?noteToHtml(existingNote):'<span style="color:#94A3B8;font-style:italic">No notes yet — click “Open editor” to add a rich-text summary.</span>'}</div>${noteLong?`<button id="notestgl-${cycleKey}" onclick="toggleNotePreview('${cycleKey}')" style="margin-top:4px;width:100%;padding:4px;border:none;background:none;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">Mostrar +</button>`:''}<button onclick="openCycleNotesModal('${cycleKey}','Cycle ${cycleNum} · Week ${ensuranceWeek}')" style="margin-top:6px;width:100%;padding:7px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer">📝 Open editor</button></div>`;
     card.appendChild(notesSection);
 
     cyclesDiv.appendChild(card);
@@ -2946,6 +2950,10 @@ function isHtmlNote(s){return /<[a-z!/][\s\S]*>/i.test(String(s==null?'':s));}
 // Render a stored note for read-only previews: sanitised HTML if it is HTML,
 // otherwise the markdown-lite formatter (which also escapes) for back-compat.
 function noteToHtml(s){s=String(s==null?'':s);return isHtmlNote(s)?sanitizeNoteHtml(s):formatText(s);}
+// Plain-text length of a note (tags stripped) — used to decide whether to clamp.
+function noteTextLen(s){s=String(s==null?'':s);if(isHtmlNote(s)){const d=document.createElement('div');d.innerHTML=s;return (d.textContent||'').replace(/\s+/g,' ').trim().length;}return s.replace(/\s+/g,' ').trim().length;}
+// Expand/collapse a long cycle-note preview ("Mostrar +" / "Mostrar −").
+function toggleNotePreview(key){const p=document.getElementById('notesprev-'+key);const b=document.getElementById('notestgl-'+key);if(!p)return;const clamped=p.classList.toggle('clamped');if(b)b.textContent=clamped?'Mostrar +':'Mostrar −';}
 // Light sanitiser: drop scripts/styles/embeds and any on*/javascript: handlers so
 // pasted content can't inject anything. Personal single-user data, kept pragmatic.
 function sanitizeNoteHtml(html){
