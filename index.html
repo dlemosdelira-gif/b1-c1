@@ -619,7 +619,7 @@ textarea{min-height:120px}
 // ── DATA ──────────────────────────────────────────────────────────────────────
 let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth(),toeflScores=[];
 let activeMonth=5,activeLesson=null,curTab='dash';
-let flashIdx=0,flipped=false,listening=false,recognition=null;
+let flashIdx=0,flipped=false,listening=false,recognition=null,noteCardId=null;
 let shadowOn=false,shadowIv=null,shadowSecs=300;
 let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[],pendingCorrections=[];
 let curText='';
@@ -2495,10 +2495,10 @@ function applyBulkDelete(){
 }
 
 // ── REVIEW ────────────────────────────────────────────────────────────────────
-function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
-function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
-function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
-function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
+function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;noteCardId=null;revSessionCache=null;saveRevCfg();renderRev();}
+function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;noteCardId=null;revSessionCache=null;saveRevCfg();renderRev();}
+function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;noteCardId=null;revSessionCache=null;saveRevCfg();renderRev();}}
+function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;noteCardId=null;revSessionCache=null;saveRevCfg();renderRev();}}
 function revUsedTopics(){
   const s=new Set();
   cards.forEach(c=>{if(c.topic)s.add(c.topic);});
@@ -2526,6 +2526,14 @@ function renderRev(){
   }
   ctrls+='<label style="font-size:14px;color:#475569;margin-left:auto">Daily limit:</label><input type="number" min="1" max="500" value="'+revCfg.limit+'" onchange="setRevLimit(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   ctrls+='</div></div>';
+  // If the user just marked a card Hard, show the note box for that card (the card was
+  // already graded in handleRev). Runs before the all-caught-up check so the box still
+  // appears when the Hard card was the last one due today.
+  if(noteCardId){
+    const nc=cards.find(c=>c.id===noteCardId);
+    if(nc){c.innerHTML=ctrls+renderNotePanel(nc);return;}
+    noteCardId=null;
+  }
   if(allDue.length===0){c.innerHTML=ctrls+'<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>';return;}
   if(dv.length===0){c.innerHTML=ctrls+'<div class="card empty"><div class="etit">No cards match this filter</div><div class="esub">'+(revCfg.mode==='topic'&&!revCfg.topic?'Select a topic above.':'Try a different filter or add cards with this topic.')+'</div></div>';return;}
   if(flashIdx>=dv.length)flashIdx=0;
@@ -2544,18 +2552,18 @@ function renderRev(){
       ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }else{
-      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+(card.note?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+formatText(card.note)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
         +gradeBtns
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
   }catch(err){
     console.error('renderRev card error:',err,card);
-    const sFront=esc(card&&card.simple),sBack=esc(card&&card.c1),sEx=esc(card&&card.example);
+    const sFront=esc(card&&card.simple),sBack=esc(card&&card.c1),sEx=esc(card&&card.example),sNote=esc(card&&card.note);
     if(!flipped){
       ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front</div><div class="fword">'+sFront+'</div><div class="ftap">Tap to reveal →</div></div>'
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }else{
-      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div></div>'
+      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+(sNote?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+sNote+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div></div>'
         +gradeBtns
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
@@ -2607,10 +2615,37 @@ function handleRev(q){
       flashIdx=0;
     }
   }
+  // Hard only: open an optional note box for this card (grading above already ran, so
+  // the counter has dropped and the SRS isn't blocked). renderRev() picks up noteCardId.
+  if(q===1)noteCardId=reviewedId;
   renderRev();
   saveCA();
   render();
 }
+// Note box shown after a card is marked Hard. Lets the user jot a hint/mnemonic that
+// resurfaces on the back of the card in future reviews. Optional and skippable.
+function renderNotePanel(card){
+  const existing=card&&card.note?esc(card.note):'';
+  return '<div class="card" style="padding:16px">'
+    +'<div style="font-size:13px;font-weight:700;color:#DC2626;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px">Marked Hard — reinforce it</div>'
+    +'<div style="font-size:14px;color:#64748B;line-height:1.5;margin-bottom:2px">'+formatText(card.simple)+'</div>'
+    +'<div style="font-size:15px;color:#2563EB;font-weight:600;line-height:1.5;margin-bottom:12px">'+formatText(card.c1)+'</div>'
+    +'<label for="hardnote" style="display:block;font-size:13px;color:#475569;margin-bottom:6px">📝 Your note — a hint, mnemonic, or why it’s tricky</label>'
+    +'<textarea id="hardnote" rows="3" placeholder="e.g. ‘in which’ = formal version of ‘where’…" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #DDE3F5;border-radius:8px;font-size:15px;font-family:\'DM Sans\',sans-serif;line-height:1.5;resize:vertical">'+existing+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +'<button onclick="saveCardNote()" style="flex:1;padding:11px;border:none;border-radius:8px;background:#2563EB;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Save &amp; next</button>'
+    +'<button onclick="skipNote()" style="flex:1;padding:11px;border:1px solid #DDE3F5;border-radius:8px;background:#fff;color:#64748B;font-size:15px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Skip</button>'
+    +'</div></div>';
+}
+function saveCardNote(){
+  const ta=document.getElementById('hardnote');
+  if(ta&&noteCardId!=null){
+    const i=cards.findIndex(c=>c.id===noteCardId);
+    if(i>=0){const v=ta.value.trim();if(v){cards[i].note=v;}else{delete cards[i].note;}saveCA();}
+  }
+  noteCardId=null;renderRev();render();
+}
+function skipNote(){noteCardId=null;renderRev();}
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
 function setCardsTopicFilter(t){cardsTopicFilter=t;renderCards();}
