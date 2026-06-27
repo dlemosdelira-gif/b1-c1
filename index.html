@@ -165,6 +165,14 @@ textarea{min-height:120px}
 .mhdr{padding:14px 14px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .mtit{font-size:14px;font-weight:600;color:#0F172A}
 .mbdy{padding:0 14px 14px;display:grid;gap:12px}
+.rtbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:6px;border:1px solid #DDE3F5;border-bottom:none;border-radius:8px 8px 0 0;background:#F8FAFF}
+.rtb{min-width:34px;height:32px;padding:0 8px;border:1px solid #DDE3F5;border-radius:6px;background:#fff;color:#475569;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center}
+.rtb:hover{background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
+.rtsep{width:1px;height:20px;background:#DDE3F5;margin:0 2px}
+.rteditor{min-height:160px;max-height:50vh;overflow-y:auto;padding:12px;border:1px solid #DDE3F5;border-radius:0 0 8px 8px;font-size:15px;line-height:1.6;color:#0F172A;outline:none;font-family:'DM Sans',sans-serif;background:#fff}
+.rteditor:focus{border-color:#BFDBFE}
+.rteditor ul,.rteditor ol{margin:6px 0;padding-left:24px}
+.rteditor:empty:before{content:attr(data-ph);color:#94A3B8;pointer-events:none}
 .mstep{display:flex;gap:10px;align-items:flex-start}
 .mnum{width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
 .cbdg{display:none;font-size:14px;color:#16A34A;font-weight:500;align-items:center;gap:4px}
@@ -475,6 +483,29 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="peuaNotesModal" onclick="if(event.target===this)closePeuaNotesModal()">
+  <div class="modal">
+    <div class="mhdr"><div class="mtit" id="peuaNotesTitle">📝 Notes</div><button class="btn bsm" onclick="closePeuaNotesModal()">✕</button></div>
+    <div class="mbdy">
+      <div class="rtbar">
+        <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('bold')" title="Bold"><b>B</b></button>
+        <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('italic')" title="Italic"><i>I</i></button>
+        <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('underline')" title="Underline"><u>U</u></button>
+        <span class="rtsep"></span>
+        <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('insertUnorderedList')" title="Bulleted list">• List</button>
+        <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('insertOrderedList')" title="Numbered list">1. List</button>
+        <span class="rtsep"></span>
+        <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('removeFormat')" title="Clear formatting">⌫ Format</button>
+      </div>
+      <div id="peuaNotesEditor" class="rteditor" contenteditable="true" data-ph="Write your notes — summary, vocabulary, key points…"></div>
+      <div class="fl g8" style="justify-content:flex-end;margin-top:14px">
+        <button class="btn bsm" onclick="closePeuaNotesModal()">Cancel</button>
+        <button class="btn bpr bsm" onclick="saveRtNote()">Save &amp; Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mEC" onclick="if(event.target===this)closeM('mEC')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Card</div><button class="btn bsm" onclick="closeM('mEC')">✕</button></div>
@@ -626,8 +657,9 @@ let curText='';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
 let peuaCompleted={};
+let peuaNotes={};
 let activePeuaMonth=5;
 let peuaTasks=null;
 let editingPeuaTask=null;
@@ -1279,6 +1311,7 @@ function loadLocal(){
   try{customCycleActivities=JSON.parse(localStorage.getItem('c1cycleact')||'{}');}catch(e){customCycleActivities={};}
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
+  try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
@@ -2004,7 +2037,7 @@ function renderEnsurance(){
       recapDiv.style.cssText='background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;margin-bottom:12px;overflow:hidden';
       const bodyDisplay=hasNotes?'block':'none';
       const arrowChar=hasNotes?'▾':'▸';
-      recapDiv.innerHTML=`<div onclick="const c=document.getElementById('recap-prev-body');const open=c.style.display==='block';c.style.display=open?'none':'block';document.getElementById('recap-prev-arrow').textContent=open?'▸':'▾'" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none"><div style="font-size:13px;font-weight:600;color:#92400E">📖 Recap — Week ${prevW}, Cycle ${lastC}</div><span id="recap-prev-arrow" style="color:#92400E;font-size:12px">${arrowChar}</span></div><div id="recap-prev-body" style="display:${bodyDisplay};padding:0 14px 12px;font-size:13px;color:#78350F;line-height:1.6;white-space:pre-wrap">${hasNotes?formatText(recapNotes):'<span style="color:#D97706;font-style:italic">No notes for this cycle. Use the ✏️ icon in the cycle to add a lesson summary.</span>'}</div>`;
+      recapDiv.innerHTML=`<div onclick="const c=document.getElementById('recap-prev-body');const open=c.style.display==='block';c.style.display=open?'none':'block';document.getElementById('recap-prev-arrow').textContent=open?'▸':'▾'" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none"><div style="font-size:13px;font-weight:600;color:#92400E">📖 Recap — Week ${prevW}, Cycle ${lastC}</div><span id="recap-prev-arrow" style="color:#92400E;font-size:12px">${arrowChar}</span></div><div id="recap-prev-body" style="display:${bodyDisplay};padding:0 14px 12px;font-size:13px;color:#78350F;line-height:1.6;white-space:pre-wrap">${hasNotes?noteToHtml(recapNotes):'<span style="color:#D97706;font-style:italic">No notes for this cycle. Open the cycle notes editor (📝) to add a lesson summary.</span>'}</div>`;
       document.getElementById('lessonlist').appendChild(recapDiv);
     }
   }
@@ -2117,7 +2150,7 @@ function renderEnsurance(){
     const notesBorderColor=isGreen?'#BBF7D0':'#DDE3F5';
     const notesIconColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
     const notesLabelColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
-    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Notes ✓':'Lesson notes'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><textarea placeholder="Lesson summary, new vocabulary, expressions, key points..." style="width:100%;min-height:80px;font-size:13px;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;outline:none;resize:vertical;box-sizing:border-box;color:#0F172A;line-height:1.5;font-family:inherit" onblur="setCycleNote('${cycleKey}',this.value)">${esc(existingNote)}</textarea></div>`;
+    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Notes ✓':'Lesson notes'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><div style="font-size:13px;color:#0F172A;line-height:1.6;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;background:rgba(255,255,255,0.6);word-break:break-word">${hasNote?noteToHtml(existingNote):'<span style="color:#94A3B8;font-style:italic">No notes yet — click “Open editor” to add a rich-text summary.</span>'}</div><button onclick="openCycleNotesModal('${cycleKey}','Cycle ${cycleNum} · Week ${ensuranceWeek}')" style="margin-top:6px;width:100%;padding:7px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer">📝 Open editor</button></div>`;
     card.appendChild(notesSection);
 
     cyclesDiv.appendChild(card);
@@ -2824,6 +2857,8 @@ function renderPeua(){
     const isDone=completed[taskId]||false;
     const canMoveUp=idx>0;
     const canMoveDown=idx<tasks.length-1;
+    const taskHasNote=!!(peuaNotes&&peuaNotes[peuaNoteKey(activePeuaMonth,idx)]);
+    const taskNoteAttr=esc(String(task).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/[\r\n]+/g,' '));
     html+=`<div draggable="true" ondragstart="dragStartPeua(event,${activePeuaMonth},${idx})" ondragover="dragOverPeua(event)" ondrop="dropPeua(event,${activePeuaMonth},${idx})" ondragend="dragEndPeua(event)" style="display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s;cursor:grab;user-select:none" class="peuaTaskItem">
       <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
         <div style="display:flex;flex-direction:column;gap:2px;opacity:0.6">
@@ -2835,6 +2870,7 @@ function renderPeua(){
         <span style="font-size:14px;color:${isDone?'#6B7280':'#0F172A'};${isDone?'text-decoration:line-through;':''}flex:1;line-height:1.4;min-width:0;word-break:break-word">${task}</span>
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
+        <button onclick="openPeuaNotesModal(${activePeuaMonth},${idx},'${taskNoteAttr}')" style="position:relative;padding:4px 6px;border-radius:4px;border:1px solid ${taskHasNote?'#7C3AED':'#DDD6FE'};background:${taskHasNote?'#F5F3FF':'#FAF5FF'};cursor:pointer;font-size:12px;color:#7C3AED;transition:all 0.2s" title="${taskHasNote?'Edit note':'Add note'}">📝${taskHasNote?'<span style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#10B981;border:1px solid #fff"></span>':''}</button>
         <button onclick="openEditPeuaTask(${activePeuaMonth},${idx},'${task.replace(/'/g,"\\'")}')" style="padding:4px 6px;border-radius:4px;border:1px solid #BFDBFE;background:#EFF6FF;cursor:pointer;font-size:12px;color:#2563EB;transition:all 0.2s" title="Editar">✏️</button>
         <button onclick="deletePeuaTask(${activePeuaMonth},${idx})" style="padding:4px 6px;border-radius:4px;border:1px solid #FECACA;background:#FEF2F2;cursor:pointer;font-size:12px;color:#DC2626;transition:all 0.2s" title="Delete">🗑️</button>
       </div>
@@ -2897,6 +2933,75 @@ function closePeuaEditModal(){
   document.getElementById('peuaEditModal').classList.add('hid');
   document.querySelector('#peuaEditModal .mtit').textContent='✏️ Edit Task';
   editingPeuaTask=null;
+}
+
+// ── RICH-TEXT NOTES (PEUA tasks + Practice cycles) ──────────────────────────────
+// One shared modal (#peuaNotesModal) drives both. peuaNotesCtx tells saveRtNote()
+// where to persist. Notes are stored as HTML strings; legacy plain-text notes are
+// still rendered correctly via noteToHtml().
+let peuaNotesCtx=null; // {type:'peua',month,idx} | {type:'cycle',cycleKey}
+function peuaNoteKey(month,idx){return 'peua-note-'+month+'-'+idx;}
+// Treat a stored value as HTML only if it actually contains a tag.
+function isHtmlNote(s){return /<[a-z!/][\s\S]*>/i.test(String(s==null?'':s));}
+// Render a stored note for read-only previews: sanitised HTML if it is HTML,
+// otherwise the markdown-lite formatter (which also escapes) for back-compat.
+function noteToHtml(s){s=String(s==null?'':s);return isHtmlNote(s)?sanitizeNoteHtml(s):formatText(s);}
+// Light sanitiser: drop scripts/styles/embeds and any on*/javascript: handlers so
+// pasted content can't inject anything. Personal single-user data, kept pragmatic.
+function sanitizeNoteHtml(html){
+  const tmp=document.createElement('div');tmp.innerHTML=String(html==null?'':html);
+  tmp.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(n=>n.remove());
+  tmp.querySelectorAll('*').forEach(el=>{Array.prototype.slice.call(el.attributes).forEach(a=>{const n=a.name.toLowerCase();if(n.indexOf('on')===0||((n==='href'||n==='src')&&/^\s*javascript:/i.test(a.value)))el.removeAttribute(a.name);});});
+  return tmp.innerHTML;
+}
+// Toolbar handler. mousedown+preventDefault on the buttons keeps the editor's
+// selection, so execCommand applies to the right text.
+function execRichCmd(cmd){const ed=document.getElementById('peuaNotesEditor');if(ed)ed.focus();try{document.execCommand(cmd,false,null);}catch(e){}if(ed)ed.focus();}
+function closePeuaNotesModal(){const m=document.getElementById('peuaNotesModal');if(m)m.classList.add('hid');peuaNotesCtx=null;}
+function openRtModal(title,html){
+  const ed=document.getElementById('peuaNotesEditor');if(!ed)return;
+  document.getElementById('peuaNotesTitle').textContent=title;
+  ed.innerHTML=html||'';
+  document.getElementById('peuaNotesModal').classList.remove('hid');
+  setTimeout(()=>{try{ed.focus();}catch(e){}},30);
+}
+function openPeuaNotesModal(month,idx,taskText){
+  const tasks=peuaTasks&&peuaTasks[month]?peuaTasks[month]:((PEUA_DATA.find(m=>m.month===month)||{}).tasks||[]);
+  const label=taskText||tasks[idx]||('Task '+(idx+1));
+  peuaNotesCtx={type:'peua',month:month,idx:idx};
+  const existing=peuaNotes[peuaNoteKey(month,idx)]||'';
+  openRtModal('📝 '+label, existing?(isHtmlNote(existing)?sanitizeNoteHtml(existing):formatText(existing)):'');
+}
+function savePeuaNote(month,idx){
+  const ed=document.getElementById('peuaNotesEditor');
+  const key=peuaNoteKey(month,idx);
+  const html=sanitizeNoteHtml(ed?ed.innerHTML:'');
+  const plain=ed?(ed.textContent||'').replace(/ /g,' ').trim():'';
+  if(plain){peuaNotes[key]=html;}else{delete peuaNotes[key];}
+  savePeuaNotes();
+  closePeuaNotesModal();
+  if(curTab==='peua')renderPeua();
+}
+function savePeuaNotes(){localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));fbSet(RPTN,Object.keys(peuaNotes).length?JSON.stringify(peuaNotes):null);}
+function openCycleNotesModal(cycleKey,label){
+  peuaNotesCtx={type:'cycle',cycleKey:cycleKey};
+  const existing=cycleNotes[cycleKey]||'';
+  openRtModal('📝 '+(label||'Lesson notes'), existing?(isHtmlNote(existing)?sanitizeNoteHtml(existing):formatText(existing)):'');
+}
+function saveCycleNoteRich(cycleKey){
+  const ed=document.getElementById('peuaNotesEditor');
+  const html=sanitizeNoteHtml(ed?ed.innerHTML:'');
+  const plain=ed?(ed.textContent||'').replace(/ /g,' ').trim():'';
+  if(plain){cycleNotes[cycleKey]=html;}else{delete cycleNotes[cycleKey];}
+  saveCycleNotes();
+  closePeuaNotesModal();
+  if(curTab==='prac')renderPrac();
+}
+function saveRtNote(){
+  if(!peuaNotesCtx){closePeuaNotesModal();return;}
+  if(peuaNotesCtx.type==='peua')savePeuaNote(peuaNotesCtx.month,peuaNotesCtx.idx);
+  else if(peuaNotesCtx.type==='cycle')saveCycleNoteRich(peuaNotesCtx.cycleKey);
+  else closePeuaNotesModal();
 }
 
 function savePeuaTaskEdit(){
@@ -3152,6 +3257,7 @@ function startSync(){
     RAC = db.ref('cycleActivities');
     RCIC = db.ref('cycleItemChecked');
     RCN = db.ref('cycleNotes');
+    RPTN = db.ref('peuaNotes');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -3175,6 +3281,7 @@ function startSync(){
     RAC.on('value',s=>{const v=s.val();if(v){try{customCycleActivities=JSON.parse(v); localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
+    RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
   }catch(e){
