@@ -2455,10 +2455,10 @@ function saveChunk(){
 function formatText(text){
   if(text==null||text==='')return'';
   let safe=String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  return safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+  return safe.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/__(.+?)__/g,'<u>$1</u>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
 }
-// Wrap the current selection in a text field with markdown markers (** bold, * italic).
-// Toggles the markers off if the selection is already wrapped.
+// Wrap the current selection in a text field with markdown markers (** bold, * italic,
+// __ underline). Toggles the markers off if the selection is already wrapped.
 function applyTextFormat(el,marker){
   if(!el||el.selectionStart==null)return;
   const start=el.selectionStart,end=el.selectionEnd,val=el.value,mlen=marker.length;
@@ -2740,7 +2740,7 @@ function renderCards(){
       +'</div>';
   }
   h+='<div class="card add-chunk-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;padding:14px;margin-bottom:14px">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:14px;color:#94A3B8">💡 Use **bold**, *italic*, emojis 🎯</div></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="color:#2563EB;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Add Flashcard</div><div style="font-size:14px;color:#94A3B8">💡 **bold** · *italic* · __underline__ · ⌘/Ctrl+B/I/U</div></div>'
     +'<div class="chunk-form">'
     +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Front</label><textarea id="chkw" placeholder="Simple word or phrase" style="font-size:14px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
     +'<div><label style="font-size:14px;font-weight:600;color:#2563EB;display:block;margin-bottom:4px">Back</label><textarea id="chex" placeholder="C1 expression" style="font-size:14px;padding:10px;border:1px solid #BFDBFE;border-radius:6px;width:100%;box-sizing:border-box;min-height:80px;resize:vertical;font-family:\'DM Sans\',sans-serif;line-height:1.5;background:#fff"></textarea></div>'
@@ -4263,13 +4263,15 @@ window.onload = function(){
     else if(e.key==='2'){if(flipped)handleRev(3);}
     else if(e.key==='3'){if(flipped)handleRev(5);}
   });
-  // Rich-text shortcuts: Ctrl/Cmd+B = **bold**, Ctrl/Cmd+I = *italic* in any text field
+  // Rich-text shortcuts in any text field: Ctrl/Cmd+B = **bold**, +I = *italic*,
+  // +U = __underline__. The contenteditable note editor gets B/I/U natively.
   document.addEventListener('keydown',function(e){
     if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
     if(!isFormattableField(e.target))return;
     const k=(e.key||'').toLowerCase();
     if(k==='b'){e.preventDefault();applyTextFormat(e.target,'**');}
     else if(k==='i'){e.preventDefault();applyTextFormat(e.target,'*');}
+    else if(k==='u'){e.preventDefault();applyTextFormat(e.target,'__');}
   });
 };
 </script>
