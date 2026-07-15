@@ -438,7 +438,6 @@ textarea{min-height:120px}
           <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
-            <button class="btn bsm" style="background:#E0F2FE;color:#0369A1;border-color:#BAE6FD" onclick="copyPromptAndOpenChat()">📲 Open in Chat</button>
             <span class="cbdg" id="cpbdg">✓ Copied!</span>
           </div>
         </div>
@@ -609,12 +608,12 @@ textarea{min-height:120px}
     <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
     <div class="fb mt8" style="flex-wrap:wrap;gap:6px">
       <span class="wc" id="wcount">0 words</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn bte" id="claudebtn" onclick="openInClaude()" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
+      <div style="display:inline-flex;align-items:stretch;border-radius:8px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.08)">
+        <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled style="border-radius:0;margin:0;border-right:1px solid rgba(255,255,255,.35)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze &amp; Level Up
         </button>
-        <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze & Level Up
+        <button class="btn bpr" id="claudebtn" onclick="openInClaude()" disabled title="Open in Claude" aria-label="Open in Claude" style="border-radius:0;margin:0;padding-left:10px;padding-right:11px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Claude
         </button>
       </div>
     </div>
@@ -2320,15 +2319,6 @@ function openAIModal(){
 function copyPrompt(){
   const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
   navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
-}
-function copyPromptAndOpenChat(){
-  const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
-  navigator.clipboard.writeText(fp).then(()=>{
-    document.getElementById('cpbdg').classList.add('on');
-    setTimeout(()=>{
-      window.open('https://claude.ai/share/dd91e436-c8fc-4c68-b311-226bb6c773c2','_blank');
-    },300);
-  });
 }
 function processJSON(){
   const raw=document.getElementById('jsonin').value.trim();
