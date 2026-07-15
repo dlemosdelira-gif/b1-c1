@@ -430,7 +430,7 @@ textarea{min-height:120px}
 
 <div class="mov hid" id="mAI" onclick="if(event.target===this)closeM('mAI')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
-    <div class="mhdr"><div class="mtit">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
+    <div class="mhdr"><div class="mtit" id="mAititle">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
@@ -438,6 +438,9 @@ textarea{min-height:120px}
           <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
+            <button class="btn bsm" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D" onclick="openInClaude()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
+            </button>
             <span class="cbdg" id="cpbdg">✓ Copied!</span>
           </div>
         </div>
@@ -608,12 +611,12 @@ textarea{min-height:120px}
     <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
     <div class="fb mt8" style="flex-wrap:wrap;gap:6px">
       <span class="wc" id="wcount">0 words</span>
-      <div style="display:inline-flex;align-items:stretch;border-radius:8px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.08)">
-        <button class="btn bpr" id="anlbtn" onclick="openAIModal()" disabled style="border-radius:0;margin:0;border-right:1px solid rgba(255,255,255,.35)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Analyze &amp; Level Up
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn bpr" id="writingbtn" onclick="openAIModal('writing')" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing
         </button>
-        <button class="btn bpr" id="claudebtn" onclick="openInClaude()" disabled title="Open in Claude" aria-label="Open in Claude" style="border-radius:0;margin:0;padding-left:10px;padding-right:11px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Claude
+        <button class="btn bte" id="speakingbtn" onclick="openAIModal('speaking')" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>🎤 Speaking
         </button>
       </div>
     </div>
@@ -657,6 +660,7 @@ let flashIdx=0,flipped=false,listening=false,recognition=null,noteCardId=null;
 let shadowOn=false,shadowIv=null,shadowSecs=300;
 let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[],pendingCorrections=[];
 let curText='';
+let curMode='writing';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
@@ -2223,8 +2227,8 @@ function renderPracMonthly_UNUSED(){
 function onInput(){
   const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
   document.getElementById('wcount').textContent=w+' words';
-  document.getElementById('anlbtn').disabled=w<2;
-  document.getElementById('claudebtn').disabled=w<2;
+  document.getElementById('writingbtn').disabled=w<2;
+  document.getElementById('speakingbtn').disabled=w<2;
 }
 
 // ── SESSION TIMER ─────────────────────────────────────────────────────────────
@@ -2290,35 +2294,42 @@ function updMic(){
 }
 
 // ── AI BRIDGE ─────────────────────────────────────────────────────────────────
-function openInClaude(){
-  const t=document.getElementById('rtxt').value.trim();
-  if(!t){toast('⚠️ Write something first');return;}
-  curText=t;
-  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
-  navigator.clipboard.writeText(fp).then(()=>{
-    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
-    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
-    document.getElementById('mpbox').textContent=fp;
-    document.getElementById('jsonin').value='';
-    document.getElementById('cpbdg').classList.add('on');
-    openM('mAI');
-  }).catch(()=>{
-    toast('⚠️ Copy failed — use Analyze & Level Up instead');
-  });
+function buildPrompt(mode,t){
+  let p=mdata(activeMonth).ai;
+  if(mode==='speaking'){
+    p=p.replace('Analyze the student response.',"Analyze the student's SPOKEN response (this is a speech-to-text transcript of a spoken answer — weigh fluency, delivery, coherence and natural spoken register alongside grammar).")
+       .replace('Student response: {{T}}',"Student's spoken response (transcript): {{T}}");
+  }
+  return p.replace('{{T}}',t);
 }
-function openAIModal(){
+function openAIModal(mode){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
-  curText=t;
-  const fp=mdata(activeMonth).ai.replace('{{T}}',t);
+  curText=t;curMode=mode||'writing';
+  const fp=buildPrompt(curMode,t);
   navigator.clipboard.writeText(t).catch(()=>{});
+  document.getElementById('mAititle').textContent=curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis';
   document.getElementById('mpbox').textContent=fp;
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
   openM('mAI');
 }
 function copyPrompt(){
-  const fp=mdata(activeMonth).ai.replace('{{T}}',document.getElementById('rtxt').value.trim());
+  const fp=buildPrompt(curMode,document.getElementById('rtxt').value.trim());
   navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
+}
+function openInClaude(){
+  const t=document.getElementById('rtxt').value.trim();
+  if(!t){toast('⚠️ Write something first');return;}
+  curText=t;
+  const fp=buildPrompt(curMode,t);
+  navigator.clipboard.writeText(fp).then(()=>{
+    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+    document.getElementById('mpbox').textContent=fp;
+    document.getElementById('cpbdg').classList.add('on');
+  }).catch(()=>{
+    toast('⚠️ Copy failed — use Copy Full Prompt instead');
+  });
 }
 function processJSON(){
   const raw=document.getElementById('jsonin').value.trim();
