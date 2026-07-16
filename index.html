@@ -2808,16 +2808,6 @@ function setupCardTextareas(){
     document.getElementById('chkwPreview').innerHTML=formatText(front)||'<span style="color:#CBD5E1">—</span>';
     document.getElementById('chexPreview').innerHTML=formatText(back)||'<span style="color:#CBD5E1">—</span>';
   };
-  const insertMarkdown=(ta,before,after)=>{
-    const start=ta.selectionStart,end=ta.selectionEnd;
-    const selected=ta.value.substring(start,end)||'text';
-    const newText=ta.value.substring(0,start)+before+selected+after+ta.value.substring(end);
-    ta.value=newText;
-    ta.selectionStart=start+before.length;
-    ta.selectionEnd=start+before.length+selected.length;
-    ta.focus();
-    updatePreview();
-  };
   tareas.forEach(id=>{
     const ta=document.getElementById(id);
     if(!ta)return;
@@ -2835,11 +2825,6 @@ function setupCardTextareas(){
         if(cleaned!==v){ta.value=cleaned;}
         growIfNeeded();
       },0);
-    });
-    ta.addEventListener('keydown',(e)=>{
-      if(!e.ctrlKey&&!e.metaKey)return;
-      if(e.key==='b'||e.key==='B'){e.preventDefault();insertMarkdown(ta,'**','**');}
-      else if(e.key==='i'||e.key==='I'){e.preventDefault();insertMarkdown(ta,'*','*');}
     });
   });
   updatePreview();
