@@ -210,6 +210,28 @@ textarea{min-height:120px}
 .rnb:hover:not(:disabled){background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
 .rnb:disabled{opacity:.4;cursor:not-allowed}
 
+/* ── EXERCISE MODES (Build a Sentence / Complete the Words) ── */
+.exmode-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.exmode-btn{flex:1 1 calc(33% - 4px);min-width:96px;padding:8px 8px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;color:#475569;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.exmode-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
+.exmode-btn:hover:not(.on){background:#F1F5F9}
+.bs-assembly{min-height:64px;border:2px dashed #BFDBFE;border-radius:10px;background:#F8FAFF;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;margin-bottom:12px}
+.bs-assembly.empty{align-items:center;justify-content:center}
+.bs-bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.bschip{padding:8px 13px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;color:#0F172A;font-size:15px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;user-select:none}
+.bschip:hover{border-color:#2563EB;background:#EFF6FF}
+.bschip.picked{background:#EFF6FF;border-color:#2563EB;color:#1D4ED8}
+.bschip.ok{background:#F0FDF4;border-color:#86EFAC;color:#16A34A;cursor:default}
+.bschip.bad{background:#FEF2F2;border-color:#FECACA;color:#DC2626;cursor:default}
+.bs-ph{color:#94A3B8;font-size:14px}
+.cw-blank{display:inline-block;min-width:120px;padding:4px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:15px;font-family:'DM Sans',sans-serif;background:#fff;color:#0F172A;vertical-align:baseline;margin:0 2px}
+.cw-blank.ok{border-color:#86EFAC;background:#F0FDF4;color:#16A34A}
+.cw-blank.bad{border-color:#FECACA;background:#FEF2F2;color:#DC2626}
+.cw-sol{font-size:13px;color:#16A34A;font-weight:600;margin-left:4px;font-family:'DM Mono',monospace}
+.ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
+.ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
+.ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
+
 /* ── CARD ITEMS ── */
 .cards-grid{display:grid;gap:10px;grid-template-columns:1fr}
 .citem{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;transition:all .15s;box-shadow:0 1px 2px rgba(15,23,42,.03)}
@@ -597,9 +619,16 @@ textarea{min-height:120px}
     <div class="plbl">Your Prompt</div>
     <div id="activeprompt" style="font-size:14px;color:#0F172A;line-height:1.6"></div>
   </div>
-  
 
-  <div class="card">
+  <div class="card csm" style="background:#F8FAFF;margin-top:12px">
+    <div class="exmode-bar" style="margin-bottom:0">
+      <button class="exmode-btn on" id="wm-free" onclick="em_setMode(false)">✍️ Free Writing</button>
+      <button class="exmode-btn" id="wm-email" onclick="em_setMode(true)">📧 Write an Email</button>
+    </div>
+    <div id="emailScenarioBox" class="hid" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
     <div class="fb" style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
       <button class="btn bsm" id="micbtn" onclick="toggleListen()">
@@ -665,6 +694,12 @@ const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
+// New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null;
+let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={};
+let bs_cur=null,bs_answerIds=[],bs_tokens=[],bs_checked=false;
+let cw_cur=null,cw_checked=false,cw_vals=[];
+let em_active=false,em_cur=null,em_lastId=null;
 let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
@@ -1324,6 +1359,7 @@ function loadLocal(){
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
   loadLessons();
+  ex_loadLocal();
 }
 // Firebase keys cannot contain . # $ / [ ] or be empty. User-derived keys (e.g.
 // a card topic like "FORMAL / ACADEMIC") would otherwise make ref.set() throw
@@ -2296,6 +2332,15 @@ function updMic(){
 // ── AI BRIDGE ─────────────────────────────────────────────────────────────────
 function buildPrompt(mode,t){
   let p=mdata(activeMonth).ai;
+  // Email mode reuses the writing analyze flow but frames the submission as an
+  // email so the coaching JSON can judge function, tone and structure. The
+  // submission is labelled "EMAIL: [scenario] + [response]" as required.
+  if(mode==='writing'&&em_active&&em_cur){
+    const framed='EMAIL: ['+em_cur.context+' | To: '+em_cur.recipient+' | Function: '+em_cur.tag+'] + ['+t+']';
+    p=p.replace('Analyze the student response.',"Analyze the student's EMAIL below. In addition to grammar and vocabulary, judge whether it fulfils its stated function ("+em_cur.tag+"), uses tone/register appropriate for the recipient, and is well structured (greeting, body, clear request/point, closing).")
+       .replace('Student response: {{T}}','Student\'s email submission: {{T}}');
+    return p.replace('{{T}}',framed);
+  }
   if(mode==='speaking'){
     p=p.replace('Analyze the student response.',"Analyze the student's SPOKEN response (this is a speech-to-text transcript of a spoken answer — weigh fluency, delivery, coherence and natural spoken register alongside grammar).")
        .replace('Student response: {{T}}',"Student's spoken response (transcript): {{T}}");
@@ -2305,12 +2350,16 @@ function buildPrompt(mode,t){
 function openAIModal(mode){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
   curText=t;curMode=mode||'writing';
+  const isEmail=curMode==='writing'&&em_active&&em_cur;
   const fp=buildPrompt(curMode,t);
   navigator.clipboard.writeText(t).catch(()=>{});
-  document.getElementById('mAititle').textContent=curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis';
+  document.getElementById('mAititle').textContent=isEmail?'📧 Email Analysis':(curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis');
   document.getElementById('mpbox').textContent=fp;
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
+  // Mark this email scenario as practiced; capture the level later in processJSON.
+  if(isEmail){emProgress[em_cur.id]={practiced:true,date:today};em_lastId=em_cur.id;em_saveProgress();em_renderScenario();}
+  else{em_lastId=null;}
   openM('mAI');
 }
 function copyPrompt(){
@@ -2342,7 +2391,14 @@ function processJSON(){
   stats.wordsToday=(stats.wordsToday||0)+w;
   stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
   if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(w/100)*5);
-  saveST();renderMeters();renderAnalysis(r);
+  saveST();
+  // If this was an email submission, store the estimated level on the scenario.
+  if(em_lastId&&emProgress[em_lastId]){
+    const lvl=r.level_estimate||(r.diagnosis&&r.diagnosis.c1_distance&&r.diagnosis.c1_distance.level_estimate)||'';
+    if(lvl)emProgress[em_lastId].level=lvl;
+    em_saveProgress();em_lastId=null;if(em_active)em_renderScenario();
+  }
+  renderMeters();renderAnalysis(r);
 }
 function renderAnalysis(r){
   const lc={B1:'#D97706','B2':'#2563EB','B2+':'#0891B2','C1-':'#0D9488','C1':'#16A34A','C1+':'#059669','C2':'#7C3AED'};
@@ -2545,13 +2601,18 @@ function revUsedTopics(){
   return Array.from(s).sort();
 }
 function renderRev(){
+  const c=document.getElementById('revcontent');
+  const sel=revModeSelector();
+  const exMode=revCfg.exMode||'flash';
+  // Dispatch to the alternative exercise modes; flashcards fall through below.
+  if(exMode==='build'){if(!bs_cur&&!bs_checked)bs_load();c.innerHTML=sel+bs_render();return;}
+  if(exMode==='complete'){if(!cw_cur&&!cw_checked)cw_load();c.innerHTML=sel+cw_render();return;}
   const allDue=due();
   const dv=revSession();
   document.getElementById('duecnt').textContent=dv.length+' / '+allDue.length+' due today';
-  const c=document.getElementById('revcontent');
   const topics=revUsedTopics();
   const modes=[['all','All Due','📚'],['topic','By Topic','🏷️'],['random','Random','🎲'],['weakest','Weakest','🔥']];
-  let ctrls='<div class="card rev-ctrls" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
+  let ctrls=sel+'<div class="card rev-ctrls" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
     +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;flex:1 1 calc(50% - 4px);">'+m[2]+' '+m[1]+'</button>').join('')
     +'</div>'
@@ -2686,6 +2747,276 @@ function saveCardNote(){
   noteCardId=null;renderRev();render();
 }
 function skipNote(){noteCardId=null;renderRev();}
+
+// ══ NEW EXERCISE MODES ════════════════════════════════════════════════════════
+// Shared: SM-2 reuse via nxtRev(). Progress objects follow the same schema as
+// cards ({nextReview,intervalIdx,easiness}) keyed by item id. Per-grammar-tag
+// performance is aggregated in stats.patternPerf so weak patterns can surface.
+// Firebase paths: buildSentenceItems/buildSentenceProgress,
+// completeWordsItems/completeWordsProgress, emailScenarios/emailProgress. Every
+// path falls back to localStorage when Firebase is unavailable (fbSet no-ops).
+
+// ── SEEDS ──
+const BS_SEED=[
+  {id:'bs1',words:['He','insisted','on','bringing','the','documents','himself.'],tag:'gerund-after-preposition'},
+  {id:'bs2',words:['She','is','used','to','working','long','hours.'],tag:'gerund-after-preposition'},
+  {id:'bs3',words:['They','will','need','to','gather','more','evidence.'],tag:'infinitive-after-modal'},
+  {id:'bs4',words:['He','pretended','to','go','along','with','the','plan.'],tag:'infinitive-after-modal'},
+  {id:'bs5',words:['Each','of','the','students','has','submitted','the','report.'],tag:'subject-verb-agreement'},
+  {id:'bs6',words:['The','data','suggest','a','different','conclusion.'],tag:'subject-verb-agreement'},
+  {id:'bs7',words:['This','is','a','legacy','issue','that','requires','attention.'],tag:'spelling'},
+  {id:'bs8',words:['I','specially','appreciate','your','quick','response.'],tag:'spelling'},
+  {id:'bs9',words:['She','has','the','responsibility','of','finishing','the','project.'],tag:'gerund-after-preposition'},
+  {id:'bs10',words:['The','committee','decided','to','postpone','the','meeting.'],tag:'infinitive-after-modal'}
+];
+// Short human explanation per grammar pattern, cited in feedback.
+const PATTERN_NOTE={
+  'gerund-after-preposition':'After a preposition (on, to, of…) the verb takes the -ing (gerund) form.',
+  'infinitive-after-modal':'A modal/helper verb is followed by the base infinitive (to + base, or bare base after will/can).',
+  'subject-verb-agreement':'The verb must agree with the true grammatical subject in number.',
+  'spelling':'Watch the exact spelling/word choice — a common look-alike is wrong here.',
+  'article':'Choose the correct article (a/an/the) for the noun and its context.'
+};
+const CW_SEED=[
+  {id:'cw1',tag:'gerund-after-preposition',mode:'mc',
+   text:'The manager thanked the team for ___ the deadline. She is committed to ___ high standards across every project.',
+   blanks:[{answer:'meeting',options:['meeting','meet','met']},{answer:'maintaining',options:['maintain','maintaining','maintained']}]},
+  {id:'cw2',tag:'infinitive-after-modal',mode:'mc',
+   text:'We should ___ the results before the meeting. The committee will ___ a final decision next week.',
+   blanks:[{answer:'review',options:['review','reviewing','to review']},{answer:'make',options:['making','make','made']}]},
+  {id:'cw3',tag:'subject-verb-agreement',mode:'free',
+   text:'Each of the proposals ___ (have) merit. However, the data ___ (suggest) a cautious approach.',
+   blanks:[{answer:'has'},{answer:'suggest'}]},
+  {id:'cw4',tag:'article',mode:'mc',
+   text:'She submitted ___ report that impressed ___ entire board.',
+   blanks:[{answer:'a',options:['a','an','the']},{answer:'the',options:['a','an','the']}]},
+  {id:'cw5',tag:'spelling',mode:'free',
+   text:'I would ___ (especially) like to thank our partners. Their ___ (responsibility) was decisive.',
+   blanks:[{answer:'especially'},{answer:'responsibility'}]}
+];
+const EM_SEED=[
+  {id:'em1',tag:'request-info',recipient:'Your manager',context:'You want to know the delivery deadline for a project your manager is overseeing.'},
+  {id:'em2',tag:'request-info',recipient:'HR department',context:'You need to confirm the visa requirements for an upcoming work trip.'},
+  {id:'em3',tag:'complaint',recipient:'Customer support',context:'You received a damaged product and want to request a refund.'},
+  {id:'em4',tag:'complaint',recipient:'A colleague/organizer',context:'A meeting has been rescheduled for the third time with no notice; you want to express your frustration professionally.'},
+  {id:'em5',tag:'apology',recipient:'A client',context:'You missed an important deadline and need to apologize.'},
+  {id:'em6',tag:'apology',recipient:'Your team',context:'You sent incorrect information in a report and need to correct it and apologize.'},
+  {id:'em7',tag:'invitation-response',recipient:'The event organizer',context:'You were invited to a company event but cannot attend.'},
+  {id:'em8',tag:'invitation-response',recipient:'A colleague',context:'You want to invite a colleague to a brainstorming meeting next week.'},
+  {id:'em9',tag:'feedback',recipient:'A colleague',context:'You need to give constructive feedback on a colleague’s presentation.'},
+  {id:'em10',tag:'feedback',recipient:'Your manager',context:'Your manager asked for your opinion on a new company policy.'},
+  {id:'em11',tag:'follow-up',recipient:'A prospective client',context:'You sent a proposal a week ago and have not received a reply.'},
+  {id:'em12',tag:'follow-up',recipient:'Meeting attendees',context:'You want to confirm the next steps after a meeting.'}
+];
+
+// ── EXERCISE STORAGE (localStorage + Firebase, mirroring saveCA/saveST) ──
+function bs_saveItems(){localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(RBSI){const o=bsItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RBSI,Object.keys(o).length?o:null);}}
+function bs_saveProgress(){localStorage.setItem('c1bsp',JSON.stringify(bsProgress));fbSet(RBSP,Object.keys(bsProgress).length?bsProgress:null);}
+function cw_saveItems(){localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(RCWI){const o=cwItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RCWI,Object.keys(o).length?o:null);}}
+function cw_saveProgress(){localStorage.setItem('c1cwp',JSON.stringify(cwProgress));fbSet(RCWP,Object.keys(cwProgress).length?cwProgress:null);}
+function em_saveScenarios(){localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(REMS){const o=emScenarios.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(REMS,Object.keys(o).length?o:null);}}
+function em_saveProgress(){localStorage.setItem('c1emp',JSON.stringify(emProgress));fbSet(REMP,Object.keys(emProgress).length?emProgress:null);}
+
+// Record a right/wrong attempt against a grammar pattern for weak-spot tracking.
+function ex_logPattern(tag,correct){
+  if(!tag)return;
+  if(!stats.patternPerf)stats.patternPerf={};
+  const k=safeKey(tag);
+  if(!stats.patternPerf[k])stats.patternPerf[k]={correct:0,wrong:0};
+  stats.patternPerf[k][correct?'correct':'wrong']++;
+  saveST();
+}
+// Apply SM-2 to an item's progress record (same math as flashcards).
+function ex_grade(progress,id,correct){
+  const p=progress[id]||{intervalIdx:0,easiness:2.5};
+  const q=correct?5:1;
+  const{date,intervalIdx,easiness}=nxtRev(q,p.intervalIdx||0,p.easiness||2.5);
+  progress[id]={nextReview:date,intervalIdx,easiness};
+}
+// Due = never attempted OR nextReview on/before today. Weakest-first ordering.
+function ex_due(items,progress){
+  return items.filter(it=>{const p=progress[it.id];return !p||!p.nextReview||p.nextReview<=today;})
+    .sort((a,b)=>((progress[a.id]&&progress[a.id].easiness)||2.5)-((progress[b.id]&&progress[b.id].easiness)||2.5));
+}
+function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+
+// ── REVIEW MODE SELECTOR (Flashcards | Build a Sentence | Complete the Words) ──
+function revModeSelector(){
+  const m=revCfg.exMode||'flash';
+  const opts=[['flash','📚 Flashcards'],['build','🧩 Build a Sentence'],['complete','✏️ Complete the Words']];
+  return '<div class="exmode-bar">'+opts.map(o=>'<button class="exmode-btn'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
+}
+function setRevExMode(m){
+  revCfg.exMode=m;saveRevCfg();
+  flipped=false;noteCardId=null;
+  if(m==='build'){bs_load();}
+  else if(m==='complete'){cw_load();}
+  renderRev();
+}
+
+// ── BUILD A SENTENCE ──
+function bs_load(){
+  bs_checked=false;bs_answerIds=[];
+  const pool=ex_due(bsItems,bsProgress);
+  bs_cur=pool.length?pool[0]:(bsItems.length?bsItems[Math.floor(Math.random()*bsItems.length)]:null);
+  if(bs_cur)bs_tokens=shuffle(bs_cur.words.map((w,i)=>({id:i,w})));
+  else bs_tokens=[];
+}
+function bs_render(){
+  const dueCount=ex_due(bsItems,bsProgress).length;
+  const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
+  if(!bs_cur){
+    if(bsItems.length){return '<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>';}
+    return '<div class="card empty"><div class="etit">No sentence items yet</div></div>';
+  }
+  const usedSet=new Set(bs_answerIds);
+  const answerChips=bs_answerIds.map(id=>{const t=bs_tokens.find(x=>x.id===id);return '<span class="bschip picked" onclick="bs_unpick('+id+')">'+esc(t.w)+'</span>';}).join('');
+  const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_pick('+t.id+')">'+esc(t.w)+'</span>').join('');
+  let h='<div class="card">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Reorder the words</div>'
+    +'<span class="tag tbl">'+esc(bs_cur.tag)+'</span></div>'
+    +'<div class="bs-assembly'+(bs_answerIds.length?'':' empty')+'">'+(bs_answerIds.length?answerChips:'<span class="bs-ph">Tap words below to build the sentence…</span>')+'</div>'
+    +'<div class="bs-bank">'+(bankChips||'<span class="bs-ph">All words placed. Check your answer →</span>')+'</div>';
+  if(bs_checked){
+    const correct=bs_answerIds.map(id=>bs_tokens.find(x=>x.id===id).w).join(' ')===bs_cur.words.join(' ');
+    h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct order: <strong>'+esc(bs_cur.words.join(' '))+'</strong><br>')
+      +'<span style="opacity:.85">'+esc(PATTERN_NOTE[bs_cur.tag]||('Pattern: '+bs_cur.tag))+'</span></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_next(false)">Next →</button><button class="btn bsm" onclick="bs_reset()">↺ Try again</button></div>';
+  }else{
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(bs_answerIds.length===bs_cur.words.length?'':'disabled')+'>✓ Check</button><button class="btn bsm" onclick="bs_reset()">↺ Reset</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+function bs_pick(id){if(bs_checked)return;if(!bs_answerIds.includes(id))bs_answerIds.push(id);renderRev();}
+function bs_unpick(id){if(bs_checked)return;bs_answerIds=bs_answerIds.filter(x=>x!==id);renderRev();}
+function bs_reset(){if(!bs_cur)return;bs_checked=false;bs_answerIds=[];bs_tokens=shuffle(bs_cur.words.map((w,i)=>({id:i,w})));renderRev();}
+function bs_check(){
+  if(!bs_cur||bs_answerIds.length!==bs_cur.words.length)return;
+  const guess=bs_answerIds.map(id=>bs_tokens.find(x=>x.id===id).w).join(' ');
+  const correct=guess===bs_cur.words.join(' ');
+  bs_checked=true;
+  ex_grade(bsProgress,bs_cur.id,correct);bs_saveProgress();
+  ex_logPattern(bs_cur.tag,correct);
+  renderRev();
+}
+function bs_next(force){bs_load();if(force&&!bs_cur&&bsItems.length){bs_cur=bsItems[Math.floor(Math.random()*bsItems.length)];bs_tokens=shuffle(bs_cur.words.map((w,i)=>({id:i,w})));}renderRev();}
+
+// ── COMPLETE THE WORDS ──
+function cw_load(){
+  cw_checked=false;cw_vals=[];
+  const pool=ex_due(cwItems,cwProgress);
+  cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
+}
+function cw_render(){
+  const dueCount=ex_due(cwItems,cwProgress).length;
+  const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
+  if(!cw_cur){
+    if(cwItems.length)return '<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>';
+    return '<div class="card empty"><div class="etit">No passages yet</div></div>';
+  }
+  const parts=cw_cur.text.split('___');
+  let body='',allOk=true;
+  for(let i=0;i<parts.length;i++){
+    body+=esc(parts[i]);
+    if(i<cw_cur.blanks.length){
+      const b=cw_cur.blanks[i];
+      if(cw_checked){
+        // Static, colored recap of the user's answer (values captured at check time
+        // so a re-render never wipes the fields).
+        const val=(cw_vals[i]||'');
+        const ok=val.trim().toLowerCase()===b.answer.toLowerCase();
+        if(!ok)allOk=false;
+        body+='<span class="cw-blank '+(ok?'ok':'bad')+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>');
+      }else if(cw_cur.mode==='mc'){
+        body+='<select class="cw-blank" id="cwb'+i+'"><option value="">— choose —</option>'+(b.options||[]).map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>';
+      }else{
+        body+='<input type="text" class="cw-blank" id="cwb'+i+'" autocomplete="off" placeholder="type…">';
+      }
+    }
+  }
+  let h='<div class="card">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">✏️ Complete the passage</div>'
+    +'<span class="tag tbl">'+esc(cw_cur.tag)+'</span></div>'
+    +'<div style="font-size:16px;line-height:2.2;color:#0F172A;margin-bottom:14px">'+body+'</div>';
+  if(cw_checked){
+    h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some blanks are off — corrections shown above. ')
+      +'<span style="opacity:.85">'+esc(PATTERN_NOTE[cw_cur.tag]||('Pattern: '+cw_cur.tag))+'</span></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_next(false)">Next →</button></div>';
+  }else{
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_check()">✓ Check</button></div>';
+  }
+  h+='</div>';
+  return h;
+}
+function cw_check(){
+  if(!cw_cur)return;
+  // Capture the user's answers before re-render so nothing is lost.
+  cw_vals=cw_cur.blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
+  const allOk=cw_cur.blanks.every((b,i)=>cw_vals[i].toLowerCase()===b.answer.toLowerCase());
+  cw_checked=true;
+  ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
+  ex_logPattern(cw_cur.tag,allOk);
+  renderRev();
+}
+function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];renderRev();}
+
+// ── WRITE AN EMAIL (Practice tab sub-mode) ──
+function em_setMode(on){
+  em_active=!!on;
+  document.getElementById('wm-free').classList.toggle('on',!em_active);
+  document.getElementById('wm-email').classList.toggle('on',em_active);
+  const box=document.getElementById('emailScenarioBox');
+  const ta=document.getElementById('rtxt');
+  if(em_active){
+    if(!em_cur)em_pick();
+    box.classList.remove('hid');
+    em_renderScenario();
+    if(ta)ta.placeholder='Write your email here…';
+    // Relabel the primary analyze button to match the email flow.
+    const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16v16H4z"/><polyline points="4 6 12 13 20 6"/></svg>📧 Analyze Email';
+  }else{
+    box.classList.add('hid');
+    if(ta)ta.placeholder='Write your response here, or click Speak to dictate…';
+    const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing';
+  }
+}
+// Prefer an un-practiced scenario; otherwise random.
+function em_pick(){
+  if(!emScenarios.length){em_cur=null;return;}
+  const fresh=emScenarios.filter(s=>!emProgress[s.id]);
+  const pool=fresh.length?fresh:emScenarios;
+  em_cur=pool[Math.floor(Math.random()*pool.length)];
+}
+function em_renderScenario(){
+  const box=document.getElementById('emailScenarioBox');if(!box)return;
+  if(!em_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No email scenarios available.</div>';return;}
+  const done=emProgress[em_cur.id];
+  box.innerHTML='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:12px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+    +'<span class="tag tpu">'+esc(em_cur.tag)+'</span>'
+    +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
+    +'<div style="font-size:14px;color:#0F172A;line-height:1.6;margin-bottom:6px"><strong>Scenario:</strong> '+esc(em_cur.context)+'</div>'
+    +'<div style="font-size:14px;color:#475569;line-height:1.6"><strong>To:</strong> '+esc(em_cur.recipient)+'</div>'
+    +'<div style="margin-top:10px"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button></div>'
+    +'</div>';
+}
+function em_shuffle(){em_pick();em_renderScenario();}
+
+// ── DATA LOADING FOR NEW MODES ──
+function ex_loadLocal(){
+  try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
+  if(!localStorage.getItem('c1bsi'))bs_saveItems();
+  try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
+  try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
+  if(!localStorage.getItem('c1cwi'))cw_saveItems();
+  try{cwProgress=JSON.parse(localStorage.getItem('c1cwp')||'{}');}catch(e){cwProgress={};}
+  try{const v=JSON.parse(localStorage.getItem('c1ems')||'null');emScenarios=Array.isArray(v)&&v.length?v:EM_SEED.slice();}catch(e){emScenarios=EM_SEED.slice();}
+  if(!localStorage.getItem('c1ems'))em_saveScenarios();
+  try{emProgress=JSON.parse(localStorage.getItem('c1emp')||'{}');}catch(e){emProgress={};}
+}
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
 function setCardsTopicFilter(t){cardsTopicFilter=t;renderCards();}
@@ -3311,6 +3642,12 @@ function startSync(){
     RCIC = db.ref('cycleItemChecked');
     RCN = db.ref('cycleNotes');
     RPTN = db.ref('peuaNotes');
+    RBSI = db.ref('buildSentenceItems');
+    RBSP = db.ref('buildSentenceProgress');
+    RCWI = db.ref('completeWordsItems');
+    RCWP = db.ref('completeWordsProgress');
+    REMS = db.ref('emailScenarios');
+    REMP = db.ref('emailProgress');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -3336,6 +3673,14 @@ function startSync(){
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
+
+    // New exercise modes. Items fall back to seeds; progress falls back to {}.
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
 
   }catch(e){
       setSS('offline', 'Error: ' + e.message);
@@ -4278,6 +4623,8 @@ window.onload = function(){
   setTimeout(startSync, 1000);
   document.addEventListener('keydown',function(e){
     if(curTab!=='rev')return;
+    // Flashcard flip/grade keys only apply in the Flashcards exercise mode.
+    if((revCfg.exMode||'flash')!=='flash')return;
     const tag=(e.target.tagName||'').toLowerCase();
     if(tag==='input'||tag==='textarea'||tag==='select')return;
     // Hard note box open: 1 (or Esc) = Skip
