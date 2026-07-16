@@ -2336,8 +2336,9 @@ function buildPrompt(mode,t){
   // email so the coaching JSON can judge function, tone and structure. The
   // submission is labelled "EMAIL: [scenario] + [response]" as required.
   if(mode==='writing'&&em_active&&em_cur){
-    const framed='EMAIL: ['+em_cur.context+' | To: '+em_cur.recipient+' | Function: '+em_cur.tag+'] + ['+t+']';
-    p=p.replace('Analyze the student response.',"Analyze the student's EMAIL below. In addition to grammar and vocabulary, judge whether it fulfils its stated function ("+em_cur.tag+"), uses tone/register appropriate for the recipient, and is well structured (greeting, body, clear request/point, closing).")
+    const reqs=(em_cur.tasks||[]).map((x,i)=>(i+1)+') '+x).join(' ');
+    const framed='EMAIL: ['+em_cur.context+' | To: '+em_cur.recipient+' | Function: '+em_cur.tag+' | Required points: '+reqs+'] + ['+t+']';
+    p=p.replace('Analyze the student response.',"Analyze the student's EMAIL below. In addition to grammar and vocabulary, judge whether it addresses every required point, fulfils its stated function ("+em_cur.tag+"), uses tone/register appropriate for the recipient, and is well structured (greeting, body, clear request/point, closing).")
        .replace('Student response: {{T}}','Student\'s email submission: {{T}}');
     return p.replace('{{T}}',framed);
   }
@@ -2757,17 +2758,20 @@ function skipNote(){noteCardId=null;renderRev();}
 // path falls back to localStorage when Firebase is unavailable (fbSet no-ops).
 
 // ── SEEDS ──
+// All words are lowercase on purpose: without the capital-letter cue for the
+// first word, reordering is harder. bs_normalizeLower() also lowercases any
+// previously-seeded items on load so existing users get the same difficulty.
 const BS_SEED=[
-  {id:'bs1',words:['He','insisted','on','bringing','the','documents','himself.'],tag:'gerund-after-preposition'},
-  {id:'bs2',words:['She','is','used','to','working','long','hours.'],tag:'gerund-after-preposition'},
-  {id:'bs3',words:['They','will','need','to','gather','more','evidence.'],tag:'infinitive-after-modal'},
-  {id:'bs4',words:['He','pretended','to','go','along','with','the','plan.'],tag:'infinitive-after-modal'},
-  {id:'bs5',words:['Each','of','the','students','has','submitted','the','report.'],tag:'subject-verb-agreement'},
-  {id:'bs6',words:['The','data','suggest','a','different','conclusion.'],tag:'subject-verb-agreement'},
-  {id:'bs7',words:['This','is','a','legacy','issue','that','requires','attention.'],tag:'spelling'},
-  {id:'bs8',words:['I','specially','appreciate','your','quick','response.'],tag:'spelling'},
-  {id:'bs9',words:['She','has','the','responsibility','of','finishing','the','project.'],tag:'gerund-after-preposition'},
-  {id:'bs10',words:['The','committee','decided','to','postpone','the','meeting.'],tag:'infinitive-after-modal'}
+  {id:'bs1',words:['he','insisted','on','bringing','the','documents','himself.'],tag:'gerund-after-preposition'},
+  {id:'bs2',words:['she','is','used','to','working','long','hours.'],tag:'gerund-after-preposition'},
+  {id:'bs3',words:['they','will','need','to','gather','more','evidence.'],tag:'infinitive-after-modal'},
+  {id:'bs4',words:['he','pretended','to','go','along','with','the','plan.'],tag:'infinitive-after-modal'},
+  {id:'bs5',words:['each','of','the','students','has','submitted','the','report.'],tag:'subject-verb-agreement'},
+  {id:'bs6',words:['the','data','suggest','a','different','conclusion.'],tag:'subject-verb-agreement'},
+  {id:'bs7',words:['this','is','a','legacy','issue','that','requires','attention.'],tag:'spelling'},
+  {id:'bs8',words:['i','specially','appreciate','your','quick','response.'],tag:'spelling'},
+  {id:'bs9',words:['she','has','the','responsibility','of','finishing','the','project.'],tag:'gerund-after-preposition'},
+  {id:'bs10',words:['the','committee','decided','to','postpone','the','meeting.'],tag:'infinitive-after-modal'}
 ];
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
@@ -2794,19 +2798,47 @@ const CW_SEED=[
    text:'I would ___ (especially) like to thank our partners. Their ___ (responsibility) was decisive.',
    blanks:[{answer:'especially'},{answer:'responsibility'}]}
 ];
+// TOEFL "Write an Email" style: a 2–3 sentence situation, a named recipient,
+// and three bullet-point tasks. em_ensureFresh() re-seeds older saved data that
+// predates the `tasks` field so every user sees the richer prompts.
+const EM_MINUTES=7;
 const EM_SEED=[
-  {id:'em1',tag:'request-info',recipient:'Your manager',context:'You want to know the delivery deadline for a project your manager is overseeing.'},
-  {id:'em2',tag:'request-info',recipient:'HR department',context:'You need to confirm the visa requirements for an upcoming work trip.'},
-  {id:'em3',tag:'complaint',recipient:'Customer support',context:'You received a damaged product and want to request a refund.'},
-  {id:'em4',tag:'complaint',recipient:'A colleague/organizer',context:'A meeting has been rescheduled for the third time with no notice; you want to express your frustration professionally.'},
-  {id:'em5',tag:'apology',recipient:'A client',context:'You missed an important deadline and need to apologize.'},
-  {id:'em6',tag:'apology',recipient:'Your team',context:'You sent incorrect information in a report and need to correct it and apologize.'},
-  {id:'em7',tag:'invitation-response',recipient:'The event organizer',context:'You were invited to a company event but cannot attend.'},
-  {id:'em8',tag:'invitation-response',recipient:'A colleague',context:'You want to invite a colleague to a brainstorming meeting next week.'},
-  {id:'em9',tag:'feedback',recipient:'A colleague',context:'You need to give constructive feedback on a colleague’s presentation.'},
-  {id:'em10',tag:'feedback',recipient:'Your manager',context:'Your manager asked for your opinion on a new company policy.'},
-  {id:'em11',tag:'follow-up',recipient:'A prospective client',context:'You sent a proposal a week ago and have not received a reply.'},
-  {id:'em12',tag:'follow-up',recipient:'Meeting attendees',context:'You want to confirm the next steps after a meeting.'}
+  {id:'em1',tag:'request-info',recipient:'the international office',
+   context:'You recently attended an online workshop about studying abroad organized by your university’s international office. However, you did not receive the presentation slides or follow-up materials that the presenter promised to send by email.',
+   tasks:['Thank them for organizing the workshop.','Explain that you did not receive the materials.','Ask them to send the files or tell you how to access them.']},
+  {id:'em2',tag:'request-info',recipient:'the human resources department',
+   context:'Your company is sending you on a work trip abroad next month, but you are not sure which travel documents and visa you need. The departure date is approaching and you want to be prepared.',
+   tasks:['Explain what information you are missing.','Mention why you need it soon.','Ask them to confirm the exact requirements.']},
+  {id:'em3',tag:'complaint',recipient:'the bookstore staff',
+   context:'You recently ordered a textbook for your online class from the university bookstore’s website. The book was supposed to arrive within five days, but it has been more than two weeks and you still have not received it.',
+   tasks:['Explain your situation clearly.','Mention why you urgently need the textbook.','Ask them to help you resolve the issue.']},
+  {id:'em4',tag:'complaint',recipient:'the library staff',
+   context:'You recently borrowed two books from the university library. When you tried to renew them online, the system would not accept your request. You are concerned about returning them late and receiving a fine.',
+   tasks:['Explain the situation clearly.','Mention why you need to renew the books.','Request a solution to the problem.']},
+  {id:'em5',tag:'apology',recipient:'the client',
+   context:'You were responsible for sending an important report to a client by Monday, but because of an unexpected emergency you missed the deadline by two days. The client has noticed the delay and seems concerned.',
+   tasks:['Apologize sincerely for the delay.','Briefly explain what happened.','Tell them how and when you will fix it.']},
+  {id:'em6',tag:'apology',recipient:'your team',
+   context:'You have just realized that a report you sent to your team yesterday contained several incorrect figures. Some colleagues may have already used the wrong information in their own work.',
+   tasks:['Apologize for the mistake.','Explain which information was wrong.','Provide the correct information and next steps.']},
+  {id:'em7',tag:'invitation-response',recipient:'the event organizer',
+   context:'You have been invited to attend your department’s end-of-year dinner next Friday evening. Unfortunately, you already have another commitment that evening and will not be able to attend.',
+   tasks:['Thank them for the invitation.','Explain that you cannot attend and why.','Express your interest in joining future events.']},
+  {id:'em8',tag:'invitation-response',recipient:'your colleague',
+   context:'You are leading a new project and would like a colleague from another team to join a brainstorming session next week so they can share their ideas.',
+   tasks:['Invite them to the session.','Explain what the meeting will be about.','Suggest a time and ask if it works for them.']},
+  {id:'em9',tag:'feedback',recipient:'your colleague',
+   context:'A colleague recently gave a presentation to the team and has asked for your honest opinion. The ideas were strong, but the slides were hard to read and the talk ran over time.',
+   tasks:['Mention what they did well.','Point out what could be improved.','Offer one helpful suggestion.']},
+  {id:'em10',tag:'feedback',recipient:'your manager',
+   context:'Your manager has introduced a new policy requiring everyone to work from the office four days a week and has asked for your honest opinion about it.',
+   tasks:['Share your overall opinion.','Give one or two specific reasons.','Suggest an alternative or improvement.']},
+  {id:'em11',tag:'follow-up',recipient:'the prospective client',
+   context:'One week ago you sent a detailed proposal to a prospective client, but you have not received any reply. You would like to know whether they are still interested.',
+   tasks:['Politely remind them about your proposal.','Restate the main benefit briefly.','Ask about the next steps.']},
+  {id:'em12',tag:'follow-up',recipient:'the meeting attendees',
+   context:'You attended a project meeting yesterday where several tasks and deadlines were discussed, but no summary was sent afterward. You want to make sure everyone agrees on what was decided.',
+   tasks:['Thank them for the meeting.','Summarize the main decisions and next steps.','Ask them to confirm or correct the details.']}
 ];
 
 // ── EXERCISE STORAGE (localStorage + Firebase, mirroring saveCA/saveST) ──
@@ -2994,26 +3026,42 @@ function em_renderScenario(){
   const box=document.getElementById('emailScenarioBox');if(!box)return;
   if(!em_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No email scenarios available.</div>';return;}
   const done=emProgress[em_cur.id];
-  box.innerHTML='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:12px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+  const tasks=(em_cur.tasks||[]).map(t=>'<li style="margin-bottom:4px">'+esc(t)+'</li>').join('');
+  box.innerHTML='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span class="tag tpu">'+esc(em_cur.tag)+'</span>'
     +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
-    +'<div style="font-size:14px;color:#0F172A;line-height:1.6;margin-bottom:6px"><strong>Scenario:</strong> '+esc(em_cur.context)+'</div>'
-    +'<div style="font-size:14px;color:#475569;line-height:1.6"><strong>To:</strong> '+esc(em_cur.recipient)+'</div>'
-    +'<div style="margin-top:10px"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button></div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:10px">Write an Email</div>'
+    +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:10px">'+esc(em_cur.context)+'</div>'
+    +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:4px">Write an email to '+esc(em_cur.recipient)+'. In your email, do the following:</div>'
+    +'<ul style="margin:0 0 10px 20px;padding:0;font-size:14px;color:#0F172A;line-height:1.6">'+tasks+'</ul>'
+    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have '+EM_MINUTES+' minutes to complete this task. Write as much as you can in complete sentences.</div>'
+    +'<div><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button></div>'
     +'</div>';
 }
 function em_shuffle(){em_pick();em_renderScenario();}
 
 // ── DATA LOADING FOR NEW MODES ──
+// Lowercase every word in the Build-a-Sentence bank (in memory) so previously
+// seeded, capitalized items match the current harder, all-lowercase design.
+function bs_normalizeLower(){bsItems.forEach(it=>{if(it&&Array.isArray(it.words))it.words=it.words.map(w=>String(w).toLowerCase());});}
+// Older saved email scenarios predate the richer TOEFL format (no `tasks`).
+// Re-seed from EM_SEED when that older shape is detected, and persist once.
+function em_ensureFresh(){
+  if(!emScenarios.length||!emScenarios[0]||!Array.isArray(emScenarios[0].tasks)){
+    emScenarios=EM_SEED.slice();em_saveScenarios();
+  }
+}
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
+  bs_normalizeLower();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
   if(!localStorage.getItem('c1cwi'))cw_saveItems();
   try{cwProgress=JSON.parse(localStorage.getItem('c1cwp')||'{}');}catch(e){cwProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1ems')||'null');emScenarios=Array.isArray(v)&&v.length?v:EM_SEED.slice();}catch(e){emScenarios=EM_SEED.slice();}
+  em_ensureFresh();
   if(!localStorage.getItem('c1ems'))em_saveScenarios();
   try{emProgress=JSON.parse(localStorage.getItem('c1emp')||'{}');}catch(e){emProgress={};}
 }
@@ -3675,11 +3723,11 @@ function startSync(){
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_normalizeLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
 
   }catch(e){
