@@ -233,6 +233,7 @@ textarea{min-height:120px}
 .cw-blank.ok{border-color:#86EFAC;background:#F0FDF4;color:#16A34A}
 .cw-blank.bad{border-color:#FECACA;background:#FEF2F2;color:#DC2626}
 .cw-sol{font-size:13px;color:#16A34A;font-weight:600;margin-left:4px;font-family:'DM Mono',monospace}
+.cw-clue{font-size:13px;color:#94A3B8;margin-left:4px;font-style:italic}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
@@ -519,6 +520,41 @@ textarea{min-height:120px}
         <button class="btn bsm" onclick="closeM('mBS')">Cancel</button>
         <button class="btn bpr bsm" onclick="bs_saveNew()">Save Exercise</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mCW" onclick="if(event.target===this)closeM('mCW')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">✏️ Add Complete-the-Words Exercise</div><button class="btn bsm" onclick="closeM('mCW')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Passage *</label><textarea id="cwText" style="min-height:80px" placeholder="Each of the proposals ___ merit. However, the data ___ a cautious approach."></textarea><div style="font-size:13px;color:#94A3B8;margin-top:4px">Type <strong>___</strong> for each blank. Do <strong>not</strong> write the answer in the passage.</div></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Mode</label><select id="cwMode" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"><option value="mc">Multiple choice</option><option value="free">Free text (type the word)</option></select></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Answers *</label><textarea id="cwAnswers" style="min-height:90px" placeholder="One line per blank, in order.&#10;Multiple choice → answer / wrong1 / wrong2&#10;Free text → answer   (or)   answer | clue"></textarea><div style="font-size:13px;color:#94A3B8;margin-top:4px">One line per blank. <strong>MC:</strong> put the correct word first, then wrong options, separated by “/”. <strong>Free:</strong> just the answer, optionally “answer | clue” (the clue must not be the answer).</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Grammar tag</label><select id="cwTag" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom tag</label><input type="text" id="cwCustomTag" placeholder="only if “Custom…”" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;box-sizing:border-box"></div>
+      </div>
+      <div id="cwAddHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mCW')">Cancel</button>
+        <button class="btn bpr bsm" onclick="cw_saveNew()">Save Exercise</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mIO" onclick="if(event.target===this)closeM('mIO')">
+  <div class="modal" style="max-width:480px">
+    <div class="mhdr"><div class="mtit" id="ioTitle">Import / Export</div><button class="btn bsm" onclick="closeM('mIO')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:14px;color:#475569;line-height:1.6;margin-bottom:6px">Export your full set to a file, or import a batch. <strong>JSON</strong> is lossless; <strong>CSV</strong> opens in a spreadsheet. Imported items are added as your own (editable/deletable) and never overwrite existing ones.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <button class="btn bte bsm" onclick="ex_exportJSON()">⤓ Export JSON</button>
+        <button class="btn bte bsm" onclick="ex_exportCSV()">⤓ Export CSV</button>
+        <label class="btn bpr bsm" style="cursor:pointer">⤴ Import file<input type="file" accept=".json,.csv" style="display:none" onchange="ex_importFile(this.files[0]);this.value=''"></label>
+      </div>
+      <div id="ioHint" style="font-size:14px;color:#0F172A;min-height:18px"></div>
     </div>
   </div>
 </div>
@@ -2908,8 +2944,15 @@ const PATTERN_NOTE={
   'passive-voice':'Passive = be + past participle, with “by …” naming the doer.',
   'reported-speech':'Reported speech shifts the tense back (will→would, send→sent) inside the report.',
   'prepositions':'Pick the preposition that fits the time/place expression (at/on/in, for…).',
-  'present-perfect':'Present perfect (have/has + past participle) links a past action to now; adverbs like already/yet sit inside it.'
+  'present-perfect':'Present perfect (have/has + past participle) links a past action to now; adverbs like already/yet sit inside it.',
+  'verb-forms':'Use the correct form of the verb (past simple vs. past participle, irregular spellings).'
 };
+// Complete the Words: the passage text uses ___ for each blank and NEVER shows
+// the answer. A blank may carry a `clue` (a hint that is deliberately NOT the
+// answer — a synonym or the base verb form), rendered subtly. MC blanks give
+// `options` (shuffled at render). Free blanks may list extra `accept` spellings.
+// cw_ensureFresh() detects the old leaky seed (which embedded answers in parens)
+// by the absence of item cw14 and re-seeds the built-ins while keeping customs.
 const CW_SEED=[
   {id:'cw1',tag:'gerund-after-preposition',mode:'mc',
    text:'The manager thanked the team for ___ the deadline. She is committed to ___ high standards across every project.',
@@ -2917,15 +2960,42 @@ const CW_SEED=[
   {id:'cw2',tag:'infinitive-after-modal',mode:'mc',
    text:'We should ___ the results before the meeting. The committee will ___ a final decision next week.',
    blanks:[{answer:'review',options:['review','reviewing','to review']},{answer:'make',options:['making','make','made']}]},
-  {id:'cw3',tag:'subject-verb-agreement',mode:'free',
-   text:'Each of the proposals ___ (have) merit. However, the data ___ (suggest) a cautious approach.',
-   blanks:[{answer:'has'},{answer:'suggest'}]},
+  {id:'cw3',tag:'subject-verb-agreement',mode:'mc',
+   text:'Each of the proposals ___ merit. However, the data ___ a cautious approach.',
+   blanks:[{answer:'has',options:['has','have']},{answer:'suggest',options:['suggest','suggests']}]},
   {id:'cw4',tag:'article',mode:'mc',
    text:'She submitted ___ report that impressed ___ entire board.',
    blanks:[{answer:'a',options:['a','an','the']},{answer:'the',options:['a','an','the']}]},
-  {id:'cw5',tag:'spelling',mode:'free',
-   text:'I would ___ (especially) like to thank our partners. Their ___ (responsibility) was decisive.',
-   blanks:[{answer:'especially'},{answer:'responsibility'}]}
+  {id:'cw5',tag:'spelling',mode:'mc',
+   text:'I would ___ like to thank our partners. Their ___ was decisive.',
+   blanks:[{answer:'especially',options:['especially','especialy','specially']},{answer:'responsibility',options:['responsibility','responsability','responsibilty']}]},
+  {id:'cw6',tag:'prepositions',mode:'mc',
+   text:'The meeting is scheduled ___ Monday ___ 3 p.m.',
+   blanks:[{answer:'on',options:['on','in','at']},{answer:'at',options:['at','on','in']}]},
+  {id:'cw7',tag:'present-perfect',mode:'mc',
+   text:'I ___ already ___ the report to the client.',
+   blanks:[{answer:'have',options:['have','has','had']},{answer:'sent',options:['sent','send','sending']}]},
+  {id:'cw8',tag:'conditionals',mode:'mc',
+   text:'If I ___ more time, I ___ review the figures again.',
+   blanks:[{answer:'had',options:['had','have','will have']},{answer:'would',options:['would','will','would have']}]},
+  {id:'cw9',tag:'passive-voice',mode:'mc',
+   text:'The issue ___ ___ by the night team last week.',
+   blanks:[{answer:'was',options:['was','were','is']},{answer:'resolved',options:['resolved','resolving','resolve']}]},
+  {id:'cw10',tag:'reported-speech',mode:'mc',
+   text:'She said she ___ send the file and that she ___ quite busy.',
+   blanks:[{answer:'would',options:['would','will']},{answer:'was',options:['was','is']}]},
+  {id:'cw11',tag:'comparatives',mode:'mc',
+   text:'The new design is ___ better than the old one. It is also ___ user-friendly.',
+   blanks:[{answer:'much',options:['much','very','so']},{answer:'more',options:['more','most','much']}]},
+  {id:'cw12',tag:'verb-forms',mode:'free',
+   text:'By the time we arrived, the session had already ___.',
+   blanks:[{answer:'begun',clue:'base: begin',accept:['begun']}]},
+  {id:'cw13',tag:'verb-forms',mode:'free',
+   text:'She has ___ three detailed reports this week.',
+   blanks:[{answer:'written',clue:'base: write',accept:['written']}]},
+  {id:'cw14',tag:'verb-forms',mode:'free',
+   text:'They finally ___ the contract yesterday afternoon.',
+   blanks:[{answer:'signed',clue:'base: sign',accept:['signed']}]}
 ];
 // TOEFL "Write an Email" style: a 2–3 sentence situation, a named recipient,
 // and three bullet-point tasks. em_ensureFresh() re-seeds older saved data that
@@ -3054,8 +3124,10 @@ function bs_firstEmpty(){return bs_slots.indexOf(null);}
 function bs_toolbar(){
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+bsItems.length+' exercise'+(bsItems.length===1?'':'s')+'</span>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+    +'<button class="btn bsm" onclick="openIO(\'bs\')" title="Import / export">⇅</button>'
     +'<button class="btn bte bsm" onclick="openBSAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add exercise</button>'
-    +'</div>';
+    +'</div></div>';
 }
 function bs_render(){
   const dueCount=ex_due(bsItems,bsProgress).length;
@@ -3152,12 +3224,30 @@ function cw_load(){
   const pool=ex_due(cwItems,cwProgress);
   cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
 }
+// True if a typed/selected value matches the blank's answer (or an accepted variant).
+function cw_blankOk(b,val){
+  const v=String(val||'').trim().toLowerCase();
+  if(v===String(b.answer||'').toLowerCase())return true;
+  return (b.accept||[]).some(a=>String(a).toLowerCase()===v);
+}
+// A blank's clue is a hint that is never the answer (synonym / base form).
+function cw_clueHTML(b){return b&&b.clue?'<span class="cw-clue">('+esc(b.clue)+')</span>':'';}
+// Toolbar above every Complete-the-Words state: count + add + import/export.
+function cw_toolbar(){
+  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+cwItems.length+' exercise'+(cwItems.length===1?'':'s')+'</span>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+    +'<button class="btn bsm" onclick="openIO(\'cw\')" title="Import / export">⇅</button>'
+    +'<button class="btn bte bsm" onclick="openCWAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add exercise</button>'
+    +'</div></div>';
+}
 function cw_render(){
   const dueCount=ex_due(cwItems,cwProgress).length;
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
+  const tb=cw_toolbar();
   if(!cw_cur){
-    if(cwItems.length)return '<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>';
-    return '<div class="card empty"><div class="etit">No passages yet</div></div>';
+    if(cwItems.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>';
+    return tb+'<div class="card empty"><div class="etit">No passages yet</div><div class="esub">Add your first one above.</div></div>';
   }
   const parts=cw_cur.text.split('___');
   let body='',allOk=true;
@@ -3169,21 +3259,23 @@ function cw_render(){
         // Static, colored recap of the user's answer (values captured at check time
         // so a re-render never wipes the fields).
         const val=(cw_vals[i]||'');
-        const ok=val.trim().toLowerCase()===b.answer.toLowerCase();
+        const ok=cw_blankOk(b,val);
         if(!ok)allOk=false;
-        body+='<span class="cw-blank '+(ok?'ok':'bad')+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>');
+        body+='<span class="cw-blank '+(ok?'ok':'bad')+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>')+cw_clueHTML(b);
       }else if(cw_cur.mode==='mc'){
-        body+='<select class="cw-blank" id="cwb'+i+'"><option value="">— choose —</option>'+(b.options||[]).map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>';
+        const opts=shuffle((b.options||[]).slice());
+        body+='<select class="cw-blank" id="cwb'+i+'"><option value="">— choose —</option>'+opts.map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>'+cw_clueHTML(b);
       }else{
-        body+='<input type="text" class="cw-blank" id="cwb'+i+'" autocomplete="off" placeholder="type…">';
+        body+='<input type="text" class="cw-blank" id="cwb'+i+'" autocomplete="off" placeholder="type…">'+cw_clueHTML(b);
       }
     }
   }
-  let h='<div class="card">'
+  const isCustom=/^cwu-/.test(cw_cur.id);
+  let h=tb+'<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">✏️ Complete the passage</div>'
-    +'<span class="tag tbl">'+esc(cw_cur.tag)+'</span></div>'
-    +'<div style="font-size:16px;line-height:2.2;color:#0F172A;margin-bottom:14px">'+body+'</div>';
+    +'<div style="display:flex;align-items:center;gap:8px">'+(isCustom?'<button class="btn bdn bsm" title="Delete this custom exercise" onclick="cw_delItem(\''+cw_cur.id+'\')">🗑</button>':'')+'<span class="tag tbl">'+esc(cw_cur.tag)+'</span></div></div>'
+    +'<div style="font-size:16px;line-height:2.4;color:#0F172A;margin-bottom:14px">'+body+'</div>';
   if(cw_checked){
     h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some blanks are off — corrections shown above. ')
       +'<span style="opacity:.85">'+esc(PATTERN_NOTE[cw_cur.tag]||('Pattern: '+cw_cur.tag))+'</span></div>'
@@ -3198,13 +3290,158 @@ function cw_check(){
   if(!cw_cur)return;
   // Capture the user's answers before re-render so nothing is lost.
   cw_vals=cw_cur.blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
-  const allOk=cw_cur.blanks.every((b,i)=>cw_vals[i].toLowerCase()===b.answer.toLowerCase());
+  const allOk=cw_cur.blanks.every((b,i)=>cw_blankOk(b,cw_vals[i]));
   cw_checked=true;
   ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
   ex_logPattern(cw_cur.tag,allOk);
   renderRev();
 }
 function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];renderRev();}
+// ── Complete the Words: add / delete custom items ──
+const CW_TAGS=['subject-verb-agreement','gerund-after-preposition','infinitive-after-modal','article','prepositions','present-perfect','conditionals','passive-voice','reported-speech','comparatives','verb-forms','spelling','word-order'];
+function openCWAdd(){
+  ['cwText','cwAnswers','cwCustomTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const md=document.getElementById('cwMode');if(md)md.value='mc';
+  const sel=document.getElementById('cwTag');
+  if(sel)sel.innerHTML=CW_TAGS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom…</option>';
+  document.getElementById('cwAddHint').textContent='';
+  openM('mCW');
+}
+function cw_saveNew(){
+  const text=document.getElementById('cwText').value.trim();
+  const mode=document.getElementById('cwMode').value;
+  const lines=String(document.getElementById('cwAnswers').value||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const tagSel=document.getElementById('cwTag').value;
+  const tag=(tagSel==='__custom__'?document.getElementById('cwCustomTag').value.trim():tagSel)||'word-order';
+  const hint=document.getElementById('cwAddHint');
+  const blanksN=text.split('___').length-1;
+  if(!text||!lines.length){hint.textContent='⚠️ Fill in the passage and the answers.';return;}
+  if(blanksN===0){hint.textContent='⚠️ The passage needs at least one blank — type ___ where each word goes.';return;}
+  if(blanksN!==lines.length){hint.textContent='⚠️ The passage has '+blanksN+' blank(s) but you gave '+lines.length+' answer line(s). They must match.';return;}
+  const blanks=[];
+  for(const ln of lines){
+    if(mode==='mc'){
+      const opts=ln.split('/').map(x=>x.trim()).filter(Boolean);
+      if(opts.length<2){hint.textContent='⚠️ Each multiple-choice line needs the answer plus at least one wrong option, separated by “/”.';return;}
+      blanks.push({answer:opts[0],options:opts});
+    }else{
+      const p=ln.split('|').map(x=>x.trim());
+      const b={answer:p[0]};
+      if(p[1]){if(p[1].toLowerCase()===p[0].toLowerCase()){hint.textContent='⚠️ The clue must not be the answer itself.';return;}b.clue=p[1];}
+      blanks.push(b);
+    }
+  }
+  const item={id:'cwu-'+uid(),tag,mode,text,blanks,custom:true};
+  cwItems.push(item);cw_saveItems();
+  closeM('mCW');toast('✅ Exercise added!');
+  if(revCfg.exMode==='complete'){cw_checked=false;cw_cur=cwItems[cwItems.length-1];renderRev();}
+}
+function cw_delItem(id){
+  const it=cwItems.find(x=>x.id===id);if(!it)return;
+  if(!confirm('Delete this exercise?'))return;
+  cwItems=cwItems.filter(x=>x.id!==id);
+  if(cwProgress[id]){delete cwProgress[id];cw_saveProgress();}
+  cw_saveItems();toast('🗑 Exercise deleted');
+  cw_checked=false;cw_load();renderRev();
+}
+
+// ══ IMPORT / EXPORT (Build a Sentence + Complete the Words) ═══════════════════
+// JSON is lossless; CSV is a spreadsheet-friendly convenience. Both work per mode.
+let io_mode='bs';
+function openIO(mode){io_mode=mode;const t=document.getElementById('ioTitle');if(t)t.textContent=(mode==='bs'?'🧩 Build a Sentence':'✏️ Complete the Words')+' — Import / Export';const h=document.getElementById('ioHint');if(h)h.textContent='';openM('mIO');}
+function io_items(){return io_mode==='bs'?bsItems:cwItems;}
+function ex_download(name,text,mime){
+  const blob=new Blob([text],{type:mime||'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+}
+// Strip runtime-only fields; keep the authoring shape.
+function io_clean(it){
+  if(io_mode==='bs')return {tag:it.tag,prompt:it.prompt,frame:it.frame,answer:it.answer||[],distract:it.distract||[]};
+  return {tag:it.tag,mode:it.mode,text:it.text,blanks:it.blanks||[]};
+}
+function ex_exportJSON(){
+  const payload={kind:io_mode==='bs'?'build-a-sentence':'complete-the-words',version:1,items:io_items().map(io_clean)};
+  ex_download((io_mode==='bs'?'build-a-sentence':'complete-the-words')+'.json',JSON.stringify(payload,null,2),'application/json');
+}
+// ── CSV helpers ──
+function csvCell(s){s=String(s==null?'':s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function csvRow(a){return a.map(csvCell).join(',');}
+function parseCSV(text){
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+    else if(c==='"')q=true;
+    else if(c===','){row.push(cur);cur='';}
+    else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}
+    else if(c==='\r'){/*skip*/}
+    else cur+=c;
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.length&&!(r.length===1&&r[0]===''));
+}
+function ex_exportCSV(){
+  let out='';
+  if(io_mode==='bs'){
+    out=csvRow(['tag','prompt','frame','answer','distract'])+'\n';
+    io_items().forEach(it=>{out+=csvRow([it.tag,it.prompt,it.frame,(it.answer||[]).join(' / '),(it.distract||[]).join(' / ')])+'\n';});
+    ex_download('build-a-sentence.csv',out,'text/csv');
+  }else{
+    out=csvRow(['tag','mode','text','blanks'])+'\n';
+    io_items().forEach(it=>{out+=csvRow([it.tag,it.mode,it.text,JSON.stringify(it.blanks||[])])+'\n';});
+    ex_download('complete-the-words.csv',out,'text/csv');
+  }
+}
+// ── Validation → normalized item (or null) ──
+function io_normBS(o){
+  if(!o||typeof o.frame!=='string'||typeof o.prompt!=='string')return null;
+  const answer=Array.isArray(o.answer)?o.answer.map(x=>String(x)):[];
+  const blanks=o.frame.split('___').length-1;
+  if(!answer.length||blanks!==answer.length)return null;
+  const distract=Array.isArray(o.distract)?o.distract.map(x=>String(x)):[];
+  return {id:'bsu-'+uid(),tag:String(o.tag||'word-order'),prompt:o.prompt,frame:o.frame,answer,distract,custom:true};
+}
+function io_normCW(o){
+  if(!o||typeof o.text!=='string'||!Array.isArray(o.blanks)||!o.blanks.length)return null;
+  const blanks=o.text.split('___').length-1;
+  if(blanks!==o.blanks.length)return null;
+  const mode=o.mode==='free'?'free':'mc';
+  for(const b of o.blanks){if(!b||typeof b.answer==='undefined')return null;if(mode==='mc'&&!(Array.isArray(b.options)&&b.options.length>=2))return null;}
+  return {id:'cwu-'+uid(),tag:String(o.tag||'word-order'),mode,text:o.text,blanks:o.blanks,custom:true};
+}
+function ex_importFile(file){
+  if(!file)return;
+  const hint=document.getElementById('ioHint');
+  const reader=new FileReader();
+  reader.onload=()=>{
+    let rawItems=[];
+    const txt=String(reader.result||'');
+    try{
+      if(/\.json$/i.test(file.name)||txt.trim().charAt(0)==='{'||txt.trim().charAt(0)==='['){
+        const parsed=JSON.parse(txt);
+        rawItems=Array.isArray(parsed)?parsed:(parsed.items||[]);
+      }else{
+        const rows=parseCSV(txt);if(!rows.length){hint.textContent='⚠️ Empty file.';return;}
+        const header=rows[0].map(h=>h.trim().toLowerCase());const body=rows.slice(1);
+        const idx=n=>header.indexOf(n);
+        if(io_mode==='bs'){
+          rawItems=body.map(r=>({tag:r[idx('tag')],prompt:r[idx('prompt')],frame:r[idx('frame')],answer:String(r[idx('answer')]||'').split('/').map(x=>x.trim()).filter(Boolean),distract:String(r[idx('distract')]||'').split('/').map(x=>x.trim()).filter(Boolean)}));
+        }else{
+          rawItems=body.map(r=>{let bl=[];try{bl=JSON.parse(r[idx('blanks')]);}catch(e){}return {tag:r[idx('tag')],mode:r[idx('mode')],text:r[idx('text')],blanks:bl};});
+        }
+      }
+    }catch(e){hint.textContent='⚠️ Could not parse the file: '+(e.message||'invalid format');return;}
+    const norm=io_mode==='bs'?io_normBS:io_normCW;
+    let added=0,skipped=0;
+    rawItems.forEach(o=>{const n=norm(o);if(n){io_items().push(n);added++;}else skipped++;});
+    if(io_mode==='bs'){bs_normLower();bs_saveItems();}else{cw_saveItems();}
+    hint.textContent='✅ Imported '+added+' exercise(s)'+(skipped?', skipped '+skipped+' invalid':'')+'.';
+    toast('✅ Imported '+added+' exercise(s)');
+    if(curTab==='rev'){if(io_mode==='bs'){bs_checked=false;bs_load();}else{cw_checked=false;cw_load();}renderRev();}
+  };
+  reader.readAsText(file);
+}
 
 // ── WRITE AN EMAIL (Practice tab sub-mode) ──
 function em_setMode(on){
@@ -3271,12 +3508,23 @@ function em_ensureFresh(){
     emScenarios=EM_SEED.slice();em_saveScenarios();
   }
 }
+// The old Complete-the-Words seed leaked answers in parentheses and had no item
+// cw14. When that older built-in set is detected, replace the built-ins with the
+// clean CW_SEED while keeping any user-created (cwu-) items.
+function cw_ensureFresh(){
+  const hasNew=cwItems.some(it=>it&&it.id==='cw14');
+  if(!cwItems.length||!hasNew){
+    const custom=cwItems.filter(it=>it&&/^cwu-/.test(it.id));
+    cwItems=CW_SEED.slice().concat(custom);cw_saveItems();
+  }
+}
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
   bs_ensureFresh();bs_normLower();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
+  cw_ensureFresh();
   if(!localStorage.getItem('c1cwi'))cw_saveItems();
   try{cwProgress=JSON.parse(localStorage.getItem('c1cwp')||'{}');}catch(e){cwProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1ems')||'null');emScenarios=Array.isArray(v)&&v.length?v:EM_SEED.slice();}catch(e){emScenarios=EM_SEED.slice();}
@@ -3944,7 +4192,7 @@ function startSync(){
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
     RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
