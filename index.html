@@ -217,6 +217,11 @@ textarea{min-height:120px}
 .exmode-btn:hover:not(.on){background:#F1F5F9}
 .bs-assembly{min-height:64px;border:2px dashed #BFDBFE;border-radius:10px;background:#F8FAFF;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;margin-bottom:12px}
 .bs-assembly.empty{align-items:center;justify-content:center}
+.bs-prompt{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;font-size:15px;color:#1D4ED8;font-weight:500;line-height:1.5;margin-bottom:12px}
+.bs-frame{background:#F8FAFF;border:1px solid #DDE3F5;border-radius:10px;padding:12px 14px;font-size:16px;line-height:2.2;color:#0F172A;margin-bottom:14px}
+.bs-frame .bschip{display:inline-flex;vertical-align:middle;margin:0 2px}
+.bs-slot{display:inline-flex;align-items:center;justify-content:center;min-width:56px;height:30px;margin:0 3px;border-radius:8px;border:1px dashed #BFDBFE;background:#fff;color:#CBD5E1;font-size:13px;font-family:'DM Mono',monospace;vertical-align:middle}
+.bs-slot.next{border-color:#2563EB;border-style:solid;color:#2563EB;background:#EFF6FF}
 .bs-bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .bschip{padding:8px 13px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;color:#0F172A;font-size:15px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;user-select:none}
 .bschip:hover{border-color:#2563EB;background:#EFF6FF}
@@ -697,7 +702,7 @@ let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=n
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={};
-let bs_cur=null,bs_answerIds=[],bs_tokens=[],bs_checked=false;
+let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 let cw_cur=null,cw_checked=false,cw_vals=[];
 let em_active=false,em_cur=null,em_lastId=null;
 let peuaCompleted={};
@@ -2758,20 +2763,52 @@ function skipNote(){noteCardId=null;renderRev();}
 // path falls back to localStorage when Firebase is unavailable (fbSet no-ops).
 
 // ── SEEDS ──
-// All words are lowercase on purpose: without the capital-letter cue for the
-// first word, reordering is harder. bs_normalizeLower() also lowercases any
-// previously-seeded items on load so existing users get the same difficulty.
+// TOEFL "Build a Sentence" format: a spoken prompt (context), a sentence FRAME
+// with fixed words and blanks (marked ___), an ordered ANSWER of the phrases
+// that fill those blanks, and a BANK of draggable phrases that usually includes
+// distractors. All draggable/frame text is lowercase to remove the capital-letter
+// cue and raise difficulty. answer.length must equal the number of ___ in frame.
 const BS_SEED=[
-  {id:'bs1',words:['he','insisted','on','bringing','the','documents','himself.'],tag:'gerund-after-preposition'},
-  {id:'bs2',words:['she','is','used','to','working','long','hours.'],tag:'gerund-after-preposition'},
-  {id:'bs3',words:['they','will','need','to','gather','more','evidence.'],tag:'infinitive-after-modal'},
-  {id:'bs4',words:['he','pretended','to','go','along','with','the','plan.'],tag:'infinitive-after-modal'},
-  {id:'bs5',words:['each','of','the','students','has','submitted','the','report.'],tag:'subject-verb-agreement'},
-  {id:'bs6',words:['the','data','suggest','a','different','conclusion.'],tag:'subject-verb-agreement'},
-  {id:'bs7',words:['this','is','a','legacy','issue','that','requires','attention.'],tag:'spelling'},
-  {id:'bs8',words:['i','specially','appreciate','your','quick','response.'],tag:'spelling'},
-  {id:'bs9',words:['she','has','the','responsibility','of','finishing','the','project.'],tag:'gerund-after-preposition'},
-  {id:'bs10',words:['the','committee','decided','to','postpone','the','meeting.'],tag:'infinitive-after-modal'}
+  {id:'bst1',tag:'relative-clauses',
+   prompt:'What was the highlight of your trip?',
+   frame:'the ___ ___ ___ ___ ___ fantastic.',
+   answer:['old city','tour guides','who','showed us around','were'],
+   bank:['were','the','was','old city','showed us around','who','tour guides']},
+  {id:'bst2',tag:'embedded-questions',
+   prompt:'I heard Anna got a promotion.',
+   frame:'___ ___ ___ ___ she will be ___ ___?',
+   answer:['do','you','know','if','moving to','a different department'],
+   bank:['a different department','if','moving to','know','do','you']},
+  {id:'bst3',tag:'conjunctions',
+   prompt:'The workshop ended earlier than expected.',
+   frame:'i ___ disappointed ___ ___ ___ ___ ___ ___.',
+   answer:['wasn\'t','because','i','was','already','feeling','very tired'],
+   bank:['wasn\'t','already','very tired','i','hotel room','was','feeling','because']},
+  {id:'bst4',tag:'gerund-after-preposition',
+   prompt:'Why was the report delayed?',
+   frame:'we were responsible for ___ ___ ___ ___.',
+   answer:['checking','all','the','figures'],
+   bank:['checking','check','all','the','figures']},
+  {id:'bst5',tag:'infinitive-after-modal',
+   prompt:'What is the next step?',
+   frame:'the team ___ ___ ___ ___ it soon.',
+   answer:['should','try','to','finish'],
+   bank:['should','try','to','finish','finishing']},
+  {id:'bst6',tag:'subject-verb-agreement',
+   prompt:'Are the results ready?',
+   frame:'each of the samples ___ ___ ___ carefully.',
+   answer:['has','been','analyzed'],
+   bank:['has','have','been','analyzed']},
+  {id:'bst7',tag:'embedded-questions',
+   prompt:'I can’t find the meeting room.',
+   frame:'could you tell me ___ ___ ___ ___?',
+   answer:['where','it','is','located'],
+   bank:['where','it','is','located','are']},
+  {id:'bst8',tag:'comparatives',
+   prompt:'How was the new restaurant?',
+   frame:'the food was ___ ___ ___ ___ ___.',
+   answer:['much better','than','i','had','expected'],
+   bank:['much better','than','i','had','expected','then']}
 ];
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
@@ -2779,7 +2816,11 @@ const PATTERN_NOTE={
   'infinitive-after-modal':'A modal/helper verb is followed by the base infinitive (to + base, or bare base after will/can).',
   'subject-verb-agreement':'The verb must agree with the true grammatical subject in number.',
   'spelling':'Watch the exact spelling/word choice — a common look-alike is wrong here.',
-  'article':'Choose the correct article (a/an/the) for the noun and its context.'
+  'article':'Choose the correct article (a/an/the) for the noun and its context.',
+  'relative-clauses':'A relative clause (who/that/which…) adds information and sits right after the noun it describes.',
+  'embedded-questions':'Inside a statement, the embedded question uses statement word order (no inversion): “do you know if she will…”.',
+  'conjunctions':'A conjunction (because, so, although…) links the two ideas in the right order.',
+  'comparatives':'Comparatives use “-er/more … than” to compare two things.'
 };
 const CW_SEED=[
   {id:'cw1',tag:'gerund-after-preposition',mode:'mc',
@@ -2887,13 +2928,38 @@ function setRevExMode(m){
 }
 
 // ── BUILD A SENTENCE ──
-function bs_load(){
-  bs_checked=false;bs_answerIds=[];
-  const pool=ex_due(bsItems,bsProgress);
-  bs_cur=pool.length?pool[0]:(bsItems.length?bsItems[Math.floor(Math.random()*bsItems.length)]:null);
-  if(bs_cur)bs_tokens=shuffle(bs_cur.words.map((w,i)=>({id:i,w})));
-  else bs_tokens=[];
+// Number of blanks in the frame = count of the ___ marker.
+function bs_blankCount(it){return it&&it.frame?(it.frame.split('___').length-1):0;}
+function bs_setup(it){
+  bs_cur=it;
+  if(!it){bs_tokens=[];bs_slots=[];return;}
+  // Draggable bank: unique id per chip (bank may contain distractors/duplicates).
+  bs_tokens=shuffle((it.bank&&it.bank.length?it.bank:it.answer).map((w,i)=>({id:i,w})));
+  bs_slots=new Array(bs_blankCount(it)).fill(null); // slot -> token id
 }
+function bs_load(){
+  bs_checked=false;
+  const pool=ex_due(bsItems,bsProgress);
+  bs_setup(pool.length?pool[0]:(bsItems.length?bsItems[Math.floor(Math.random()*bsItems.length)]:null));
+}
+// Build the framed sentence with inline blank slots (filled ones are clickable).
+function bs_frameHTML(){
+  const parts=bs_cur.frame.split('___');
+  let html='';
+  for(let i=0;i<parts.length;i++){
+    html+=esc(parts[i]);
+    if(i<bs_slots.length){
+      const tid=bs_slots[i];
+      if(tid!=null){const t=bs_tokens.find(x=>x.id===tid);
+        html+='<span class="bschip picked'+(bs_checked?'':'')+'" '+(bs_checked?'':'onclick="bs_clear('+i+')"')+'>'+esc(t?t.w:'')+'</span>';
+      }else{
+        html+='<span class="bs-slot'+(i===bs_firstEmpty()?' next':'')+'">'+(i+1)+'</span>';
+      }
+    }
+  }
+  return html;
+}
+function bs_firstEmpty(){return bs_slots.indexOf(null);}
 function bs_render(){
   const dueCount=ex_due(bsItems,bsProgress).length;
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
@@ -2901,39 +2967,44 @@ function bs_render(){
     if(bsItems.length){return '<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>';}
     return '<div class="card empty"><div class="etit">No sentence items yet</div></div>';
   }
-  const usedSet=new Set(bs_answerIds);
-  const answerChips=bs_answerIds.map(id=>{const t=bs_tokens.find(x=>x.id===id);return '<span class="bschip picked" onclick="bs_unpick('+id+')">'+esc(t.w)+'</span>';}).join('');
-  const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_pick('+t.id+')">'+esc(t.w)+'</span>').join('');
+  const usedSet=new Set(bs_slots.filter(x=>x!=null));
+  const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_fill('+t.id+')">'+esc(t.w)+'</span>').join('');
+  const allFilled=bs_slots.every(x=>x!=null);
   let h='<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Reorder the words</div>'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
     +'<span class="tag tbl">'+esc(bs_cur.tag)+'</span></div>'
-    +'<div class="bs-assembly'+(bs_answerIds.length?'':' empty')+'">'+(bs_answerIds.length?answerChips:'<span class="bs-ph">Tap words below to build the sentence…</span>')+'</div>'
-    +'<div class="bs-bank">'+(bankChips||'<span class="bs-ph">All words placed. Check your answer →</span>')+'</div>';
+    // Prompt / context (spoken by the other person)
+    +'<div class="bs-prompt">💬 '+esc(bs_cur.prompt)+'</div>'
+    +'<div style="font-size:14px;color:#94A3B8;margin-bottom:6px">Tap the phrases to fill the blanks in order. Extra words may not belong.</div>'
+    +'<div class="bs-frame">'+bs_frameHTML()+'</div>'
+    +'<div class="bs-bank">'+(bankChips||'<span class="bs-ph">All phrases placed. Check your answer →</span>')+'</div>';
   if(bs_checked){
-    const correct=bs_answerIds.map(id=>bs_tokens.find(x=>x.id===id).w).join(' ')===bs_cur.words.join(' ');
-    h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct order: <strong>'+esc(bs_cur.words.join(' '))+'</strong><br>')
+    const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';});
+    const correct=guess.join(' ')===bs_cur.answer.join(' ');
+    const full=bs_cur.frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<bs_cur.answer.length?bs_cur.answer[i]:''),'');
+    h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct sentence: <strong>'+esc(full)+'</strong><br>')
       +'<span style="opacity:.85">'+esc(PATTERN_NOTE[bs_cur.tag]||('Pattern: '+bs_cur.tag))+'</span></div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_next(false)">Next →</button><button class="btn bsm" onclick="bs_reset()">↺ Try again</button></div>';
   }else{
-    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(bs_answerIds.length===bs_cur.words.length?'':'disabled')+'>✓ Check</button><button class="btn bsm" onclick="bs_reset()">↺ Reset</button></div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button><button class="btn bsm" onclick="bs_reset()">↺ Reset</button></div>';
   }
   h+='</div>';
   return h;
 }
-function bs_pick(id){if(bs_checked)return;if(!bs_answerIds.includes(id))bs_answerIds.push(id);renderRev();}
-function bs_unpick(id){if(bs_checked)return;bs_answerIds=bs_answerIds.filter(x=>x!==id);renderRev();}
-function bs_reset(){if(!bs_cur)return;bs_checked=false;bs_answerIds=[];bs_tokens=shuffle(bs_cur.words.map((w,i)=>({id:i,w})));renderRev();}
+function bs_fill(id){if(bs_checked)return;const s=bs_firstEmpty();if(s<0)return;if(bs_slots.includes(id))return;bs_slots[s]=id;renderRev();}
+function bs_clear(slot){if(bs_checked)return;if(slot>=0&&slot<bs_slots.length)bs_slots[slot]=null;renderRev();}
+function bs_reset(){if(!bs_cur)return;bs_checked=false;bs_setup(bs_cur);renderRev();}
 function bs_check(){
-  if(!bs_cur||bs_answerIds.length!==bs_cur.words.length)return;
-  const guess=bs_answerIds.map(id=>bs_tokens.find(x=>x.id===id).w).join(' ');
-  const correct=guess===bs_cur.words.join(' ');
+  if(!bs_cur||!bs_slots.every(x=>x!=null))return;
+  const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';}).join(' ');
+  const correct=guess===bs_cur.answer.join(' ');
   bs_checked=true;
   ex_grade(bsProgress,bs_cur.id,correct);bs_saveProgress();
   ex_logPattern(bs_cur.tag,correct);
   renderRev();
 }
-function bs_next(force){bs_load();if(force&&!bs_cur&&bsItems.length){bs_cur=bsItems[Math.floor(Math.random()*bsItems.length)];bs_tokens=shuffle(bs_cur.words.map((w,i)=>({id:i,w})));}renderRev();}
+function bs_next(force){bs_load();if(force&&!bs_cur&&bsItems.length)bs_setup(bsItems[Math.floor(Math.random()*bsItems.length)]);renderRev();}
 
 // ── COMPLETE THE WORDS ──
 function cw_load(){
@@ -3044,7 +3115,15 @@ function em_shuffle(){em_pick();em_renderScenario();}
 // ── DATA LOADING FOR NEW MODES ──
 // Lowercase every word in the Build-a-Sentence bank (in memory) so previously
 // seeded, capitalized items match the current harder, all-lowercase design.
-function bs_normalizeLower(){bsItems.forEach(it=>{if(it&&Array.isArray(it.words))it.words=it.words.map(w=>String(w).toLowerCase());});}
+// Lowercase the frame and every draggable phrase so no capital-letter cue leaks in.
+function bs_normLower(){bsItems.forEach(it=>{if(!it)return;if(typeof it.frame==='string')it.frame=it.frame.toLowerCase();if(Array.isArray(it.answer))it.answer=it.answer.map(w=>String(w).toLowerCase());if(Array.isArray(it.bank))it.bank=it.bank.map(w=>String(w).toLowerCase());});}
+// Older saved Build-a-Sentence items used the reorder-all-words schema (`words`,
+// no `frame`). Re-seed to the TOEFL prompt+frame format when that is detected.
+function bs_ensureFresh(){
+  if(!bsItems.length||!bsItems[0]||typeof bsItems[0].frame!=='string'){
+    bsItems=BS_SEED.slice();bs_saveItems();
+  }
+}
 // Older saved email scenarios predate the richer TOEFL format (no `tasks`).
 // Re-seed from EM_SEED when that older shape is detected, and persist once.
 function em_ensureFresh(){
@@ -3054,7 +3133,7 @@ function em_ensureFresh(){
 }
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
-  bs_normalizeLower();
+  bs_ensureFresh();bs_normLower();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
@@ -3723,7 +3802,7 @@ function startSync(){
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_normalizeLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
