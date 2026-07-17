@@ -502,6 +502,27 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Prompt / context *</label><input type="text" id="bsPrompt" placeholder="e.g. What was the highlight of your trip?"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Sentence frame *</label><input type="text" id="bsFrame" placeholder="the ___ ___ ___ ___ ___ fantastic."><div style="font-size:13px;color:#94A3B8;margin-top:4px">Type <strong>___</strong> (three underscores) for each blank. Keep fixed words where they belong.</div></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Answer phrases *</label><textarea id="bsAnswer" style="min-height:96px" placeholder="One phrase per line, in the correct order:&#10;old city&#10;tour guides&#10;who&#10;showed us around&#10;were"></textarea><div style="font-size:13px;color:#94A3B8;margin-top:4px">One per line (or separate with “ / ”). The count must match the number of blanks.</div></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Distractor words (optional)</label><input type="text" id="bsDistract" placeholder="was / the"><div style="font-size:13px;color:#94A3B8;margin-top:4px">Extra words that don’t belong, to make it harder. Separate with “ / ”.</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Grammar tag</label><select id="bsTag" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom tag</label><input type="text" id="bsCustomTag" placeholder="only if “Custom…”" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;box-sizing:border-box"></div>
+      </div>
+      <div id="bsAddHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mBS')">Cancel</button>
+        <button class="btn bpr bsm" onclick="bs_saveNew()">Save Exercise</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="peuaEditModal" onclick="if(event.target===this)closePeuaEditModal()">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Task</div><button class="btn bsm" onclick="closePeuaEditModal()">✕</button></div>
@@ -2808,7 +2829,69 @@ const BS_SEED=[
    prompt:'How was the new restaurant?',
    frame:'the food was ___ ___ ___ ___ ___.',
    answer:['much better','than','i','had','expected'],
-   bank:['much better','than','i','had','expected','then']}
+   bank:['much better','than','i','had','expected','then']},
+  // Extra curated items. These use `distract` (the bank is answer + distract),
+  // which is also the shape the in-app "Add exercise" form produces.
+  {id:'bst9',tag:'relative-clauses',prompt:'Which candidate did you choose?',
+   frame:'we hired the designer ___ ___ ___ ___.',
+   answer:['whose','portfolio','impressed','everyone'],distract:['who','that']},
+  {id:'bst10',tag:'relative-clauses',prompt:'Do you remember that café?',
+   frame:'that\'s the place ___ ___ ___ ___.',
+   answer:['where','we','first','met'],distract:['which','when']},
+  {id:'bst11',tag:'embedded-questions',prompt:'I need to reach Mr. Lopez.',
+   frame:'could you tell me ___ ___ ___ ___ ___?',
+   answer:['when','he','will','be','available'],distract:['is','does']},
+  {id:'bst12',tag:'embedded-questions',prompt:'The printer isn\'t working.',
+   frame:'do you know ___ ___ ___ ___?',
+   answer:['why','it','keeps','jamming'],distract:['does','is']},
+  {id:'bst13',tag:'conjunctions',prompt:'Why didn\'t you call me back?',
+   frame:'i couldn\'t answer ___ ___ ___ ___ ___ ___.',
+   answer:['because','i','was','in','a','meeting'],distract:['so','although']},
+  {id:'bst14',tag:'conjunctions',prompt:'Should we leave now?',
+   frame:'we should leave early ___ ___ ___ ___ ___ ___.',
+   answer:['so','we','don\'t','miss','the','train'],distract:['because','but']},
+  {id:'bst15',tag:'comparatives',prompt:'How was the sequel?',
+   frame:'the first movie was ___ ___ ___ ___ ___ ___.',
+   answer:['far','more','exciting','than','this','one'],distract:['most','as']},
+  {id:'bst16',tag:'comparatives',prompt:'Is the new phone better?',
+   frame:'it isn\'t ___ ___ ___ ___ ___.',
+   answer:['as','fast','as','they','advertised'],distract:['more','than']},
+  {id:'bst17',tag:'gerund-after-preposition',prompt:'Congratulations on the launch!',
+   frame:'thanks — we succeeded ___ ___ ___ ___ ___.',
+   answer:['in','finishing','it','on','time'],distract:['to finish','at']},
+  {id:'bst18',tag:'gerund-after-preposition',prompt:'Are you nervous about Monday?',
+   frame:'i\'m looking forward ___ ___ ___ ___ ___.',
+   answer:['to','starting','the','new','role'],distract:['to start','for']},
+  {id:'bst19',tag:'infinitive-after-modal',prompt:'The deadline is tomorrow.',
+   frame:'we might ___ ___ ___ ___ ___.',
+   answer:['have','to','work','late','tonight'],distract:['having','worked']},
+  {id:'bst20',tag:'infinitive-after-modal',prompt:'Can you join the call?',
+   frame:'i would ___ ___ ___ ___ ___ ___.',
+   answer:['love','to','attend','but','i','can\'t'],distract:['attending','loving']},
+  {id:'bst21',tag:'subject-verb-agreement',prompt:'How\'s the team doing?',
+   frame:'neither of the managers ___ ___ ___.',
+   answer:['has','replied','yet'],distract:['have','replies']},
+  {id:'bst22',tag:'subject-verb-agreement',prompt:'Is everyone here?',
+   frame:'there ___ ___ ___ ___ ___ ___.',
+   answer:['are','several','people','still','waiting','outside'],distract:['is','was']},
+  {id:'bst23',tag:'conditionals',prompt:'What if the flight is cancelled?',
+   frame:'if it ___ ___ we will ___ ___ ___.',
+   answer:['is','cancelled','book','another','one'],distract:['was','would']},
+  {id:'bst24',tag:'conditionals',prompt:'I\'m exhausted.',
+   frame:'if i ___ ___ i would ___ ___ ___.',
+   answer:['were','you','take','a','break'],distract:['was','will']},
+  {id:'bst25',tag:'passive-voice',prompt:'Who fixed the server?',
+   frame:'the issue ___ ___ ___ ___ ___ ___.',
+   answer:['was','resolved','by','the','night','team'],distract:['were','has']},
+  {id:'bst26',tag:'reported-speech',prompt:'What did Sara say?',
+   frame:'she said ___ ___ ___ ___ ___ ___.',
+   answer:['she','would','send','the','file','later'],distract:['will','sends']},
+  {id:'bst27',tag:'prepositions',prompt:'When is the meeting?',
+   frame:'it\'s scheduled ___ ___ ___ ___ ___.',
+   answer:['for','three','o\'clock','on','friday'],distract:['at','in']},
+  {id:'bst28',tag:'present-perfect',prompt:'Have you finished the report?',
+   frame:'i have ___ ___ ___ ___ ___ ___.',
+   answer:['already','sent','it','to','the','client'],distract:['yet','send']}
 ];
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
@@ -2820,7 +2903,12 @@ const PATTERN_NOTE={
   'relative-clauses':'A relative clause (who/that/which…) adds information and sits right after the noun it describes.',
   'embedded-questions':'Inside a statement, the embedded question uses statement word order (no inversion): “do you know if she will…”.',
   'conjunctions':'A conjunction (because, so, although…) links the two ideas in the right order.',
-  'comparatives':'Comparatives use “-er/more … than” to compare two things.'
+  'comparatives':'Comparatives use “-er/more … than” to compare two things.',
+  'conditionals':'Match the tenses across the if-clause and the result clause (e.g. “if i were you, i would…”).',
+  'passive-voice':'Passive = be + past participle, with “by …” naming the doer.',
+  'reported-speech':'Reported speech shifts the tense back (will→would, send→sent) inside the report.',
+  'prepositions':'Pick the preposition that fits the time/place expression (at/on/in, for…).',
+  'present-perfect':'Present perfect (have/has + past participle) links a past action to now; adverbs like already/yet sit inside it.'
 };
 const CW_SEED=[
   {id:'cw1',tag:'gerund-after-preposition',mode:'mc',
@@ -2930,11 +3018,13 @@ function setRevExMode(m){
 // ── BUILD A SENTENCE ──
 // Number of blanks in the frame = count of the ___ marker.
 function bs_blankCount(it){return it&&it.frame?(it.frame.split('___').length-1):0;}
+// Bank = explicit `bank` if given, else the answer plus any `distract` words.
+function bs_bankOf(it){return (it.bank&&it.bank.length)?it.bank:(it.answer||[]).concat(it.distract||[]);}
 function bs_setup(it){
   bs_cur=it;
   if(!it){bs_tokens=[];bs_slots=[];return;}
   // Draggable bank: unique id per chip (bank may contain distractors/duplicates).
-  bs_tokens=shuffle((it.bank&&it.bank.length?it.bank:it.answer).map((w,i)=>({id:i,w})));
+  bs_tokens=shuffle(bs_bankOf(it).map((w,i)=>({id:i,w})));
   bs_slots=new Array(bs_blankCount(it)).fill(null); // slot -> token id
 }
 function bs_load(){
@@ -2960,20 +3050,29 @@ function bs_frameHTML(){
   return html;
 }
 function bs_firstEmpty(){return bs_slots.indexOf(null);}
+// Small toolbar shown above every Build-a-Sentence state: total count + add button.
+function bs_toolbar(){
+  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+bsItems.length+' exercise'+(bsItems.length===1?'':'s')+'</span>'
+    +'<button class="btn bte bsm" onclick="openBSAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add exercise</button>'
+    +'</div>';
+}
 function bs_render(){
   const dueCount=ex_due(bsItems,bsProgress).length;
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
+  const tb=bs_toolbar();
   if(!bs_cur){
-    if(bsItems.length){return '<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>';}
-    return '<div class="card empty"><div class="etit">No sentence items yet</div></div>';
+    if(bsItems.length){return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>';}
+    return tb+'<div class="card empty"><div class="etit">No sentence items yet</div><div class="esub">Add your first one above.</div></div>';
   }
   const usedSet=new Set(bs_slots.filter(x=>x!=null));
   const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_fill('+t.id+')">'+esc(t.w)+'</span>').join('');
   const allFilled=bs_slots.every(x=>x!=null);
-  let h='<div class="card">'
+  const isCustom=/^bsu-/.test(bs_cur.id);
+  let h=tb+'<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
-    +'<span class="tag tbl">'+esc(bs_cur.tag)+'</span></div>'
+    +'<div style="display:flex;align-items:center;gap:8px">'+(isCustom?'<button class="btn bdn bsm" title="Delete this custom exercise" onclick="bs_delItem(\''+bs_cur.id+'\')">🗑</button>':'')+'<span class="tag tbl">'+esc(bs_cur.tag)+'</span></div></div>'
     // Prompt / context (spoken by the other person)
     +'<div class="bs-prompt">💬 '+esc(bs_cur.prompt)+'</div>'
     +'<div style="font-size:14px;color:#94A3B8;margin-bottom:6px">Tap the phrases to fill the blanks in order. Extra words may not belong.</div>'
@@ -3005,6 +3104,47 @@ function bs_check(){
   renderRev();
 }
 function bs_next(force){bs_load();if(force&&!bs_cur&&bsItems.length)bs_setup(bsItems[Math.floor(Math.random()*bsItems.length)]);renderRev();}
+// Grammar tags offered in the add-exercise form (plus free "custom" entry).
+const BS_TAGS=['relative-clauses','embedded-questions','conjunctions','comparatives','conditionals','passive-voice','reported-speech','prepositions','present-perfect','gerund-after-preposition','infinitive-after-modal','subject-verb-agreement','articles','word-order'];
+function openBSAdd(){
+  ['bsPrompt','bsFrame','bsAnswer','bsDistract','bsCustomTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const sel=document.getElementById('bsTag');
+  if(sel)sel.innerHTML=BS_TAGS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom…</option>';
+  document.getElementById('bsAddHint').textContent='';
+  openM('mBS');
+}
+// Split a line into ordered phrases: one per line, or separated by " / " or "|".
+function bs_parsePhrases(s){return String(s||'').split(/\n|\s\/\s|\|/).map(x=>x.trim()).filter(Boolean);}
+function bs_saveNew(){
+  const prompt=document.getElementById('bsPrompt').value.trim();
+  const frame=document.getElementById('bsFrame').value.trim();
+  const answer=bs_parsePhrases(document.getElementById('bsAnswer').value);
+  const distract=bs_parsePhrases(document.getElementById('bsDistract').value);
+  const tagSel=document.getElementById('bsTag').value;
+  const tag=(tagSel==='__custom__'?document.getElementById('bsCustomTag').value.trim():tagSel)||'word-order';
+  const hint=document.getElementById('bsAddHint');
+  if(!prompt||!frame||!answer.length){hint.textContent='⚠️ Fill in the prompt, the frame and the answer phrases.';return;}
+  const blanks=frame.split('___').length-1;
+  if(blanks===0){hint.textContent='⚠️ The frame needs at least one blank — type ___ where each phrase goes.';return;}
+  if(blanks!==answer.length){hint.textContent='⚠️ The frame has '+blanks+' blank(s) but you gave '+answer.length+' answer phrase(s). They must match.';return;}
+  const item={id:'bsu-'+uid(),tag,prompt,frame,answer,distract,custom:true};
+  bsItems.push(item);
+  bs_normLower();      // keep the new item lowercase like the rest
+  bs_saveItems();
+  closeM('mBS');
+  toast('✅ Exercise added!');
+  // Jump straight into the new exercise.
+  if(revCfg.exMode==='build'){bs_checked=false;bs_setup(bsItems[bsItems.length-1]);renderRev();}
+}
+function bs_delItem(id){
+  const it=bsItems.find(x=>x.id===id);if(!it)return;
+  if(!confirm('Delete this exercise?\n\n“'+(it.prompt||'')+'”'))return;
+  bsItems=bsItems.filter(x=>x.id!==id);
+  if(bsProgress[id]){delete bsProgress[id];bs_saveProgress();}
+  bs_saveItems();
+  toast('🗑 Exercise deleted');
+  bs_checked=false;bs_load();renderRev();
+}
 
 // ── COMPLETE THE WORDS ──
 function cw_load(){
@@ -3116,7 +3256,7 @@ function em_shuffle(){em_pick();em_renderScenario();}
 // Lowercase every word in the Build-a-Sentence bank (in memory) so previously
 // seeded, capitalized items match the current harder, all-lowercase design.
 // Lowercase the frame and every draggable phrase so no capital-letter cue leaks in.
-function bs_normLower(){bsItems.forEach(it=>{if(!it)return;if(typeof it.frame==='string')it.frame=it.frame.toLowerCase();if(Array.isArray(it.answer))it.answer=it.answer.map(w=>String(w).toLowerCase());if(Array.isArray(it.bank))it.bank=it.bank.map(w=>String(w).toLowerCase());});}
+function bs_normLower(){bsItems.forEach(it=>{if(!it)return;if(typeof it.frame==='string')it.frame=it.frame.toLowerCase();if(Array.isArray(it.answer))it.answer=it.answer.map(w=>String(w).toLowerCase());if(Array.isArray(it.bank))it.bank=it.bank.map(w=>String(w).toLowerCase());if(Array.isArray(it.distract))it.distract=it.distract.map(w=>String(w).toLowerCase());});}
 // Older saved Build-a-Sentence items used the reorder-all-words schema (`words`,
 // no `frame`). Re-seed to the TOEFL prompt+frame format when that is detected.
 function bs_ensureFresh(){
