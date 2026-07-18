@@ -2969,7 +2969,55 @@ const BS_SEED=[
    answer:['for','three','o\'clock','on','friday'],distract:['at','in']},
   {id:'bst28',tag:'present-perfect',prompt:'Have you finished the report?',
    frame:'i have ___ ___ ___ ___ ___ ___.',
-   answer:['already','sent','it','to','the','client'],distract:['yet','send']}
+   answer:['already','sent','it','to','the','client'],distract:['yet','send']},
+  {id:'bst29',tag:'relative-clauses',prompt:'Who wrote this report?',
+   frame:'the analyst ___ ___ ___ ___ last month.',
+   answer:['who','prepared','it','left'],distract:['which','that']},
+  {id:'bst30',tag:'embedded-questions',prompt:'I forgot the schedule.',
+   frame:'can you remind me ___ ___ ___ ___?',
+   answer:['what','time','it','starts'],distract:['does','is']},
+  {id:'bst31',tag:'conjunctions',prompt:'Did you finish the task?',
+   frame:'i finished early ___ ___ ___ ___ ___ ___.',
+   answer:['so','i','could','help','the','others'],distract:['because','but']},
+  {id:'bst32',tag:'comparatives',prompt:'How do the two plans compare?',
+   frame:'the second plan is ___ ___ ___ ___ ___.',
+   answer:['less','risky','than','the','first'],distract:['more','as']},
+  {id:'bst33',tag:'gerund-after-preposition',prompt:'How did you improve so fast?',
+   frame:'i got better ___ ___ ___ ___ ___.',
+   answer:['by','practicing','every','single','day'],distract:['for','to practice']},
+  {id:'bst34',tag:'infinitive-after-modal',prompt:'Is the design final?',
+   frame:'we may ___ ___ ___ ___ ___ ___.',
+   answer:['have','to','make','a','few','changes'],distract:['making','made']},
+  {id:'bst35',tag:'subject-verb-agreement',prompt:'Are the files ready?',
+   frame:'none of the documents ___ ___ ___ yet.',
+   answer:['have','been','signed'],distract:['has','was']},
+  {id:'bst36',tag:'conditionals',prompt:'What if it rains tomorrow?',
+   frame:'if it ___ we will ___ ___ ___ ___.',
+   answer:['rains','move','the','event','indoors'],distract:['rained','would']},
+  {id:'bst37',tag:'passive-voice',prompt:'Who designed the logo?',
+   frame:'the logo ___ ___ ___ ___ ___ ___.',
+   answer:['was','created','by','an','external','agency'],distract:['were','has']},
+  {id:'bst38',tag:'reported-speech',prompt:'What did the manager announce?',
+   frame:'he told us ___ ___ ___ ___ ___ ___.',
+   answer:['that','the','deadline','had','been','extended'],distract:['has','is']},
+  {id:'bst39',tag:'prepositions',prompt:'Where should I sign?',
+   frame:'please write your name ___ ___ ___ ___ ___ ___.',
+   answer:['at','the','bottom','of','the','page'],distract:['on','in']},
+  {id:'bst40',tag:'present-perfect',prompt:'Do you know this software?',
+   frame:'yes, i have ___ ___ ___ ___ ___.',
+   answer:['used','it','for','several','years'],distract:['use','since']},
+  {id:'bst41',tag:'articles',prompt:'What did you buy?',
+   frame:'i bought ___ ___ ___ ___ ___ ___.',
+   answer:['a','laptop','and','an','external','monitor'],distract:['the','some']},
+  {id:'bst42',tag:'verb-forms',prompt:'Why is he tired?',
+   frame:'he ___ ___ ___ ___ ___ ___.',
+   answer:['has','been','working','since','early','morning'],distract:['is','was']},
+  {id:'bst43',tag:'embedded-questions',prompt:'I am not sure about the address.',
+   frame:'do you know ___ ___ ___ ___ ___?',
+   answer:['where','the','office','is','located'],distract:['does','are']},
+  {id:'bst44',tag:'comparatives',prompt:'How was the traffic today?',
+   frame:'it was ___ ___ ___ ___ ___.',
+   answer:['worse','than','usual','this','morning'],distract:['bad','more']}
 ];
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
@@ -3037,7 +3085,43 @@ const CW_SEED=[
    blanks:[{answer:'written',clue:'base: write',accept:['written']}]},
   {id:'cw14',tag:'verb-forms',mode:'free',
    text:'They finally ___ the contract yesterday afternoon.',
-   blanks:[{answer:'signed',clue:'base: sign',accept:['signed']}]}
+   blanks:[{answer:'signed',clue:'base: sign',accept:['signed']}]},
+  {id:'cw15',tag:'prepositions',mode:'mc',
+   text:'Please send the file ___ Friday ___ the latest.',
+   blanks:[{answer:'by',options:['by','on','at']},{answer:'at',options:['at','by','in']}]},
+  {id:'cw16',tag:'subject-verb-agreement',mode:'mc',
+   text:'The list of participants ___ been updated, and everyone ___ ready.',
+   blanks:[{answer:'has',options:['has','have']},{answer:'is',options:['is','are']}]},
+  {id:'cw17',tag:'conditionals',mode:'mc',
+   text:'If the client ___ , we ___ offer a small discount.',
+   blanks:[{answer:'agrees',options:['agrees','agree','agreed']},{answer:'will',options:['will','would','would have']}]},
+  {id:'cw18',tag:'passive-voice',mode:'mc',
+   text:'The samples ___ ___ in the lab yesterday.',
+   blanks:[{answer:'were',options:['were','was','are']},{answer:'analyzed',options:['analyzed','analyzing','analyze']}]},
+  {id:'cw19',tag:'reported-speech',mode:'mc',
+   text:'He asked whether I ___ finished, and I said I ___.',
+   blanks:[{answer:'had',options:['had','have','did']},{answer:'had',options:['had','have','was']}]},
+  {id:'cw20',tag:'article',mode:'mc',
+   text:'She is ___ engineer who works at ___ university nearby.',
+   blanks:[{answer:'an',options:['a','an','the']},{answer:'a',options:['a','an','the']}]},
+  {id:'cw21',tag:'present-perfect',mode:'mc',
+   text:'They ___ just ___ the results to everyone.',
+   blanks:[{answer:'have',options:['have','has','had']},{answer:'announced',options:['announced','announce','announcing']}]},
+  {id:'cw22',tag:'comparatives',mode:'mc',
+   text:'This route is ___ ___ than the highway during rush hour.',
+   blanks:[{answer:'far',options:['far','very','so']},{answer:'quicker',options:['quicker','quick','quickest']}]},
+  {id:'cw23',tag:'gerund-after-preposition',mode:'mc',
+   text:'Thank you for ___ me and for ___ so patient.',
+   blanks:[{answer:'helping',options:['helping','help','helped']},{answer:'being',options:['being','be','been']}]},
+  {id:'cw24',tag:'verb-forms',mode:'free',
+   text:'She has ___ abroad twice this year.',
+   blanks:[{answer:'flown',clue:'base: fly',accept:['flown']}]},
+  {id:'cw25',tag:'verb-forms',mode:'free',
+   text:'They quietly ___ the surprise until the party started.',
+   blanks:[{answer:'hid',clue:'base: hide',accept:['hid']}]},
+  {id:'cw26',tag:'verb-forms',mode:'free',
+   text:'We have ___ a great deal from this project.',
+   blanks:[{answer:'learned',clue:'base: learn',accept:['learned','learnt']}]}
 ];
 // TOEFL "Write an Email" style: a 2–3 sentence situation, a named recipient,
 // and three bullet-point tasks. em_ensureFresh() re-seeds older saved data that
@@ -3613,13 +3697,22 @@ function cw_ensureFresh(){
     cwItems=CW_SEED.slice().concat(custom);cw_saveItems();
   }
 }
+// Add any built-in seed items missing from a returning user's saved set (by id),
+// so new curated exercises appear without touching their custom items or progress.
+function ex_mergeSeeds(items,seed,saveFn){
+  const have=new Set(items.map(it=>it&&it.id));
+  let added=0;
+  seed.forEach(s=>{if(!have.has(s.id)){items.push(JSON.parse(JSON.stringify(s)));added++;}});
+  if(added&&saveFn)saveFn();
+  return added;
+}
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
-  bs_ensureFresh();bs_normLower();
+  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
-  cw_ensureFresh();
+  cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);
   if(!localStorage.getItem('c1cwi'))cw_saveItems();
   try{cwProgress=JSON.parse(localStorage.getItem('c1cwp')||'{}');}catch(e){cwProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1ems')||'null');emScenarios=Array.isArray(v)&&v.length?v:EM_SEED.slice();}catch(e){emScenarios=EM_SEED.slice();}
@@ -4285,9 +4378,9 @@ function startSync(){
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
