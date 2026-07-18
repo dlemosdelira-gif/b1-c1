@@ -613,6 +613,24 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mNC" onclick="if(event.target===this)closeM('mNC')">
+  <div class="modal">
+    <div class="mhdr"><div class="mtit" id="ncTitle">➕ Save to Cards</div><button class="btn bsm" onclick="closeM('mNC')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Review and edit before saving to your SRS deck.</div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Front</label><textarea id="nc_sim" style="min-height:70px;resize:vertical"></textarea></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Back</label><textarea id="nc_c1" style="min-height:70px;resize:vertical"></textarea></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">My Sentences</label><textarea id="nc_ex" style="min-height:70px;resize:vertical"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic</label><select id="nc_topic" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div><div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom Topic</label><input type="text" id="nc_custom" placeholder="Custom topic…" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;box-sizing:border-box"></div></div>
+      <div id="ncHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mNC')">Cancel</button>
+        <button class="btn bpr bsm" onclick="nc_confirm()">Save to SRS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="importModal" class="import-export-modal" onclick="if(event.target===this)closeImportModal()">
   <div class="import-dropdown">
     <div class="import-dropdown-item" onclick="document.getElementById('csvFileInput').click();closeImportModal()">
@@ -2541,15 +2559,39 @@ function renderAnalysis(r){
 }
 function saveUpgrade(i){
   const u=pendingUpgrades[i];if(!u)return;
-  saveCard(u.simple,u.c1,u.example,'upgrade');
-  const b=document.getElementById('sub'+i);
-  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:14px;border-radius:8px;cursor:default';}
+  openNewCard(u.simple,u.c1,u.example,'upgrade','sub'+i);
 }
 function saveCorrection(i){
   const c=pendingCorrections[i];if(!c)return;
-  saveCard(c.original,c.corrected,c.explanation,'correction');
-  const b=document.getElementById('cor'+i);
-  if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:14px;border-radius:8px;cursor:default';}
+  openNewCard(c.original,c.corrected,c.explanation,'correction','cor'+i);
+}
+// Review-before-save: open a pre-filled editor so the card can be tweaked before
+// it enters the SRS deck. Remembers the source button to mark it ✓ on save.
+let ncType='upgrade',ncSrcBtn='';
+function openNewCard(front,back,example,type,srcBtn){
+  ncType=type||'upgrade';ncSrcBtn=srcBtn||'';
+  document.getElementById('nc_sim').value=front||'';
+  document.getElementById('nc_c1').value=back||'';
+  document.getElementById('nc_ex').value=example||'';
+  const sel=document.getElementById('nc_topic');
+  sel.innerHTML='<option value="">No topic</option>'+allTopics().map(t=>'<option value="'+esc(t)+'">'+esc(t)+'</option>').join('')+'<option value="__custom__">+ Custom…</option>';
+  sel.value='';document.getElementById('nc_custom').value='';
+  document.getElementById('ncHint').textContent='';
+  openM('mNC');
+}
+function nc_confirm(){
+  const simple=document.getElementById('nc_sim').value.trim();
+  const c1=document.getElementById('nc_c1').value.trim();
+  const example=document.getElementById('nc_ex').value.trim();
+  if(!simple||!c1){document.getElementById('ncHint').textContent='⚠️ Front and Back are required.';return;}
+  const topicSel=document.getElementById('nc_topic').value||'';
+  const customTopic=document.getElementById('nc_custom').value.trim()||'';
+  const topic=customTopic||(topicSel==='__custom__'?'':topicSel)||'';
+  const before=cards.length;
+  saveCard(simple,c1,example,ncType,topic);
+  closeM('mNC');
+  // Mark the originating Save button as done (only if a card was actually added).
+  if(cards.length>before&&ncSrcBtn){const b=document.getElementById(ncSrcBtn);if(b){b.textContent='✓';b.disabled=true;b.style.cssText='background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;padding:4px 10px;font-size:14px;border-radius:8px;cursor:default';}}
 }
 
 // ── CARDS ─────────────────────────────────────────────────────────────────────
