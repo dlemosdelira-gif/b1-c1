@@ -3049,13 +3049,66 @@ function em_saveScenarios(){localStorage.setItem('c1ems',JSON.stringify(emScenar
 function em_saveProgress(){localStorage.setItem('c1emp',JSON.stringify(emProgress));fbSet(REMP,Object.keys(emProgress).length?emProgress:null);}
 
 // Record a right/wrong attempt against a grammar pattern for weak-spot tracking.
-function ex_logPattern(tag,correct){
+// Log a right/wrong attempt. `mode` ('bs'|'cw') keeps a SEPARATE per-activity
+// tally in stats.exPerf so each mode's report stays unmixed (the legacy combined
+// patternPerf is still updated for continuity).
+function ex_logPattern(tag,correct,mode){
   if(!tag)return;
-  if(!stats.patternPerf)stats.patternPerf={};
   const k=safeKey(tag);
+  if(!stats.patternPerf)stats.patternPerf={};
   if(!stats.patternPerf[k])stats.patternPerf[k]={correct:0,wrong:0};
   stats.patternPerf[k][correct?'correct':'wrong']++;
+  if(mode){
+    if(!stats.exPerf)stats.exPerf={};
+    if(!stats.exPerf[mode])stats.exPerf[mode]={};
+    if(!stats.exPerf[mode][k])stats.exPerf[mode][k]={correct:0,wrong:0};
+    stats.exPerf[mode][k][correct?'correct':'wrong']++;
+  }
   saveST();
+}
+// Per-mode coverage from the SM-2 progress: an item counts as mastered once its
+// interval reaches ≥30 days (INTERVALS index 4).
+function ex_masteryStats(items,progress){
+  let mastered=0,tried=0;
+  items.forEach(it=>{const p=progress[it.id];if(p){tried++;if((p.intervalIdx||0)>=4)mastered++;}});
+  return {total:items.length,tried,mastered,due:ex_due(items,progress).length,untried:items.length-tried};
+}
+// Per-activity performance panel: accuracy by grammar pattern (weakest first),
+// a "focus on these" callout, and coverage — all scoped to a single mode.
+function exPerfPanel(mode){
+  const items=mode==='bs'?bsItems:cwItems;
+  const progress=mode==='bs'?bsProgress:cwProgress;
+  const label=mode==='bs'?'Build a Sentence':'Complete the Words';
+  const perf=(stats.exPerf&&stats.exPerf[mode])||{};
+  const rows=Object.keys(perf).map(t=>{const c=perf[t].correct||0,w=perf[t].wrong||0,a=c+w;return {tag:t,c,w,a,acc:a?c/a:0};}).filter(r=>r.a>0);
+  let totC=0,totA=0;rows.forEach(r=>{totC+=r.c;totA+=r.a;});
+  const ms=ex_masteryStats(items,progress);
+  const col=acc=>acc>=0.8?'#16A34A':acc>=0.6?'#D97706':'#DC2626';
+  let h='<div class="card" style="margin-top:14px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px">📊 Your performance · '+label+'</div>';
+  if(totA===0){
+    h+='<div style="font-size:14px;color:#94A3B8;line-height:1.6">Do a few '+label+' exercises to see your accuracy by grammar pattern here.</div>';
+  }else{
+    const overall=totC/totA;
+    h+='<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px"><span style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+col(overall)+'">'+Math.round(overall*100)+'%</span><span style="font-size:14px;color:#94A3B8">overall · '+totA+' attempt'+(totA===1?'':'s')+'</span></div>';
+    const weak=rows.slice().filter(r=>r.a>=3&&r.acc<0.8).sort((a,b)=>a.acc-b.acc).slice(0,3);
+    if(weak.length){
+      h+='<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:12px">'
+        +'<div style="font-size:13px;font-weight:700;color:#B91C1C;margin-bottom:4px">🎯 Focus on these</div>'
+        +weak.map(r=>'<div style="font-size:14px;color:#7F1D1D;font-family:\'DM Mono\',monospace">'+esc(r.tag)+' — '+Math.round(r.acc*100)+'% ('+r.a+')</div>').join('')
+        +'</div>';
+    }
+    const sorted=rows.slice().sort((a,b)=>a.acc-b.acc);
+    h+='<div style="font-size:13px;color:#64748B;margin-bottom:6px">By grammar pattern (weakest first)</div>';
+    h+=sorted.map(r=>{const pct=Math.round(r.acc*100);
+      return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569;font-family:\'DM Mono\',monospace">'+esc(r.tag)+'</span><span style="color:'+col(r.acc)+';font-weight:600">'+pct+'% <span style="color:#94A3B8;font-weight:400">('+r.a+')</span></span></div>'
+        +'<div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col(r.acc)+';border-radius:4px"></div></div></div>';
+    }).join('');
+  }
+  h+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid #EEF2F7;font-size:14px;color:#475569;line-height:1.7">'
+    +'<strong>Coverage:</strong> '+ms.mastered+'/'+ms.total+' mastered · '+ms.due+' due today'+(ms.untried?' · '+ms.untried+' not tried yet':'')
+    +'</div></div>';
+  return h;
 }
 // Apply SM-2 to an item's progress record (same math as flashcards).
 function ex_grade(progress,id,correct){
@@ -3134,8 +3187,8 @@ function bs_render(){
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
   const tb=bs_toolbar();
   if(!bs_cur){
-    if(bsItems.length){return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>';}
-    return tb+'<div class="card empty"><div class="etit">No sentence items yet</div><div class="esub">Add your first one above.</div></div>';
+    if(bsItems.length){return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>'+exPerfPanel('bs');}
+    return tb+'<div class="card empty"><div class="etit">No sentence items yet</div><div class="esub">Add your first one above.</div></div>'+exPerfPanel('bs');
   }
   const usedSet=new Set(bs_slots.filter(x=>x!=null));
   const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_fill('+t.id+')">'+esc(t.w)+'</span>').join('');
@@ -3161,7 +3214,7 @@ function bs_render(){
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button><button class="btn bsm" onclick="bs_reset()">↺ Reset</button></div>';
   }
   h+='</div>';
-  return h;
+  return h+exPerfPanel('bs');
 }
 function bs_fill(id){if(bs_checked)return;const s=bs_firstEmpty();if(s<0)return;if(bs_slots.includes(id))return;bs_slots[s]=id;renderRev();}
 function bs_clear(slot){if(bs_checked)return;if(slot>=0&&slot<bs_slots.length)bs_slots[slot]=null;renderRev();}
@@ -3172,7 +3225,7 @@ function bs_check(){
   const correct=guess===bs_cur.answer.join(' ');
   bs_checked=true;
   ex_grade(bsProgress,bs_cur.id,correct);bs_saveProgress();
-  ex_logPattern(bs_cur.tag,correct);
+  ex_logPattern(bs_cur.tag,correct,'bs');
   renderRev();
 }
 function bs_next(force){bs_load();if(force&&!bs_cur&&bsItems.length)bs_setup(bsItems[Math.floor(Math.random()*bsItems.length)]);renderRev();}
@@ -3246,8 +3299,8 @@ function cw_render(){
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
   const tb=cw_toolbar();
   if(!cw_cur){
-    if(cwItems.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>';
-    return tb+'<div class="card empty"><div class="etit">No passages yet</div><div class="esub">Add your first one above.</div></div>';
+    if(cwItems.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>'+exPerfPanel('cw');
+    return tb+'<div class="card empty"><div class="etit">No passages yet</div><div class="esub">Add your first one above.</div></div>'+exPerfPanel('cw');
   }
   const parts=cw_cur.text.split('___');
   let body='',allOk=true;
@@ -3284,7 +3337,7 @@ function cw_render(){
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_check()">✓ Check</button></div>';
   }
   h+='</div>';
-  return h;
+  return h+exPerfPanel('cw');
 }
 function cw_check(){
   if(!cw_cur)return;
@@ -3293,7 +3346,7 @@ function cw_check(){
   const allOk=cw_cur.blanks.every((b,i)=>cw_blankOk(b,cw_vals[i]));
   cw_checked=true;
   ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
-  ex_logPattern(cw_cur.tag,allOk);
+  ex_logPattern(cw_cur.tag,allOk,'cw');
   renderRev();
 }
 function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];renderRev();}
