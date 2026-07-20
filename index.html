@@ -234,6 +234,9 @@ textarea{min-height:120px}
 .cw-blank.bad{border-color:#FECACA;background:#FEF2F2;color:#DC2626}
 .cw-sol{font-size:13px;color:#16A34A;font-weight:600;margin-left:4px;font-family:'DM Mono',monospace}
 .cw-clue{font-size:13px;color:#94A3B8;margin-left:4px;font-style:italic}
+.cw-let-pre{font-weight:600;color:#0F172A}
+.cw-let{border:none;border-bottom:2px solid #93C5FD;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;padding:0 3px;margin:0 1px;outline:none;min-width:2ch}
+.cw-let:focus{border-bottom-color:#2563EB;background:#E0EAFF}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
@@ -526,13 +529,12 @@ textarea{min-height:120px}
 
 <div class="mov hid" id="mCW" onclick="if(event.target===this)closeM('mCW')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
-    <div class="mhdr"><div class="mtit">✏️ Add Complete-the-Words Exercise</div><button class="btn bsm" onclick="closeM('mCW')">✕</button></div>
+    <div class="mhdr"><div class="mtit">✏️ Add “Fill in the Missing Letters”</div><button class="btn bsm" onclick="closeM('mCW')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Passage *</label><textarea id="cwText" style="min-height:80px" placeholder="Each of the proposals ___ merit. However, the data ___ a cautious approach."></textarea><div style="font-size:13px;color:#94A3B8;margin-top:4px">Type <strong>___</strong> for each blank. Do <strong>not</strong> write the answer in the passage.</div></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Mode</label><select id="cwMode" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"><option value="mc">Multiple choice</option><option value="free">Free text (type the word)</option></select></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Answers *</label><textarea id="cwAnswers" style="min-height:90px" placeholder="One line per blank, in order.&#10;Multiple choice → answer / wrong1 / wrong2&#10;Free text → answer   (or)   answer | clue"></textarea><div style="font-size:13px;color:#94A3B8;margin-top:4px">One line per blank. <strong>MC:</strong> put the correct word first, then wrong options, separated by “/”. <strong>Free:</strong> just the answer, optionally “answer | clue” (the clue must not be the answer).</div></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Passage *</label><textarea id="cwText" style="min-height:130px" placeholder="Maps are tools that help us. They [[show|2]] the [[location|4]] of [[places|3]] like [[cities|3]]."></textarea>
+        <div style="font-size:13px;color:#94A3B8;margin-top:4px">Wrap each word to gap as <strong>[[word|n]]</strong> — <strong>n</strong> letters stay visible and the rest become the blank. e.g. <strong>[[show|2]]</strong> shows “sh” and hides “ow”. Keep punctuation outside the brackets.</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Grammar tag</label><select id="cwTag" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic tag</label><select id="cwTag" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"></select></div>
         <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Custom tag</label><input type="text" id="cwCustomTag" placeholder="only if “Custom…”" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;box-sizing:border-box"></div>
       </div>
       <div id="cwAddHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
@@ -3037,91 +3039,31 @@ const PATTERN_NOTE={
   'present-perfect':'Present perfect (have/has + past participle) links a past action to now; adverbs like already/yet sit inside it.',
   'verb-forms':'Use the correct form of the verb (past simple vs. past participle, irregular spellings).'
 };
-// Complete the Words: the passage text uses ___ for each blank and NEVER shows
-// the answer. A blank may carry a `clue` (a hint that is deliberately NOT the
-// answer — a synonym or the base verb form), rendered subtly. MC blanks give
-// `options` (shuffled at render). Free blanks may list extra `accept` spellings.
-// cw_ensureFresh() detects the old leaky seed (which embedded answers in parens)
-// by the absence of item cw14 and re-seeds the built-ins while keeping customs.
+// Complete the Words — TOEFL "fill in the missing letters" format. Each item is a
+// coherent paragraph where some words are gapped with the token [[word|prefixLen]]:
+// the first `prefixLen` letters stay visible and the rest is typed inline. The
+// answer for a gap is word.slice(prefixLen); nothing reveals it in the text.
+// cw_ensureFresh() detects the pre-letters built-ins (absence of cwl1) and swaps
+// them for this set while keeping any user-created (cwu-) items. The old spelling
+// words (especially, responsibility, flown, hid, learned, written, signed, begun)
+// are preserved inside these paragraphs.
 const CW_SEED=[
-  {id:'cw1',tag:'gerund-after-preposition',mode:'mc',
-   text:'The manager thanked the team for ___ the deadline. She is committed to ___ high standards across every project.',
-   blanks:[{answer:'meeting',options:['meeting','meet','met']},{answer:'maintaining',options:['maintain','maintaining','maintained']}]},
-  {id:'cw2',tag:'infinitive-after-modal',mode:'mc',
-   text:'We should ___ the results before the meeting. The committee will ___ a final decision next week.',
-   blanks:[{answer:'review',options:['review','reviewing','to review']},{answer:'make',options:['making','make','made']}]},
-  {id:'cw3',tag:'subject-verb-agreement',mode:'mc',
-   text:'Each of the proposals ___ merit. However, the data ___ a cautious approach.',
-   blanks:[{answer:'has',options:['has','have']},{answer:'suggest',options:['suggest','suggests']}]},
-  {id:'cw4',tag:'article',mode:'mc',
-   text:'She submitted ___ report that impressed ___ entire board.',
-   blanks:[{answer:'a',options:['a','an','the']},{answer:'the',options:['a','an','the']}]},
-  {id:'cw5',tag:'spelling',mode:'mc',
-   text:'I would ___ like to thank our partners. Their ___ was decisive.',
-   blanks:[{answer:'especially',options:['especially','especialy','specially']},{answer:'responsibility',options:['responsibility','responsability','responsibilty']}]},
-  {id:'cw6',tag:'prepositions',mode:'mc',
-   text:'The meeting is scheduled ___ Monday ___ 3 p.m.',
-   blanks:[{answer:'on',options:['on','in','at']},{answer:'at',options:['at','on','in']}]},
-  {id:'cw7',tag:'present-perfect',mode:'mc',
-   text:'I ___ already ___ the report to the client.',
-   blanks:[{answer:'have',options:['have','has','had']},{answer:'sent',options:['sent','send','sending']}]},
-  {id:'cw8',tag:'conditionals',mode:'mc',
-   text:'If I ___ more time, I ___ review the figures again.',
-   blanks:[{answer:'had',options:['had','have','will have']},{answer:'would',options:['would','will','would have']}]},
-  {id:'cw9',tag:'passive-voice',mode:'mc',
-   text:'The issue ___ ___ by the night team last week.',
-   blanks:[{answer:'was',options:['was','were','is']},{answer:'resolved',options:['resolved','resolving','resolve']}]},
-  {id:'cw10',tag:'reported-speech',mode:'mc',
-   text:'She said she ___ send the file and that she ___ quite busy.',
-   blanks:[{answer:'would',options:['would','will']},{answer:'was',options:['was','is']}]},
-  {id:'cw11',tag:'comparatives',mode:'mc',
-   text:'The new design is ___ better than the old one. It is also ___ user-friendly.',
-   blanks:[{answer:'much',options:['much','very','so']},{answer:'more',options:['more','most','much']}]},
-  {id:'cw12',tag:'verb-forms',mode:'free',
-   text:'By the time we arrived, the session had already ___.',
-   blanks:[{answer:'begun',clue:'base: begin',accept:['begun']}]},
-  {id:'cw13',tag:'verb-forms',mode:'free',
-   text:'She has ___ three detailed reports this week.',
-   blanks:[{answer:'written',clue:'base: write',accept:['written']}]},
-  {id:'cw14',tag:'verb-forms',mode:'free',
-   text:'They finally ___ the contract yesterday afternoon.',
-   blanks:[{answer:'signed',clue:'base: sign',accept:['signed']}]},
-  {id:'cw15',tag:'prepositions',mode:'mc',
-   text:'Please send the file ___ Friday ___ the latest.',
-   blanks:[{answer:'by',options:['by','on','at']},{answer:'at',options:['at','by','in']}]},
-  {id:'cw16',tag:'subject-verb-agreement',mode:'mc',
-   text:'The list of participants ___ been updated, and everyone ___ ready.',
-   blanks:[{answer:'has',options:['has','have']},{answer:'is',options:['is','are']}]},
-  {id:'cw17',tag:'conditionals',mode:'mc',
-   text:'If the client ___ , we ___ offer a small discount.',
-   blanks:[{answer:'agrees',options:['agrees','agree','agreed']},{answer:'will',options:['will','would','would have']}]},
-  {id:'cw18',tag:'passive-voice',mode:'mc',
-   text:'The samples ___ ___ in the lab yesterday.',
-   blanks:[{answer:'were',options:['were','was','are']},{answer:'analyzed',options:['analyzed','analyzing','analyze']}]},
-  {id:'cw19',tag:'reported-speech',mode:'mc',
-   text:'He asked whether I ___ finished, and I said I ___.',
-   blanks:[{answer:'had',options:['had','have','did']},{answer:'had',options:['had','have','was']}]},
-  {id:'cw20',tag:'article',mode:'mc',
-   text:'She is ___ engineer who works at ___ university nearby.',
-   blanks:[{answer:'an',options:['a','an','the']},{answer:'a',options:['a','an','the']}]},
-  {id:'cw21',tag:'present-perfect',mode:'mc',
-   text:'They ___ just ___ the results to everyone.',
-   blanks:[{answer:'have',options:['have','has','had']},{answer:'announced',options:['announced','announce','announcing']}]},
-  {id:'cw22',tag:'comparatives',mode:'mc',
-   text:'This route is ___ ___ than the highway during rush hour.',
-   blanks:[{answer:'far',options:['far','very','so']},{answer:'quicker',options:['quicker','quick','quickest']}]},
-  {id:'cw23',tag:'gerund-after-preposition',mode:'mc',
-   text:'Thank you for ___ me and for ___ so patient.',
-   blanks:[{answer:'helping',options:['helping','help','helped']},{answer:'being',options:['being','be','been']}]},
-  {id:'cw24',tag:'verb-forms',mode:'free',
-   text:'She has ___ abroad twice this year.',
-   blanks:[{answer:'flown',clue:'base: fly',accept:['flown']}]},
-  {id:'cw25',tag:'verb-forms',mode:'free',
-   text:'They quietly ___ the surprise until the party started.',
-   blanks:[{answer:'hid',clue:'base: hide',accept:['hid']}]},
-  {id:'cw26',tag:'verb-forms',mode:'free',
-   text:'We have ___ a great deal from this project.',
-   blanks:[{answer:'learned',clue:'base: learn',accept:['learned','learnt']}]}
+  {id:'cwl1',tag:'geography',mode:'letters',
+   text:'Maps are tools that help us understand the world around us. They [[show|2]] the [[location|4]] of [[places|3]] like [[cities|3]], [[and|1]] mountains. [[These|2]] visual [[guides|2]] can [[also|2]] display different [[types|2]] of [[information|5]], such as climate or population. There are many kinds, including physical, political, and thematic versions.'},
+  {id:'cwl2',tag:'teamwork',mode:'letters',
+   text:'Effective teams share a clear sense of [[responsibility|7]]. Each member is [[especially|4]] careful to meet deadlines and to [[communicate|7]] openly. When problems [[appear|3]], they discuss them calmly and [[decide|3]] together on the best solution. Good [[cooperation|5]] usually leads to stronger results.'},
+  {id:'cwl3',tag:'travel',mode:'letters',
+   text:'During my research trip, I had [[flown|2]] to three different countries, and by then I had [[written|4]] many pages of notes. Early one morning, thick fog [[hid|2]] the harbor from view. That journey [[taught|4]] me lessons I had never [[learned|5]] in a classroom, and my real work had only just [[begun|3]]. Before I left, the final agreement was [[signed|4]] by both partners.'},
+  {id:'cwl4',tag:'environment',mode:'letters',
+   text:'The water cycle [[describes|4]] how water moves around our planet. Heat from the sun causes water to [[evaporate|5]] from oceans and lakes. The vapour then [[rises|2]] into the air, where it [[cools|2]] and forms clouds. Eventually the water [[returns|3]] to the surface as [[rain|2]] or snow.'},
+  {id:'cwl5',tag:'science',mode:'letters',
+   text:'An ecosystem [[includes|3]] all the living things in an area and their [[environment|6]]. Plants [[produce|4]] energy from sunlight, while animals [[depend|3]] on plants for food. Tiny [[organisms|4]] break down dead material and [[release|4]] nutrients back into the soil. This balance keeps the whole system [[healthy|4]].'},
+  {id:'cwl6',tag:'history',mode:'letters',
+   text:'Ancient cities [[developed|5]] near rivers, where water was [[available|5]] for farming. Trade slowly [[connected|4]] distant communities, and new ideas [[spread|3]] from place to place. Over time, people [[built|3]] roads and markets that made travel and [[exchange|6]] much easier.'},
+  {id:'cwl7',tag:'technology',mode:'letters',
+   text:'Computers have [[changed|4]] the way we work and [[communicate|6]]. They can [[store|2]] enormous amounts of data and [[process|4]] it in seconds. However, this power also brings [[responsibility|7]], because personal [[information|5]] must be kept [[secure|3]].'},
+  {id:'cwl8',tag:'health',mode:'letters',
+   text:'Regular exercise [[improves|4]] both physical and mental health. It [[strengthens|6]] the heart and helps the body [[recover|3]] from stress. Doctors [[especially|4]] recommend a balanced diet, enough sleep, and time to [[relax|3]]. Small daily habits can [[prevent|4]] many common illnesses.'}
 ];
 // TOEFL "Write an Email" style: a 2–3 sentence situation, a named recipient,
 // and three bullet-point tasks. em_ensureFresh() re-seeds older saved data that
@@ -3411,6 +3353,25 @@ function cw_blankOk(b,val){
 }
 // A blank's clue is a hint that is never the answer (synonym / base form).
 function cw_clueHTML(b){return b&&b.clue?'<span class="cw-clue">('+esc(b.clue)+')</span>':'';}
+// Parse a "letters" passage: each [[word|prefixLen]] token becomes a gap where the
+// prefix is shown and the remaining letters are the answer. Returns ordered gaps.
+const CW_GAP_RE=/\[\[([^\]|]+)\|(\d+)\]\]/g;
+function cw_gaps(item){
+  const re=new RegExp(CW_GAP_RE.source,'g');let m,out=[];
+  while((m=re.exec(item.text))){const word=m[1];const plen=Math.max(1,Math.min(word.length-1,parseInt(m[2],10)||1));out.push({word,prefix:word.slice(0,plen),answer:word.slice(plen)});}
+  return out;
+}
+// Effective blanks for grading: parsed gaps for letters items, else item.blanks.
+function cw_activeBlanks(){
+  if(cw_cur&&cw_cur.mode==='letters')return cw_gaps(cw_cur);
+  return (cw_cur&&cw_cur.blanks)||[];
+}
+// Live "Answered X of N" counter for letters items (no re-render, keeps focus).
+function cw_count(){
+  if(!cw_cur||cw_cur.mode!=='letters')return;
+  const n=cw_activeBlanks().reduce((a,_,i)=>{const el=document.getElementById('cwb'+i);return a+(el&&el.value.trim()?1:0);},0);
+  const c=document.getElementById('cwCount');if(c)c.textContent=n;
+}
 // Toolbar above every Complete-the-Words state: count + add + import/export.
 function cw_toolbar(){
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
@@ -3428,36 +3389,56 @@ function cw_render(){
     if(cwItems.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>'+exPerfPanel('cw');
     return tb+'<div class="card empty"><div class="etit">No passages yet</div><div class="esub">Add your first one above.</div></div>'+exPerfPanel('cw');
   }
-  const parts=cw_cur.text.split('___');
-  let body='',allOk=true;
-  for(let i=0;i<parts.length;i++){
-    body+=esc(parts[i]);
-    if(i<cw_cur.blanks.length){
-      const b=cw_cur.blanks[i];
+  let body='',allOk=true,gapCount=0;
+  if(cw_cur.mode==='letters'){
+    // Rebuild the paragraph, replacing each [[word|n]] token with prefix + inline
+    // input (or a colored recap once checked). Answers are the hidden letters.
+    const re=new RegExp(CW_GAP_RE.source,'g');let m,last=0,i=0;
+    while((m=re.exec(cw_cur.text))){
+      body+=esc(cw_cur.text.slice(last,m.index));
+      const word=m[1],plen=Math.max(1,Math.min(word.length-1,parseInt(m[2],10)||1));
+      const prefix=word.slice(0,plen),ans=word.slice(plen);
       if(cw_checked){
-        // Static, colored recap of the user's answer (values captured at check time
-        // so a re-render never wipes the fields).
-        const val=(cw_vals[i]||'');
-        const ok=cw_blankOk(b,val);
+        const val=(cw_vals[i]||''),ok=val.trim().toLowerCase()===ans.toLowerCase();
         if(!ok)allOk=false;
-        body+='<span class="cw-blank '+(ok?'ok':'bad')+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>')+cw_clueHTML(b);
-      }else if(cw_cur.mode==='mc'){
-        const opts=shuffle((b.options||[]).slice());
-        body+='<select class="cw-blank" id="cwb'+i+'"><option value="">— choose —</option>'+opts.map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>'+cw_clueHTML(b);
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-blank '+(ok?'ok':'bad')+'" style="min-width:0;padding:2px 6px">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(ans)+'</span>');
       }else{
-        body+='<input type="text" class="cw-blank" id="cwb'+i+'" autocomplete="off" placeholder="type…">'+cw_clueHTML(b);
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" spellcheck="false" maxlength="'+ans.length+'" style="width:'+(ans.length+1)+'ch" oninput="cw_count()">';
+      }
+      last=m.index+m[0].length;i++;
+    }
+    body+=esc(cw_cur.text.slice(last));gapCount=i;
+  }else{
+    const parts=cw_cur.text.split('___');
+    for(let i=0;i<parts.length;i++){
+      body+=esc(parts[i]);
+      if(i<cw_cur.blanks.length){
+        const b=cw_cur.blanks[i];
+        if(cw_checked){
+          const val=(cw_vals[i]||''),ok=cw_blankOk(b,val);
+          if(!ok)allOk=false;
+          body+='<span class="cw-blank '+(ok?'ok':'bad')+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>')+cw_clueHTML(b);
+        }else if(cw_cur.mode==='mc'){
+          const opts=shuffle((b.options||[]).slice());
+          body+='<select class="cw-blank" id="cwb'+i+'"><option value="">— choose —</option>'+opts.map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>'+cw_clueHTML(b);
+        }else{
+          body+='<input type="text" class="cw-blank" id="cwb'+i+'" autocomplete="off" placeholder="type…">'+cw_clueHTML(b);
+        }
       }
     }
   }
   const isCustom=/^cwu-/.test(cw_cur.id);
+  const isLetters=cw_cur.mode==='letters';
+  const noteTxt=isLetters?'Read for meaning and complete each word from its opening letters.':(PATTERN_NOTE[cw_cur.tag]||('Pattern: '+cw_cur.tag));
   let h=tb+'<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A">✏️ Complete the passage</div>'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">'+(isLetters?'✏️ Fill in the missing letters':'✏️ Complete the passage')+'</div>'
     +'<div style="display:flex;align-items:center;gap:8px">'+(isCustom?'<button class="btn bdn bsm" title="Delete this custom exercise" onclick="cw_delItem(\''+cw_cur.id+'\')">🗑</button>':'')+'<span class="tag tbl">'+esc(cw_cur.tag)+'</span></div></div>'
-    +'<div style="font-size:16px;line-height:2.4;color:#0F172A;margin-bottom:14px">'+body+'</div>';
+    +'<div style="font-size:16px;line-height:2.6;color:#0F172A;margin-bottom:12px">'+body+'</div>';
+  if(isLetters&&!cw_checked){h+='<div style="font-size:14px;color:#64748B;margin-bottom:10px">Answered <span id="cwCount">0</span> of '+gapCount+'</div>';}
   if(cw_checked){
-    h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some blanks are off — corrections shown above. ')
-      +'<span style="opacity:.85">'+esc(PATTERN_NOTE[cw_cur.tag]||('Pattern: '+cw_cur.tag))+'</span></div>'
+    h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some words are off — corrections shown above. ')
+      +'<span style="opacity:.85">'+esc(noteTxt)+'</span></div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_next(false)">Next →</button></div>';
   }else{
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_check()">✓ Check</button></div>';
@@ -3467,20 +3448,20 @@ function cw_render(){
 }
 function cw_check(){
   if(!cw_cur)return;
+  const blanks=cw_activeBlanks();
   // Capture the user's answers before re-render so nothing is lost.
-  cw_vals=cw_cur.blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
-  const allOk=cw_cur.blanks.every((b,i)=>cw_blankOk(b,cw_vals[i]));
+  cw_vals=blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
+  const allOk=blanks.every((b,i)=>cw_blankOk(b,cw_vals[i]));
   cw_checked=true;
   ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
   ex_logPattern(cw_cur.tag,allOk,'cw');
   renderRev();
 }
 function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];renderRev();}
-// ── Complete the Words: add / delete custom items ──
-const CW_TAGS=['subject-verb-agreement','gerund-after-preposition','infinitive-after-modal','article','prepositions','present-perfect','conditionals','passive-voice','reported-speech','comparatives','verb-forms','spelling','word-order'];
+// ── Complete the Words: add / delete custom items (fill-the-letters format) ──
+const CW_TAGS=['geography','science','environment','history','technology','health','teamwork','travel','business','vocabulary','reading'];
 function openCWAdd(){
-  ['cwText','cwAnswers','cwCustomTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const md=document.getElementById('cwMode');if(md)md.value='mc';
+  ['cwText','cwCustomTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const sel=document.getElementById('cwTag');
   if(sel)sel.innerHTML=CW_TAGS.map(t=>'<option value="'+t+'">'+t+'</option>').join('')+'<option value="__custom__">+ Custom…</option>';
   document.getElementById('cwAddHint').textContent='';
@@ -3488,29 +3469,15 @@ function openCWAdd(){
 }
 function cw_saveNew(){
   const text=document.getElementById('cwText').value.trim();
-  const mode=document.getElementById('cwMode').value;
-  const lines=String(document.getElementById('cwAnswers').value||'').split('\n').map(x=>x.trim()).filter(Boolean);
   const tagSel=document.getElementById('cwTag').value;
-  const tag=(tagSel==='__custom__'?document.getElementById('cwCustomTag').value.trim():tagSel)||'word-order';
+  const tag=(tagSel==='__custom__'?document.getElementById('cwCustomTag').value.trim():tagSel)||'vocabulary';
   const hint=document.getElementById('cwAddHint');
-  const blanksN=text.split('___').length-1;
-  if(!text||!lines.length){hint.textContent='⚠️ Fill in the passage and the answers.';return;}
-  if(blanksN===0){hint.textContent='⚠️ The passage needs at least one blank — type ___ where each word goes.';return;}
-  if(blanksN!==lines.length){hint.textContent='⚠️ The passage has '+blanksN+' blank(s) but you gave '+lines.length+' answer line(s). They must match.';return;}
-  const blanks=[];
-  for(const ln of lines){
-    if(mode==='mc'){
-      const opts=ln.split('/').map(x=>x.trim()).filter(Boolean);
-      if(opts.length<2){hint.textContent='⚠️ Each multiple-choice line needs the answer plus at least one wrong option, separated by “/”.';return;}
-      blanks.push({answer:opts[0],options:opts});
-    }else{
-      const p=ln.split('|').map(x=>x.trim());
-      const b={answer:p[0]};
-      if(p[1]){if(p[1].toLowerCase()===p[0].toLowerCase()){hint.textContent='⚠️ The clue must not be the answer itself.';return;}b.clue=p[1];}
-      blanks.push(b);
-    }
-  }
-  const item={id:'cwu-'+uid(),tag,mode,text,blanks,custom:true};
+  if(!text){hint.textContent='⚠️ Write the passage first.';return;}
+  const gaps=(text.match(new RegExp(CW_GAP_RE.source,'g'))||[]);
+  if(!gaps.length){hint.textContent='⚠️ Mark at least one word to gap, e.g. [[show|2]] shows "sh" and hides the rest.';return;}
+  // Validate every token: prefixLen must be between 1 and word length − 1.
+  for(const g of gaps){const mm=g.match(/\[\[([^\]|]+)\|(\d+)\]\]/);const w=mm[1],p=parseInt(mm[2],10);if(!(p>=1&&p<w.length)){hint.textContent='⚠️ In '+g+', show fewer letters than the word has (1…'+(w.length-1)+').';return;}}
+  const item={id:'cwu-'+uid(),tag,mode:'letters',text,custom:true};
   cwItems.push(item);cw_saveItems();
   closeM('mCW');toast('✅ Exercise added!');
   if(revCfg.exMode==='complete'){cw_checked=false;cw_cur=cwItems[cwItems.length-1];renderRev();}
@@ -3582,7 +3549,16 @@ function io_normBS(o){
   return {id:'bsu-'+uid(),tag:String(o.tag||'word-order'),prompt:o.prompt,frame:o.frame,answer,distract,custom:true};
 }
 function io_normCW(o){
-  if(!o||typeof o.text!=='string'||!Array.isArray(o.blanks)||!o.blanks.length)return null;
+  if(!o||typeof o.text!=='string')return null;
+  // Letters format: at least one [[word|n]] token, prefix shorter than the word.
+  if(o.mode==='letters'){
+    const toks=o.text.match(new RegExp(CW_GAP_RE.source,'g'))||[];
+    if(!toks.length)return null;
+    for(const t of toks){const mm=t.match(/\[\[([^\]|]+)\|(\d+)\]\]/);const w=mm[1],p=parseInt(mm[2],10);if(!(p>=1&&p<w.length))return null;}
+    return {id:'cwu-'+uid(),tag:String(o.tag||'vocabulary'),mode:'letters',text:o.text,custom:true};
+  }
+  // Legacy grammar gap-fill (mc/free) still importable for backward compatibility.
+  if(!Array.isArray(o.blanks)||!o.blanks.length)return null;
   const blanks=o.text.split('___').length-1;
   if(blanks!==o.blanks.length)return null;
   const mode=o.mode==='free'?'free':'mc';
@@ -3687,11 +3663,12 @@ function em_ensureFresh(){
     emScenarios=EM_SEED.slice();em_saveScenarios();
   }
 }
-// The old Complete-the-Words seed leaked answers in parentheses and had no item
-// cw14. When that older built-in set is detected, replace the built-ins with the
-// clean CW_SEED while keeping any user-created (cwu-) items.
+// Complete the Words switched to the TOEFL "fill in the missing letters" format
+// (ids cwl*). Older built-in sets (grammar gap-fill cw*, and the even older leaky
+// seed) are detected by the absence of cwl1 and replaced with the current CW_SEED,
+// while any user-created (cwu-) items are kept.
 function cw_ensureFresh(){
-  const hasNew=cwItems.some(it=>it&&it.id==='cw14');
+  const hasNew=cwItems.some(it=>it&&it.id==='cwl1');
   if(!cwItems.length||!hasNew){
     const custom=cwItems.filter(it=>it&&/^cwu-/.test(it.id));
     cwItems=CW_SEED.slice().concat(custom);cw_saveItems();
