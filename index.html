@@ -235,8 +235,13 @@ textarea{min-height:120px}
 .cw-sol{font-size:13px;color:#16A34A;font-weight:600;margin-left:4px;font-family:'DM Mono',monospace}
 .cw-clue{font-size:13px;color:#94A3B8;margin-left:4px;font-style:italic}
 .cw-let-pre{font-weight:600;color:#0F172A}
-.cw-let{border:none;border-bottom:2px solid #93C5FD;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;padding:0 3px;margin:0 1px;outline:none;min-width:2ch}
-.cw-let:focus{border-bottom-color:#2563EB;background:#E0EAFF}
+/* Sized well above the ~26x20px it had before: that was smaller than a comfortable
+   tap target, so real taps/clicks that were a few px off the tiny box missed it
+   entirely and landed on the surrounding text — the field never got focus, so it
+   looked like typing/tapping "didn't work". min-width/min-height here give every
+   gap, even a 1-letter one, a target close to the 40px+ mobile tap-target guideline. */
+.cw-let{display:inline-flex;box-sizing:border-box;border:1.5px solid #93C5FD;border-radius:6px;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;padding:5px 6px;margin:2px 3px;outline:none;min-width:40px;min-height:36px;vertical-align:middle;touch-action:manipulation;-webkit-appearance:none}
+.cw-let:focus{border-color:#2563EB;background:#E0EAFF;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
@@ -3403,7 +3408,7 @@ function cw_render(){
         if(!ok)allOk=false;
         body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-blank '+(ok?'ok':'bad')+'" style="min-width:0;padding:2px 6px">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(ans)+'</span>');
       }else{
-        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" spellcheck="false" maxlength="'+ans.length+'" style="width:'+(ans.length+1)+'ch" oninput="cw_count()">';
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="'+ans.length+'" style="width:'+Math.max(2.4,ans.length+1.2)+'ch" oninput="cw_count()">';
       }
       last=m.index+m[0].length;i++;
     }
