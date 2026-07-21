@@ -786,6 +786,11 @@ let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 let cw_cur=null,cw_checked=false,cw_vals=[];
+// Defense-in-depth against losing in-progress letters answers to an unrelated
+// re-render (background sync, mode-agnostic future code, etc.): every keystroke
+// mirrors the typed value here, keyed to the current item, so cw_render() can
+// restore it even if the <input> DOM node itself gets rebuilt mid-typing.
+let cw_liveId=null,cw_liveVals=[];
 let em_active=false,em_cur=null,em_lastId=null;
 let peuaCompleted={};
 let peuaNotes={};
@@ -3346,7 +3351,7 @@ function bs_delItem(id){
 
 // ── COMPLETE THE WORDS ──
 function cw_load(){
-  cw_checked=false;cw_vals=[];
+  cw_checked=false;cw_vals=[];cw_liveId=null;cw_liveVals=[];
   const pool=ex_due(cwItems,cwProgress);
   cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
 }
@@ -3372,9 +3377,14 @@ function cw_activeBlanks(){
   return (cw_cur&&cw_cur.blanks)||[];
 }
 // Live "Answered X of N" counter for letters items (no re-render, keeps focus).
+// Also mirrors every field's current value into cw_liveVals so an unrelated
+// re-render (see the RCWI/RCWP Firebase listeners above) can restore in-progress
+// text instead of silently wiping it.
 function cw_count(){
   if(!cw_cur||cw_cur.mode!=='letters')return;
-  const n=cw_activeBlanks().reduce((a,_,i)=>{const el=document.getElementById('cwb'+i);return a+(el&&el.value.trim()?1:0);},0);
+  cw_liveId=cw_cur.id;
+  let n=0;
+  cw_activeBlanks().forEach((_,i)=>{const el=document.getElementById('cwb'+i);const v=el?el.value:'';cw_liveVals[i]=v;if(v.trim())n++;});
   const c=document.getElementById('cwCount');if(c)c.textContent=n;
 }
 // Toolbar above every Complete-the-Words state: count + add + import/export.
@@ -3408,7 +3418,10 @@ function cw_render(){
         if(!ok)allOk=false;
         body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-blank '+(ok?'ok':'bad')+'" style="min-width:0;padding:2px 6px">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(ans)+'</span>');
       }else{
-        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="'+ans.length+'" style="width:'+Math.max(2.4,ans.length+1.2)+'ch" oninput="cw_count()">';
+        // Restore an in-progress value if this re-render happened to interrupt
+        // the user mid-typing (see cw_count()/cw_liveVals) — same item only.
+        const restore=(cw_liveId===cw_cur.id&&cw_liveVals[i])?' value="'+esc(cw_liveVals[i])+'"':'';
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="'+ans.length+'"'+restore+' style="width:'+Math.max(2.4,ans.length+1.2)+'ch" oninput="cw_count()">';
       }
       last=m.index+m[0].length;i++;
     }
@@ -4360,10 +4373,20 @@ function startSync(){
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur)bs_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur)cw_load();renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_checked)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    // IMPORTANT: never call renderRev() here while the user has an unanswered
+    // exercise on screen (cur item set, not yet checked). renderRev() rebuilds
+    // the whole exercise from scratch, and a Complete-the-Words answer lives only
+    // in the <input> DOM nodes (nothing tracks it in JS until Check is pressed) —
+    // so any background Firebase sync mid-typing wiped the fields AND dropped
+    // focus, which on mobile also closes the just-opened keyboard. This was the
+    // actual cause of "can't type" reports; a bigger tap target alone didn't fix
+    // it because the field was being destroyed out from under the user, not
+    // missed. Data still updates in the background either way; the UI just
+    // doesn't redraw over an in-progress attempt.
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
 
