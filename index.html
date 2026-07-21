@@ -758,9 +758,17 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg hid" id="pg-peua">
-  <div style="margin-bottom:14px"><div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:10px">🎓 PHDNOSEUA — Preparation Schedule</div></div>
-  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="peuaMonthSelector"></div>
-  <div id="peuaContent"></div>
+  <div style="margin-bottom:14px"><div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:10px" id="peuaPageTitle">🎓 PHDNOSEUA — Preparation Schedule</div></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="peuaViewToggle"></div>
+  <div id="peuaScheduleView">
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="peuaMonthSelector"></div>
+    <div id="peuaContent"></div>
+  </div>
+  <div class="hid" id="peuaAmaView">
+    <div id="amaInfo"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="amaWeekSelector"></div>
+    <div id="amaContent"></div>
+  </div>
 </div>
 
 <div id="scrollBtns" style="position:fixed;bottom:80px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:99">
@@ -796,6 +804,9 @@ let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
 let peuaTasks=null;
+let amaCompleted={};
+let activeAmaWeek=1;
+let RAMA=null;
 let editingPeuaTask=null;
 let ensuranceWeek=1,ensuranceCycle=1;
 let ensuranceCompleted={};
@@ -907,6 +918,133 @@ const PEUA_DATA=[
     'Join the weekly Mentoring sessions (Zoom link on our platform)'
   ]}
 ];
+
+// ── AMA 2027 CONFERENCE PAPER ──────────────────────────────────────────────────
+// Static 4-week schedule for the AMA 2027 Winter Academic Conference
+// "Research-in-Progress" poster submission. Completion state persists in
+// amaCompleted (localStorage 'c1ama' + Firebase 'amaCompleted'), keyed
+// {week:{taskKey:true}} — the same shape as peuaCompleted. Checking a task also
+// feeds the app's existing streak/dashboard exactly like other roadmap items
+// (see toggleAmaTask): it marks today as a check-in and logs study minutes,
+// same as toggleCI/logSession do elsewhere.
+const AMA_DEADLINE='2026-08-19';   // Prazo real de submissão
+const AMA_GOAL='2026-08-12';       // Minha meta interna (com folga)
+const AMA_RQ='Em categorias terapêuticas altamente reguladas — onde a promoção direta ao médico é restrita —, a troca científica do representante (mecanismo de confiança) tem efeito mais forte sobre a velocidade de adoção médica de uma nova terapia do que a capacidade/treinamento comercial do representante (antecedente)?';
+const AMA_FORMAT='Poster / Research-in-Progress, inglês, sem identificação de autoria no arquivo.';
+const AMA_TRACK='Trilha de submissão (confirmado no site da AMA): "Sales Force Management and Personal Selling" — NÃO o tema geral do congresso (que é sobre IA/geopolítica). Essa trilha pede explicitamente pesquisa sobre venda adaptativa/consultiva, interações comprador-vendedor e formação de confiança — encaixe direto com a pergunta v2.';
+const AMA_TRACK_CHAIRS='Track chairs: Johannes Habel, Selma Kadic-Maglajlic, Sunil Singh.';
+const AMA_TRACK_TIP='Recomendado (opcional): abrir com 1 frase conectando "restrição regulatória à promoção farmacêutica" ao tema guarda-chuva do ano (incerteza regulatória) — reforça o encaixe com o congresso como um todo.';
+const AMA_STRUCTURE=[
+  'Título',
+  'Short Abstract (75–100 palavras)',
+  'Key Contributions to Academe and Practitioners (até 300 palavras)',
+  'Long Abstract (até 1.000 palavras) — aqui entram: motivação, base teórica/lacuna, pergunta e proposições, dados piloto, contribuição e próximos passos',
+  'Tabela ou figura (opcional, não conta no limite)',
+  'Referências selecionadas (não conta no limite)'
+];
+const AMA_WORDCOUNT_NOTE='Total do texto (exceto tabela/figura e referências): máx. 1.300 palavras.';
+const AMA_DATA=[
+  {week:1,start:'2026-07-21',end:'2026-07-27',range:'21 a 27/jul',title:'Fundação teórica + instrumento',
+   groups:[
+     {name:'Leitura e fichamento (Blocos 1–4 da lista de referências)',tasks:[
+       'Ler abstract + conclusão das 12 referências (não precisa ler na íntegra ainda)',
+       'Fichar cada uma em 2–3 linhas: achado principal + como conecta com a pergunta v2',
+       'Marcar quais 5–6 são "essenciais" (vão para o texto) vs. "apoio" (citação rápida)'
+     ]},
+     {name:'Estrutura do argumento',tasks:[
+       'Escrever em 1 parágrafo (livre, sem se preocupar com estilo ainda): qual é o gap na literatura que ninguém preencheu?',
+       'Esboçar a lógica mecanismo (confiança/troca científica) vs. antecedente (capacidade/treinamento) em um diagrama simples (pode ser à mão, foto, ou texto)'
+     ]},
+     {name:'Instrumento do survey piloto',tasks:[
+       'Rascunhar 10–12 itens (perfil + confiança/troca científica + capacidade/treinamento + adoção percebida)',
+       'Definir escala (Likert 5 ou 7 pontos)',
+       'Escrever nota de consentimento/anonimato (1 parágrafo, deixa claro que é pesquisa acadêmica independente, não é pesquisa da Sanofi)'
+     ]}
+   ],
+   deliverable:'Fichamento de 12 refs + rascunho do survey (documento único)'},
+  {week:2,start:'2026-07-28',end:'2026-08-03',range:'28/jul a 3/ago',title:'Piloto do instrumento + coleta + rascunho em paralelo',
+   groups:[
+     {name:'Testar o instrumento',tasks:[
+       'Enviar o survey para 3–5 contatos de confiança (fora da Sanofi, se possível)',
+       'Perguntar: alguma pergunta confusa? Tempo de resposta? Algo que falta?',
+       'Ajustar o instrumento com base no feedback'
+     ]},
+     {name:'Coleta',tasks:[
+       'Definir lista de contatos-alvo (rede pessoal — representantes/gestores de vendas em farma especializada, qualquer categoria terapêutica, não só onco-hematologia)',
+       'Escrever a mensagem de convite (curta, neutra, sem mencionar Sanofi como fonte)',
+       'Disparar o survey',
+       'Meta: 30–60 respostas até o fim da semana'
+     ]},
+     {name:'Rascunho do texto (em paralelo, não espera a coleta terminar)',tasks:[
+       'Short Abstract (75–100 palavras) — resumo geral do estudo',
+       'Key Contributions to Academe and Practitioners (até 300 palavras) — por que isso importa para pesquisadores E para gestores de vendas farma',
+       'Long Abstract, primeira metade: motivação + base teórica/lacuna + pergunta e proposições (~500 das 1.000 palavras)'
+     ]}
+   ],
+   deliverable:'Survey rodando + Short Abstract, Key Contributions e metade do Long Abstract rascunhados'},
+  {week:3,start:'2026-08-04',end:'2026-08-10',range:'4 a 10/ago',title:'Fechar coleta + análise + rascunho completo',
+   groups:[
+     {name:'Fechamento da coleta',tasks:[
+       'Encerrar coleta (mesmo que abaixo da meta — 20 respostas já sustentam um "piloto")',
+       'Organizar os dados em planilha simples'
+     ]},
+     {name:'Análise (mantém simples — é research-in-progress, não paper competitivo)',tasks:[
+       'Estatística descritiva (médias, desvios por item)',
+       'Correlações básicas entre confiança/troca científica, capacidade e adoção percebida',
+       'Anotar 2–3 achados direcionais (mesmo que não significativos estatisticamente — é aceitável em research-in-progress)'
+     ]},
+     {name:'Rascunho completo',tasks:[
+       'Long Abstract, segunda metade: dados piloto + contribuição e próximos passos (~500 palavras restantes)',
+       'Selecionar referências (não conta no limite — pode incluir todas as 12, se relevante)',
+       'Montar tabela ou figura simples (opcional) com os achados descritivos do piloto',
+       'Juntar Short Abstract + Key Contributions + Long Abstract em documento único, checar contagem total (máx. 1.300 palavras, excluindo tabela/refs)'
+     ]}
+   ],
+   deliverable:'Rascunho completo do poster, no formato oficial da AMA (Short Abstract + Key Contributions + Long Abstract + refs)'},
+  {week:4,start:'2026-08-11',end:'2026-08-19',range:'11 a 19/ago (meta real: 12/ago)',title:'Revisão e submissão',
+   groups:[
+     {name:null,tasks:[
+       'Revisão de inglês (mentoria PHDNOSEUA ou revisor de confiança)',
+       'Checar anonimato: nenhuma identificação de autoria no texto, nome do arquivo, ou propriedades do documento',
+       'Confirmar contagem de palavras final (≤1.300, excluindo tabela/figura e referências)',
+       'Exportar em PDF (formato exigido)',
+       'Selecionar a trilha "Sales Force Management and Personal Selling" no sistema de submissão',
+       'Criar conta/login no sistema de submissão da AMA (Ex Ordo — amawinter2027.exordo.com)',
+       'Submeter',
+       'Guardar comprovante de submissão'
+     ]}
+   ],
+   deliverable:'Poster submetido à AMA 2027 Winter Academic Conference'}
+];
+const AMA_REFS=[
+  {block:'Bloco 1 — Adoção/difusão de novos medicamentos',items:[
+    {n:1,cite:'Rogers, E. M. (2003). Diffusion of Innovations (5th ed.). Free Press.',url:'https://books.google.com/books/about/Diffusion_of_Innovations_5th_Edition.html?id=9U1K5LjUOwEC'},
+    {n:2,cite:'Coleman, J., Katz, E., & Menzel, H. (1957). The diffusion of an innovation among physicians. Sociometry, 20(4), 253–270.',url:'https://doi.org/10.2307/2785979'},
+    {n:3,cite:'Lublóy, Á. (2014). Factors affecting the uptake of new medicines: A systematic literature review. BMC Health Services Research, 14, 469.',url:'https://bmchealthservres.biomedcentral.com/articles/10.1186/1472-6963-14-469'},
+    {n:4,cite:'Donohue, J. M., Guclu, H., Gellad, W. F., et al. (2018). Influence of peer networks on physician adoption of new drugs. PLOS ONE, 13(10), e0204826.',url:'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0204826'}
+  ]},
+  {block:'Bloco 2 — Confiança comprador-vendedor em B2B',items:[
+    {n:5,cite:'Doney, P. M., & Cannon, J. P. (1997). An examination of the nature of trust in buyer–seller relationships. Journal of Marketing, 61(2), 35–51.',url:'https://journals.sagepub.com/doi/10.1177/002224299706100203'},
+    {n:6,cite:'Morgan, R. M., & Hunt, S. D. (1994). The commitment-trust theory of relationship marketing. Journal of Marketing, 58(3), 20–38.',url:'https://journals.sagepub.com/doi/abs/10.1177/002224299405800302'},
+    {n:7,cite:'Dwyer, F. R., Schurr, P. H., & Oh, S. (1987). Developing buyer-seller relationships. Journal of Marketing, 51(2), 11–27.',url:'https://journals.sagepub.com/doi/abs/10.1177/002224298705100202'}
+  ]},
+  {block:'Bloco 3 — Capacidade/venda adaptativa',items:[
+    {n:8,cite:'Weitz, B. A. (1981). Effectiveness in sales interactions: A contingency framework. Journal of Marketing, 45(1), 85–103.',url:'https://journals.sagepub.com/doi/10.1177/002224298104500109'},
+    {n:9,cite:'Weitz, B. A., Sujan, H., & Sujan, M. (1986). Knowledge, motivation, and adaptive behavior: A framework for improving selling effectiveness. Journal of Marketing, 50(4), 174–191.',url:'https://journals.sagepub.com/doi/abs/10.1177/002224298605000404'},
+    {n:10,cite:'Franke, G. R., & Park, J. E. (2006). Salesperson adaptive selling behavior and customer orientation: A meta-analysis. Journal of Marketing Research, 43(4), 693–702.',url:'https://journals.sagepub.com/doi/abs/10.1509/jmkr.43.4.693'}
+  ]},
+  {block:'Bloco 4 — Marketing farmacêutico sob restrição regulatória',items:[
+    {n:11,cite:"Fickweiler, F., Fickweiler, W., & Urbach, E. (2017). Interactions between physicians and the pharmaceutical industry generally and sales representatives specifically and their association with physicians' attitudes and prescribing habits: A systematic review. BMJ Open, 7(9), e016408.",url:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5623540/'},
+    {n:12,cite:'Weitz, B. A., & Bradford, K. D. (1999). Personal selling and sales management: A relationship marketing perspective. Journal of the Academy of Marketing Science, 27(2), 241–254.',url:'https://link.springer.com/article/10.1177/0092070399272008'}
+  ]}
+];
+const AMA_REFS_NOTE='Itens 1 e 2 (Rogers; Coleman/Katz/Menzel) podem exigir acesso institucional ou biblioteca para o texto completo — o link do item 1 é a página do livro, e o DOI do item 2 resolve para a página da editora (Wiley/JSTOR conforme disponibilidade).';
+const AMA_DECISIONS=[
+  'Pergunta de pesquisa: v2 (fixada em 21/jul/2026)',
+  'Formato: poster/research-in-progress, 1.300 palavras',
+  'Fonte de dados: survey próprio, rede pessoal, sem uso de dados internos da Sanofi'
+];
+
 // ── ENSURANCE CRONOGRAMA ──────────────────────────────────────────────────────────
 const ENSURANCE_CRONOGRAMA = {
   nome: 'ENSURANCE Schedule',
@@ -1441,6 +1579,7 @@ function loadLocal(){
   try{mysentences=JSON.parse(localStorage.getItem('mysentences')||'[]');}catch(e){mysentences=[];}
   try{lessonStats=JSON.parse(localStorage.getItem('c1lesstats')||'{}');}catch(e){lessonStats={};}
   try{peuaCompleted=JSON.parse(localStorage.getItem('c1peua')||'{}');}catch(e){peuaCompleted={};}
+  try{amaCompleted=JSON.parse(localStorage.getItem('c1ama')||'{}');}catch(e){amaCompleted={};}
   try{const stored=localStorage.getItem('c1peuaTasks');if(stored)peuaTasks=JSON.parse(stored);}catch(e){}
   try{ensuranceCompleted=JSON.parse(localStorage.getItem('c1ensurance')||'{}');}catch(e){ensuranceCompleted={};}
   try{customCycleActivities=JSON.parse(localStorage.getItem('c1cycleact')||'{}');}catch(e){customCycleActivities={};}
@@ -1609,7 +1748,7 @@ function goTab(t){
     else if(t==='road')buildRoadmap();
     else if(t==='rev')renderRev();
     else if(t==='cards')renderCards();
-    else if(t==='peua'){activePeuaMonth=findCurrentPeuaMonth();renderPeua();}
+    else if(t==='peua'){activePeuaMonth=findCurrentPeuaMonth();activeAmaWeek=findCurrentAmaWeek();renderPeua();}
   }catch(e){
     console.error('goTab error:',e);
   }
@@ -3863,7 +4002,28 @@ function setupCardTextareas(){
 const CTAGS=['Reading','Listening','Speaking','Writing','Podcast','Video','Article','Science','Tech','Philosophy','Culture','Business'];
 const TOPICS=['Sentence Structure','Connectors','Word Formation','Verb Tenses','Prepositions','Modal Verbs','Reported Speech','Active vs Passive Voice','Pronouns & Determiners','Conditional','Discourse Markers & Hedging','Questions & Indirect Questions','General English','Commom Themes'];
 function allTopics(){const custom=[...new Set(cards.filter(c=>c.topic&&!TOPICS.includes(c.topic)).map(c=>c.topic))].sort();return[...TOPICS,...custom];}
+// Two views share the PEUA tab (no separate nav tab): the PhD prep schedule
+// (default) and the AMA 2027 conference-paper checklist, switched by
+// setPeuaView(). Both keep their own state (activePeuaMonth / activeAmaWeek).
+let peuaView='schedule';
+function renderPeuaViewToggle(){
+  const el=document.getElementById('peuaViewToggle');if(!el)return;
+  const views=[['schedule','🎓 PhD Schedule'],['ama','📄 AMA 2027 Paper']];
+  el.innerHTML=views.map(v=>'<button onclick="setPeuaView(\''+v[0]+'\')" style="padding:8px 14px;border-radius:8px;border:1px solid '+(peuaView===v[0]?'#2563EB':'#DDE3F5')+';background:'+(peuaView===v[0]?'#2563EB':'#fff')+';color:'+(peuaView===v[0]?'#fff':'#475569')+';cursor:pointer;font-weight:600;font-size:14px;transition:all .15s">'+v[1]+'</button>').join('');
+}
+function setPeuaView(v){peuaView=v;renderPeua();}
 function renderPeua(){
+  renderPeuaViewToggle();
+  const scheduleEl=document.getElementById('peuaScheduleView'),amaEl=document.getElementById('peuaAmaView');
+  if(peuaView==='ama'){
+    if(scheduleEl)scheduleEl.classList.add('hid');
+    if(amaEl)amaEl.classList.remove('hid');
+    renderAma();
+    return;
+  }
+  if(scheduleEl)scheduleEl.classList.remove('hid');
+  if(amaEl)amaEl.classList.add('hid');
+
   const monthSelector=document.getElementById('peuaMonthSelector');
   const content=document.getElementById('peuaContent');
 
@@ -4007,6 +4167,156 @@ function closePeuaEditModal(){
   document.querySelector('#peuaEditModal .mtit').textContent='✏️ Edit Task';
   editingPeuaTask=null;
 }
+
+// ── AMA 2027 CONFERENCE PAPER ──────────────────────────────────────────────────
+function findCurrentAmaWeek(){
+  for(const w of AMA_DATA){if(today>=w.start&&today<=w.end)return w.week;}
+  if(today<AMA_DATA[0].start)return AMA_DATA[0].week;
+  return AMA_DATA[AMA_DATA.length-1].week;
+}
+function amaDaysUntil(dateStr){return Math.round((new Date(dateStr+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);}
+function amaTaskKey(week,gi,ti){return 'w'+week+'-g'+gi+'-t'+ti;}
+function amaWeekCounts(w){
+  const completed=amaCompleted[w.week]||{};
+  let total=0,done=0;
+  w.groups.forEach((g,gi)=>{g.tasks.forEach((_,ti)=>{total++;if(completed[amaTaskKey(w.week,gi,ti)])done++;});});
+  return{total,done};
+}
+function amaTotals(){
+  let total=0,done=0;
+  AMA_DATA.forEach(w=>{const c=amaWeekCounts(w);total+=c.total;done+=c.done;});
+  return{total,done};
+}
+function renderAma(){
+  const infoEl=document.getElementById('amaInfo');
+  const selEl=document.getElementById('amaWeekSelector');
+  const contentEl=document.getElementById('amaContent');
+  if(!infoEl||!selEl||!contentEl)return;
+
+  const overall=amaTotals();
+  const overallPct=overall.total?Math.round(overall.done/overall.total*100):0;
+  const dDeadline=amaDaysUntil(AMA_DEADLINE),dGoal=amaDaysUntil(AMA_GOAL);
+  infoEl.innerHTML='<div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:10px">📄 Conference Paper — AMA 2027 Winter Academic Conference</div>'
+    +'<div class="card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;margin-bottom:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<div style="flex:1;min-width:220px">'
+    +'<div style="font-size:14px;color:#475569;line-height:1.6;margin-bottom:8px">'+esc(AMA_RQ)+'</div>'
+    +'<div style="font-size:14px;color:#94A3B8;font-style:italic">'+esc(AMA_FORMAT)+'</div></div>'
+    +'<div style="text-align:right;flex-shrink:0">'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:#2563EB">'+overall.done+'/'+overall.total+'</div>'
+    +'<div style="font-size:13px;color:#94A3B8">'+overallPct+'% concluído</div></div></div>'
+    +'<div style="width:100%;height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-bottom:12px">'
+    +'<div style="height:100%;width:'+overallPct+'%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:4px;transition:width .4s"></div></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">'
+    +'<div style="background:#fff;border:1px solid #FECACA;border-radius:8px;padding:10px">'
+    +'<div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Prazo real (AMA)</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#DC2626">19/ago/2026</div>'
+    +'<div style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+(dDeadline>=0?dDeadline+' dias restantes':'prazo encerrado')+'</div></div>'
+    +'<div style="background:#fff;border:1px solid #BBF7D0;border-radius:8px;padding:10px">'
+    +'<div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Minha meta interna</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#16A34A">12/ago/2026</div>'
+    +'<div style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+(dGoal>=0?dGoal+' dias restantes':'meta vencida')+'</div></div>'
+    +'</div></div>'
+    +'<div class="card" style="padding:14px;margin-bottom:14px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">🎯 Trilha de submissão</div>'
+    +'<div style="font-size:14px;color:#475569;line-height:1.6;margin-bottom:6px">'+esc(AMA_TRACK)+'</div>'
+    +'<div style="font-size:13px;color:#7C3AED;font-weight:600;margin-bottom:4px">'+esc(AMA_TRACK_CHAIRS)+'</div>'
+    +'<div style="font-size:13px;color:#94A3B8;font-style:italic;line-height:1.5">'+esc(AMA_TRACK_TIP)+'</div></div>'
+    +'<div class="card" style="padding:14px;margin-bottom:14px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px">📋 Estrutura oficial exigida pela AMA</div>'
+    +'<ol style="margin:0 0 8px 18px;padding:0;font-size:14px;color:#475569;line-height:1.7">'
+    +AMA_STRUCTURE.map(s=>'<li>'+esc(s)+'</li>').join('')
+    +'</ol>'
+    +'<div style="font-size:13px;color:#DC2626;font-weight:600">'+esc(AMA_WORDCOUNT_NOTE)+'</div></div>';
+
+  selEl.innerHTML=AMA_DATA.map(w=>{
+    const c=amaWeekCounts(w);
+    const on=activeAmaWeek===w.week;
+    return '<button onclick="switchAmaWeek('+w.week+')" style="padding:8px 12px;border-radius:8px;border:1px solid '+(on?'#2563EB':'#DDE3F5')+';background:'+(on?'#2563EB':'#fff')+';color:'+(on?'#fff':'#475569')+';cursor:pointer;font-weight:600;font-size:14px;transition:all .15s;text-align:left">'
+      +'<div>Semana '+w.week+'</div>'
+      +'<div style="font-size:13px;font-weight:400;opacity:.85">'+esc(w.range)+' · '+c.done+'/'+c.total+'</div></button>';
+  }).join('');
+
+  const w=AMA_DATA.find(x=>x.week===activeAmaWeek)||AMA_DATA[0];
+  const c=amaWeekCounts(w);
+  const pctW=c.total?Math.round(c.done/c.total*100):0;
+  const completed=amaCompleted[w.week]||{};
+
+  let html='<div class="card" style="border:1px solid #DDE3F5;padding:14px;margin-bottom:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">'
+    +'<div><div style="font-size:18px;font-weight:700;color:#0F172A">Semana '+w.week+' — '+esc(w.range)+'</div>'
+    +'<div style="font-size:14px;color:#475569;margin-top:2px">'+esc(w.title)+'</div></div>'
+    +'<div style="text-align:right;font-size:14px;flex-shrink:0"><div style="font-weight:600;color:#2563EB">'+c.done+'/'+c.total+'</div><div style="font-size:13px;color:#94A3B8">'+pctW+'%</div></div></div>'
+    +'<div style="width:100%;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;margin-bottom:14px">'
+    +'<div style="height:100%;background:#10B981;width:'+pctW+'%;transition:width .3s"></div></div>';
+
+  w.groups.forEach((g,gi)=>{
+    if(g.name)html+='<div style="font-size:14px;font-weight:600;color:#0F172A;margin:12px 0 8px">'+esc(g.name)+'</div>';
+    html+='<div style="display:grid;gap:6px;margin-bottom:4px">';
+    g.tasks.forEach((t,ti)=>{
+      const key=amaTaskKey(w.week,gi,ti);
+      const isDone=!!completed[key];
+      html+='<label style="display:flex;align-items:flex-start;gap:10px;padding:8px;border-radius:8px;background:'+(isDone?'#F0FDF4':'#F8FAFF')+';border:1px solid '+(isDone?'#BBF7D0':'#E5E7EB')+';cursor:pointer">'
+        +'<input type="checkbox" '+(isDone?'checked':'')+' onchange="toggleAmaTask('+w.week+',\''+key+'\',this.checked)" style="width:14px;height:14px;margin-top:2px;cursor:pointer;flex-shrink:0">'
+        +'<span style="font-size:14px;color:'+(isDone?'#6B7280':'#0F172A')+';'+(isDone?'text-decoration:line-through;':'')+'line-height:1.5">'+esc(t)+'</span></label>';
+    });
+    html+='</div>';
+  });
+
+  html+='<div style="margin-top:10px;padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:14px;color:#1D4ED8"><strong>Entregável da semana:</strong> '+esc(w.deliverable)+'</div>';
+  html+='</div>';
+
+  // References — reference material for Week 1's reading tasks, kept visible
+  // regardless of the selected week since later weeks may still cite them.
+  html+='<div class="card" style="padding:14px;margin-bottom:14px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px">📚 Referências-chave (12)</div>';
+  AMA_REFS.forEach(block=>{
+    html+='<div style="font-size:13px;font-weight:600;color:#7C3AED;margin:10px 0 6px">'+esc(block.block)+'</div>';
+    block.items.forEach(it=>{
+      html+='<div style="font-size:14px;color:#475569;line-height:1.5;margin-bottom:6px"><strong style="color:#0F172A">'+it.n+'.</strong> '+esc(it.cite)+' — <a href="'+esc(it.url)+'" target="_blank" rel="noopener" style="color:#2563EB;word-break:break-all">'+esc(it.url)+'</a></div>';
+    });
+  });
+  html+='<div style="font-size:13px;color:#94A3B8;margin-top:8px;font-style:italic;line-height:1.5">Nota: '+esc(AMA_REFS_NOTE)+'</div></div>';
+
+  // Decision log
+  html+='<div class="card" style="padding:14px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px">🗒️ Registro de decisões</div>'
+    +'<ul style="margin:0;padding-left:18px;font-size:14px;color:#475569;line-height:1.7">'
+    +AMA_DECISIONS.map(d=>'<li>'+esc(d)+'</li>').join('')
+    +'</ul></div>';
+
+  contentEl.innerHTML=html;
+}
+function switchAmaWeek(week){activeAmaWeek=week;renderAma();}
+// Checking a task feeds the same streak/dashboard system used everywhere else in
+// the app: it marks today as a check-in (drives the 🔥 streak header stat and the
+// yearly contribution heatmap, same as toggleCI) and logs a small amount of study
+// time (same pattern as logSession). Unchecking mirrors the minutes but does NOT
+// remove today's check-in — once something was done today, the streak day stands,
+// consistent with how the rest of the app never retroactively un-counts a day.
+function toggleAmaTask(week,key,checked){
+  if(!amaCompleted[week])amaCompleted[week]={};
+  if(checked){
+    amaCompleted[week][key]=true;
+    if(!checkins[today]){checkins[today]=true;saveCI();}
+    stats.totalMins=(stats.totalMins||0)+10;
+    if(!stats.studyDays)stats.studyDays={};
+    stats.studyDays[today]=(stats.studyDays[today]||0)+10;
+    saveST();
+  }else{
+    delete amaCompleted[week][key];
+    stats.totalMins=Math.max(0,(stats.totalMins||0)-10);
+    if(stats.studyDays&&stats.studyDays[today]){
+      stats.studyDays[today]=Math.max(0,stats.studyDays[today]-10);
+      if(stats.studyDays[today]===0)delete stats.studyDays[today];
+    }
+    saveST();
+  }
+  saveAma();
+  renderAma();
+  render();
+}
+function saveAma(){localStorage.setItem('c1ama',JSON.stringify(amaCompleted));fbSet(RAMA,Object.keys(amaCompleted).length?amaCompleted:null);}
 
 // ── RICH-TEXT NOTES (PEUA tasks + Practice cycles) ──────────────────────────────
 // One shared modal (#peuaNotesModal) drives both. peuaNotesCtx tells saveRtNote()
@@ -4340,6 +4650,7 @@ function startSync(){
     RCIC = db.ref('cycleItemChecked');
     RCN = db.ref('cycleNotes');
     RPTN = db.ref('peuaNotes');
+    RAMA = db.ref('amaCompleted');
     RBSI = db.ref('buildSentenceItems');
     RBSP = db.ref('buildSentenceProgress');
     RCWI = db.ref('completeWordsItems');
@@ -4370,6 +4681,7 @@ function startSync(){
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
+    RAMA.on('value',s=>{const v=s.val();if(v){amaCompleted=v; localStorage.setItem('c1ama',JSON.stringify(v));} setSS('online'); if(curTab==='peua'&&peuaView==='ama')renderAma();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
 
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
