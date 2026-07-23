@@ -638,6 +638,29 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mEscola" onclick="if(event.target===this)closeM('mEscola')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
+    <div class="mhdr"><div class="mtit">📥 Import Escola do TOEFL Feedback</div><button class="btn bsm" onclick="closeM('mEscola')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Paste the text from the feedback PDF, then Parse. Everything below is editable before saving.</div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Paste feedback text</label><textarea id="esc_paste" style="min-height:120px;resize:vertical;width:100%;box-sizing:border-box" placeholder="Paste the PDF text here…"></textarea></div>
+      <div class="fl g8" style="justify-content:flex-end;margin:6px 0 10px"><button class="btn bpr bsm" onclick="escola_runParse()">🔍 Parse</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Task</label><select id="esc_type" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"><option value="email">Write an Email</option><option value="essay">Independent/Integrated Essay</option><option value="interview">Interview</option><option value="listenrepeat">Listen &amp; Repeat</option></select></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Date</label><input type="date" id="esc_date" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;box-sizing:border-box"></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Score (0-5)</label><input type="number" id="esc_score" min="0" max="5" step="0.5" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;box-sizing:border-box"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:14px;font-weight:600;color:#475569">Corrections</label><button class="btn bsm" onclick="escola_addRow()">+ Add correction</button></div>
+      <div id="esc_corrections"></div>
+      <div id="escHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mEscola')">Cancel</button>
+        <button class="btn bpr bsm" onclick="escola_save()">Save &amp; Create Cards</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="importModal" class="import-export-modal" onclick="if(event.target===this)closeImportModal()">
   <div class="import-dropdown">
     <div class="import-dropdown-item" onclick="document.getElementById('csvFileInput').click();closeImportModal()">
@@ -684,6 +707,9 @@ textarea{min-height:120px}
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">🎯 TOEFL Score Progress</div>
   <div id="scoreTrackerContainer"></div>
 
+  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📥 Escola do TOEFL — Feedback</div>
+  <div id="escolaFeedbackContainer"></div>
+
 </div>
 
 <div class="pg hid" id="pg-prac">
@@ -713,6 +739,7 @@ textarea{min-height:120px}
       <button class="exmode-btn" id="wm-email" onclick="em_setMode(true)">📧 Write an Email</button>
     </div>
     <div id="emailScenarioBox" class="hid" style="margin-top:12px"></div>
+    <div id="escolaEmailChart"></div>
   </div>
 
   <div class="card" style="margin-top:12px">
@@ -779,6 +806,7 @@ textarea{min-height:120px}
 </div><script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth(),toeflScores=[];
+let escolaFeedback=[];
 let activeMonth=5,activeLesson=null,curTab='dash';
 let flashIdx=0,flipped=false,listening=false,recognition=null,noteCardId=null;
 let shadowOn=false,shadowIv=null,shadowSecs=300;
@@ -790,7 +818,7 @@ const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null;
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 let cw_cur=null,cw_checked=false,cw_vals=[];
@@ -1587,6 +1615,8 @@ function loadLocal(){
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
   try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
   const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
+  try{escolaFeedback=JSON.parse(localStorage.getItem('c1esc')||'[]');}catch(e){escolaFeedback=[];}
+  if(!Array.isArray(escolaFeedback))escolaFeedback=[];
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
   loadMilestones();
   loadLessons();
@@ -1898,6 +1928,7 @@ function renderDash(){
   }
   renderReviewPerf();
   renderScoreTracker();
+  renderEscolaDash();
 }
 
 function renderReviewPerf(){
@@ -3186,7 +3217,8 @@ const PATTERN_NOTE={
   'reported-speech':'Reported speech shifts the tense back (will→would, send→sent) inside the report.',
   'prepositions':'Pick the preposition that fits the time/place expression (at/on/in, for…).',
   'present-perfect':'Present perfect (have/has + past participle) links a past action to now; adverbs like already/yet sit inside it.',
-  'verb-forms':'Use the correct form of the verb (past simple vs. past participle, irregular spellings).'
+  'verb-forms':'Use the correct form of the verb (past simple vs. past participle, irregular spellings).',
+  'escola-toefl':'Auto-generated from a real correction in your Escola do TOEFL feedback — practice fixing the exact mistake you made.'
 };
 // Complete the Words — TOEFL "fill in the missing letters" format. Each item is a
 // coherent paragraph where some words are gapped with the token [[word|prefixLen]]:
@@ -3766,11 +3798,13 @@ function em_setMode(on){
     if(!em_cur)em_pick();
     box.classList.remove('hid');
     em_renderScenario();
+    renderEscolaTimeline('email','escolaEmailChart');
     if(ta)ta.placeholder='Write your email here…';
     // Relabel the primary analyze button to match the email flow.
     const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16v16H4z"/><polyline points="4 6 12 13 20 6"/></svg>📧 Analyze Email';
   }else{
     box.classList.add('hid');
+    const ec=document.getElementById('escolaEmailChart');if(ec)ec.innerHTML='';
     if(ta)ta.placeholder='Write your response here, or click Speak to dictate…';
     const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing';
   }
@@ -3800,6 +3834,203 @@ function em_renderScenario(){
     +'</div>';
 }
 function em_shuffle(){em_pick();em_renderScenario();}
+
+// ── ESCOLA DO TOEFL FEEDBACK (score timeline + PDF-text import → SRS + exercises) ──
+const ESCOLA_TASKS={
+  email:{label:'Write an Email',skill:'writing'},
+  essay:{label:'Independent/Integrated Essay',skill:'writing'},
+  interview:{label:'Interview',skill:'speaking'},
+  listenrepeat:{label:'Listen & Repeat',skill:'speaking'}
+};
+function escola_saveFeedback(){localStorage.setItem('c1esc',JSON.stringify(escolaFeedback));if(RESC){const o=escolaFeedback.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RESC,Object.keys(o).length?o:null);}}
+// dd/mm/yyyy is treated as the Brazilian convention (Escola do TOEFL is a BR school);
+// the date field stays user-editable so a wrong guess is a one-click fix, not a blocker.
+function escola_normDate(s){
+  s=String(s||'').trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  const months={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+  m=s.match(/^([A-Za-z]+)\.?\s+(\d{1,2}),?\s+(\d{4})$/);
+  if(m){const mo=months[m[1].slice(0,3).toLowerCase()];if(mo)return m[3]+'-'+mo+'-'+m[2].padStart(2,'0');}
+  return '';
+}
+// Best-effort extraction only — the import modal always shows the result as
+// editable fields, so a wrong guess here just means one extra click to fix,
+// never a lost or silently-wrong entry.
+function escola_parse(text){
+  const norm=String(text||'').replace(/\r\n/g,'\n');
+  let skill='writing';
+  if(/toefl ibt speaking evaluator/i.test(norm))skill='speaking';
+  if(/toefl ibt writing evaluator/i.test(norm))skill='writing';
+  let taskType=skill==='writing'?'email':'interview';
+  if(skill==='writing'){
+    if(/write an email/i.test(norm))taskType='email';
+    else if(/independent|integrated|essay/i.test(norm))taskType='essay';
+  }else{
+    if(/listen and repeat|listen & repeat|l&r/i.test(norm))taskType='listenrepeat';
+    else taskType='interview';
+  }
+  let date='';
+  let m=norm.match(/\b(20\d{2}-\d{2}-\d{2})\b/)||norm.match(/\b(\d{1,2}\/\d{1,2}\/20\d{2})\b/)||norm.match(/\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+20\d{2})\b/i);
+  if(m)date=escola_normDate(m[1]);
+  let score='';
+  if(skill==='writing'){
+    const sm=norm.match(/(?:estimated\s+(?:task\s+)?score|score)\s*:?\s*(\d(?:\.\d)?)\s*\/\s*5/i);
+    if(sm)score=parseFloat(sm[1]);
+  }else{
+    const all=[...norm.matchAll(/(\d(?:\.\d)?)\s*\/\s*5/g)].map(x=>parseFloat(x[1]));
+    if(all.length)score=Math.round((all.reduce((a,b)=>a+b,0)/all.length)*10)/10;
+  }
+  const corrections=[],seen=new Set();
+  function pushCorr(said,corrected,why){
+    said=(said||'').trim();corrected=(corrected||'').trim();why=(why||'').trim();
+    if(!said||!corrected)return;
+    const key=said.toLowerCase()+'|'+corrected.toLowerCase();
+    if(seen.has(key))return;seen.add(key);
+    corrections.push({said,corrected,why});
+  }
+  let mm;
+  // Two writing templates ("Original/Corrected/Explanation" and "You wrote/Correction/Why")
+  // plus the shared speaking template all get matched unconditionally — a given
+  // document only ever satisfies the pattern that matches its real template.
+  const STOP='(?=Original:|You wrote:|Overall|Summary|Score:|Estimated|Topic\\/Writing Set:|$)';
+  const reA=new RegExp('Original:\\s*([\\s\\S]*?)\\s*Corrected:\\s*([\\s\\S]*?)\\s*Explanation:\\s*([\\s\\S]*?)'+STOP,'gi');
+  while((mm=reA.exec(norm)))pushCorr(mm[1],mm[2],mm[3]);
+  const reB=new RegExp('You wrote:\\s*([\\s\\S]*?)\\s*Correction:\\s*([\\s\\S]*?)\\s*Why:\\s*([\\s\\S]*?)'+STOP,'gi');
+  while((mm=reB.exec(norm)))pushCorr(mm[1],mm[2],mm[3]);
+  return {skill,taskType,date,score,corrections};
+}
+// Word-level diff: strip the matching prefix/suffix so only the actually-corrected
+// middle phrase remains — that's what becomes the fill-in-the-blank.
+function escola_diffMiddle(saidWords,corrWords){
+  let p=0;
+  while(p<saidWords.length&&p<corrWords.length&&saidWords[p].toLowerCase()===corrWords[p].toLowerCase())p++;
+  let sSuf=saidWords.length,cSuf=corrWords.length;
+  while(sSuf>p&&cSuf>p&&saidWords[sSuf-1].toLowerCase()===corrWords[cSuf-1].toLowerCase()){sSuf--;cSuf--;}
+  return {prefix:corrWords.slice(0,p),corrMid:corrWords.slice(p,cSuf),saidMid:saidWords.slice(p,sSuf),suffix:corrWords.slice(cSuf)};
+}
+// Turn one correction into a Build-a-Sentence item, reusing the existing
+// frame/answer/distract schema. Returns null when the diff isn't a clean,
+// reasonably-sized blank (whole-sentence rewrites make poor exercises).
+function escola_deriveBS(said,corrected,taskType){
+  const saidWords=String(said||'').trim().split(/\s+/).filter(Boolean);
+  const corrWords=String(corrected||'').trim().split(/\s+/).filter(Boolean);
+  if(saidWords.length<3||corrWords.length<3)return null;
+  const{prefix,corrMid,saidMid,suffix}=escola_diffMiddle(saidWords,corrWords);
+  if(!corrMid.length||corrMid.length>6)return null;
+  if(!prefix.length&&!suffix.length)return null;
+  const frame=(prefix.join(' ')+' ___ '+suffix.join(' ')).trim().replace(/\s+/g,' ');
+  const answerPhrase=corrMid.join(' '),distractPhrase=saidMid.join(' ');
+  const answer=[answerPhrase];
+  const distract=(distractPhrase&&distractPhrase.toLowerCase()!==answerPhrase.toLowerCase())?[distractPhrase]:[];
+  const label=(ESCOLA_TASKS[taskType]&&ESCOLA_TASKS[taskType].label)||'Escola do TOEFL';
+  return {id:'bsu-'+uid(),tag:'escola-toefl',prompt:'From your '+label+' feedback — fix the mistake:',frame,answer,distract,custom:true};
+}
+// Simple dependency-free bar chart of score-over-time for one task type,
+// consistent with the rest of the app's div-based visualizations.
+function renderEscolaTimeline(taskType,containerId){
+  const el=document.getElementById(containerId);if(!el)return;
+  const entries=escolaFeedback.filter(e=>e.taskType===taskType&&e.score!=null&&e.score!=='').sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(!entries.length){el.innerHTML='';return;}
+  const label=(ESCOLA_TASKS[taskType]&&ESCOLA_TASKS[taskType].label)||taskType;
+  const bars=entries.map(e=>{
+    const pct=Math.max(4,Math.round((e.score/5)*100));
+    const color=e.score>=4?'#16A34A':e.score>=3?'#D97706':'#DC2626';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:34px;flex:1">'
+      +'<div style="font-size:14px;font-weight:700;color:'+color+'">'+e.score+'</div>'
+      +'<div style="width:100%;max-width:22px;height:60px;background:#F1F5F9;border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">'
+      +'<div style="width:100%;height:'+pct+'%;background:'+color+';border-radius:4px 4px 0 0;transition:height .4s"></div></div>'
+      +'<div style="font-size:14px;color:#94A3B8;white-space:nowrap;font-family:\'DM Mono\',monospace">'+esc((e.date||'').slice(5))+'</div>'
+      +'</div>';
+  }).join('');
+  const first=entries[0],latest=entries[entries.length-1];
+  const delta=entries.length>1?Math.round((latest.score-first.score)*10)/10:0;
+  const deltaStr=entries.length>1?(delta>0?'📈 +'+delta:delta<0?'📉 '+delta:'➡️ stable'):'';
+  el.innerHTML='<div class="card" style="padding:12px;margin-top:10px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px"><span style="font-size:14px;font-weight:600;color:#0F172A">📊 '+esc(label)+' — Escola do TOEFL</span>'+(deltaStr?'<span style="font-size:14px;color:#64748B">'+deltaStr+'</span>':'')+'</div>'
+    +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:2px">'+bars+'</div>'
+    +'</div>';
+}
+function renderEscolaDash(){
+  const el=document.getElementById('escolaFeedbackContainer');if(!el)return;
+  const types=Object.keys(ESCOLA_TASKS);
+  let html='<button class="btn bpr" onclick="escola_openImport()" style="width:100%;margin-bottom:4px">📥 Import Escola do TOEFL Feedback</button>';
+  if(!escolaFeedback.length)html+='<div style="font-size:14px;color:#94A3B8;padding:10px 2px">No feedback imported yet. Paste the text from your Escola do TOEFL PDF to track scores and auto-create SRS cards.</div>';
+  types.forEach(t=>{html+='<div id="escolaChart_'+t+'"></div>';});
+  el.innerHTML=html;
+  types.forEach(t=>renderEscolaTimeline(t,'escolaChart_'+t));
+}
+function escola_openImport(){
+  document.getElementById('esc_paste').value='';
+  document.getElementById('esc_type').value='email';
+  document.getElementById('esc_date').value=today;
+  document.getElementById('esc_score').value='';
+  document.getElementById('esc_corrections').innerHTML='';
+  document.getElementById('escHint').textContent='';
+  openM('mEscola');
+}
+function escola_rowHTML(said,corrected,why){
+  return '<div class="card esc-row" style="padding:8px;margin-bottom:6px">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">'
+    +'<div><label style="font-size:14px;color:#94A3B8;display:block;margin-bottom:3px">You wrote</label><textarea class="esc-said" style="min-height:40px;font-size:14px;width:100%;box-sizing:border-box">'+esc(said||'')+'</textarea></div>'
+    +'<div><label style="font-size:14px;color:#94A3B8;display:block;margin-bottom:3px">Correction</label><textarea class="esc-corr" style="min-height:40px;font-size:14px;width:100%;box-sizing:border-box">'+esc(corrected||'')+'</textarea></div>'
+    +'</div>'
+    +'<label style="font-size:14px;color:#94A3B8;display:block;margin-bottom:3px">Why</label><textarea class="esc-why" style="min-height:32px;font-size:14px;width:100%;box-sizing:border-box">'+esc(why||'')+'</textarea>'
+    +'<div style="display:flex;gap:12px;align-items:center;margin-top:6px;font-size:14px;color:#475569">'
+    +'<label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" class="esc-srs" checked> SRS card</label>'
+    +'<label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" class="esc-ex" checked> Exercise</label>'
+    +'<button class="btn bsm" style="margin-left:auto" onclick="this.closest(\'.esc-row\').remove()">🗑</button>'
+    +'</div></div>';
+}
+function escola_renderCorrections(list){
+  document.getElementById('esc_corrections').innerHTML=(list||[]).map(c=>escola_rowHTML(c.said,c.corrected,c.why)).join('');
+}
+function escola_addRow(){document.getElementById('esc_corrections').insertAdjacentHTML('beforeend',escola_rowHTML('','',''));}
+function escola_runParse(){
+  const text=document.getElementById('esc_paste').value;
+  if(!text.trim()){document.getElementById('escHint').textContent='⚠️ Paste the feedback text first.';return;}
+  const r=escola_parse(text);
+  document.getElementById('esc_type').value=r.taskType;
+  document.getElementById('esc_date').value=r.date||'';
+  document.getElementById('esc_score').value=r.score===''?'':r.score;
+  escola_renderCorrections(r.corrections.length?r.corrections:[{said:'',corrected:'',why:''}]);
+  document.getElementById('escHint').textContent=r.corrections.length?('✅ Found '+r.corrections.length+' correction(s). Review before saving.'):'⚠️ No corrections auto-detected — add them manually below or fix the pasted text.';
+}
+function escola_save(){
+  const taskType=document.getElementById('esc_type').value;
+  const meta=ESCOLA_TASKS[taskType];
+  const date=document.getElementById('esc_date').value||today;
+  const scoreRaw=document.getElementById('esc_score').value;
+  const score=scoreRaw!==''?parseFloat(scoreRaw):null;
+  const rows=[...document.querySelectorAll('#esc_corrections .esc-row')];
+  const corrections=[];
+  rows.forEach(r=>{
+    const said=r.querySelector('.esc-said').value.trim();
+    const corrected=r.querySelector('.esc-corr').value.trim();
+    const why=r.querySelector('.esc-why').value.trim();
+    const srs=r.querySelector('.esc-srs').checked;
+    const mkEx=r.querySelector('.esc-ex').checked;
+    if(said&&corrected)corrections.push({said,corrected,why,srs,mkEx});
+  });
+  if(!date){document.getElementById('escHint').textContent='⚠️ Set a date.';return;}
+  const dup=escolaFeedback.some(e=>e.taskType===taskType&&e.date===date&&e.score===score);
+  if(dup&&!confirm('A feedback entry for this task and date with the same score already looks saved. Save anyway?'))return;
+  const entry={id:uid(),date,skill:meta.skill,taskType,score,corrections:corrections.map(c=>({said:c.said,corrected:c.corrected,why:c.why})),created:today};
+  escolaFeedback.push(entry);
+  escola_saveFeedback();
+  let srsCount=0;
+  corrections.forEach(c=>{
+    if(c.srs){const before=cards.length;saveCard(c.said,c.corrected,c.why,'escola',meta.label);if(cards.length>before)srsCount++;}
+  });
+  const newBS=[];
+  corrections.forEach(c=>{if(c.mkEx){const item=escola_deriveBS(c.said,c.corrected,taskType);if(item)newBS.push(item);}});
+  if(newBS.length){bsItems.push(...newBS);bs_normLower();bs_saveItems();}
+  closeM('mEscola');
+  toast('✅ Feedback saved — '+srsCount+' SRS card(s), '+newBS.length+' exercise(s) created');
+  if(curTab==='dash')renderEscolaDash();
+  if(em_active&&taskType==='email')renderEscolaTimeline('email','escolaEmailChart');
+}
 
 // ── DATA LOADING FOR NEW MODES ──
 // Lowercase every word in the Build-a-Sentence bank (in memory) so previously
@@ -4657,6 +4888,7 @@ function startSync(){
     RCWP = db.ref('completeWordsProgress');
     REMS = db.ref('emailScenarios');
     REMP = db.ref('emailProgress');
+    RESC = db.ref('escolaFeedback');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -4701,6 +4933,10 @@ function startSync(){
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    // Read-only charts only (no live-typed input lives here), so a background
+    // re-render is always safe — same caution as the exercise listeners above,
+    // just with nothing to lose.
+    RESC.on('value',s=>{const v=s.val();if(v){escolaFeedback=Object.values(v);localStorage.setItem('c1esc',JSON.stringify(escolaFeedback));} setSS('online'); if(curTab==='dash')renderEscolaDash(); if(em_active)renderEscolaTimeline('email','escolaEmailChart');}, err=>setSS('offline','DB Error: '+err.code));
 
   }catch(e){
       setSS('offline', 'Error: ' + e.message);
