@@ -642,14 +642,21 @@ textarea{min-height:120px}
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
     <div class="mhdr"><div class="mtit">📥 Import Escola do TOEFL Feedback</div><button class="btn bsm" onclick="closeM('mEscola')">✕</button></div>
     <div class="mbdy">
-      <div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Paste the text from the feedback PDF, then Parse. Everything below is editable before saving.</div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Paste feedback text</label><textarea id="esc_paste" style="min-height:120px;resize:vertical;width:100%;box-sizing:border-box" placeholder="Paste the PDF text here…"></textarea></div>
-      <div class="fl g8" style="justify-content:flex-end;margin:6px 0 10px"><button class="btn bpr bsm" onclick="escola_runParse()">🔍 Parse</button></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
-        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Task</label><select id="esc_type" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff"><option value="email">Write an Email</option><option value="essay">Independent/Integrated Essay</option><option value="interview">Interview</option><option value="listenrepeat">Listen &amp; Repeat</option></select></div>
-        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Date</label><input type="date" id="esc_date" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;box-sizing:border-box"></div>
-        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Score (0-5)</label><input type="number" id="esc_score" min="0" max="5" step="0.5" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;box-sizing:border-box"></div>
+      <div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Upload the feedback PDF (or paste its text), then Parse. Everything below is editable before saving.</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+        <label class="btn bsm" style="cursor:pointer;margin:0">📄 Upload PDF<input type="file" id="esc_pdfFile" accept="application/pdf,.pdf" style="display:none" onchange="escola_handlePdf(this.files[0])"></label>
+        <span style="font-size:14px;color:#94A3B8">or paste the text below</span>
       </div>
+      <div><textarea id="esc_paste" style="min-height:100px;resize:vertical;width:100%;box-sizing:border-box" placeholder="Paste the PDF text here…"></textarea></div>
+      <div class="fl g8" style="justify-content:flex-end;margin:6px 0 10px"><button class="btn bpr bsm" onclick="escola_runParse()">🔍 Parse</button></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Task</label><select id="esc_type" onchange="escola_updateEvoHint()" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"><option value="email">Write an Email</option><option value="essay">Independent/Integrated Essay</option><option value="interview">Interview</option><option value="listenrepeat">Listen &amp; Repeat</option></select></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Date</label><input type="date" id="esc_date" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;box-sizing:border-box"></div>
+          <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Score (0-5)</label><input type="number" id="esc_score" min="0" max="5" step="0.5" onchange="escola_updateEvoHint()" style="width:100%;padding:8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;box-sizing:border-box"></div>
+        </div>
+      </div>
+      <div id="escEvo" style="font-size:14px;color:#2563EB;min-height:18px;margin-bottom:6px"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label style="font-size:14px;font-weight:600;color:#475569">Corrections</label><button class="btn bsm" onclick="escola_addRow()">+ Add correction</button></div>
       <div id="esc_corrections"></div>
       <div id="escHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
@@ -3963,12 +3970,65 @@ function renderEscolaDash(){
 }
 function escola_openImport(){
   document.getElementById('esc_paste').value='';
+  document.getElementById('esc_pdfFile').value='';
   document.getElementById('esc_type').value='email';
   document.getElementById('esc_date').value=today;
   document.getElementById('esc_score').value='';
   document.getElementById('esc_corrections').innerHTML='';
   document.getElementById('escHint').textContent='';
+  document.getElementById('escEvo').textContent='';
   openM('mEscola');
+}
+// Lazy-load pdf.js from a CDN only when the user actually uploads a PDF —
+// same on-demand pattern already used for JSZip in the Anki export flow.
+let ESCOLA_PDFJS_READY=null;
+function escola_ensurePdfJs(){
+  if(window.pdfjsLib)return Promise.resolve();
+  if(ESCOLA_PDFJS_READY)return ESCOLA_PDFJS_READY;
+  ESCOLA_PDFJS_READY=loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js').then(()=>{
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }).catch(err=>{ESCOLA_PDFJS_READY=null;throw err;});
+  return ESCOLA_PDFJS_READY;
+}
+async function escola_handlePdf(file){
+  if(!file)return;
+  const hint=document.getElementById('escHint');
+  hint.style.color='#94A3B8';hint.textContent='⏳ Reading PDF…';
+  try{
+    await escola_ensurePdfJs();
+    const buf=await file.arrayBuffer();
+    const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
+    let text='';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      text+=content.items.map(it=>it.str).join(' ')+'\n\n';
+    }
+    document.getElementById('esc_paste').value=text.trim();
+    if(!text.trim()){hint.style.color='#DC2626';hint.textContent='⚠️ Could not extract any text from this PDF (it may be a scanned image) — paste the text manually instead.';return;}
+    escola_runParse();
+  }catch(e){
+    hint.style.color='#DC2626';
+    hint.textContent='⚠️ Could not read the PDF automatically ('+(e&&e.message?e.message:'error')+'). Paste the text manually instead.';
+  }
+}
+// Compares a candidate score against this task's most recent saved feedback,
+// so the import step doubles as an evolution check before the entry is saved.
+function escola_evolutionHint(taskType,scoreRaw){
+  const label=(ESCOLA_TASKS[taskType]&&ESCOLA_TASKS[taskType].label)||taskType;
+  const prior=escolaFeedback.filter(e=>e.taskType===taskType&&e.score!=null&&e.score!=='').sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const score=scoreRaw===''||scoreRaw==null?null:parseFloat(scoreRaw);
+  if(!prior.length)return score!=null?('🆕 First recorded score for '+label+'.'):'';
+  const last=prior[prior.length-1];
+  if(score==null)return 'Last recorded '+label+' score: '+last.score+'/5 ('+last.date+').';
+  const delta=Math.round((score-last.score)*10)/10;
+  const arrow=delta>0?'📈 +'+delta:delta<0?'📉 '+delta:'➡️ stable';
+  return label+': '+last.score+' → '+score+' ('+arrow+' vs '+last.date+')';
+}
+function escola_updateEvoHint(){
+  const t=document.getElementById('esc_type').value;
+  const s=document.getElementById('esc_score').value;
+  document.getElementById('escEvo').textContent=escola_evolutionHint(t,s);
 }
 function escola_rowHTML(said,corrected,why){
   return '<div class="card esc-row" style="padding:8px;margin-bottom:6px">'
@@ -3989,13 +4049,16 @@ function escola_renderCorrections(list){
 function escola_addRow(){document.getElementById('esc_corrections').insertAdjacentHTML('beforeend',escola_rowHTML('','',''));}
 function escola_runParse(){
   const text=document.getElementById('esc_paste').value;
-  if(!text.trim()){document.getElementById('escHint').textContent='⚠️ Paste the feedback text first.';return;}
+  const hint=document.getElementById('escHint');
+  if(!text.trim()){hint.style.color='#DC2626';hint.textContent='⚠️ Upload a PDF or paste the feedback text first.';return;}
   const r=escola_parse(text);
   document.getElementById('esc_type').value=r.taskType;
   document.getElementById('esc_date').value=r.date||'';
   document.getElementById('esc_score').value=r.score===''?'':r.score;
   escola_renderCorrections(r.corrections.length?r.corrections:[{said:'',corrected:'',why:''}]);
-  document.getElementById('escHint').textContent=r.corrections.length?('✅ Found '+r.corrections.length+' correction(s). Review before saving.'):'⚠️ No corrections auto-detected — add them manually below or fix the pasted text.';
+  escola_updateEvoHint();
+  hint.style.color=r.corrections.length?'#16A34A':'#DC2626';
+  hint.textContent=r.corrections.length?('✅ Found '+r.corrections.length+' correction(s). Review before saving.'):'⚠️ No corrections auto-detected — add them manually below or fix the text.';
 }
 function escola_save(){
   const taskType=document.getElementById('esc_type').value;
