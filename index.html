@@ -240,8 +240,10 @@ textarea{min-height:120px}
    entirely and landed on the surrounding text — the field never got focus, so it
    looked like typing/tapping "didn't work". min-width/min-height here give every
    gap, even a 1-letter one, a target close to the 40px+ mobile tap-target guideline. */
-.cw-let{display:inline-flex;box-sizing:border-box;border:1.5px solid #93C5FD;border-radius:6px;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;padding:5px 6px;margin:2px 3px;outline:none;min-width:40px;min-height:36px;vertical-align:middle;touch-action:manipulation;-webkit-appearance:none}
+.cw-let{display:inline-flex;box-sizing:border-box;border:1.5px solid #93C5FD;border-radius:6px;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;padding:5px 4px;margin:2px 2px;outline:none;min-width:34px;min-height:36px;vertical-align:middle;touch-action:manipulation;-webkit-appearance:none}
 .cw-let:focus{border-color:#2563EB;background:#E0EAFF;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.cw-let::placeholder{color:#93C5FD;font-weight:700;opacity:1}
+.cw-let-boxes{display:inline-block;white-space:nowrap;vertical-align:middle}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
@@ -3485,8 +3487,32 @@ function cw_count(){
   if(!cw_cur||cw_cur.mode!=='letters')return;
   cw_liveId=cw_cur.id;
   let n=0;
-  cw_activeBlanks().forEach((_,i)=>{const el=document.getElementById('cwb'+i);const v=el?el.value:'';cw_liveVals[i]=v;if(v.trim())n++;});
+  cw_activeBlanks().forEach((b,i)=>{
+    let v='';
+    for(let j=0;j<b.answer.length;j++){const box=document.getElementById('cwb'+i+'_'+j);v+=box?box.value:'';}
+    cw_liveVals[i]=v;
+    if(v.length===b.answer.length)n++;
+  });
   const c=document.getElementById('cwCount');if(c)c.textContent=n;
+}
+// One box per missing letter (TOEFL-style): empty boxes show "_" via placeholder,
+// typing in a box auto-advances to the next, Backspace on an empty box hops back
+// and clears the previous one — same one-input-per-position pattern as any OTP
+// field, kept single-character-per-<input> so mobile keyboards behave normally.
+function cw_letterInput(el){
+  if(el.value){
+    const gap=el.dataset.gap,pos=parseInt(el.dataset.pos,10);
+    const next=document.getElementById('cwb'+gap+'_'+(pos+1));
+    if(next)next.focus();
+  }
+  cw_count();
+}
+function cw_letterKeydown(e,el){
+  if(e.key==='Backspace'&&!el.value){
+    const gap=el.dataset.gap,pos=parseInt(el.dataset.pos,10);
+    const prev=document.getElementById('cwb'+gap+'_'+(pos-1));
+    if(prev){e.preventDefault();prev.value='';prev.focus();cw_count();}
+  }
 }
 // Toolbar above every Complete-the-Words state: count + add + import/export.
 function cw_toolbar(){
@@ -3519,10 +3545,15 @@ function cw_render(){
         if(!ok)allOk=false;
         body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-blank '+(ok?'ok':'bad')+'" style="min-width:0;padding:2px 6px">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(ans)+'</span>');
       }else{
-        // Restore an in-progress value if this re-render happened to interrupt
+        // Restore in-progress letters if this re-render happened to interrupt
         // the user mid-typing (see cw_count()/cw_liveVals) — same item only.
-        const restore=(cw_liveId===cw_cur.id&&cw_liveVals[i])?' value="'+esc(cw_liveVals[i])+'"':'';
-        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="'+ans.length+'"'+restore+' style="width:'+Math.max(2.4,ans.length+1.2)+'ch" oninput="cw_count()">';
+        const restoreStr=(cw_liveId===cw_cur.id&&cw_liveVals[i])?cw_liveVals[i]:'';
+        let boxes='';
+        for(let j=0;j<ans.length;j++){
+          const ch=restoreStr[j]||'';
+          boxes+='<input class="cw-let" id="cwb'+i+'_'+j+'" data-gap="'+i+'" data-pos="'+j+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="1" inputmode="text" placeholder="_"'+(ch?' value="'+esc(ch)+'"':'')+' oninput="cw_letterInput(this)" onkeydown="cw_letterKeydown(event,this)">';
+        }
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-let-boxes">'+boxes+'</span>';
       }
       last=m.index+m[0].length;i++;
     }
@@ -3569,7 +3600,14 @@ function cw_check(){
   if(!cw_cur)return;
   const blanks=cw_activeBlanks();
   // Capture the user's answers before re-render so nothing is lost.
-  cw_vals=blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
+  const isLetters=cw_cur.mode==='letters';
+  cw_vals=blanks.map((b,i)=>{
+    if(isLetters){
+      let v='';for(let j=0;j<b.answer.length;j++){const box=document.getElementById('cwb'+i+'_'+j);v+=box?box.value:'';}
+      return v.trim();
+    }
+    const el=document.getElementById('cwb'+i);return el?el.value.trim():'';
+  });
   const allOk=blanks.every((b,i)=>cw_blankOk(b,cw_vals[i]));
   cw_checked=true;
   ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
