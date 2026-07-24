@@ -712,9 +712,6 @@ textarea{min-height:120px}
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">🧠 Review Performance</div>
   <div id="reviewPerfContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
 
-  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">🎯 TOEFL Score Progress</div>
-  <div id="scoreTrackerContainer"></div>
-
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📥 Escola do TOEFL — Feedback</div>
   <div id="escolaFeedbackContainer"></div>
 
@@ -813,7 +810,7 @@ textarea{min-height:120px}
 
 </div><script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth(),toeflScores=[];
+let checkins={},cards=[],customLessons=[],stats={wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{}},displayMonth=new Date().getMonth();
 let escolaFeedback=[];
 let activeMonth=5,activeLesson=null,curTab='dash';
 let flashIdx=0,flipped=false,listening=false,recognition=null,noteCardId=null;
@@ -824,7 +821,7 @@ let curMode='writing';
 const today=new Date().toISOString().split('T')[0];
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RSS=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={};
@@ -1622,7 +1619,6 @@ function loadLocal(){
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
   try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
-  const sc=localStorage.getItem('c1scores');if(sc)try{toeflScores=JSON.parse(sc);}catch(e){}
   try{escolaFeedback=JSON.parse(localStorage.getItem('c1esc')||'[]');}catch(e){escolaFeedback=[];}
   if(!Array.isArray(escolaFeedback))escolaFeedback=[];
   activeMonth=parseInt(localStorage.getItem('c1mo')||'1',10)||1;
@@ -1935,7 +1931,6 @@ function renderDash(){
     hm.innerHTML=html;
   }
   renderReviewPerf();
-  renderScoreTracker();
   renderEscolaDash();
 }
 
@@ -2031,79 +2026,6 @@ function renderReviewPerf(){
     +topicBlkInner
     +'</div>';
   el.innerHTML=legend+todayBlk+daysBlk+aggBlk+topicsBlk;
-}
-
-function renderScoreTracker(){
-  const el=document.getElementById('scoreTrackerContainer');
-  if(!el)return;
-  const targets={reading:22,listening:20,speaking:20,writing:22,total:80};
-  const latest=toeflScores&&toeflScores.length>0?toeflScores[0]:null;
-  let bestReading=0,bestListening=0,bestSpeaking=0,bestWriting=0;
-  if(toeflScores&&toeflScores.length>0){
-    toeflScores.forEach(s=>{if(s.reading)bestReading=Math.max(bestReading,s.reading);if(s.listening)bestListening=Math.max(bestListening,s.listening);if(s.speaking)bestSpeaking=Math.max(bestSpeaking,s.speaking);if(s.writing)bestWriting=Math.max(bestWriting,s.writing);});
-  }
-  const bestTotal=bestReading+bestListening+bestSpeaking+bestWriting;
-  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
-  const sects=[{k:'reading',l:'Reading',ic:'📖',c:'#2563EB'},{k:'listening',l:'Listening',ic:'🎧',c:'#16A34A'},{k:'speaking',l:'Speaking',ic:'🎤',c:'#D97706'},{k:'writing',l:'Writing',ic:'✍️',c:'#7C3AED'}];
-  sects.forEach(s=>{
-    const score=s.k==='reading'?bestReading:s.k==='listening'?bestListening:s.k==='speaking'?bestSpeaking:bestWriting;
-    const t=targets[s.k];
-    const pct=score>0?Math.min(100,Math.round(score/t*100)):0;
-    const color=score===0?'#94A3B8':score>=t?'#16A34A':score>=t*0.8?'#D97706':'#DC2626';
-    html+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#0F172A">${s.ic} ${s.l}</span><span style="font-size:14px;font-family:'DM Mono',monospace;color:${color};font-weight:700">${score>0?score:'-'}/${t}</span></div><div style="height:4px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:${s.c};width:${pct}%;transition:width .4s"></div></div></div>`;
-  });
-  html+='</div>';
-  const totalPct=bestTotal>0?Math.min(100,Math.round(bestTotal/80*100)):0;
-  const totalColor=bestTotal===0?'#94A3B8':bestTotal>=80?'#16A34A':bestTotal>=65?'#D97706':'#DC2626';
-  html+=`<div class="card" style="padding:12px;margin-bottom:12px;background:linear-gradient(135deg,#1E3A8A,#2563EB)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:#fff">🎯 TOEFL Total (Best Score)</span><span style="font-size:22px;font-family:'DM Mono',monospace;color:#fff;font-weight:700">${bestTotal>0?bestTotal:'-'}<span style="font-size:14px;font-weight:400;color:rgba(255,255,255,.7)">/120 (target 80)</span></span></div><div style="height:6px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:#fff;width:${totalPct}%;transition:width .4s"></div></div>${latest?`<div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:6px">Best section sum (R:${bestReading}+L:${bestListening}+S:${bestSpeaking}+W:${bestWriting})</div>`:''}</div>`;
-  html+=`<button class="btn bpr" onclick="openScoreModal()" style="width:100%;margin-bottom:12px">+ Register Mock Test Score</button>`;
-  if(toeflScores&&toeflScores.length>0){
-    html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:10px 14px;font-size:14px;font-weight:600;color:#475569;border-bottom:1px solid #EEF2FF">History</div>';
-    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">';
-    html+='<tr style="background:#F8FAFF"><th style="padding:8px 10px;text-align:left;color:#94A3B8;font-weight:500">Date</th><th style="padding:8px;text-align:center;color:#2563EB">Rdg</th><th style="padding:8px;text-align:center;color:#16A34A">Lst</th><th style="padding:8px;text-align:center;color:#D97706">Spk</th><th style="padding:8px;text-align:center;color:#7C3AED">Wrt</th><th style="padding:8px;text-align:center;color:#0F172A">Total</th><th style="padding:8px"></th></tr>';
-    toeflScores.forEach((s,i)=>{
-      const tot=s.total||(s.reading+s.listening+s.speaking+s.writing);
-      const color=tot>=80?'#16A34A':tot>=65?'#D97706':'#DC2626';
-      html+=`<tr style="border-top:1px solid #F1F5F9"><td style="padding:8px 10px;color:#475569;white-space:nowrap">${s.date}</td><td style="padding:8px;text-align:center;font-weight:600;color:#2563EB">${s.reading||'-'}</td><td style="padding:8px;text-align:center;font-weight:600;color:#16A34A">${s.listening||'-'}</td><td style="padding:8px;text-align:center;font-weight:600;color:#D97706">${s.speaking||'-'}</td><td style="padding:8px;text-align:center;font-weight:600;color:#7C3AED">${s.writing||'-'}</td><td style="padding:8px;text-align:center;font-weight:700;color:${color}">${tot}</td><td style="padding:8px;text-align:right"><button onclick="deleteToeflScore('${s.id}')" style="background:none;border:none;cursor:pointer;color:#CBD5E1;font-size:14px">✕</button></td></tr>`;
-    });
-    html+='</table></div></div>';
-  }
-  el.innerHTML=html;
-}
-
-function openScoreModal(){
-  const d=new Date();
-  const dateStr=d.toISOString().split('T')[0];
-  const modal=document.createElement('div');
-  modal.id='scoreModal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML=`<div style="background:#fff;border-radius:16px;padding:20px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="font-size:16px;font-weight:700;margin-bottom:16px">🎯 Register TOEFL Score</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div><label style="font-size:14px;color:#475569;font-weight:500;display:block;margin-bottom:4px">📖 Reading (0-30)</label><input id="si-r" type="number" min="0" max="30" placeholder="ex: 22" style="width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:8px 10px;font-size:16px"></div><div><label style="font-size:14px;color:#475569;font-weight:500;display:block;margin-bottom:4px">🎧 Listening (0-30)</label><input id="si-l" type="number" min="0" max="30" placeholder="ex: 20" style="width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:8px 10px;font-size:16px"></div><div><label style="font-size:14px;color:#475569;font-weight:500;display:block;margin-bottom:4px">🎤 Speaking (0-30)</label><input id="si-s" type="number" min="0" max="30" placeholder="ex: 20" style="width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:8px 10px;font-size:16px"></div><div><label style="font-size:14px;color:#475569;font-weight:500;display:block;margin-bottom:4px">✍️ Writing (0-30)</label><input id="si-w" type="number" min="0" max="30" placeholder="ex: 22" style="width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:8px 10px;font-size:16px"></div></div><div style="margin-bottom:12px"><label style="font-size:14px;color:#475569;font-weight:500;display:block;margin-bottom:4px">📅 Date</label><input id="si-d" type="date" value="${dateStr}" style="width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:8px 10px;font-size:16px"></div><div style="margin-bottom:16px"><label style="font-size:14px;color:#475569;font-weight:500;display:block;margin-bottom:4px">📝 Note (optional)</label><input id="si-n" type="text" placeholder="ex: ETS Practice Test 1" style="width:100%;border:1px solid #DDE3F5;border-radius:8px;padding:8px 10px;font-size:16px"></div><div style="display:flex;gap:8px"><button onclick="document.getElementById('scoreModal').remove()" style="flex:1;padding:10px;border:1px solid #DDE3F5;background:#fff;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Cancel</button><button onclick="saveToeflScore()" style="flex:2;padding:10px;background:#2563EB;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">Save Score</button></div></div>`;
-  document.body.appendChild(modal);
-}
-
-function saveToeflScore(){
-  const r=parseInt(document.getElementById('si-r').value)||0;
-  const l=parseInt(document.getElementById('si-l').value)||0;
-  const s=parseInt(document.getElementById('si-s').value)||0;
-  const w=parseInt(document.getElementById('si-w').value)||0;
-  const d=document.getElementById('si-d').value||today;
-  const n=document.getElementById('si-n').value||'';
-  const total=r+l+s+w;
-  const entry={id:Date.now().toString(),date:d,reading:r,listening:l,speaking:s,writing:w,total,note:n};
-  toeflScores.unshift(entry);
-  toeflScores.sort((a,b)=>b.date.localeCompare(a.date));
-  localStorage.setItem('c1scores',JSON.stringify(toeflScores));
-  if(RSS){const o=toeflScores.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RSS,Object.keys(o).length?o:null);}
-  document.getElementById('scoreModal').remove();
-  renderScoreTracker();
-  toast(`✅ Score saved! Total: ${total}/120`);
-}
-
-function deleteToeflScore(id){
-  toeflScores=toeflScores.filter(s=>s.id!==id);
-  localStorage.setItem('c1scores',JSON.stringify(toeflScores));
-  if(RSS){const o=toeflScores.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RSS,Object.keys(o).length?o:null);}
-  renderScoreTracker();
 }
 
 function toggleCI(k){
@@ -4936,7 +4858,6 @@ function initApp(){
   setSS('offline');
   buildRoadmap();
   renderDash();
-  renderScoreTracker();
   render();
   initSesTimer();
 }
@@ -4964,7 +4885,6 @@ function startSync(){
     RMS = db.ref('milestones');
     RDT = db.ref('dailyTasks');
     RDR = db.ref('completed');
-    RSS = db.ref('toeflScores');
     RPE = db.ref('peuaCompleted');
     RPET = db.ref('peuaTasks');
     RAC = db.ref('cycleActivities');
@@ -4996,7 +4916,6 @@ function startSync(){
     RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RDT.on('value',s=>{const v=s.val();if(v){Object.entries(v).forEach(([date,tasks])=>{localStorage.setItem('c1dt-'+date,JSON.stringify(tasks));}); if(curTab==='dash')renderDash();} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
     RDR.on('value',s=>{const v=s.val();if(v){localStorage.setItem('c1completed',JSON.stringify(v));} setSS('online'); if(curTab==='prac')renderPrac();}, err => setSS('offline', 'DB Error: ' + err.code));
-    RSS.on('value',s=>{const v=s.val();if(v){toeflScores=Array.isArray(v)?v:Object.values(v)||[];toeflScores.sort((a,b)=>b.date.localeCompare(a.date));localStorage.setItem('c1scores',JSON.stringify(toeflScores));} setSS('online'); renderScoreTracker();}, err=>setSS('offline','DB Error: '+err.code));
     RPE.on('value',s=>{const v=s.val();if(v){peuaCompleted=v; localStorage.setItem('c1peua',JSON.stringify(v));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RPET.on('value',s=>{const v=s.val();if(v){peuaTasks=v; if(migratePeuaTaskIds()){savePeuaTasks();savePeuaNotes();} localStorage.setItem('c1peuaTasks',JSON.stringify(peuaTasks));} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAC.on('value',s=>{const v=s.val();if(v){try{customCycleActivities=JSON.parse(v); localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
