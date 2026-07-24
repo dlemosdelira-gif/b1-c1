@@ -242,7 +242,7 @@ textarea{min-height:120px}
    gap, even a 1-letter one, a target close to the 40px+ mobile tap-target guideline. */
 .cw-let{display:inline-flex;box-sizing:border-box;border:1.5px solid #93C5FD;border-radius:6px;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;padding:5px 6px;margin:2px 3px;outline:none;min-width:40px;min-height:36px;vertical-align:middle;touch-action:manipulation;-webkit-appearance:none}
 .cw-let:focus{border-color:#2563EB;background:#E0EAFF;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-.cw-let::placeholder{color:#93C5FD;font-weight:700;letter-spacing:2px;opacity:1}
+.cw-let::placeholder{color:#93C5FD;font-weight:700;opacity:1}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
@@ -3525,8 +3525,12 @@ function cw_render(){
         const restore=(cw_liveId===cw_cur.id&&cw_liveVals[i])?' value="'+esc(cw_liveVals[i])+'"':'';
         // Underscore placeholder (TOEFL-style) shows how many letters are missing
         // before typing starts, all inside a single field rather than one box per letter.
-        const placeholder=Array(ans.length).fill('_').join(' ');
-        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="'+ans.length+'" placeholder="'+placeholder+'"'+restore+' style="width:'+Math.max(2.4,ans.length+1.2)+'ch" oninput="cw_count()">';
+        // No literal spaces between underscores — the field is only sized for
+        // ans.length characters (see width below), so a space-separated placeholder
+        // (2x longer) would get clipped and show fewer marks than the real count.
+        // letter-spacing in CSS gives the same "separated dashes" look instead.
+        const placeholder='_'.repeat(ans.length);
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><input class="cw-let" id="cwb'+i+'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="'+ans.length+'" placeholder="'+placeholder+'"'+restore+' style="width:'+Math.max(3.4,ans.length+2.2)+'ch" oninput="cw_count()">';
       }
       last=m.index+m[0].length;i++;
     }
