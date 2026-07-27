@@ -2533,15 +2533,11 @@ function updMic(){
 // ── AI BRIDGE ─────────────────────────────────────────────────────────────────
 function buildPrompt(mode,t){
   let p=mdata(activeMonth).ai;
-  // Email mode reuses the writing analyze flow but frames the submission as an
-  // email so the coaching JSON can judge function, tone and structure. The
-  // submission is labelled "EMAIL: [scenario] + [response]" as required.
+  // Write an Email gets the dedicated ETS 0-5 rubric prompt (see
+  // em_buildAnalysisPrompt) instead of the generic C1-coach template every
+  // other mode uses — different scoring scale, different JSON schema.
   if(mode==='writing'&&em_active&&em_cur){
-    const reqs=(em_cur.tasks||[]).map((x,i)=>(i+1)+') '+x).join(' ');
-    const framed='EMAIL: ['+em_cur.context+' | To: '+em_cur.recipient+' | Function: '+em_cur.tag+' | Required points: '+reqs+'] + ['+t+']';
-    p=p.replace('Analyze the student response.',"Analyze the student's EMAIL below. In addition to grammar and vocabulary, judge whether it addresses every required point, fulfils its stated function ("+em_cur.tag+"), uses tone/register appropriate for the recipient, and is well structured (greeting, body, clear request/point, closing).")
-       .replace('Student response: {{T}}','Student\'s email submission: {{T}}');
-    return p.replace('{{T}}',framed);
+    return em_buildAnalysisPrompt(t);
   }
   if(mode==='speaking'){
     p=p.replace('Analyze the student response.',"Analyze the student's SPOKEN response (this is a speech-to-text transcript of a spoken answer — weigh fluency, delivery, coherence and natural spoken register alongside grammar).")
@@ -2594,13 +2590,11 @@ function processJSON(){
   stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
   if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(w/100)*5);
   saveST();
-  // If this was an email submission, store the estimated level on the scenario.
-  if(em_lastId&&emProgress[em_lastId]){
-    const lvl=r.level_estimate||(r.diagnosis&&r.diagnosis.c1_distance&&r.diagnosis.c1_distance.level_estimate)||'';
-    if(lvl)emProgress[em_lastId].level=lvl;
-    em_saveProgress();em_lastId=null;if(em_active)em_renderScenario();
-  }
-  renderMeters();renderAnalysis(r);
+  renderMeters();
+  // Write an Email submissions carry the ETS 0-5 rubric schema and get their
+  // own renderer (em_lastId is only set while an email submission is pending).
+  if(em_lastId){em_processEmailResult(r);return;}
+  renderAnalysis(r);
 }
 function renderAnalysis(r){
   const lc={B1:'#D97706','B2':'#2563EB','B2+':'#0891B2','C1-':'#0D9488','C1':'#16A34A','C1+':'#059669','C2':'#7C3AED'};
@@ -3780,6 +3774,188 @@ function em_renderScenario(){
     +'</div>';
 }
 function em_shuffle(){em_pick();em_renderScenario();}
+
+// ── WRITE AN EMAIL — ETS 0-5 RUBRIC ANALYSIS (AI Analysis Bridge) ──
+// The generic C1-coach template (buildPrompt's old em_active branch) just
+// string-patched a few phrases into the same 1-10/level_estimate JSON used for
+// every other mode. Write an Email is graded on the ETS's own 0-5 rubric with a
+// completely different JSON shape, so it gets its own dedicated prompt/parser/
+// renderer instead of reusing the generic one.
+// TOEFL email prompts range from institutional/unknown recipients (formal) to
+// named peers ("your colleague/manager/team") — treat "your ___" as informal.
+function em_deriveRegister(recipient){
+  return /^your\s/i.test(String(recipient||'').trim())?'informal':'formal';
+}
+function em_buildAnalysisPrompt(t){
+  const scenario=em_cur?em_cur.context:'';
+  const points=((em_cur&&em_cur.tasks)||[]).map((x,i)=>(i+1)+'. '+x).join('\n');
+  const register=em_deriveRegister(em_cur&&em_cur.recipient);
+  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Write an Email" do módulo Writing (formato 2026: cenário de campus/situação cotidiana, resposta de 80-120 palavras, 7 minutos, avaliado na escala oficial 0-5 da ETS).\n\n'
++'Cenário apresentado ao candidato: '+scenario+'\n'
++'Pontos obrigatórios que a resposta deveria cobrir:\n'+points+'\n'
++'Registro esperado (formal/informal, com base no destinatário): '+register+'\n'
++'Resposta do candidato: '+t+'\n\n'
++'Avalie a resposta usando o rubric oficial ETS de 6 faixas (0 a 5), considerando holisticamente:\n\n'
++'FAIXA 5 — Resposta plenamente bem-sucedida: elaboração que sustenta efetivamente o propósito comunicativo; variedade sintática eficaz e vocabulário preciso/idiomático; uso consistente de convenções sociais apropriadas (educação, registro, formulação de pedidos/reclamações/recusas); praticamente nenhum erro além do esperado de um escritor competente sob condição de tempo (typos comuns, confusões tipo there/their não contam contra a nota).\n\n'
++'FAIXA 4 — Resposta geralmente bem-sucedida: eficaz na maior parte e de fácil compreensão; elaboração adequada; variedade sintática e vocabulário apropriado; convenções sociais majoritariamente corretas; poucos erros léxicos/gramaticais.\n\n'
++'FAIXA 3 — Resposta parcialmente bem-sucedida: cumpre a tarefa de modo geral, mas limitações de fluência podem prejudicar partes da mensagem; elaboração parcial do propósito comunicativo; faixa moderada de sintaxe e vocabulário; alguns erros perceptíveis de estrutura, forma de palavra, uso idiomático ou convenções sociais.\n\n'
++'FAIXA 2 — Resposta majoritariamente malsucedida: reflete uma tentativa de endereçar a tarefa, mas é majoritariamente ineficaz; mensagem pode ser limitada ou difícil de interpretar; elaboração limitada ou irrelevante; linguagem conectada em nível de frase mas com faixa limitada de sintaxe/vocabulário; acúmulo de erros estruturais.\n\n'
++'FAIXA 1 — Resposta malsucedida: tentativa ineficaz de endereçar a tarefa; limitações de linguagem podem impedir a expressão das ideias, ao ponto de a mensagem ser quase ininteligível; pouquíssima elaboração; linguagem telegráfica (frases curtas/desconectadas); erros sérios e frequentes; pouca linguagem original (muito copiada do enunciado).\n\n'
++'FAIXA 0 — Resposta em branco, rejeita o tópico, não está em inglês, é cópia integral do enunciado, ou não tem relação alguma com o prompt.\n\n'
++'REGRA CRÍTICA DE CALIBRAÇÃO: separe erros superficiais de digitação (typos como "alot", "didnt", confusões there/their, letra minúscula por pressa) de erros gramaticais reais (concordância verbal, gerúndio após preposição, infinitivo após modal, uso incorreto de artigo). Erros superficiais isolados NÃO reduzem a nota de uma resposta que, fora isso, atende à faixa 5. Só erros gramaticais recorrentes ou que prejudicam a clareza devem puxar a nota para baixo.\n\n'
++'Retorne SOMENTE um objeto JSON (sem markdown, sem texto antes ou depois), seguindo exatamente este schema:\n\n'
++'{\n'
++'  "score": 0-5,\n'
++'  "band_label": "fully successful | generally successful | partially successful | mostly unsuccessful | unsuccessful | no scorable response",\n'
++'  "word_count": number,\n'
++'  "word_count_flag": "ok | too_short | too_long",\n'
++'  "points_coverage": [\n'
++'    { "point": "texto do ponto obrigatório", "addressed": true/false, "elaboration_quality": "adequate | limited | none" }\n'
++'  ],\n'
++'  "register_check": {\n'
++'    "expected": "formal | informal",\n'
++'    "matched": true/false,\n'
++'    "notes": "breve explicação em português"\n'
++'  },\n'
++'  "syntactic_variety": "breve avaliação em português (ex: usa afirmação, pergunta e condicional / repetitivo, só afirmações simples)",\n'
++'  "surface_errors": [\n'
++'    { "text": "trecho com o erro", "note": "typo comum, não afeta a nota" }\n'
++'  ],\n'
++'  "grammar_errors": [\n'
++'    { "text": "trecho com o erro", "tag": "gerund-after-preposition | infinitive-after-modal | subject-verb-agreement | article | outro", "explanation": "breve explicação em inglês" }\n'
++'  ],\n'
++'  "strengths": ["ponto forte 1", "ponto forte 2"],\n'
++'  "overall_feedback": "2-3 frases em português resumindo o desempenho e o principal ponto de melhoria"\n'
++'}';
+}
+// Store one row per AI-scored submission under the existing emailProgress
+// object/Firebase path (a reserved key, not a scenario id, so it can't collide
+// with real scenario ids like "em1" or "emu-…") — same sync mechanism as every
+// other emProgress write, just enough history to chart evolution over time.
+// Kept separate from the Escola do TOEFL feedback timeline: different grading
+// source (this app's own AI Analysis Bridge vs. the school's official feedback),
+// so blending the two into one line could misrepresent either.
+function em_logScore(scenarioId,score,tag){
+  if(typeof score!=='number')return;
+  const log=emProgress.__scoreLog=emProgress.__scoreLog||[];
+  log.push({date:today,score,scenarioId:scenarioId||'',tag:tag||''});
+  if(log.length>50)log.splice(0,log.length-50);
+}
+function em_scoreTrendHTML(){
+  const log=(emProgress.__scoreLog||[]).filter(x=>typeof x.score==='number').slice(-10);
+  if(log.length<2)return '';
+  const bars=log.map(e=>{
+    const pct=Math.max(4,Math.round((e.score/5)*100));
+    const color=e.score>=4?'#16A34A':e.score>=3?'#D97706':'#DC2626';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:30px;flex:1">'
+      +'<div style="font-size:13px;font-weight:700;color:'+color+'">'+e.score+'</div>'
+      +'<div style="width:100%;max-width:20px;height:44px;background:#F1F5F9;border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">'
+      +'<div style="width:100%;height:'+pct+'%;background:'+color+';border-radius:4px 4px 0 0"></div></div>'
+      +'</div>';
+  }).join('');
+  return '<div class="card" style="padding:12px"><div class="ctit">📈 Your last '+log.length+' AI-scored emails</div>'
+    +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:2px">'+bars+'</div></div>';
+}
+const EM_BAND_COLOR={
+  'fully successful':'#16A34A','generally successful':'#2563EB','partially successful':'#D97706',
+  'mostly unsuccessful':'#EA580C','unsuccessful':'#DC2626','no scorable response':'#94A3B8'
+};
+const EM_WCFLAG_LABEL={ok:'✅ Word count OK',too_short:'⚠️ Too short',too_long:'⚠️ Too long'};
+function em_renderFeedback(r){
+  const score=(typeof r.score==='number')?r.score:null;
+  const band=r.band_label||'';
+  const color=EM_BAND_COLOR[band]||'#2563EB';
+  let h='<div class="card fb" style="align-items:flex-start">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">TOEFL Write an Email — ETS Score</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+color+'">'+(score!=null?esc(String(score)):'—')+'<span style="font-size:14px;font-weight:400;color:#94A3B8">/5</span></div>'
+    +(band?'<div style="font-size:13px;color:'+color+';font-weight:600;margin-top:2px">'+esc(band)+'</div>':'')+'</div>'
+    +'<div style="max-width:60%;text-align:right;font-size:14px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
+
+  if(r.word_count!=null||r.register_check){
+    h+='<div class="card" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px">';
+    if(r.word_count!=null){
+      const wf=r.word_count_flag||'ok';
+      const wc=wf==='ok'?'#16A34A':'#D97706';
+      h+='<div><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Word count</div><div style="font-size:16px;font-weight:700;color:'+wc+'">'+esc(String(r.word_count))+' <span style="font-size:13px;font-weight:400">('+esc(EM_WCFLAG_LABEL[wf]||wf)+')</span></div></div>';
+    }
+    if(r.register_check){
+      const rc=r.register_check,ok=!!rc.matched;
+      h+='<div style="flex:1;min-width:180px"><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Register</div>'
+        +'<div style="font-size:14px;font-weight:600;color:'+(ok?'#16A34A':'#DC2626')+'">'+(ok?'✓':'✗')+' Expected: '+esc(rc.expected||'—')+'</div>'
+        +(rc.notes?'<div style="font-size:13px;color:#475569;margin-top:2px">'+esc(rc.notes)+'</div>':'')
+        +'</div>';
+    }
+    h+='</div>';
+  }
+
+  if(r.points_coverage?.length){
+    h+='<div class="card"><div class="ctit">📋 Required Points Coverage</div><div class="gg">';
+    r.points_coverage.forEach(p=>{
+      const ok=!!p.addressed;
+      h+='<div class="upitem" style="align-items:flex-start"><div style="flex:1">'
+        +'<div style="font-size:14px;color:#0F172A;display:flex;gap:6px;align-items:flex-start"><span style="color:'+(ok?'#16A34A':'#DC2626')+';font-weight:700">'+(ok?'✓':'✗')+'</span><span>'+esc(p.point||'')+'</span></div>'
+        +(p.elaboration_quality?'<div style="font-size:13px;color:#94A3B8;margin-left:20px;margin-top:2px">Elaboration: '+esc(p.elaboration_quality)+'</div>':'')
+        +'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  if(r.syntactic_variety){
+    h+='<div class="card"><div class="ctit">🔤 Syntactic Variety</div><div style="font-size:14px;color:#475569;line-height:1.5">'+esc(r.syntactic_variety)+'</div></div>';
+  }
+
+  if(r.strengths?.length){
+    h+='<div class="card" style="background:#F0FDF4;border-color:#BBF7D0"><div class="ctit" style="color:#16A34A">✅ Strengths</div><ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#166534;line-height:1.7">'+r.strengths.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>';
+  }
+
+  if(r.surface_errors?.length){
+    h+='<div class="card" style="background:#F8FAFC;border-color:#E2E8F0"><div class="ctit" style="color:#64748B">✏️ Surface Errors (typos — don\'t affect the score)</div><div class="gg">';
+    r.surface_errors.forEach(e=>{
+      h+='<div class="upitem"><div style="flex:1">'
+        +'<span style="font-size:14px;color:#64748B;text-decoration:underline dotted">'+esc(e.text||'')+'</span>'
+        +(e.note?'<div style="font-size:13px;color:#94A3B8;font-style:italic;margin-top:2px">'+esc(e.note)+'</div>':'')
+        +'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  if(r.grammar_errors?.length){
+    h+='<div class="card" style="background:#FEF2F2;border-color:#FECACA"><div class="ctit" style="color:#DC2626">⚠️ Grammar Errors</div><div class="gg">';
+    r.grammar_errors.forEach(e=>{
+      const tag=e.tag||'';
+      h+='<div class="upitem"><div style="flex:1">'
+        +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px"><span style="font-size:14px;color:#DC2626;font-weight:600">'+esc(e.text||'')+'</span>'+(tag?'<span class="tag tbl" style="font-size:11px">'+esc(tag)+'</span>':'')+'</div>'
+        +(e.explanation?'<div style="font-size:13px;color:#7F1D1D">'+esc(e.explanation)+'</div>':'')
+        +'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  h+=em_scoreTrendHTML();
+  const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
+}
+// Routes a pasted analysis JSON that came from an em_buildAnalysisPrompt() prompt:
+// saves the score onto its scenario + the shared score log (both under the
+// existing emailProgress path), feeds grammar_errors into the same tag system
+// Build a Sentence uses (so weak patterns show up whichever activity they came
+// from), then renders the dedicated feedback panel.
+function em_processEmailResult(r){
+  const id=em_lastId;em_lastId=null;
+  const scenario=(emScenarios||[]).find(s=>s.id===id);
+  const score=(typeof r.score==='number')?Math.max(0,Math.min(5,r.score)):null;
+  if(id){
+    if(!emProgress[id])emProgress[id]={};
+    emProgress[id].practiced=true;
+    emProgress[id].date=today;
+    if(r.band_label)emProgress[id].level=r.band_label;
+    if(score!=null)emProgress[id].score=score;
+  }
+  if(score!=null)em_logScore(id,score,scenario?scenario.tag:'');
+  em_saveProgress();
+  (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
+  em_renderFeedback(r);
+  if(em_active)em_renderScenario();
+}
 
 // ── ESCOLA DO TOEFL FEEDBACK (score timeline + PDF-text import → SRS + exercises) ──
 const ESCOLA_TASKS={
