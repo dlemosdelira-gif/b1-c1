@@ -479,7 +479,8 @@ textarea{min-height:120px}
     <div class="mbdy" style="overflow-y:auto">
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
-          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Your text was copied. Send this prompt to Claude:</div>
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:2px">Your text was copied. Send this prompt to Claude:</div>
+          <div id="bridgeTaskLabel" style="font-size:13px;color:#2563EB;font-weight:600;margin-bottom:6px"></div>
           <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:120px;overflow-y:auto;word-break:break-word" id="mpbox"></div>
           <div class="fl g6 mt8">
             <button class="btn bpr bsm" onclick="copyPrompt()">Copy Full Prompt</button>
@@ -749,11 +750,17 @@ textarea{min-height:120px}
 
   <div class="card csm" style="background:#F8FAFF;margin-top:12px">
     <div class="exmode-bar" style="margin-bottom:0">
-      <button class="exmode-btn on" id="wm-free" onclick="em_setMode(false)">✍️ Free Writing</button>
+      <button class="exmode-btn on" id="wm-free" onclick="em_setMode(false)">📝 Academic Discussion</button>
       <button class="exmode-btn" id="wm-email" onclick="em_setMode(true)">📧 Write an Email</button>
     </div>
+    <div id="academicDiscussionBox" style="margin-top:12px"></div>
     <div id="emailScenarioBox" class="hid" style="margin-top:12px"></div>
     <div id="escolaEmailChart"></div>
+  </div>
+
+  <div class="card csm" style="background:#FEF3C7;margin-top:12px;border-color:#FCD34D">
+    <div style="font-size:14px;font-weight:600;color:#B45309;text-align:center;margin-bottom:10px">🎧 Speaking — Listen and Repeat</div>
+    <div id="listenRepeatBox"></div>
   </div>
 
   <div class="card" style="margin-top:12px">
@@ -832,8 +839,8 @@ const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null;
-let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={};
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null;
+let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 let cw_cur=null,cw_checked=false,cw_vals=[];
 // Defense-in-depth against losing in-progress letters answers to an unrelated
@@ -842,6 +849,8 @@ let cw_cur=null,cw_checked=false,cw_vals=[];
 // restore it even if the <input> DOM node itself gets rebuilt mid-typing.
 let cw_liveId=null,cw_liveVals=[];
 let em_active=false,em_cur=null,em_lastId=null;
+let wr_cur=null,wr_lastId=null;
+let sp_cur=null,sp_lastId=null,sp_played=false;
 let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
@@ -2533,11 +2542,17 @@ function updMic(){
 // ── AI BRIDGE ─────────────────────────────────────────────────────────────────
 function buildPrompt(mode,t){
   let p=mdata(activeMonth).ai;
-  // Write an Email gets the dedicated ETS 0-5 rubric prompt (see
-  // em_buildAnalysisPrompt) instead of the generic C1-coach template every
-  // other mode uses — different scoring scale, different JSON schema.
+  // Every Writing/Speaking submission now maps to one of the app's three
+  // official TOEFL 2026 tasks, each with its own ETS 0-5 rubric prompt —
+  // no generic English-coaching template is used for these two modes anymore.
   if(mode==='writing'&&em_active&&em_cur){
     return em_buildAnalysisPrompt(t);
+  }
+  if(mode==='writing'&&wr_cur){
+    return wr_buildAnalysisPrompt(t);
+  }
+  if(mode==='speaking'&&sp_cur){
+    return sp_buildAnalysisPrompt(t);
   }
   if(mode==='speaking'){
     p=p.replace('Analyze the student response.',"Analyze the student's SPOKEN response (this is a speech-to-text transcript of a spoken answer — weigh fluency, delivery, coherence and natural spoken register alongside grammar).")
@@ -2549,15 +2564,21 @@ function openAIModal(mode){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
   curText=t;curMode=mode||'writing';
   const isEmail=curMode==='writing'&&em_active&&em_cur;
+  const isDiscussion=curMode==='writing'&&!em_active&&wr_cur;
+  const isListenRepeat=curMode==='speaking'&&sp_cur;
   const fp=buildPrompt(curMode,t);
   navigator.clipboard.writeText(t).catch(()=>{});
-  document.getElementById('mAititle').textContent=isEmail?'📧 Email Analysis':(curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis');
+  document.getElementById('mAititle').textContent=isEmail?'📧 Email Analysis':(isDiscussion?'📝 Academic Discussion Analysis':(isListenRepeat?'🎧 Listen and Repeat Analysis':(curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis')));
   document.getElementById('mpbox').textContent=fp;
+  document.getElementById('bridgeTaskLabel').textContent=bridge_getTaskLabel(curMode);
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
-  // Mark this email scenario as practiced; capture the level later in processJSON.
+  // Mark the relevant scenario/sentence as practiced now; capture the score
+  // later in processJSON once the pasted analysis comes back.
+  em_lastId=null;wr_lastId=null;sp_lastId=null;
   if(isEmail){emProgress[em_cur.id]={practiced:true,date:today};em_lastId=em_cur.id;em_saveProgress();em_renderScenario();}
-  else{em_lastId=null;}
+  else if(isDiscussion){wrProgress[wr_cur.id]={practiced:true,date:today};wr_lastId=wr_cur.id;wr_saveProgress();wr_renderScenario();}
+  else if(isListenRepeat){spProgress[sp_cur.id]={practiced:true,date:today};sp_lastId=sp_cur.id;sp_saveProgress();}
   openM('mAI');
 }
 function copyPrompt(){
@@ -2591,9 +2612,11 @@ function processJSON(){
   if(!stats.studyDays)stats.studyDays={};stats.studyDays[today]=(stats.studyDays[today]||0)+Math.max(1,Math.ceil(w/100)*5);
   saveST();
   renderMeters();
-  // Write an Email submissions carry the ETS 0-5 rubric schema and get their
-  // own renderer (em_lastId is only set while an email submission is pending).
+  // Each TOEFL task carries its own ETS rubric JSON schema and renderer; the
+  // *_lastId flags (set in openAIModal, only one at a time) route accordingly.
   if(em_lastId){em_processEmailResult(r);return;}
+  if(wr_lastId){wr_processResult(r);return;}
+  if(sp_lastId){sp_processResult(r);return;}
   renderAnalysis(r);
 }
 function renderAnalysis(r){
@@ -3222,6 +3245,69 @@ const EM_SEED=[
    tasks:['Thank them for the meeting.','Summarize the main decisions and next steps.','Ask them to confirm or correct the details.']}
 ];
 
+// TOEFL "Write for an Academic Discussion" style: a professor's question plus
+// two fictional classmates' responses, shown to the candidate before they
+// write — required so the "references at least one peer" rubric criterion is
+// actually something the candidate can satisfy.
+const WR_SEED=[
+  {id:'wr1',tag:'education',
+   professorQuestion:'Some universities now require students to complete a mandatory internship before they can graduate, arguing that it better prepares them for the job market. Others believe this requirement takes away from students\' academic focus and personal choice. What is your opinion?',
+   peer1:{name:'Marina',text:'I think mandatory internships are a great idea. Employers want experience, not just a diploma, so requiring it guarantees every graduate has some real-world exposure before entering the job market.'},
+   peer2:{name:'Diego',text:'I disagree with Marina. Not every field has abundant internship spots, and forcing students into unpaid work adds financial stress. Universities should offer internships as an option, not a requirement.'}},
+  {id:'wr2',tag:'technology',
+   professorQuestion:'With the growing use of AI writing assistants, some professors argue students should be allowed to use these tools freely for coursework, while others believe it undermines learning. Where do you stand?',
+   peer1:{name:'Sophie',text:'AI tools should be embraced. They\'re part of the modern workplace, and learning to use them effectively is itself a valuable skill for students to develop.'},
+   peer2:{name:'Malik',text:'I see Sophie\'s point, but I think heavy reliance on AI can prevent students from developing their own critical thinking and writing skills, which are essential regardless of the tools available.'}},
+  {id:'wr3',tag:'urban-planning',
+   professorQuestion:'City governments often face a choice between funding new public parks or investing in affordable housing. Given limited budgets, which should be the higher priority for a growing city?',
+   peer1:{name:'Carlos',text:'Affordable housing has to come first. Without a stable place to live, people can\'t take advantage of parks or any other public amenity.'},
+   peer2:{name:'Priya',text:'I understand that, but green spaces improve mental health and community wellbeing for everyone, including renters. A livable city needs both, so I\'d lean toward parks getting equal funding.'}},
+  {id:'wr4',tag:'work-life',
+   professorQuestion:'Many companies have adopted permanent remote work policies since the pandemic. Do you think fully remote work benefits employees more than working in a traditional office?',
+   peer1:{name:'Anna',text:'Remote work has been life-changing for me. I save hours of commuting time every day and have much more flexibility to manage my personal responsibilities.'},
+   peer2:{name:'Julio',text:'I actually prefer the office. Working alongside colleagues makes collaboration faster and helps me separate my work life from my home life, which I struggled with remotely.'}},
+  {id:'wr5',tag:'social-media',
+   professorQuestion:'Some researchers argue that social media platforms should be legally required to verify the age of their users to protect younger teenagers. Do you support this kind of regulation?',
+   peer1:{name:'Leah',text:'Yes, I support stricter age verification. Teenagers are especially vulnerable to the negative effects of social media, so platforms have a responsibility to limit their exposure.'},
+   peer2:{name:'Ben',text:'I\'m skeptical this would actually work, since teens can easily lie about their age or use a parent\'s account. I think media literacy education would be more effective than regulation.'}},
+  {id:'wr6',tag:'transportation',
+   professorQuestion:'As cities try to reduce traffic congestion, some suggest charging drivers a fee to enter busy downtown areas during peak hours. Do you think this kind of congestion pricing is a fair solution?',
+   peer1:{name:'Rosa',text:'Congestion pricing makes sense to me. It encourages people to use public transportation and reduces pollution, and the revenue can be reinvested into better transit systems.'},
+   peer2:{name:'Kenji',text:'My concern is that this fee unfairly burdens lower-income drivers who may not have good public transit options where they live, effectively pricing them out of the city center.'}},
+  {id:'wr7',tag:'education',
+   professorQuestion:'Some schools have replaced traditional letter grades with narrative feedback, arguing it reduces student stress. Others believe grades are necessary to prepare students for competitive environments later in life. What do you think?',
+   peer1:{name:'Nadia',text:'I like the idea of narrative feedback. Grades often make students focus on the number instead of actually understanding the material, which defeats the purpose of learning.'},
+   peer2:{name:'Thiago',text:'I understand that concern, but without grades, it becomes harder to compare student performance objectively, which matters a lot when applying to universities or scholarships.'}},
+  {id:'wr8',tag:'environment',
+   professorQuestion:'Several countries have proposed banning single-use plastic bags in grocery stores to reduce environmental waste. Do you think this kind of ban is an effective way to address plastic pollution?',
+   peer1:{name:'Fatima',text:'I think the ban is a solid first step. It\'s a small daily change that forces people to rethink their habits, and reusable bags quickly become normal.'},
+   peer2:{name:'Owen',text:'Plastic bags are a small part of the pollution problem compared to industrial waste. I worry this ban mostly shifts the burden onto consumers while letting bigger polluters continue unchecked.'}},
+  {id:'wr9',tag:'health',
+   professorQuestion:'With rising rates of screen-related eye strain and sleep problems among young people, some experts recommend schools limit students\' use of personal devices during the school day. Do you agree with this kind of restriction?',
+   peer1:{name:'Grace',text:'I agree completely. Constant phone use is clearly linked to poor sleep and shorter attention spans, so removing that distraction during school hours could really help students focus.'},
+   peer2:{name:'Hassan',text:'I think a full restriction goes too far. Devices are useful learning tools too, and teaching students to manage their own screen time responsibly is more valuable long-term than banning them outright.'}},
+  {id:'wr10',tag:'culture',
+   professorQuestion:'Streaming platforms have made it easy to watch entire TV series in one sitting, a habit known as binge-watching. Some argue this changes storytelling for the worse, while others see it as simply a new way to enjoy media. What\'s your view?',
+   peer1:{name:'Elena',text:'I think binge-watching has actually improved storytelling. Writers can now build longer, more complex arcs since they know audiences will watch multiple episodes back to back.'},
+   peer2:{name:'Marcus',text:'I disagree — a lot of shows feel stretched out or repetitive because they\'re designed to keep people watching rather than to tell a tight, satisfying story.'}}
+];
+// TOEFL "Listen and Repeat" style: a single spoken sentence (8-15 words,
+// natural campus-life register) the candidate hears once and repeats from
+// memory. Read aloud in-app via the Web Speech API's speechSynthesis (the
+// same browser API family already used for speech-to-text input).
+const SP_SEED=[
+  {id:'sp1',tag:'campus-logistics',text:'The library will be closing early today because of scheduled maintenance work.'},
+  {id:'sp2',tag:'weather',text:'If the weather improves, the field trip will go ahead as originally planned.'},
+  {id:'sp3',tag:'academic-policy',text:'Professor Reynolds asked whether the assignment could be submitted a few days later.'},
+  {id:'sp4',tag:'lectures',text:'Although the lecture ran overtime, most students stayed until the very end.'},
+  {id:'sp5',tag:'meetings',text:'The committee has decided to postpone the meeting until next Thursday afternoon.'},
+  {id:'sp6',tag:'exams',text:'Students who arrive after nine o\'clock will not be allowed into the exam room.'},
+  {id:'sp7',tag:'housing',text:'She mentioned that the new dormitory wouldn\'t be ready until the fall semester.'},
+  {id:'sp8',tag:'events',text:'Despite the heavy rain, the outdoor concert attracted a surprisingly large crowd.'},
+  {id:'sp9',tag:'study-tips',text:'The professor recommended reviewing chapter four before attempting the practice questions.'},
+  {id:'sp10',tag:'grades',text:'Once the results are published, students can request a formal grade review.'}
+];
+
 // ── EXERCISE STORAGE (localStorage + Firebase, mirroring saveCA/saveST) ──
 function bs_saveItems(){localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(RBSI){const o=bsItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RBSI,Object.keys(o).length?o:null);}}
 function bs_saveProgress(){localStorage.setItem('c1bsp',JSON.stringify(bsProgress));fbSet(RBSP,Object.keys(bsProgress).length?bsProgress:null);}
@@ -3229,6 +3315,10 @@ function cw_saveItems(){localStorage.setItem('c1cwi',JSON.stringify(cwItems));if
 function cw_saveProgress(){localStorage.setItem('c1cwp',JSON.stringify(cwProgress));fbSet(RCWP,Object.keys(cwProgress).length?cwProgress:null);}
 function em_saveScenarios(){localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(REMS){const o=emScenarios.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(REMS,Object.keys(o).length?o:null);}}
 function em_saveProgress(){localStorage.setItem('c1emp',JSON.stringify(emProgress));fbSet(REMP,Object.keys(emProgress).length?emProgress:null);}
+function wr_saveScenarios(){localStorage.setItem('c1wrs',JSON.stringify(wrScenarios));if(RWRS){const o=wrScenarios.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RWRS,Object.keys(o).length?o:null);}}
+function wr_saveProgress(){localStorage.setItem('c1wrp',JSON.stringify(wrProgress));fbSet(RWRP,Object.keys(wrProgress).length?wrProgress:null);}
+function sp_saveSentences(){localStorage.setItem('c1sps',JSON.stringify(spSentences));if(RSPS){const o=spSentences.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RSPS,Object.keys(o).length?o:null);}}
+function sp_saveProgress(){localStorage.setItem('c1spp',JSON.stringify(spProgress));fbSet(RSPP,Object.keys(spProgress).length?spProgress:null);}
 
 // Record a right/wrong attempt against a grammar pattern for weak-spot tracking.
 // Log a right/wrong attempt. `mode` ('bs'|'cw') keeps a SEPARATE per-activity
@@ -3728,25 +3818,34 @@ function ex_importFile(file){
 }
 
 // ── WRITE AN EMAIL (Practice tab sub-mode) ──
+// The app's two official TOEFL Writing tasks — toggles between Write an Email
+// and Write for an Academic Discussion (there's no generic free-writing task
+// on the real 2026 exam, so em_active===false now means Academic Discussion
+// rather than a blank prompt).
 function em_setMode(on){
   em_active=!!on;
   document.getElementById('wm-free').classList.toggle('on',!em_active);
   document.getElementById('wm-email').classList.toggle('on',em_active);
-  const box=document.getElementById('emailScenarioBox');
+  const emailBox=document.getElementById('emailScenarioBox');
+  const wrBox=document.getElementById('academicDiscussionBox');
   const ta=document.getElementById('rtxt');
   if(em_active){
+    wrBox.classList.add('hid');
     if(!em_cur)em_pick();
-    box.classList.remove('hid');
+    emailBox.classList.remove('hid');
     em_renderScenario();
     renderEscolaTimeline('email','escolaEmailChart');
     if(ta)ta.placeholder='Write your email here…';
     // Relabel the primary analyze button to match the email flow.
     const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16v16H4z"/><polyline points="4 6 12 13 20 6"/></svg>📧 Analyze Email';
   }else{
-    box.classList.add('hid');
+    emailBox.classList.add('hid');
     const ec=document.getElementById('escolaEmailChart');if(ec)ec.innerHTML='';
-    if(ta)ta.placeholder='Write your response here, or click Speak to dictate…';
-    const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing';
+    if(!wr_cur)wr_pick();
+    wrBox.classList.remove('hid');
+    wr_renderScenario();
+    if(ta)ta.placeholder='Write your response to the discussion here…';
+    const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>📝 Analyze Discussion';
   }
 }
 // Prefer an un-practiced scenario; otherwise random.
@@ -3955,6 +4054,340 @@ function em_processEmailResult(r){
   (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
   em_renderFeedback(r);
   if(em_active)em_renderScenario();
+}
+
+// ── WRITE FOR AN ACADEMIC DISCUSSION — ETS 0-5 RUBRIC ANALYSIS ──
+// This is now what the Writing mode's non-email button analyzes (the app's two
+// Writing tasks are Write an Email and Write for an Academic Discussion — no
+// generic "free writing" task exists on the real 2026 TOEFL iBT).
+function wr_pick(){
+  if(!wrScenarios.length){wr_cur=null;return;}
+  const fresh=wrScenarios.filter(s=>!wrProgress[s.id]);
+  const pool=fresh.length?fresh:wrScenarios;
+  wr_cur=pool[Math.floor(Math.random()*pool.length)];
+}
+function wr_renderScenario(){
+  const box=document.getElementById('academicDiscussionBox');if(!box)return;
+  if(!wr_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No discussion prompts available.</div>';return;}
+  const done=wrProgress[wr_cur.id];
+  box.innerHTML='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span class="tag tpu">'+esc(wr_cur.tag)+'</span>'
+    +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:10px">Write for an Academic Discussion</div>'
+    +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:10px"><strong>Professor:</strong> '+esc(wr_cur.professorQuestion)+'</div>'
+    +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:8px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer1.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer1.text)+'</span></div>'
+    +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:10px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer2.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer2.text)+'</span></div>'
+    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have 10 minutes and should write 100-130 words. State your position clearly and respond to at least one classmate.</div>'
+    +'<div><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button></div>'
+    +'</div>';
+}
+function wr_shuffle(){wr_pick();wr_renderScenario();}
+function wr_buildAnalysisPrompt(t){
+  const q=wr_cur?wr_cur.professorQuestion:'';
+  const peers=wr_cur?('- '+wr_cur.peer1.name+': '+wr_cur.peer1.text+'\n- '+wr_cur.peer2.name+': '+wr_cur.peer2.text):'';
+  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Write for an Academic Discussion" do módulo Writing (formato 2026: pergunta do professor + 2 respostas de colegas, resposta de 100-130 palavras, 10 minutos, escala oficial ETS 0-5).\n\n'
++'Pergunta do professor: '+q+'\n'
++'Respostas dos colegas:\n'+peers+'\n'
++'Resposta do candidato: '+t+'\n\n'
++'Avalie usando o rubric oficial ETS de 6 faixas (0-5):\n\n'
++'FAIXA 5 — Elaboração relevante e bem desenvolvida (explicações, exemplificações ou detalhes); variedade eficaz de estruturas sintáticas e escolha de palavras precisa/idiomática; praticamente nenhum erro além do esperado sob condição de tempo.\n\n'
++'FAIXA 4 — Contribuição relevante, facilmente compreensível; elaboração adequada; variedade de estruturas e vocabulário apropriado; poucos erros léxicos/gramaticais.\n\n'
++'FAIXA 3 — Contribuição majoritariamente relevante e compreensível; elaboração de um exemplo/detalhe pode estar ausente, pouco clara ou parcialmente irrelevante; alguma variedade sintática; alguns erros perceptíveis de estrutura, forma de palavra ou uso idiomático.\n\n'
++'FAIXA 2 — Reflete uma tentativa de contribuir, mas limitações de linguagem tornam as ideias difíceis de acompanhar; elaboração fraca ou só parcialmente relevante; faixa limitada de estruturas/vocabulário; acúmulo de erros.\n\n'
++'FAIXA 1 — Tentativa ineficaz; poucas ou nenhuma ideia coerente; faixa severamente limitada de vocabulário/estruturas; erros sérios e frequentes; linguagem pouco original (muito copiada do enunciado).\n\n'
++'FAIXA 0 — Em branco, rejeita o tópico, não está em inglês, cópia integral do enunciado, ou sem relação com o prompt.\n\n'
++'REGRA CRÍTICA: verifique OBRIGATORIAMENTE dois pontos que derrubam a nota independentemente da gramática: (a) a resposta declara uma posição clara logo nas primeiras frases? (b) a resposta referencia pelo menos um dos colegas (concordando, discordando, ou complementando o ponto dele)? Se qualquer um dos dois estiver ausente, a nota fica limitada a no máximo 3, mesmo com gramática impecável — sinalize isso explicitamente no feedback.\n\n'
++'Separe erros superficiais de digitação (não afetam a nota) de erros gramaticais reais (concordância, gerúndio após preposição, infinitivo após modal, artigo).\n\n'
++'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
++'{\n'
++'  "score": 0-5,\n'
++'  "band_label": string,\n'
++'  "word_count": number,\n'
++'  "word_count_flag": "ok | too_short | too_long",\n'
++'  "has_clear_position": true/false,\n'
++'  "references_peer": true/false,\n'
++'  "position_and_peer_note": "explicação breve se algum dos dois estiver ausente",\n'
++'  "elaboration_quality": "adequate | limited | none",\n'
++'  "syntactic_variety": string,\n'
++'  "surface_errors": [{ "text": string, "note": string }],\n'
++'  "grammar_errors": [{ "text": string, "tag": string, "explanation": string }],\n'
++'  "strengths": [string],\n'
++'  "overall_feedback": string\n'
++'}';
+}
+function wr_logScore(scenarioId,score,tag){
+  if(typeof score!=='number')return;
+  const log=wrProgress.__scoreLog=wrProgress.__scoreLog||[];
+  log.push({date:today,score,scenarioId:scenarioId||'',tag:tag||''});
+  if(log.length>50)log.splice(0,log.length-50);
+}
+function wr_scoreTrendHTML(){
+  const log=(wrProgress.__scoreLog||[]).filter(x=>typeof x.score==='number').slice(-10);
+  if(log.length<2)return '';
+  const bars=log.map(e=>{
+    const pct=Math.max(4,Math.round((e.score/5)*100));
+    const color=e.score>=4?'#16A34A':e.score>=3?'#D97706':'#DC2626';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:30px;flex:1">'
+      +'<div style="font-size:13px;font-weight:700;color:'+color+'">'+e.score+'</div>'
+      +'<div style="width:100%;max-width:20px;height:44px;background:#F1F5F9;border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">'
+      +'<div style="width:100%;height:'+pct+'%;background:'+color+';border-radius:4px 4px 0 0"></div></div>'
+      +'</div>';
+  }).join('');
+  return '<div class="card" style="padding:12px"><div class="ctit">📈 Your last '+log.length+' AI-scored discussions</div>'
+    +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:2px">'+bars+'</div></div>';
+}
+function wr_renderFeedback(r){
+  const score=(typeof r.score==='number')?r.score:null;
+  const band=r.band_label||'';
+  const color=EM_BAND_COLOR[band]||'#2563EB';
+  let h='<div class="card fb" style="align-items:flex-start">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">TOEFL Academic Discussion — ETS Score</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+color+'">'+(score!=null?esc(String(score)):'—')+'<span style="font-size:14px;font-weight:400;color:#94A3B8">/5</span></div>'
+    +(band?'<div style="font-size:13px;color:'+color+';font-weight:600;margin-top:2px">'+esc(band)+'</div>':'')+'</div>'
+    +'<div style="max-width:60%;text-align:right;font-size:14px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
+
+  // The two rubric-critical checks get their own prominent callout, since
+  // missing either caps the score at 3 regardless of grammar.
+  const posOk=!!r.has_clear_position,peerOk=!!r.references_peer;
+  if(!posOk||!peerOk){
+    h+='<div class="card" style="background:#FFFBEB;border-color:#FCD34D">'
+      +'<div class="ctit" style="color:#B45309">⚠️ Score-Capping Check</div>'
+      +'<div style="font-size:14px;color:#0F172A;display:flex;flex-direction:column;gap:4px">'
+      +'<div><span style="color:'+(posOk?'#16A34A':'#DC2626')+';font-weight:700">'+(posOk?'✓':'✗')+'</span> Clear position stated early</div>'
+      +'<div><span style="color:'+(peerOk?'#16A34A':'#DC2626')+';font-weight:700">'+(peerOk?'✓':'✗')+'</span> References at least one classmate</div>'
+      +'</div>'
+      +(r.position_and_peer_note?'<div style="font-size:13px;color:#92400E;margin-top:8px">'+esc(r.position_and_peer_note)+'</div>':'')
+      +'</div>';
+  }
+
+  if(r.word_count!=null||r.elaboration_quality){
+    h+='<div class="card" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px">';
+    if(r.word_count!=null){
+      const wf=r.word_count_flag||'ok';
+      const wc=wf==='ok'?'#16A34A':'#D97706';
+      h+='<div><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Word count</div><div style="font-size:16px;font-weight:700;color:'+wc+'">'+esc(String(r.word_count))+' <span style="font-size:13px;font-weight:400">('+esc(EM_WCFLAG_LABEL[wf]||wf)+')</span></div></div>';
+    }
+    if(r.elaboration_quality){
+      h+='<div style="flex:1;min-width:180px"><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Elaboration</div><div style="font-size:14px;font-weight:600;color:#0F172A">'+esc(r.elaboration_quality)+'</div></div>';
+    }
+    h+='</div>';
+  }
+
+  if(r.syntactic_variety){
+    h+='<div class="card"><div class="ctit">🔤 Syntactic Variety</div><div style="font-size:14px;color:#475569;line-height:1.5">'+esc(r.syntactic_variety)+'</div></div>';
+  }
+
+  if(r.strengths?.length){
+    h+='<div class="card" style="background:#F0FDF4;border-color:#BBF7D0"><div class="ctit" style="color:#16A34A">✅ Strengths</div><ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#166534;line-height:1.7">'+r.strengths.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>';
+  }
+
+  if(r.surface_errors?.length){
+    h+='<div class="card" style="background:#F8FAFC;border-color:#E2E8F0"><div class="ctit" style="color:#64748B">✏️ Surface Errors (typos — don\'t affect the score)</div><div class="gg">';
+    r.surface_errors.forEach(e=>{
+      h+='<div class="upitem"><div style="flex:1">'
+        +'<span style="font-size:14px;color:#64748B;text-decoration:underline dotted">'+esc(e.text||'')+'</span>'
+        +(e.note?'<div style="font-size:13px;color:#94A3B8;font-style:italic;margin-top:2px">'+esc(e.note)+'</div>':'')
+        +'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  if(r.grammar_errors?.length){
+    h+='<div class="card" style="background:#FEF2F2;border-color:#FECACA"><div class="ctit" style="color:#DC2626">⚠️ Grammar Errors</div><div class="gg">';
+    r.grammar_errors.forEach(e=>{
+      const tag=e.tag||'';
+      h+='<div class="upitem"><div style="flex:1">'
+        +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px"><span style="font-size:14px;color:#DC2626;font-weight:600">'+esc(e.text||'')+'</span>'+(tag?'<span class="tag tbl" style="font-size:11px">'+esc(tag)+'</span>':'')+'</div>'
+        +(e.explanation?'<div style="font-size:13px;color:#7F1D1D">'+esc(e.explanation)+'</div>':'')
+        +'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  h+=wr_scoreTrendHTML();
+  const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
+}
+// grammar_errors from Write and Email both feed the same tag taxonomy Build a
+// Sentence uses, so a pattern like subject-verb-agreement shows up whichever
+// activity it came from — same reasoning as em_processEmailResult.
+function wr_processResult(r){
+  const id=wr_lastId;wr_lastId=null;
+  const scenario=(wrScenarios||[]).find(s=>s.id===id);
+  const score=(typeof r.score==='number')?Math.max(0,Math.min(5,r.score)):null;
+  if(id){
+    if(!wrProgress[id])wrProgress[id]={};
+    wrProgress[id].practiced=true;
+    wrProgress[id].date=today;
+    if(r.band_label)wrProgress[id].level=r.band_label;
+    if(score!=null)wrProgress[id].score=score;
+  }
+  if(score!=null)wr_logScore(id,score,scenario?scenario.tag:'');
+  wr_saveProgress();
+  (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
+  wr_renderFeedback(r);
+  if(!em_active)wr_renderScenario();
+}
+
+// ── LISTEN AND REPEAT — ETS 0-5 RUBRIC ANALYSIS ──
+// First of the two TOEFL 2026 Speaking tasks: the candidate hears a sentence
+// once (no on-screen text) and repeats it from memory. sp_play() reads it
+// aloud via speechSynthesis — the same Web Speech API family already used
+// for speech-to-text dictation input elsewhere in this app.
+function sp_pick(){
+  if(!spSentences.length){sp_cur=null;return;}
+  const fresh=spSentences.filter(s=>!spProgress[s.id]);
+  const pool=fresh.length?fresh:spSentences;
+  sp_cur=pool[Math.floor(Math.random()*pool.length)];
+  sp_played=false;
+}
+function sp_renderScenario(){
+  const box=document.getElementById('listenRepeatBox');if(!box)return;
+  if(!sp_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No sentences available.</div>';return;}
+  const done=spProgress[sp_cur.id];
+  box.innerHTML='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span class="tag tpu">'+esc(sp_cur.tag)+'</span>'
+    +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:10px">Listen and Repeat</div>'
+    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px;text-align:center">Play the sentence once, then repeat it from memory using Speak below — no text is shown until you check your answer.</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
+    +'<button class="btn bpr bsm" id="spPlayBtn" onclick="sp_play()">🔊 Play sentence</button>'
+    +'<button class="btn bsm" onclick="sp_shuffle()">🎲 New sentence</button>'
+    +'</div>'
+    +'</div>';
+}
+function sp_shuffle(){sp_pick();sp_renderScenario();}
+function sp_play(){
+  if(!sp_cur)return;
+  if('speechSynthesis'in window){
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(sp_cur.text);
+    u.lang='en-US';u.rate=0.95;
+    window.speechSynthesis.speak(u);
+  }else{
+    toast('⚠️ Speech playback not supported in this browser');
+  }
+  sp_played=true;
+  const b=document.getElementById('spPlayBtn');if(b)b.textContent='🔊 Play again';
+}
+function sp_buildAnalysisPrompt(t){
+  const original=sp_cur?sp_cur.text:'';
+  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Listen and Repeat" do módulo Speaking (formato 2026: o candidato ouve uma frase uma única vez e a reproduz de memória, sem texto na tela, escala oficial ETS 0-5 por item).\n\n'
++'Frase original (áudio-fonte): '+original+'\n'
++'Transcrição da reprodução do candidato: '+t+'\n\n'
++'Avalie usando o rubric oficial ETS de 6 faixas (0-5):\n\n'
++'FAIXA 5 — Repetição exata ou captura completa do sentido; inteligibilidade não prejudicada.\n\n'
++'FAIXA 4 — Captura o sentido, mas não é repetição exata; mudanças pequenas de palavras/gramática que não alteram o sentido; no máximo uma ou duas palavras de conteúdo ambíguas.\n\n'
++'FAIXA 3 — Resposta essencialmente completa, mas não captura o sentido original com precisão; inteligibilidade ocasionalmente prejudica a compreensão.\n\n'
++'FAIXA 2 — Falta uma parte significativa da frase e/ou é bastante imprecisa.\n\n'
++'FAIXA 1 — Resposta fragmentada, repete só o início e para, ou preenche com conteúdo impreciso.\n\n'
++'FAIXA 0 — Silêncio, resposta irrelevante, ou repetição da própria pergunta/frase-fonte.\n\n'
++'Compare palavra por palavra a transcrição do candidato com a frase original. Identifique especificamente: palavras omitidas, palavras substituídas (o que ele ouviu vs. o que estava lá), e se a estrutura gramatical foi preservada.\n\n'
++'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
++'{\n'
++'  "score": 0-5,\n'
++'  "band_label": string,\n'
++'  "content_accuracy_pct": number,\n'
++'  "missed_words": [string],\n'
++'  "substituted_words": [{ "heard": string, "original": string }],\n'
++'  "grammar_preserved": true/false,\n'
++'  "overall_feedback": string\n'
++'}';
+}
+function sp_logScore(scenarioId,score,tag){
+  if(typeof score!=='number')return;
+  const log=spProgress.__scoreLog=spProgress.__scoreLog||[];
+  log.push({date:today,score,scenarioId:scenarioId||'',tag:tag||''});
+  if(log.length>50)log.splice(0,log.length-50);
+}
+function sp_scoreTrendHTML(){
+  const log=(spProgress.__scoreLog||[]).filter(x=>typeof x.score==='number').slice(-10);
+  if(log.length<2)return '';
+  const bars=log.map(e=>{
+    const pct=Math.max(4,Math.round((e.score/5)*100));
+    const color=e.score>=4?'#16A34A':e.score>=3?'#D97706':'#DC2626';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:30px;flex:1">'
+      +'<div style="font-size:13px;font-weight:700;color:'+color+'">'+e.score+'</div>'
+      +'<div style="width:100%;max-width:20px;height:44px;background:#F1F5F9;border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">'
+      +'<div style="width:100%;height:'+pct+'%;background:'+color+';border-radius:4px 4px 0 0"></div></div>'
+      +'</div>';
+  }).join('');
+  return '<div class="card" style="padding:12px"><div class="ctit">📈 Your last '+log.length+' AI-scored repetitions</div>'
+    +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:2px">'+bars+'</div></div>';
+}
+function sp_renderFeedback(r){
+  const score=(typeof r.score==='number')?r.score:null;
+  const band=r.band_label||'';
+  const color=EM_BAND_COLOR[band]||'#2563EB';
+  let h='<div class="card fb" style="align-items:flex-start">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">TOEFL Listen and Repeat — ETS Score</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+color+'">'+(score!=null?esc(String(score)):'—')+'<span style="font-size:14px;font-weight:400;color:#94A3B8">/5</span></div>'
+    +(band?'<div style="font-size:13px;color:'+color+';font-weight:600;margin-top:2px">'+esc(band)+'</div>':'')+'</div>'
+    +'<div style="max-width:60%;text-align:right;font-size:14px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
+
+  if(sp_cur?.text){
+    h+='<div class="card" style="background:#F8FAFF;border-color:#BFDBFE"><div class="ctit">🔊 Original Sentence</div><div style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(sp_cur.text)+'</div></div>';
+  }
+
+  if(r.content_accuracy_pct!=null||r.grammar_preserved!=null){
+    h+='<div class="card" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px">';
+    if(r.content_accuracy_pct!=null){
+      const pct=r.content_accuracy_pct;
+      const pc=pct>=90?'#16A34A':pct>=70?'#D97706':'#DC2626';
+      h+='<div><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Content accuracy</div><div style="font-size:16px;font-weight:700;color:'+pc+'">'+esc(String(pct))+'%</div></div>';
+    }
+    if(r.grammar_preserved!=null){
+      const ok=!!r.grammar_preserved;
+      h+='<div style="flex:1;min-width:180px"><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Grammar preserved</div><div style="font-size:14px;font-weight:600;color:'+(ok?'#16A34A':'#DC2626')+'">'+(ok?'✓ Yes':'✗ No')+'</div></div>';
+    }
+    h+='</div>';
+  }
+
+  if(r.missed_words?.length){
+    h+='<div class="card" style="background:#F8FAFC;border-color:#E2E8F0"><div class="ctit" style="color:#64748B">➖ Missed Words</div><div style="display:flex;flex-wrap:wrap;gap:6px">'
+      +r.missed_words.map(w=>'<span class="tag" style="background:#F1F5F9;color:#475569">'+esc(w)+'</span>').join('')+'</div></div>';
+  }
+
+  if(r.substituted_words?.length){
+    h+='<div class="card" style="background:#FEF2F2;border-color:#FECACA"><div class="ctit" style="color:#DC2626">🔁 Substituted Words</div><div class="gg">';
+    r.substituted_words.forEach(sw=>{
+      h+='<div class="upitem"><div style="flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap">'
+        +'<span style="font-size:14px;color:#DC2626;text-decoration:line-through">'+esc(sw.heard||'')+'</span>'
+        +'<span style="color:#94A3B8">→</span>'
+        +'<span style="font-size:14px;font-weight:600;color:#16A34A">'+esc(sw.original||'')+'</span>'
+        +'</div></div>';
+    });
+    h+='</div></div>';
+  }
+
+  h+=sp_scoreTrendHTML();
+  const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
+}
+function sp_processResult(r){
+  const id=sp_lastId;sp_lastId=null;
+  const scenario=(spSentences||[]).find(s=>s.id===id);
+  const score=(typeof r.score==='number')?Math.max(0,Math.min(5,r.score)):null;
+  if(id){
+    if(!spProgress[id])spProgress[id]={};
+    spProgress[id].practiced=true;
+    spProgress[id].date=today;
+    if(r.band_label)spProgress[id].level=r.band_label;
+    if(score!=null)spProgress[id].score=score;
+  }
+  if(score!=null)sp_logScore(id,score,scenario?scenario.tag:'');
+  sp_saveProgress();
+  sp_renderFeedback(r);
+  sp_renderScenario();
+}
+
+// Modal subtitle shown right below "Send this prompt to Claude", so it's
+// clear which official TOEFL task's rubric is about to be applied.
+function bridge_getTaskLabel(mode){
+  if(mode==='writing'&&em_active&&em_cur)return 'Avaliação oficial: Write an Email (TOEFL iBT)';
+  if(mode==='writing')return 'Avaliação oficial: Write for an Academic Discussion (TOEFL iBT)';
+  if(mode==='speaking')return 'Avaliação oficial: Listen and Repeat (TOEFL iBT)';
+  return '';
 }
 
 // ── ESCOLA DO TOEFL FEEDBACK (score timeline + PDF-text import → SRS + exercises) ──
@@ -4255,6 +4688,16 @@ function em_ensureFresh(){
     emScenarios=EM_SEED.slice();em_saveScenarios();
   }
 }
+function wr_ensureFresh(){
+  if(!wrScenarios.length||!wrScenarios[0]||!wrScenarios[0].professorQuestion){
+    wrScenarios=WR_SEED.slice();wr_saveScenarios();
+  }
+}
+function sp_ensureFresh(){
+  if(!spSentences.length||!spSentences[0]||typeof spSentences[0].text!=='string'){
+    spSentences=SP_SEED.slice();sp_saveSentences();
+  }
+}
 // Complete the Words switched to the TOEFL "fill in the missing letters" format
 // (ids cwl*). Older built-in sets (grammar gap-fill cw*, and the even older leaky
 // seed) are detected by the absence of cwl1 and replaced with the current CW_SEED,
@@ -4288,6 +4731,14 @@ function ex_loadLocal(){
   em_ensureFresh();
   if(!localStorage.getItem('c1ems'))em_saveScenarios();
   try{emProgress=JSON.parse(localStorage.getItem('c1emp')||'{}');}catch(e){emProgress={};}
+  try{const v=JSON.parse(localStorage.getItem('c1wrs')||'null');wrScenarios=Array.isArray(v)&&v.length?v:WR_SEED.slice();}catch(e){wrScenarios=WR_SEED.slice();}
+  wr_ensureFresh();ex_mergeSeeds(wrScenarios,WR_SEED,wr_saveScenarios);
+  if(!localStorage.getItem('c1wrs'))wr_saveScenarios();
+  try{wrProgress=JSON.parse(localStorage.getItem('c1wrp')||'{}');}catch(e){wrProgress={};}
+  try{const v=JSON.parse(localStorage.getItem('c1sps')||'null');spSentences=Array.isArray(v)&&v.length?v:SP_SEED.slice();}catch(e){spSentences=SP_SEED.slice();}
+  sp_ensureFresh();ex_mergeSeeds(spSentences,SP_SEED,sp_saveSentences);
+  if(!localStorage.getItem('c1sps'))sp_saveSentences();
+  try{spProgress=JSON.parse(localStorage.getItem('c1spp')||'{}');}catch(e){spProgress={};}
 }
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
@@ -5051,6 +5502,13 @@ function initApp(){
   buildRoadmap();
   renderDash();
   render();
+  // Academic Discussion is the default Writing sub-mode (em_active starts
+  // false) and Listen and Repeat is the only Speaking task, so both need a
+  // scenario picked and shown up front rather than only on a toggle click.
+  if(!wr_cur)wr_pick();
+  wr_renderScenario();
+  if(!sp_cur)sp_pick();
+  sp_renderScenario();
   initSesTimer();
 }
 
@@ -5091,6 +5549,10 @@ function startSync(){
     REMS = db.ref('emailScenarios');
     REMP = db.ref('emailProgress');
     RESC = db.ref('escolaFeedback');
+    RWRS = db.ref('discussionScenarios');
+    RWRP = db.ref('wrProgress');
+    RSPS = db.ref('listenRepeatSentences');
+    RSPP = db.ref('spProgress');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -5134,6 +5596,10 @@ function startSync(){
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RWRS.on('value',s=>{const v=s.val();if(v){wrScenarios=Object.values(v);wr_ensureFresh();localStorage.setItem('c1wrs',JSON.stringify(wrScenarios));if(!em_active){if(!wr_cur)wr_pick();wr_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RWRP.on('value',s=>{const v=s.val();if(v){wrProgress=v;localStorage.setItem('c1wrp',JSON.stringify(wrProgress));if(!em_active)wr_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RSPS.on('value',s=>{const v=s.val();if(v){spSentences=Object.values(v);sp_ensureFresh();localStorage.setItem('c1sps',JSON.stringify(spSentences));if(!sp_cur)sp_pick();sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
