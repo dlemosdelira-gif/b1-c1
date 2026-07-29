@@ -3902,6 +3902,8 @@ function em_buildAnalysisPrompt(t){
 +'FAIXA 1 — Resposta malsucedida: tentativa ineficaz de endereçar a tarefa; limitações de linguagem podem impedir a expressão das ideias, ao ponto de a mensagem ser quase ininteligível; pouquíssima elaboração; linguagem telegráfica (frases curtas/desconectadas); erros sérios e frequentes; pouca linguagem original (muito copiada do enunciado).\n\n'
 +'FAIXA 0 — Resposta em branco, rejeita o tópico, não está em inglês, é cópia integral do enunciado, ou não tem relação alguma com o prompt.\n\n'
 +'REGRA CRÍTICA DE CALIBRAÇÃO: separe erros superficiais de digitação (typos como "alot", "didnt", confusões there/their, letra minúscula por pressa) de erros gramaticais reais (concordância verbal, gerúndio após preposição, infinitivo após modal, uso incorreto de artigo). Erros superficiais isolados NÃO reduzem a nota de uma resposta que, fora isso, atende à faixa 5. Só erros gramaticais recorrentes ou que prejudicam a clareza devem puxar a nota para baixo.\n\n'
++'Além da análise de scoring em JSON, gere também um campo "modelAnswer5" contendo uma resposta modelo nota 5/5 (faixa 5, "fully successful") para este MESMO cenário de email (mesmo destinatário, mesmo contexto, mesmos pontos obrigatórios) — não um exemplo genérico. O modelo deve ter registro apropriado ao destinatário, estrutura de e-mail completa (saudação, corpo desenvolvido, fechamento), 150-200+ palavras, e nenhum erro de preposição, infinitivo após modal ou gerúndio após preposição.\n\n'
++'Gere também um campo "modelAnswerNotes" (2-3 frases em português) destacando os 2-3 elementos que tornam esse modelo diferente da resposta do candidato — foco nos pontos que causaram a perda de nota dele.\n\n'
 +'Retorne SOMENTE um objeto JSON (sem markdown, sem texto antes ou depois), seguindo exatamente este schema:\n\n'
 +'{\n'
 +'  "score": 0-5,\n'
@@ -3924,7 +3926,9 @@ function em_buildAnalysisPrompt(t){
 +'    { "text": "trecho com o erro", "tag": "gerund-after-preposition | infinitive-after-modal | subject-verb-agreement | article | outro", "explanation": "breve explicação em inglês" }\n'
 +'  ],\n'
 +'  "strengths": ["ponto forte 1", "ponto forte 2"],\n'
-+'  "overall_feedback": "2-3 frases em português resumindo o desempenho e o principal ponto de melhoria"\n'
++'  "overall_feedback": "2-3 frases em português resumindo o desempenho e o principal ponto de melhoria",\n'
++'  "modelAnswer5": "texto completo do exemplo 5/5 para este mesmo cenário",\n'
++'  "modelAnswerNotes": "explicação curta do que diferencia o modelo da resposta do candidato"\n'
 +'}';
 }
 // Store one row per AI-scored submission under the existing emailProgress
@@ -3934,10 +3938,12 @@ function em_buildAnalysisPrompt(t){
 // Kept separate from the Escola do TOEFL feedback timeline: different grading
 // source (this app's own AI Analysis Bridge vs. the school's official feedback),
 // so blending the two into one line could misrepresent either.
-function em_logScore(scenarioId,score,tag){
+function em_logScore(scenarioId,score,tag,modelAnswer5,modelAnswerNotes){
   if(typeof score!=='number')return;
   const log=emProgress.__scoreLog=emProgress.__scoreLog||[];
-  log.push({date:today,score,scenarioId:scenarioId||'',tag:tag||''});
+  const entry={date:today,score,scenarioId:scenarioId||'',tag:tag||''};
+  if(modelAnswer5){entry.modelAnswer5=modelAnswer5;if(modelAnswerNotes)entry.modelAnswerNotes=modelAnswerNotes;}
+  log.push(entry);
   if(log.length>50)log.splice(0,log.length-50);
 }
 function em_scoreTrendHTML(){
@@ -4007,6 +4013,8 @@ function em_renderFeedback(r){
     h+='<div class="card" style="background:#F0FDF4;border-color:#BBF7D0"><div class="ctit" style="color:#16A34A">✅ Strengths</div><ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#166534;line-height:1.7">'+r.strengths.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>';
   }
 
+  h+=bridge_modelAnswerHTML(r);
+
   if(r.surface_errors?.length){
     h+='<div class="card" style="background:#F8FAFC;border-color:#E2E8F0"><div class="ctit" style="color:#64748B">✏️ Surface Errors (typos — don\'t affect the score)</div><div class="gg">';
     r.surface_errors.forEach(e=>{
@@ -4042,14 +4050,18 @@ function em_processEmailResult(r){
   const id=em_lastId;em_lastId=null;
   const scenario=(emScenarios||[]).find(s=>s.id===id);
   const score=(typeof r.score==='number')?Math.max(0,Math.min(5,r.score)):null;
+  const modelAnswer5=(r.modelAnswer5||'').trim(),modelAnswerNotes=(r.modelAnswerNotes||'').trim();
   if(id){
     if(!emProgress[id])emProgress[id]={};
     emProgress[id].practiced=true;
     emProgress[id].date=today;
     if(r.band_label)emProgress[id].level=r.band_label;
     if(score!=null)emProgress[id].score=score;
+    // Kept on the scenario slot too (not just the score log) so the latest
+    // model answer is reachable without scanning the log.
+    if(modelAnswer5){emProgress[id].modelAnswer5=modelAnswer5;emProgress[id].modelAnswerNotes=modelAnswerNotes;}
   }
-  if(score!=null)em_logScore(id,score,scenario?scenario.tag:'');
+  if(score!=null)em_logScore(id,score,scenario?scenario.tag:'',modelAnswer5,modelAnswerNotes);
   em_saveProgress();
   (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
   em_renderFeedback(r);
@@ -4099,6 +4111,8 @@ function wr_buildAnalysisPrompt(t){
 +'FAIXA 0 — Em branco, rejeita o tópico, não está em inglês, cópia integral do enunciado, ou sem relação com o prompt.\n\n'
 +'REGRA CRÍTICA: verifique OBRIGATORIAMENTE dois pontos que derrubam a nota independentemente da gramática: (a) a resposta declara uma posição clara logo nas primeiras frases? (b) a resposta referencia pelo menos um dos colegas (concordando, discordando, ou complementando o ponto dele)? Se qualquer um dos dois estiver ausente, a nota fica limitada a no máximo 3, mesmo com gramática impecável — sinalize isso explicitamente no feedback.\n\n'
 +'Separe erros superficiais de digitação (não afetam a nota) de erros gramaticais reais (concordância, gerúndio após preposição, infinitivo após modal, artigo).\n\n'
++'Além da análise de scoring, gere também um campo "modelAnswer5" contendo uma resposta modelo nota 5/5 (faixa 5) para esta MESMA pergunta do professor e MESMOS colegas — não um exemplo genérico. O modelo DEVE referenciar nominalmente pelo menos um dos colegas mencionados acima (ex: "I agree with '+(wr_cur?wr_cur.peer1.name:'X')+' that..." / "Unlike '+(wr_cur?wr_cur.peer2.name:'Y')+', I believe..."), ter 150-225 palavras, variedade sintática (subordinação, orações relativas, conectores variados), e cada argumento apoiado por um exemplo concreto.\n\n'
++'Gere também um campo "modelAnswerNotes" (2-3 frases em português) destacando os 2-3 elementos que tornam esse modelo diferente da resposta do candidato — foco nos pontos que causaram a perda de nota dele.\n\n'
 +'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
 +'{\n'
 +'  "score": 0-5,\n'
@@ -4113,13 +4127,17 @@ function wr_buildAnalysisPrompt(t){
 +'  "surface_errors": [{ "text": string, "note": string }],\n'
 +'  "grammar_errors": [{ "text": string, "tag": string, "explanation": string }],\n'
 +'  "strengths": [string],\n'
-+'  "overall_feedback": string\n'
++'  "overall_feedback": string,\n'
++'  "modelAnswer5": "texto completo do exemplo 5/5 para esta mesma pergunta, referenciando um colega pelo nome",\n'
++'  "modelAnswerNotes": "explicação curta do que diferencia o modelo da resposta do candidato"\n'
 +'}';
 }
-function wr_logScore(scenarioId,score,tag){
+function wr_logScore(scenarioId,score,tag,modelAnswer5,modelAnswerNotes){
   if(typeof score!=='number')return;
   const log=wrProgress.__scoreLog=wrProgress.__scoreLog||[];
-  log.push({date:today,score,scenarioId:scenarioId||'',tag:tag||''});
+  const entry={date:today,score,scenarioId:scenarioId||'',tag:tag||''};
+  if(modelAnswer5){entry.modelAnswer5=modelAnswer5;if(modelAnswerNotes)entry.modelAnswerNotes=modelAnswerNotes;}
+  log.push(entry);
   if(log.length>50)log.splice(0,log.length-50);
 }
 function wr_scoreTrendHTML(){
@@ -4182,6 +4200,8 @@ function wr_renderFeedback(r){
     h+='<div class="card" style="background:#F0FDF4;border-color:#BBF7D0"><div class="ctit" style="color:#16A34A">✅ Strengths</div><ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#166534;line-height:1.7">'+r.strengths.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>';
   }
 
+  h+=bridge_modelAnswerHTML(r);
+
   if(r.surface_errors?.length){
     h+='<div class="card" style="background:#F8FAFC;border-color:#E2E8F0"><div class="ctit" style="color:#64748B">✏️ Surface Errors (typos — don\'t affect the score)</div><div class="gg">';
     r.surface_errors.forEach(e=>{
@@ -4215,14 +4235,16 @@ function wr_processResult(r){
   const id=wr_lastId;wr_lastId=null;
   const scenario=(wrScenarios||[]).find(s=>s.id===id);
   const score=(typeof r.score==='number')?Math.max(0,Math.min(5,r.score)):null;
+  const modelAnswer5=(r.modelAnswer5||'').trim(),modelAnswerNotes=(r.modelAnswerNotes||'').trim();
   if(id){
     if(!wrProgress[id])wrProgress[id]={};
     wrProgress[id].practiced=true;
     wrProgress[id].date=today;
     if(r.band_label)wrProgress[id].level=r.band_label;
     if(score!=null)wrProgress[id].score=score;
+    if(modelAnswer5){wrProgress[id].modelAnswer5=modelAnswer5;wrProgress[id].modelAnswerNotes=modelAnswerNotes;}
   }
-  if(score!=null)wr_logScore(id,score,scenario?scenario.tag:'');
+  if(score!=null)wr_logScore(id,score,scenario?scenario.tag:'',modelAnswer5,modelAnswerNotes);
   wr_saveProgress();
   (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
   wr_renderFeedback(r);
@@ -4388,6 +4410,28 @@ function bridge_getTaskLabel(mode){
   if(mode==='writing')return 'Avaliação oficial: Write for an Academic Discussion (TOEFL iBT)';
   if(mode==='speaking')return 'Avaliação oficial: Listen and Repeat (TOEFL iBT)';
   return '';
+}
+// Collapsible "model answer" card shared by Email and Academic Discussion
+// feedback (both schemas carry modelAnswer5/modelAnswerNotes). Returns ''
+// when the field is missing/empty — e.g. an older saved attempt from before
+// this feature, or a pasted response that left it out — so a failed/partial
+// API response never breaks the rest of the feedback panel.
+function bridge_modelAnswerHTML(r){
+  const answer=(r&&r.modelAnswer5||'').trim();
+  if(!answer)return '';
+  const notes=(r.modelAnswerNotes||'').trim();
+  return '<div class="card" style="background:#EFF6FF;border-color:#BFDBFE">'
+    +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
+    +'<span>📘 Exemplo 5/5</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'
+    +'<div style="font-size:14px;color:#0F172A;line-height:1.7;white-space:pre-wrap">'+esc(answer)+'</div>'
+    +(notes?'<div style="font-size:13px;color:#1D4ED8;font-style:italic;margin-top:10px;padding-top:10px;border-top:1px solid #BFDBFE">'+esc(notes)+'</div>':'')
+    +'</div></div>';
+}
+function bridge_toggleModelAnswer(headerEl){
+  const body=headerEl.closest('.card')?.querySelector('.mdlBody');if(!body)return;
+  const collapsed=body.classList.toggle('hid');
+  const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
 
 // ── ESCOLA DO TOEFL FEEDBACK (score timeline + PDF-text import → SRS + exercises) ──
