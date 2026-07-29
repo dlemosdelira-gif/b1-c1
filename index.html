@@ -759,8 +759,13 @@ textarea{min-height:120px}
   </div>
 
   <div class="card csm" style="background:#FEF3C7;margin-top:12px;border-color:#FCD34D">
-    <div style="font-size:14px;font-weight:600;color:#B45309;text-align:center;margin-bottom:10px">🎧 Speaking — Listen and Repeat</div>
+    <div style="font-size:14px;font-weight:600;color:#B45309;text-align:center;margin-bottom:10px">🎧 Speaking</div>
+    <div class="exmode-bar" style="margin-bottom:10px">
+      <button class="exmode-btn on" id="spm-lr" onclick="sp_setMode(false)">🔊 Listen and Repeat</button>
+      <button class="exmode-btn" id="spm-iv" onclick="sp_setMode(true)">🎙️ Take an Interview</button>
+    </div>
     <div id="listenRepeatBox"></div>
+    <div id="interviewBox" class="hid"></div>
   </div>
 
   <div class="card" style="margin-top:12px">
@@ -839,8 +844,8 @@ const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null;
-let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={};
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null;
+let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 let cw_cur=null,cw_checked=false,cw_vals=[];
 // Defense-in-depth against losing in-progress letters answers to an unrelated
@@ -851,6 +856,7 @@ let cw_liveId=null,cw_liveVals=[];
 let em_active=false,em_cur=null,em_lastId=null;
 let wr_cur=null,wr_lastId=null;
 let sp_cur=null,sp_lastId=null,sp_played=false;
+let iv_cur=null,iv_lastId=null,iv_active=false;
 let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
@@ -2551,7 +2557,10 @@ function buildPrompt(mode,t){
   if(mode==='writing'&&wr_cur){
     return wr_buildAnalysisPrompt(t);
   }
-  if(mode==='speaking'&&sp_cur){
+  if(mode==='speaking'&&iv_active&&iv_cur){
+    return iv_buildAnalysisPrompt(t);
+  }
+  if(mode==='speaking'&&!iv_active&&sp_cur){
     return sp_buildAnalysisPrompt(t);
   }
   if(mode==='speaking'){
@@ -2565,19 +2574,21 @@ function openAIModal(mode){
   curText=t;curMode=mode||'writing';
   const isEmail=curMode==='writing'&&em_active&&em_cur;
   const isDiscussion=curMode==='writing'&&!em_active&&wr_cur;
-  const isListenRepeat=curMode==='speaking'&&sp_cur;
+  const isInterview=curMode==='speaking'&&iv_active&&iv_cur;
+  const isListenRepeat=curMode==='speaking'&&!iv_active&&sp_cur;
   const fp=buildPrompt(curMode,t);
   navigator.clipboard.writeText(t).catch(()=>{});
-  document.getElementById('mAititle').textContent=isEmail?'📧 Email Analysis':(isDiscussion?'📝 Academic Discussion Analysis':(isListenRepeat?'🎧 Listen and Repeat Analysis':(curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis')));
+  document.getElementById('mAititle').textContent=isEmail?'📧 Email Analysis':(isDiscussion?'📝 Academic Discussion Analysis':(isInterview?'🎙️ Interview Analysis':(isListenRepeat?'🎧 Listen and Repeat Analysis':(curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis'))));
   document.getElementById('mpbox').textContent=fp;
   document.getElementById('bridgeTaskLabel').textContent=bridge_getTaskLabel(curMode);
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
-  // Mark the relevant scenario/sentence as practiced now; capture the score
-  // later in processJSON once the pasted analysis comes back.
-  em_lastId=null;wr_lastId=null;sp_lastId=null;
+  // Mark the relevant scenario/sentence/question as practiced now; capture
+  // the score later in processJSON once the pasted analysis comes back.
+  em_lastId=null;wr_lastId=null;sp_lastId=null;iv_lastId=null;
   if(isEmail){emProgress[em_cur.id]={practiced:true,date:today};em_lastId=em_cur.id;em_saveProgress();em_renderScenario();}
   else if(isDiscussion){wrProgress[wr_cur.id]={practiced:true,date:today};wr_lastId=wr_cur.id;wr_saveProgress();wr_renderScenario();}
+  else if(isInterview){ivProgress[iv_cur.id]={practiced:true,date:today};iv_lastId=iv_cur.id;iv_saveProgress();}
   else if(isListenRepeat){spProgress[sp_cur.id]={practiced:true,date:today};sp_lastId=sp_cur.id;sp_saveProgress();}
   openM('mAI');
 }
@@ -2616,6 +2627,7 @@ function processJSON(){
   // *_lastId flags (set in openAIModal, only one at a time) route accordingly.
   if(em_lastId){em_processEmailResult(r);return;}
   if(wr_lastId){wr_processResult(r);return;}
+  if(iv_lastId){iv_processResult(r);return;}
   if(sp_lastId){sp_processResult(r);return;}
   renderAnalysis(r);
 }
@@ -3307,6 +3319,23 @@ const SP_SEED=[
   {id:'sp9',tag:'study-tips',text:'The professor recommended reviewing chapter four before attempting the practice questions.'},
   {id:'sp10',tag:'grades',text:'Once the results are published, students can request a formal grade review.'}
 ];
+// TOEFL "Take an Interview" style: an interviewer (a role, not a named peer)
+// asks a single open-ended question aloud; the candidate answers spontaneously
+// with no prep time. Unlike Listen and Repeat, content/delivery are judged,
+// not verbatim accuracy — so the question is spoken via speechSynthesis but
+// the "who's asking" framing stays visible as text (that part isn't being tested).
+const IV_SEED=[
+  {id:'iv1',tag:'campus-life',interviewer:'A campus researcher',question:'What do you think is the best way for new students to make friends when they first arrive at university?'},
+  {id:'iv2',tag:'technology',interviewer:'A student newspaper reporter',question:'Do you think it\'s a good idea for professors to record their lectures so students can watch them again later? Why or why not?'},
+  {id:'iv3',tag:'study-habits',interviewer:'A university counselor',question:'What study habit has helped you the most since you started your studies?'},
+  {id:'iv4',tag:'travel',interviewer:'An international student advisor',question:'What advice would you give to someone visiting your country for the first time?'},
+  {id:'iv5',tag:'work-life',interviewer:'A career services interviewer',question:'Would you rather work for a large company or a small startup after graduation? Explain your choice.'},
+  {id:'iv6',tag:'environment',interviewer:'A sustainability committee member',question:'What is one change your university could make to become more environmentally friendly?'},
+  {id:'iv7',tag:'education',interviewer:'A visiting education researcher',question:'Do you think students learn better working alone or in groups? Give reasons for your opinion.'},
+  {id:'iv8',tag:'health',interviewer:'A campus wellness coordinator',question:'What do you do to manage stress during exam periods?'},
+  {id:'iv9',tag:'culture',interviewer:'A local radio host',question:'What is a tradition from your culture that you think everyone should experience at least once?'},
+  {id:'iv10',tag:'technology',interviewer:'A student club representative',question:'How has social media changed the way you stay in touch with friends and family?'}
+];
 
 // ── EXERCISE STORAGE (localStorage + Firebase, mirroring saveCA/saveST) ──
 function bs_saveItems(){localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(RBSI){const o=bsItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RBSI,Object.keys(o).length?o:null);}}
@@ -3319,6 +3348,8 @@ function wr_saveScenarios(){localStorage.setItem('c1wrs',JSON.stringify(wrScenar
 function wr_saveProgress(){localStorage.setItem('c1wrp',JSON.stringify(wrProgress));fbSet(RWRP,Object.keys(wrProgress).length?wrProgress:null);}
 function sp_saveSentences(){localStorage.setItem('c1sps',JSON.stringify(spSentences));if(RSPS){const o=spSentences.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RSPS,Object.keys(o).length?o:null);}}
 function sp_saveProgress(){localStorage.setItem('c1spp',JSON.stringify(spProgress));fbSet(RSPP,Object.keys(spProgress).length?spProgress:null);}
+function iv_saveInterviews(){localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(RIVI){const o=ivInterviews.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RIVI,Object.keys(o).length?o:null);}}
+function iv_saveProgress(){localStorage.setItem('c1ivp',JSON.stringify(ivProgress));fbSet(RIVP,Object.keys(ivProgress).length?ivProgress:null);}
 
 // Record a right/wrong attempt against a grammar pattern for weak-spot tracking.
 // Log a right/wrong attempt. `mode` ('bs'|'cw') keeps a SEPARATE per-activity
@@ -4402,12 +4433,171 @@ function sp_processResult(r){
   sp_renderFeedback(r);
   sp_renderScenario();
 }
+// Toggles between the app's two Speaking tasks (mirrors em_setMode's
+// Email/Academic Discussion toggle for Writing).
+function sp_setMode(on){
+  iv_active=!!on;
+  document.getElementById('spm-lr').classList.toggle('on',!iv_active);
+  document.getElementById('spm-iv').classList.toggle('on',iv_active);
+  const lrBox=document.getElementById('listenRepeatBox');
+  const ivBox=document.getElementById('interviewBox');
+  if(iv_active){
+    lrBox.classList.add('hid');
+    if(!iv_cur)iv_pick();
+    ivBox.classList.remove('hid');
+    iv_renderScenario();
+  }else{
+    ivBox.classList.add('hid');
+    if(!sp_cur)sp_pick();
+    lrBox.classList.remove('hid');
+    sp_renderScenario();
+  }
+}
+
+// ── TAKE AN INTERVIEW — ETS 0-5 RUBRIC ANALYSIS ──
+// Second of the two TOEFL 2026 Speaking tasks: an interviewer asks a single
+// open-ended question aloud and the candidate answers spontaneously with no
+// prep time (unlike Listen and Repeat, content/delivery are scored here, not
+// verbatim accuracy).
+function iv_pick(){
+  if(!ivInterviews.length){iv_cur=null;return;}
+  const fresh=ivInterviews.filter(s=>!ivProgress[s.id]);
+  const pool=fresh.length?fresh:ivInterviews;
+  iv_cur=pool[Math.floor(Math.random()*pool.length)];
+}
+function iv_renderScenario(){
+  const box=document.getElementById('interviewBox');if(!box)return;
+  if(!iv_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No interview questions available.</div>';return;}
+  const done=ivProgress[iv_cur.id];
+  box.innerHTML='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span class="tag tpu">'+esc(iv_cur.tag)+'</span>'
+    +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:6px">Take an Interview</div>'
+    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px;text-align:center">'+esc(iv_cur.interviewer)+' asks you a question. Play it, then answer right away using Speak below — there\'s no preparation time on the real test.</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
+    +'<button class="btn bpr bsm" id="ivPlayBtn" onclick="iv_play()">🔊 Play question</button>'
+    +'<button class="btn bsm" onclick="iv_shuffle()">🎲 New question</button>'
+    +'</div>'
+    +'</div>';
+}
+function iv_shuffle(){iv_pick();iv_renderScenario();}
+function iv_play(){
+  if(!iv_cur)return;
+  if('speechSynthesis'in window){
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(iv_cur.question);
+    u.lang='en-US';u.rate=0.95;
+    window.speechSynthesis.speak(u);
+  }else{
+    toast('⚠️ Speech playback not supported in this browser');
+  }
+  const b=document.getElementById('ivPlayBtn');if(b)b.textContent='🔊 Play again';
+}
+function iv_buildAnalysisPrompt(t){
+  const q=iv_cur?iv_cur.question:'';
+  const interviewer=iv_cur?iv_cur.interviewer:'an interviewer';
+  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Take an Interview" do módulo Speaking (formato 2026: '+interviewer+' faz uma pergunta em áudio e o candidato responde espontaneamente, sem tempo de preparação, escala oficial ETS 0-5).\n\n'
++'Pergunta do entrevistador: '+q+'\n'
++'Resposta do candidato (transcrição): '+t+'\n\n'
++'Avalie usando o rubric oficial ETS de 6 faixas (0-5):\n\n'
++'FAIXA 5 — Resposta plenamente bem-sucedida: aborda totalmente a pergunta, é clara e fluente. A resposta é sobre o tópico e bem elaborada. Ritmo de fala conversacional bom, mantido com pausas apropriadas e naturais. Pronúncia é facilmente inteligível; ritmo e entonação transmitem o sentido com eficácia. Uma faixa de gramática e vocabulário precisos permite a expressão clara de sentidos precisos.\n\n'
++'FAIXA 4 — Resposta geralmente bem-sucedida: aborda a pergunta e é razoavelmente clara. A resposta é sobre o tópico e elaborada, mas pode carecer de conectores eficazes em nível de frase. Ritmo de fala bom é geralmente mantido, com alguma pausa que pode afetar minimamente o fluxo. Inteligibilidade e sentido não são prejudicados por pronúncia, ritmo e entonação, embora palavras/frases ocasionais possam exigir esforço mínimo para entender. Gramática e vocabulário são adequados para expressar sentidos gerais na maior parte do tempo.\n\n'
++'FAIXA 3 — Resposta parcialmente bem-sucedida: aborda a pergunta, mas com elaboração e/ou clareza limitadas. A resposta é geralmente sobre o tópico, mas a elaboração pode ser relativamente limitada. Pausas frequentes ou longas resultam em um ritmo entrecortado; palavras de preenchimento são frequentes. Inteligibilidade é às vezes afetada por imprecisões na pronúncia ou ritmo/acentuação em nível de palavra. Faixa e precisão limitadas de gramática e vocabulário restringem perceptivelmente a precisão e clareza dos sentidos.\n\n'
++'FAIXA 2 — Resposta majoritariamente malsucedida: reflete uma tentativa de abordar a pergunta, mas não é sustentada de forma significativa e/ou inteligível. A resposta está minimamente conectada à pergunta do entrevistador, mas tem pouca ou nenhuma elaboração relevante, ou consiste principalmente de linguagem da própria pergunta. Inteligibilidade é limitada; o sentido pretendido pelo falante é frequentemente difícil de discernir. A resposta mostra uma faixa muito limitada de gramática e vocabulário.\n\n'
++'FAIXA 1 — Resposta malsucedida: aborda minimamente a pergunta, e pode demonstrar controle muito limitado da linguagem. A resposta está apenas vagamente conectada à linguagem da pergunta do entrevistador. A resposta é majoritariamente ininteligível. A resposta consiste principalmente de palavras ou frases isoladas.\n\n'
++'FAIXA 0 — Sem resposta OU a resposta é inteiramente ininteligível OU não há inglês na resposta OU o conteúdo é inteiramente desconectado da pergunta (ou consiste apenas de frases como "eu não sei").\n\n'
++'Separe erros superficiais de digitação/transcrição (não afetam a nota) de problemas reais de conteúdo, elaboração, ritmo e gramática/vocabulário descritos no rubric acima.\n\n'
++'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
++'{\n'
++'  "score": 0-5,\n'
++'  "band_label": string,\n'
++'  "on_topic": true/false,\n'
++'  "elaboration": "well-developed | adequate | limited | minimal | none",\n'
++'  "pacing_notes": "breve avaliação em português do ritmo/pausas",\n'
++'  "pronunciation_notes": "breve avaliação em português de pronúncia/ritmo/entonação",\n'
++'  "grammar_vocab_notes": "breve avaliação em português da faixa e precisão de gramática/vocabulário",\n'
++'  "overall_feedback": "2-3 frases em português resumindo o desempenho e o principal ponto de melhoria"\n'
++'}';
+}
+function iv_logScore(scenarioId,score,tag){
+  if(typeof score!=='number')return;
+  const log=ivProgress.__scoreLog=ivProgress.__scoreLog||[];
+  log.push({date:today,score,scenarioId:scenarioId||'',tag:tag||''});
+  if(log.length>50)log.splice(0,log.length-50);
+}
+function iv_scoreTrendHTML(){
+  const log=(ivProgress.__scoreLog||[]).filter(x=>typeof x.score==='number').slice(-10);
+  if(log.length<2)return '';
+  const bars=log.map(e=>{
+    const pct=Math.max(4,Math.round((e.score/5)*100));
+    const color=e.score>=4?'#16A34A':e.score>=3?'#D97706':'#DC2626';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:30px;flex:1">'
+      +'<div style="font-size:13px;font-weight:700;color:'+color+'">'+e.score+'</div>'
+      +'<div style="width:100%;max-width:20px;height:44px;background:#F1F5F9;border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">'
+      +'<div style="width:100%;height:'+pct+'%;background:'+color+';border-radius:4px 4px 0 0"></div></div>'
+      +'</div>';
+  }).join('');
+  return '<div class="card" style="padding:12px"><div class="ctit">📈 Your last '+log.length+' AI-scored interviews</div>'
+    +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:2px">'+bars+'</div></div>';
+}
+function iv_renderFeedback(r){
+  const score=(typeof r.score==='number')?r.score:null;
+  const band=r.band_label||'';
+  const color=EM_BAND_COLOR[band]||'#2563EB';
+  let h='<div class="card fb" style="align-items:flex-start">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">TOEFL Take an Interview — ETS Score</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+color+'">'+(score!=null?esc(String(score)):'—')+'<span style="font-size:14px;font-weight:400;color:#94A3B8">/5</span></div>'
+    +(band?'<div style="font-size:13px;color:'+color+';font-weight:600;margin-top:2px">'+esc(band)+'</div>':'')+'</div>'
+    +'<div style="max-width:60%;text-align:right;font-size:14px;color:#475569;line-height:1.5">'+esc(r.overall_feedback||'')+'</div></div>';
+
+  if(iv_cur?.question){
+    h+='<div class="card" style="background:#F8FAFF;border-color:#BFDBFE"><div class="ctit">🎙️ Interviewer\'s Question</div><div style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(iv_cur.interviewer||'')+': '+esc(iv_cur.question)+'</div></div>';
+  }
+
+  if(r.on_topic!=null||r.elaboration){
+    h+='<div class="card" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px">';
+    if(r.on_topic!=null){
+      const ok=!!r.on_topic;
+      h+='<div><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">On topic</div><div style="font-size:14px;font-weight:600;color:'+(ok?'#16A34A':'#DC2626')+'">'+(ok?'✓ Yes':'✗ No')+'</div></div>';
+    }
+    if(r.elaboration){
+      h+='<div style="flex:1;min-width:180px"><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Elaboration</div><div style="font-size:14px;font-weight:600;color:#0F172A">'+esc(r.elaboration)+'</div></div>';
+    }
+    h+='</div>';
+  }
+
+  const noteRows=[['⏱️ Pacing',r.pacing_notes],['🗣️ Pronunciation',r.pronunciation_notes],['📚 Grammar & Vocabulary',r.grammar_vocab_notes]].filter(row=>row[1]);
+  if(noteRows.length){
+    h+='<div class="card"><div class="gg">'+noteRows.map(row=>'<div class="upitem"><div style="flex:1"><div style="font-size:13px;color:#94A3B8;margin-bottom:2px">'+row[0]+'</div><div style="font-size:14px;color:#0F172A;line-height:1.5">'+esc(row[1])+'</div></div></div>').join('')+'</div></div>';
+  }
+
+  h+=iv_scoreTrendHTML();
+  const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
+}
+function iv_processResult(r){
+  const id=iv_lastId;iv_lastId=null;
+  const scenario=(ivInterviews||[]).find(s=>s.id===id);
+  const score=(typeof r.score==='number')?Math.max(0,Math.min(5,r.score)):null;
+  if(id){
+    if(!ivProgress[id])ivProgress[id]={};
+    ivProgress[id].practiced=true;
+    ivProgress[id].date=today;
+    if(r.band_label)ivProgress[id].level=r.band_label;
+    if(score!=null)ivProgress[id].score=score;
+  }
+  if(score!=null)iv_logScore(id,score,scenario?scenario.tag:'');
+  iv_saveProgress();
+  iv_renderFeedback(r);
+  iv_renderScenario();
+}
 
 // Modal subtitle shown right below "Send this prompt to Claude", so it's
 // clear which official TOEFL task's rubric is about to be applied.
 function bridge_getTaskLabel(mode){
   if(mode==='writing'&&em_active&&em_cur)return 'Avaliação oficial: Write an Email (TOEFL iBT)';
   if(mode==='writing')return 'Avaliação oficial: Write for an Academic Discussion (TOEFL iBT)';
+  if(mode==='speaking'&&iv_active)return 'Avaliação oficial: Take an Interview (TOEFL iBT)';
   if(mode==='speaking')return 'Avaliação oficial: Listen and Repeat (TOEFL iBT)';
   return '';
 }
@@ -4742,6 +4932,11 @@ function sp_ensureFresh(){
     spSentences=SP_SEED.slice();sp_saveSentences();
   }
 }
+function iv_ensureFresh(){
+  if(!ivInterviews.length||!ivInterviews[0]||typeof ivInterviews[0].question!=='string'){
+    ivInterviews=IV_SEED.slice();iv_saveInterviews();
+  }
+}
 // Complete the Words switched to the TOEFL "fill in the missing letters" format
 // (ids cwl*). Older built-in sets (grammar gap-fill cw*, and the even older leaky
 // seed) are detected by the absence of cwl1 and replaced with the current CW_SEED,
@@ -4783,6 +4978,10 @@ function ex_loadLocal(){
   sp_ensureFresh();ex_mergeSeeds(spSentences,SP_SEED,sp_saveSentences);
   if(!localStorage.getItem('c1sps'))sp_saveSentences();
   try{spProgress=JSON.parse(localStorage.getItem('c1spp')||'{}');}catch(e){spProgress={};}
+  try{const v=JSON.parse(localStorage.getItem('c1ivi')||'null');ivInterviews=Array.isArray(v)&&v.length?v:IV_SEED.slice();}catch(e){ivInterviews=IV_SEED.slice();}
+  iv_ensureFresh();ex_mergeSeeds(ivInterviews,IV_SEED,iv_saveInterviews);
+  if(!localStorage.getItem('c1ivi'))iv_saveInterviews();
+  try{ivProgress=JSON.parse(localStorage.getItem('c1ivp')||'{}');}catch(e){ivProgress={};}
 }
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
@@ -5546,13 +5745,15 @@ function initApp(){
   buildRoadmap();
   renderDash();
   render();
-  // Academic Discussion is the default Writing sub-mode (em_active starts
-  // false) and Listen and Repeat is the only Speaking task, so both need a
-  // scenario picked and shown up front rather than only on a toggle click.
+  // Academic Discussion and Listen and Repeat are the default sub-modes
+  // (em_active/iv_active both start false), so all four scenario pools need
+  // a pick and a render up front rather than only on a toggle click.
   if(!wr_cur)wr_pick();
   wr_renderScenario();
   if(!sp_cur)sp_pick();
   sp_renderScenario();
+  if(!iv_cur)iv_pick();
+  iv_renderScenario();
   initSesTimer();
 }
 
@@ -5597,6 +5798,8 @@ function startSync(){
     RWRP = db.ref('wrProgress');
     RSPS = db.ref('listenRepeatSentences');
     RSPP = db.ref('spProgress');
+    RIVI = db.ref('interviewQuestions');
+    RIVP = db.ref('ivProgress');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -5644,6 +5847,8 @@ function startSync(){
     RWRP.on('value',s=>{const v=s.val();if(v){wrProgress=v;localStorage.setItem('c1wrp',JSON.stringify(wrProgress));if(!em_active)wr_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RSPS.on('value',s=>{const v=s.val();if(v){spSentences=Object.values(v);sp_ensureFresh();localStorage.setItem('c1sps',JSON.stringify(spSentences));if(!sp_cur)sp_pick();sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RIVI.on('value',s=>{const v=s.val();if(v){ivInterviews=Object.values(v);iv_ensureFresh();localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(!iv_cur)iv_pick();iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
