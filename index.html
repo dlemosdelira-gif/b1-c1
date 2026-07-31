@@ -3842,6 +3842,76 @@ function openPacingModal(){
   document.getElementById('pacingContainer').innerHTML=pacingHTML();
   openM('mPacing');
 }
+// ── TOEFL SCORE ESTIMATE (0-6 overall + per-skill) ──────────────────────────
+// TOEFL 2026 reports scores on a 0-6 scale (0=Below A1 ... 6=C2). ETS's actual
+// score comes from a proprietary IRT/equating process we have no access to, so
+// this is a rough approximation built from your own practice data: accuracy on
+// the self-checking exercises, and average AI-rubric scores (0-5) on the
+// AI-graded tasks, converted to the 0-6 scale and combined roughly in
+// proportion to each task's share of the section's official raw score.
+const CEFR_BAND=['Below A1','A1','A2','B1','B2','C1','C2'];
+function toefl_cefrLabel(score){return score==null?'—':CEFR_BAND[Math.max(0,Math.min(6,Math.round(score)))];}
+// Overall accuracy (0-1) for a self-checking exercise mode, aggregated across
+// every grammar/topic tag logged for it in stats.exPerf. Null = no attempts yet.
+function toefl_modeAccuracy(mode){
+  const perf=(stats.exPerf&&stats.exPerf[mode])||{};
+  let c=0,a=0;
+  Object.values(perf).forEach(p=>{c+=p.correct||0;a+=(p.correct||0)+(p.wrong||0);});
+  return a?c/a:null;
+}
+// Average of the last 10 AI-rubric scores (0-5) logged for an AI-graded task. Null = none yet.
+function toefl_avgScoreLog(progressObj){
+  const log=(progressObj&&progressObj.__scoreLog)||[];
+  if(!log.length)return null;
+  const recent=log.slice(-10);
+  return recent.reduce((a,e)=>a+(e.score||0),0)/recent.length;
+}
+function toefl_scoreEstimate(){
+  const avg=arr=>{const v=arr.filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};
+  const reading=(()=>{const r=avg([toefl_modeAccuracy('cw'),toefl_modeAccuracy('rd'),toefl_modeAccuracy('ra')]);return r==null?null:r*6;})();
+  const listening=(()=>{const r=avg([toefl_modeAccuracy('lcr'),toefl_modeAccuracy('lc'),toefl_modeAccuracy('an'),toefl_modeAccuracy('at')]);return r==null?null:r*6;})();
+  // Weighted like the official raw totals: Build a Sentence 10, Email 5, Discussion 5 (of 20).
+  const bsAcc=toefl_modeAccuracy('bs'),emAvg=toefl_avgScoreLog(emProgress),wrAvg=toefl_avgScoreLog(wrProgress);
+  let wNum=0,wDen=0;
+  if(bsAcc!=null){wNum+=bsAcc*6*0.5;wDen+=0.5;}
+  if(emAvg!=null){wNum+=(emAvg/5*6)*0.25;wDen+=0.25;}
+  if(wrAvg!=null){wNum+=(wrAvg/5*6)*0.25;wDen+=0.25;}
+  const writing=wDen?wNum/wDen:null;
+  // Weighted like the official item split: Listen and Repeat 7, Take an Interview 4 (of 11).
+  const lrAvg=toefl_avgScoreLog(spProgress),ivAvg=toefl_avgScoreLog(ivProgress);
+  let sNum=0,sDen=0;
+  if(lrAvg!=null){sNum+=(lrAvg/5*6)*0.64;sDen+=0.64;}
+  if(ivAvg!=null){sNum+=(ivAvg/5*6)*0.36;sDen+=0.36;}
+  const speaking=sDen?sNum/sDen:null;
+  const overall=avg([reading,listening,writing,speaking]);
+  return {reading,listening,writing,speaking,overall};
+}
+function toeflScoreCardHTML(){
+  const s=toefl_scoreEstimate();
+  if(s.overall==null){
+    return '<div class="card" style="margin-bottom:12px">'
+      +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">📊 Score Estimado</div>'
+      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6">Faça algumas atividades de Reading, Listening, Writing ou Speaking para ver sua estimativa aqui.</div>'
+      +'</div>';
+  }
+  const skillRow=(icon,label,val)=>{
+    if(val==null)return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="color:#94A3B8">sem dados ainda</span></div><div style="height:6px;background:#F1F5F9;border-radius:4px"></div></div>';
+    const pct=Math.round(val/6*100),col=val>=5?'#16A34A':val>=3?'#2563EB':'#D97706';
+    return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="font-family:\'DM Mono\',monospace;color:'+col+';font-weight:600">'+val.toFixed(1)+'/6 · '+toefl_cefrLabel(val)+'</span></div><div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px"></div></div></div>';
+  };
+  return '<div class="card" style="margin-bottom:12px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:2px">📊 Score Estimado</div>'
+    +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">'
+    +'<span style="font-family:\'DM Mono\',monospace;font-size:32px;font-weight:700;color:#2563EB">'+s.overall.toFixed(1)+'</span>'
+    +'<span style="font-family:\'DM Mono\',monospace;font-size:15px;color:#94A3B8">/ 6 · '+toefl_cefrLabel(s.overall)+'</span>'
+    +'</div>'
+    +skillRow('📖','Reading',s.reading)
+    +skillRow('🎧','Listening',s.listening)
+    +skillRow('✍️','Writing',s.writing)
+    +skillRow('🎤','Speaking',s.speaking)
+    +'<div style="font-size:11.5px;color:#94A3B8;line-height:1.5;padding-top:8px;margin-top:2px;border-top:1px dashed #DDE3F5">Estimativa aproximada baseada nas suas últimas tentativas — não é a nota oficial do TOEFL (que usa um cálculo estatístico da ETS).</div>'
+    +'</div>';
+}
 function toeflHubHTML(){
   const sections=[
     {name:'Reading',items:50,time:30,band:true,rows:[
@@ -3902,18 +3972,21 @@ function toeflShow(key){
   sp.classList.toggle('hid',!isSpeaking);
   rb.classList.toggle('hid',!(isWriting||isSpeaking));
   duebadge.classList.toggle('hid',!isExercise);
-  if(key==null)return;
-  document.getElementById('toeflActTitle').textContent=TOEFL_ACT_ICON[key]+' '+TOEFL_ACT_LABEL[key];
-  if(isWriting){em_setMode(key==='writing:email');}
-  else if(isSpeaking){sp_setMode(key==='speaking:iv');}
-  else if(key==='build'){if(!bs_cur&&!bs_checked)bs_load();}
-  else if(key==='complete'){if(!cw_cur&&!cw_checked)cw_load();}
-  else if(RQ_LABEL[key]){if(rq_cur[key]===undefined)rq_load(key);}
+  if(key!=null){
+    document.getElementById('toeflActTitle').textContent=TOEFL_ACT_ICON[key]+' '+TOEFL_ACT_LABEL[key];
+    if(isWriting){em_setMode(key==='writing:email');}
+    else if(isSpeaking){sp_setMode(key==='speaking:iv');}
+    else if(key==='build'){if(!bs_cur&&!bs_checked)bs_load();}
+    else if(key==='complete'){if(!cw_cur&&!cw_checked)cw_load();}
+    else if(RQ_LABEL[key]){if(rq_cur[key]===undefined)rq_load(key);}
+  }
+  // Refreshes the hub (item counts + score estimate) every time, including when
+  // returning to the menu — cheap, and keeps the score estimate current.
   renderRev();
 }
 function renderRev(){
   const hub=document.getElementById('toeflHub');
-  if(hub)hub.innerHTML=toeflHubHTML();
+  if(hub)hub.innerHTML=toeflScoreCardHTML()+toeflHubHTML();
   const ex=document.getElementById('toeflEx');
   if(!ex)return;
   if(toeflActivity==='build')ex.innerHTML=bs_render();
