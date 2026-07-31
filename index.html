@@ -223,6 +223,7 @@ textarea{min-height:120px}
 .exmode-btn{flex:1 1 calc(33% - 4px);min-width:96px;padding:8px 8px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;color:#475569;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
 .exmode-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
 .exmode-btn:hover:not(.on){background:#F1F5F9}
+.exmode-btn.sub{font-size:13px;padding:6px 8px}
 .bs-assembly{min-height:64px;border:2px dashed #BFDBFE;border-radius:10px;background:#F8FAFF;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;margin-bottom:12px}
 .bs-assembly.empty{align-items:center;justify-content:center}
 .bs-prompt{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;font-size:15px;color:#1D4ED8;font-weight:500;line-height:1.5;margin-bottom:12px}
@@ -254,6 +255,17 @@ textarea{min-height:120px}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
+.rq-passage{background:#F8FAFF;border:1px solid #DDE3F5;border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.7;color:#0F172A;margin-bottom:14px;white-space:pre-wrap}
+.rq-q{margin-bottom:16px}
+.rq-qtxt{font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px}
+.rq-choice{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:8px;border:1px solid #DDE3F5;background:#fff;color:#0F172A;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;margin-bottom:6px;box-sizing:border-box}
+.rq-choice:hover:not(:disabled){border-color:#2563EB;background:#EFF6FF}
+.rq-choice.picked{background:#EFF6FF;border-color:#2563EB;color:#1D4ED8}
+.rq-choice.ok{background:#F0FDF4;border-color:#86EFAC;color:#16A34A}
+.rq-choice.bad{background:#FEF2F2;border-color:#FECACA;color:#DC2626}
+.rq-choice:disabled{cursor:default}
+.rq-audio-btn{display:flex;align-items:center;gap:8px;justify-content:center;width:100%;padding:16px;border-radius:10px;border:1.5px dashed #93C5FD;background:#F1F5FF;color:#1D4ED8;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:14px}
+.rq-audio-btn:hover{background:#E0EAFF}
 
 /* ── CARD ITEMS ── */
 .cards-grid{display:grid;gap:10px;grid-template-columns:1fr}
@@ -464,7 +476,6 @@ textarea{min-height:120px}
   <div class="nav">
     <button class="nb on" onclick="goTab('dash')" id="nav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
     <button class="nb" onclick="goTab('prac')" id="nav-prac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Practice</button>
-    <button class="nb" onclick="goTab('road')" id="nav-road"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h20v4H2V3zm0 8h20v4H2v-4zm0 8h20v4H2v-4z"/></svg>Roadmap</button>
     <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards</button>
     <button class="nb" onclick="goTab('peua')" id="nav-peua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>PEUA</button>
@@ -517,6 +528,15 @@ textarea{min-height:120px}
         <button class="btn bsm" onclick="closeM('mCL')">Cancel</button>
         <button class="btn bpr bsm" onclick="saveCustomLesson()">Save Lesson</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mRoad" onclick="if(event.target===this)closeM('mRoad')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:640px">
+    <div class="mhdr"><div class="mtit">📅 Learning Roadmap</div><button class="btn bsm" onclick="closeM('mRoad')">✕</button></div>
+    <div class="mbdy">
+      <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px"></div>
     </div>
   </div>
 </div>
@@ -734,9 +754,14 @@ textarea{min-height:120px}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Session: <span id="sestimer" style="font-family:'DM Mono',monospace;font-weight:600;color:#2563EB">00:00</span>
       </div>
-      <button class="btn bte bsm" onclick="openM('mCL')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom
-      </button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn bte bsm" onclick="openRoadmapModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M2 3h20v4H2V3zm0 8h20v4H2v-4zm0 8h20v4H2v-4z"/></svg>Roadmap
+        </button>
+        <button class="btn bte bsm" onclick="openM('mCL')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Custom
+        </button>
+      </div>
     </div>
   </div>
   <div id="pmctx"></div>
@@ -791,11 +816,6 @@ textarea{min-height:120px}
     </div>
   </div>
   <div class="hid" id="anlres"></div>
-</div>
-
-<div class="pg hid" id="pg-road">
-  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A">📅 Learning Roadmap</div></div>
-  <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:0 14px"></div>
 </div>
 
 <div class="pg hid" id="pg-rev">
@@ -857,6 +877,12 @@ let em_active=false,em_cur=null,em_lastId=null;
 let wr_cur=null,wr_lastId=null;
 let sp_cur=null,sp_lastId=null,sp_played=false;
 let iv_cur=null,iv_lastId=null,iv_active=false;
+// Reading/Listening comprehension: Read in Daily Life (rd), Read an Academic Passage (ra),
+// and later the four Listening task types share one generic multiple-choice engine (see
+// RQ_TYPES/rq_* below). rqItems/rqProgress/rq_cur/etc. are keyed by task type.
+let RRQI=null,RRQP=null;
+let rqItems={rd:[],ra:[]},rqProgress={rd:{},ra:{}};
+let rq_cur={},rq_checked={},rq_sel={};
 let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
@@ -1794,7 +1820,7 @@ function findCurrentPeuaMonth(){
 function goTab(t){
   try{
     curTab=t;
-    ['dash','prac','road','rev','cards','peua'].forEach(x=>{
+    ['dash','prac','rev','cards','peua'].forEach(x=>{
       const pg=document.getElementById('pg-'+x);
       const nav=document.getElementById('nav-'+x);
       if(pg)pg.classList.toggle('hid',x!==t);
@@ -1803,7 +1829,6 @@ function goTab(t){
 
     if(t==='dash')renderDash();
     else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}ensuranceWeek=findCurrentEnsuranceWeek();renderPrac();}
-    else if(t==='road')buildRoadmap();
     else if(t==='rev')renderRev();
     else if(t==='cards')renderCards();
     else if(t==='peua'){activePeuaMonth=findCurrentPeuaMonth();activeAmaWeek=findCurrentAmaWeek();renderPeua();}
@@ -1825,7 +1850,6 @@ function render(){
     renderMeters();renderFlight();
     if(curTab==='dash')renderDash();
     else if(curTab==='prac')renderPrac();
-    else if(curTab==='road')buildRoadmap();
     else if(curTab==='rev')renderRev();
     else if(curTab==='cards')renderCards();
     else if(curTab==='peua')renderPeua();
@@ -2865,6 +2889,7 @@ function renderRev(){
   // Dispatch to the alternative exercise modes; flashcards fall through below.
   if(exMode==='build'){if(!bs_cur&&!bs_checked)bs_load();c.innerHTML=sel+bs_render();return;}
   if(exMode==='complete'){if(!cw_cur&&!cw_checked)cw_load();c.innerHTML=sel+cw_render();return;}
+  if(exMode==='rd'||exMode==='ra'){if(rq_cur[exMode]===undefined)rq_load(exMode);c.innerHTML=sel+rq_render(exMode);return;}
   const allDue=due();
   const dv=revSession();
   document.getElementById('duecnt').textContent=dv.length+' / '+allDue.length+' due today';
@@ -3304,6 +3329,113 @@ const IV_SEED=[
   {id:'iv10',tag:'technology',interviewer:'A student club representative',question:'How has social media changed the way you stay in touch with friends and family?'}
 ];
 
+// ── READING: Read in Daily Life — short nonacademic texts (posters, menus, emails,
+// social posts, schedules, receipts, texts, ads), each with 3 multiple-choice questions.
+const RD_SEED=[
+  {id:'rd1',tag:'notice',text:"LOST CAT — REWARD $50\nMissing since Sunday, June 14th, near Maple Street Park.\nName: Whiskers. Orange and white, short-haired, very friendly.\nWearing a blue collar with a small bell.\nIf seen, please call Sarah at 555-0142. Do not chase — he gets scared easily.\nThank you for your help!",questions:[
+    {q:'What is the main purpose of this notice?',choices:['To advertise a pet-sitting service','To ask for help finding a lost cat','To warn people about a dangerous animal','To announce a new park rule'],correct:1},
+    {q:'What should someone do if they see the cat?',choices:['Chase it back to Maple Street Park','Keep it and take care of it','Call Sarah and not chase the cat','Leave a note near the park entrance'],correct:2},
+    {q:'How can you recognize the cat?',choices:['It has a red collar and long fur','It is orange and white with a blue collar','It is black with white paws','It has a torn ear and no collar'],correct:1}
+  ]},
+  {id:'rd2',tag:'menu',text:"RIVERSIDE CAFÉ — Breakfast Menu (served until 11 a.m.)\n\nClassic Pancakes — $6.50\nTwo eggs, toast & jam — $5.00\nAvocado toast — $7.25 (add egg +$1.50)\nOatmeal with berries — $4.75\nFresh orange juice — $3.00\n\nAll breakfasts include coffee or tea.\nGluten-free bread available on request.",questions:[
+    {q:'How much would avocado toast with an added egg cost?',choices:['$7.25','$8.75','$6.50','$1.50'],correct:1},
+    {q:'What is included with every breakfast order?',choices:['Orange juice','A side of pancakes','Coffee or tea','Gluten-free bread'],correct:2},
+    {q:'Until what time is breakfast served?',choices:['9 a.m.','10 a.m.','11 a.m.','Noon'],correct:2}
+  ]},
+  {id:'rd3',tag:'email',text:"From: David Chen\nTo: Marketing Team\nSubject: Thursday meeting moved\n\nHi everyone,\n\nQuick update — the 2 p.m. marketing meeting on Thursday has been moved to Friday at the same time, since the conference room isn't available. Please bring your Q3 budget numbers; we'll go over them before the client call next week.\n\nLet me know if Friday doesn't work for you.\n\nThanks,\nDavid",questions:[
+    {q:'Why was the meeting moved?',choices:["David is out of town on Thursday","The conference room is unavailable","The client call was cancelled","The budget numbers aren't ready"],correct:1},
+    {q:'What should attendees bring to the meeting?',choices:['Their laptops','Q3 budget numbers','A list of clients','Meeting minutes from last week'],correct:1},
+    {q:"What does David ask people to do if Friday doesn't work?",choices:['Send the budget numbers by email instead','Let him know','Attend the original Thursday meeting anyway','Reschedule the client call'],correct:1}
+  ]},
+  {id:'rd4',tag:'social media',text:"Posted by @junehomefinds · 2h\nHUGE moving sale this Saturday! 🏡📦\nFurniture, kitchenware, books, and a barely-used bike — everything must go, prices are negotiable.\n123 Birch Ave, 9am–3pm. Cash only, please!\nDM me if you want photos of anything before Saturday 😊",questions:[
+    {q:"What does 'everything must go' most likely mean?",choices:['The items are being donated for free','The seller wants to sell all the items','The sale will only last one hour','The items are already sold'],correct:1},
+    {q:'How can someone pay at the sale?',choices:['Credit card only','Cash only','Online transfer','Check'],correct:1},
+    {q:'What can interested buyers do before Saturday?',choices:['Visit the address early','Message the poster for photos','Call a phone number','Reserve items online'],correct:1}
+  ]},
+  {id:'rd5',tag:'schedule',text:"CAMPUS GYM — Weekly Class Schedule\n\nMonday: Yoga, 7:00 a.m. / Spin, 6:00 p.m.\nWednesday: Yoga, 7:00 a.m. / Boxing, 5:30 p.m.\nFriday: Spin, 6:00 p.m. / Boxing, 5:30 p.m.\nSaturday: Yoga, 9:00 a.m.\n\nAll classes require sign-up at the front desk 24 hours in advance. Classes are cancelled if fewer than 4 people sign up.",questions:[
+    {q:'On which day can you take a Boxing class in the morning?',choices:['Wednesday','Friday','Saturday','None — Boxing is only offered in the evening'],correct:3},
+    {q:'What must you do to attend a class?',choices:['Pay an extra fee','Sign up 24 hours in advance','Bring your own equipment','Arrive 30 minutes early'],correct:1},
+    {q:'When might a class be cancelled?',choices:['If it rains','If fewer than 4 people sign up','If the instructor is a beginner','If it falls on a Saturday'],correct:1}
+  ]},
+  {id:'rd6',tag:'receipt',text:"GREENLEAF MARKET\nReceipt #4471 — June 3\n\n1x Bread ......... $3.20\n2x Milk (1L) ...... $4.00\n1x Eggs (dozen) ... $3.50\n3x Apples ......... $2.10\n\nSubtotal: $12.80\nMember discount: -$1.28\nTotal: $11.52\nPaid by card\n\nThank you for shopping with us! Members save 10% every Tuesday.",questions:[
+    {q:'How much did the milk cost in total?',choices:['$2.00','$4.00','$1.28','$3.50'],correct:1},
+    {q:'Why was the total lower than the subtotal?',choices:['An item was returned','A member discount was applied','There was a pricing error','Tax was not included'],correct:1},
+    {q:'How was this purchase paid for?',choices:['Cash','Card','Store credit','Mobile payment'],correct:1}
+  ]},
+  {id:'rd7',tag:'text messages',text:"Mia: Hey! Are we still on for hiking Saturday?\nJake: Yeah! But the forecast says rain in the morning.\nMia: Ugh. Should we push it to the afternoon?\nJake: Good idea — let's meet at 2 instead of 9.\nMia: Works for me. Same trailhead?\nJake: Yep, see you there!",questions:[
+    {q:'Why do Mia and Jake change their plan?',choices:['Jake is busy in the morning','Rain is expected in the morning','The trailhead is closed until 2','Mia wants to sleep in'],correct:1},
+    {q:'What time will they meet now?',choices:['9 a.m.','Noon','2 p.m.','Saturday evening'],correct:2},
+    {q:'Where will they meet?',choices:["At Mia's house",'At the same trailhead','At a different trailhead',"At Jake's house"],correct:1}
+  ]},
+  {id:'rd8',tag:'advertisement',text:"SUMMER CLEARANCE — Up to 40% off select items!\nBrightWear Outlet, June 10–17 only.\nNew customers get an extra 10% off their first purchase with code SUMMER10.\nOpen daily 10 a.m.–8 p.m. Online orders ship free over $50.",questions:[
+    {q:'How can a new customer get an extra discount?',choices:['By shopping only online','By using the code SUMMER10','By visiting after June 17','By spending over $50'],correct:1},
+    {q:'When does free shipping apply?',choices:['On all online orders','On orders over $50','Only during the first week','Only for new customers'],correct:1},
+    {q:'How long does the clearance sale last?',choices:['One day','One week','One month','It has no end date'],correct:1}
+  ]}
+];
+
+// ── READING: Read an Academic Passage — ~200-word expository passages (history,
+// art/music, business/economics, life science, physical science, social science),
+// each with 5 questions (main idea, detail, vocabulary in context, inference, purpose).
+const RA_SEED=[
+  {id:'ra1',tag:'history',text:"During the late eighteenth and early nineteenth centuries, the Industrial Revolution transformed the economies of Western Europe. New machinery made textile production far faster than traditional hand methods, and factories began to replace small workshops as the primary site of manufacturing. Because factories required large numbers of workers concentrated in one place, cities near coalfields and rivers grew rapidly as rural families moved in search of steady wages. This shift was not without cost: housing in industrial cities was often hastily built and overcrowded, and disease spread quickly through poorly ventilated neighborhoods. Nevertheless, urban populations continued to swell for decades, since even difficult factory work paid more reliably than farming, which depended heavily on unpredictable harvests. By the mid-nineteenth century, several European cities had grown to many times their former size, and this rapid, largely unplanned expansion prompted early efforts at urban reform, including new regulations on housing conditions and public sanitation.",questions:[
+    {q:'What is this passage mainly about?',choices:['The invention of new textile machinery','How industrialization drove rapid, difficult urban growth','Why farming became more profitable than factory work','The history of European public sanitation laws'],correct:1},
+    {q:'According to the passage, why did families move to industrial cities?',choices:['To escape overcrowded housing','In search of steady factory wages','Because farming was banned','To take advantage of new sanitation laws'],correct:1},
+    {q:"In the passage, the word 'swell' is closest in meaning to",choices:['shrink','fluctuate','increase','relocate'],correct:2},
+    {q:'It can be inferred from the passage that early urban reforms were introduced because',choices:['Factory owners requested better housing for profit reasons','The rapid growth of cities created serious living-conditions problems','Rural populations demanded a return to farming','Coal and river resources had become scarce'],correct:1},
+    {q:"Why does the author mention that factory work 'paid more reliably than farming'?",choices:['To argue that farming was disappearing entirely','To explain why people kept moving to cities despite difficult conditions','To criticize factory owners for underpaying workers','To compare wages in different European countries'],correct:1}
+  ]},
+  {id:'ra2',tag:'art and music',text:"In the 1870s, a group of French painters broke sharply from the artistic traditions taught in official academies. Rather than carefully finishing a painting in a studio, these artists often worked outdoors, applying visible brushstrokes to capture fleeting effects of light and color. Critics initially mocked the style as unfinished and sloppy, borrowing the name of one painting, Monet's Impression, Sunrise, to describe the group derisively as 'Impressionists.' The label, meant as an insult, was eventually embraced by the painters themselves. Their focus on everyday scenes — train stations, gardens, cafés — also departed from the historical and mythological subjects favored by academic painting. Despite early rejection from official exhibitions, the Impressionists organized their own independent shows, gradually winning public interest. Their emphasis on personal perception over precise detail influenced generations of later artists and is now considered a turning point in the history of modern art.",questions:[
+    {q:'What is the main topic of this passage?',choices:['The founding of French art academies','The origins and impact of the Impressionist movement','A biography of Claude Monet','The history of outdoor painting equipment'],correct:1},
+    {q:"Where did the name 'Impressionists' come from?",choices:['A phrase used in an academic art textbook','The title of a painting by Monet','A vote among the painters themselves','A newspaper article praising the group'],correct:1},
+    {q:"The word 'derisively' in the passage is closest in meaning to",choices:['respectfully','mockingly','accidentally','privately'],correct:1},
+    {q:'It can be inferred that academic painting of the time',choices:['Also focused mainly on everyday scenes','Emphasized speed over careful technique','Favored historical and mythological subjects','Was created primarily outdoors'],correct:2},
+    {q:'Why does the author mention that the painters organized their own independent shows?',choices:['To show how they overcame rejection from official exhibitions','To explain why the movement eventually failed','To argue that academic exhibitions were more successful','To describe a disagreement among the Impressionists'],correct:0}
+  ]},
+  {id:'ra3',tag:'business and economics',text:"Economists often explain price changes using the interaction of supply and demand. When a product becomes more popular while its availability stays the same, buyers compete for a limited quantity, and sellers can raise prices without losing many customers. Conversely, when a good becomes overly abundant relative to buyer interest, sellers often lower prices to attract customers and reduce unsold inventory. This relationship, however, rarely operates in isolation. External factors — a poor harvest, a new competitor, a shift in consumer taste — can move supply or demand independently, causing prices to adjust even when neither buyers nor sellers have changed their basic preferences. Businesses that closely track these shifts can adjust production or pricing early, while those that respond only after a price change has occurred often lose a competitive advantage. For this reason, forecasting shifts in supply and demand is considered a core skill in business strategy, not merely an academic exercise confined to economics classrooms.",questions:[
+    {q:'What is the passage mainly about?',choices:['How businesses forecast weather-related risks','How supply and demand influence prices, and why this matters for business','The history of economic theory','Why consumer taste rarely changes'],correct:1},
+    {q:'According to the passage, what happens when a product becomes overly abundant?',choices:['Sellers usually raise prices','Sellers often lower prices to reduce unsold inventory','Buyers compete more intensely for it','Production of the item usually stops'],correct:1},
+    {q:"The word 'abundant' in the passage is closest in meaning to",choices:['scarce','plentiful','expensive','popular'],correct:1},
+    {q:'It can be inferred that businesses which respond only after a price change occurs',choices:['Always fail within a short time','May lose an advantage to competitors who anticipated the shift','Are following the safest possible strategy','Have better forecasting skills than their competitors'],correct:1},
+    {q:"Why does the author give examples like 'a poor harvest' and 'a new competitor'?",choices:['To list the most common causes of business failure','To illustrate external factors that can shift supply or demand','To argue that businesses cannot control any of their costs','To criticize government economic policy'],correct:1}
+  ]},
+  {id:'ra4',tag:'life science',text:"Plants convert sunlight into chemical energy through photosynthesis, a process that occurs primarily in leaves. Chlorophyll, the pigment responsible for the green color of most plants, absorbs light and uses that energy to combine carbon dioxide and water into glucose, releasing oxygen as a byproduct. While this basic process is shared across most plant species, the structure of leaves varies considerably depending on environmental conditions. Plants in dry climates, for example, often have thick, waxy leaves that reduce water loss, while plants in shaded forests tend to have broader, thinner leaves that maximize the capture of limited sunlight. Some desert plants have gone further, reducing their leaves to spines and shifting photosynthesis to their stems, which minimizes surface area exposed to intense heat. These adaptations demonstrate that photosynthesis, while chemically consistent across species, is embedded within a broader set of structural trade-offs shaped by each plant's environment.",questions:[
+    {q:'What is the main idea of this passage?',choices:['Photosynthesis differs chemically between plant species','Leaf structure adapts to environment even though photosynthesis is chemically similar across plants','Desert plants cannot perform photosynthesis','Chlorophyll is only found in forest plants'],correct:1},
+    {q:'What is released as a byproduct of photosynthesis?',choices:['Carbon dioxide','Water','Oxygen','Glucose'],correct:2},
+    {q:"The word 'considerably' in the passage is closest in meaning to",choices:['slightly','significantly','rarely','predictably'],correct:1},
+    {q:'It can be inferred that broad, thin leaves in forest plants help them',choices:['Store more water during droughts','Capture more of the limited available sunlight','Reduce the amount of oxygen they release','Avoid predators more easily'],correct:1},
+    {q:'Why does the author mention desert plants that shift photosynthesis to their stems?',choices:['To argue that these plants cannot survive in deserts','To give an example of an extreme structural adaptation to environment','To explain why deserts have few plant species','To compare desert plants with forest plants\' chlorophyll levels'],correct:1}
+  ]},
+  {id:'ra5',tag:'physical science',text:"The Earth's outer shell is not a single solid layer but is broken into several large sections called tectonic plates, which float atop a slowly shifting layer of partially molten rock. These plates move at rates of only a few centimeters per year, roughly the speed at which human fingernails grow, yet over millions of years this slow movement has reshaped entire continents. Where two plates collide, one may be forced beneath the other in a process called subduction, often producing volcanic activity and powerful earthquakes. Where plates pull apart, magma rises to fill the gap, gradually forming new crust along the ocean floor. Scientists first proposed that continents might have once been joined in the early twentieth century, but the theory was widely dismissed for decades because no one could explain what force might move something as massive as a continent. It was only with the later discovery of seafloor spreading that plate tectonics gained wide scientific acceptance.",questions:[
+    {q:'What is the main topic of the passage?',choices:['The chemical composition of molten rock','How tectonic plate movement gradually reshapes the Earth','The history of earthquake prediction','Why continents have always been separate'],correct:1},
+    {q:'What happens during subduction?',choices:['Two plates pull apart and form new crust','One plate is forced beneath another','Magma cools instantly on contact with water','Continents merge into a single landmass'],correct:1},
+    {q:"The word 'dismissed' in the passage is closest in meaning to",choices:['accepted','rejected','published','tested'],correct:1},
+    {q:'It can be inferred that the theory of moving continents was initially doubted because',choices:['No evidence of earthquakes existed at the time','Scientists could not identify a force strong enough to move continents','Continents were known to be completely stationary','Seafloor spreading had already disproved it'],correct:1},
+    {q:'Why does the author compare plate movement to the speed of fingernail growth?',choices:['To argue that plate movement is too slow to matter','To help the reader picture how slow yet significant the movement is','To explain how scientists measure fingernail growth','To criticize outdated theories of plate tectonics'],correct:1}
+  ]},
+  {id:'ra6',tag:'social science',text:"In 1964, a widely reported crime in New York City drew public attention to a puzzling pattern of human behavior: witnesses to an emergency sometimes fail to help, even when many people are present. This observation led psychologists to investigate what became known as the bystander effect, the tendency for individuals to be less likely to offer help when other people are also present. Researchers proposed that this occurs partly because responsibility feels diffused among a group — each bystander assumes someone else will act, so no one does. Another factor is social influence: if other bystanders appear calm, an individual may interpret the situation as less serious than it actually is. Later experiments confirmed that people were, in fact, more likely to help in emergencies when alone than when surrounded by other witnesses. These findings have since influenced public safety training, which often teaches bystanders to single out one specific person and directly assign them a task, reducing the diffusion of responsibility that the research identified.",questions:[
+    {q:'What is this passage mainly about?',choices:['A crime that occurred in New York City in 1964','The psychological causes of the bystander effect','How to train emergency responders','Why crowds are dangerous during emergencies'],correct:1},
+    {q:'According to the passage, why might a bystander interpret a situation as less serious?',choices:['Because they lack training in first aid','Because other calm-looking bystanders influence their judgment','Because the emergency is not visible to them','Because they are afraid of legal consequences'],correct:1},
+    {q:"The word 'diffused' in the passage is closest in meaning to",choices:['concentrated','spread out','eliminated','increased'],correct:1},
+    {q:'It can be inferred that assigning a specific task to one bystander helps because it',choices:['Removes the sense that someone else will act instead','Makes the emergency less serious','Increases the total number of bystanders present','Replaces the need for professional responders'],correct:0},
+    {q:'Why does the author mention the 1964 New York City crime?',choices:['To criticize the police response at the time','To provide the historical event that prompted research into the bystander effect','To argue that crime rates were rising in the 1960s','To compare urban and rural bystander behavior'],correct:1}
+  ]},
+  {id:'ra7',tag:'history',text:"Before the mid-fifteenth century, books in Europe were copied by hand, a slow process that made written texts expensive and relatively rare. Johannes Gutenberg's development of a printing press using movable metal type dramatically changed this situation. A single press could produce far more copies of a text in a matter of weeks than a scribe could copy by hand in years, and the cost of producing each copy fell sharply as a result. This shift had consequences well beyond the book trade. As printed material became more affordable, literacy rates gradually rose across parts of Europe, since more people had a practical reason, and opportunity, to learn to read. The wider circulation of texts also allowed new ideas to spread more quickly across regions than had previously been possible, a factor historians often cite when explaining the rapid spread of religious and scientific debates in the following centuries. What began as a technical improvement in reproducing text ultimately reshaped how information moved through society.",questions:[
+    {q:'What is the main idea of this passage?',choices:['Gutenberg invented the first book','The printing press changed how information spread through society','Handwritten books were more accurate than printed ones','Literacy rates fell after the printing press was invented'],correct:1},
+    {q:'According to the passage, what happened to the cost of producing books?',choices:['It rose sharply','It stayed about the same','It fell sharply','It became impossible to calculate'],correct:2},
+    {q:"The word 'circulation' in the passage is closest in meaning to",choices:['storage','spread','printing','translation'],correct:1},
+    {q:'It can be inferred that before the printing press, most people',choices:['Had little practical reason to learn to read','Preferred handwritten texts for religious reasons','Were required by law to remain illiterate','Read primarily scientific texts'],correct:0},
+    {q:'Why does the author mention the spread of religious and scientific debates?',choices:['To argue that the printing press caused those debates directly','To give an example of a consequence linked to the wider circulation of ideas','To criticize the accuracy of printed religious texts','To compare Gutenberg with earlier inventors'],correct:1}
+  ]},
+  {id:'ra8',tag:'life science',text:"Each year, many bird species undertake long migrations between breeding grounds and wintering areas, some traveling thousands of kilometers across oceans and continents. Because breeding areas often provide abundant food in summer but become inhospitable in winter, migration allows birds to exploit favorable conditions in two different regions rather than surviving in one location year-round. How birds navigate such distances, often returning to the same nesting site each year, has long puzzled researchers. Studies suggest that birds rely on multiple cues working together: the position of the sun and stars, the Earth's magnetic field, and, for some species, memorized landmarks along familiar routes. Young birds making their first migration appear to depend more heavily on innate, inherited cues, while experienced birds increasingly rely on landmarks learned from previous journeys. This combination of instinct and learning allows migratory birds to adjust their routes when conditions change, such as when a storm forces a detour, while still reliably reaching their destination.",questions:[
+    {q:'What is the main topic of this passage?',choices:['Why some bird species have gone extinct','How and why birds migrate long distances','The effects of storms on bird populations','How birds build nests in winter'],correct:1},
+    {q:'According to the passage, why do many birds migrate?',choices:['To escape predators only found in summer','To exploit favorable conditions in two different regions','Because breeding grounds have no food at any time of year','To avoid competition with other bird species'],correct:1},
+    {q:"The word 'innate' in the passage is closest in meaning to",choices:['learned through practice','inborn','accidental','temporary'],correct:1},
+    {q:'It can be inferred that experienced birds are better than young birds at',choices:["Sensing the Earth's magnetic field",'Adjusting their route using previously learned landmarks','Surviving winter without migrating','Flying faster over long distances'],correct:1},
+    {q:'Why does the author mention a storm forcing a detour?',choices:['To show that migration cues can work together flexibly despite unexpected changes','To argue that storms usually prevent birds from migrating successfully','To explain why some birds do not migrate at all','To compare bird migration with human navigation technology'],correct:0}
+  ]}
+];
+
 // ── EXERCISE STORAGE (localStorage + Firebase, mirroring saveCA/saveST) ──
 function bs_saveItems(){localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(RBSI){const o=bsItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RBSI,Object.keys(o).length?o:null);}}
 function bs_saveProgress(){localStorage.setItem('c1bsp',JSON.stringify(bsProgress));fbSet(RBSP,Object.keys(bsProgress).length?bsProgress:null);}
@@ -3317,6 +3449,11 @@ function sp_saveSentences(){localStorage.setItem('c1sps',JSON.stringify(spSenten
 function sp_saveProgress(){localStorage.setItem('c1spp',JSON.stringify(spProgress));fbSet(RSPP,Object.keys(spProgress).length?spProgress:null);}
 function iv_saveInterviews(){localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(RIVI){const o=ivInterviews.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RIVI,Object.keys(o).length?o:null);}}
 function iv_saveProgress(){localStorage.setItem('c1ivp',JSON.stringify(ivProgress));fbSet(RIVP,Object.keys(ivProgress).length?ivProgress:null);}
+// rqItems/rqProgress hold every reading/listening comprehension type (rd, ra, and later
+// the listening types) keyed by type in ONE object each, rather than one Firebase path
+// per type — same "single path" economy used elsewhere in this app.
+function rq_saveItems(){localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(RRQI)fbSet(RRQI,rqItems);}
+function rq_saveProgress(){localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(RRQP)fbSet(RRQP,rqProgress);}
 
 // Record a right/wrong attempt against a grammar pattern for weak-spot tracking.
 // Log a right/wrong attempt. `mode` ('bs'|'cw') keeps a SEPARATE per-activity
@@ -3345,10 +3482,10 @@ function ex_masteryStats(items,progress){
 }
 // Per-activity performance panel: accuracy by grammar pattern (weakest first),
 // a "focus on these" callout, and coverage — all scoped to a single mode.
-function exPerfPanel(mode){
-  const items=mode==='bs'?bsItems:cwItems;
-  const progress=mode==='bs'?bsProgress:cwProgress;
-  const label=mode==='bs'?'Build a Sentence':'Complete the Words';
+function exPerfPanel(mode,itemsArg,progressArg,labelArg){
+  const items=itemsArg||(mode==='bs'?bsItems:cwItems);
+  const progress=progressArg||(mode==='bs'?bsProgress:cwProgress);
+  const label=labelArg||(mode==='bs'?'Build a Sentence':'Complete the Words');
   const perf=(stats.exPerf&&stats.exPerf[mode])||{};
   const rows=Object.keys(perf).map(t=>{const c=perf[t].correct||0,w=perf[t].wrong||0,a=c+w;return {tag:t,c,w,a,acc:a?c/a:0};}).filter(r=>r.a>0);
   let totC=0,totA=0;rows.forEach(r=>{totC+=r.c;totA+=r.a;});
@@ -3394,17 +3531,34 @@ function ex_due(items,progress){
 }
 function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
 
-// ── REVIEW MODE SELECTOR (Flashcards | Build a Sentence | Complete the Words) ──
+// ── REVIEW MODE SELECTOR (Flashcards | Build a Sentence | Reading [group]) ──
+// "Reading" is a group covering Complete the Words plus the two new Read task
+// types; picking it shows a second-level bar so the top row stays at 3 buttons
+// instead of growing flat with every new task type (Listening will join the
+// same way once it's built).
+const READING_MODES=['complete','rd','ra'];
 function revModeSelector(){
   const m=revCfg.exMode||'flash';
-  const opts=[['flash','📚 Flashcards'],['build','🧩 Build a Sentence'],['complete','✏️ Complete the Words']];
-  return '<div class="exmode-bar">'+opts.map(o=>'<button class="exmode-btn'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
+  const inReading=READING_MODES.includes(m);
+  let h='<div class="exmode-bar">'
+    +'<button class="exmode-btn'+(m==='flash'?' on':'')+'" onclick="setRevExMode(\'flash\')">📚 Flashcards</button>'
+    +'<button class="exmode-btn'+(m==='build'?' on':'')+'" onclick="setRevExMode(\'build\')">🧩 Build a Sentence</button>'
+    +'<button class="exmode-btn'+(inReading?' on':'')+'" onclick="setRevExMode(revCfg.readingSub||\'complete\')">📖 Reading</button>'
+    +'</div>';
+  if(inReading){
+    const subs=[['complete','✏️ Complete the Words'],['rd','📰 Read in Daily Life'],['ra','📖 Academic Passage']];
+    h+='<div class="exmode-bar" style="margin-top:-6px">'+subs.map(o=>'<button class="exmode-btn sub'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
+  }
+  return h;
 }
 function setRevExMode(m){
-  revCfg.exMode=m;saveRevCfg();
+  revCfg.exMode=m;
+  if(READING_MODES.includes(m))revCfg.readingSub=m;
+  saveRevCfg();
   flipped=false;
   if(m==='build'){bs_load();}
   else if(m==='complete'){cw_load();}
+  else if(m==='rd'||m==='ra'){rq_load(m);}
   renderRev();
 }
 
@@ -3675,6 +3829,104 @@ function cw_check(){
   renderRev();
 }
 function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];renderRev();}
+
+// ── READING/LISTENING COMPREHENSION ENGINE ──────────────────────────────────
+// Shared multiple-choice engine for Read in Daily Life, Read an Academic Passage,
+// and (later) the four Listening task types — they're all the same shape: a
+// stimulus (text now, audio later) followed by multiple-choice questions, scored
+// item-correct only when every question in it is answered correctly.
+const RQ_LABEL={rd:'Read in Daily Life',ra:'Read an Academic Passage'};
+const RQ_ICON={rd:'📰',ra:'📖'};
+function rq_items(key){return rqItems[key]||(rqItems[key]=[]);}
+function rq_progress(key){return rqProgress[key]||(rqProgress[key]={});}
+function rq_ensureFresh(){
+  ex_mergeSeeds(rq_items('rd'),RD_SEED,rq_saveItems);
+  ex_mergeSeeds(rq_items('ra'),RA_SEED,rq_saveItems);
+}
+function rq_loadLocal(){
+  try{const v=JSON.parse(localStorage.getItem('c1rqi')||'null');rqItems=(v&&typeof v==='object')?v:{rd:RD_SEED.slice(),ra:RA_SEED.slice()};}catch(e){rqItems={rd:RD_SEED.slice(),ra:RA_SEED.slice()};}
+  rq_ensureFresh();
+  if(!localStorage.getItem('c1rqi'))rq_saveItems();
+  try{const v=JSON.parse(localStorage.getItem('c1rqp')||'null');rqProgress=(v&&typeof v==='object')?v:{};}catch(e){rqProgress={};}
+  if(!rqProgress.rd)rqProgress.rd={};
+  if(!rqProgress.ra)rqProgress.ra={};
+}
+function rq_pick(key){
+  const items=rq_items(key),progress=rq_progress(key);
+  const pool=ex_due(items,progress);
+  return pool.length?pool[0]:null;
+}
+function rq_load(key){
+  rq_cur[key]=rq_pick(key);
+  rq_sel[key]=rq_cur[key]?new Array(rq_cur[key].questions.length).fill(null):[];
+  rq_checked[key]=false;
+}
+function rq_next(key,force){
+  rq_load(key);
+  if(force&&!rq_cur[key]&&rq_items(key).length){
+    const items=rq_items(key);
+    rq_cur[key]=items[Math.floor(Math.random()*items.length)];
+    rq_sel[key]=new Array(rq_cur[key].questions.length).fill(null);
+  }
+  renderRev();
+}
+function rq_selectChoice(key,qIdx,choiceIdx){
+  if(rq_checked[key])return;
+  if(!rq_sel[key])rq_sel[key]=[];
+  rq_sel[key][qIdx]=choiceIdx;
+  renderRev();
+}
+function rq_check(key){
+  const it=rq_cur[key];if(!it)return;
+  const sel=rq_sel[key]||[];
+  if(!it.questions.every((q,i)=>sel[i]!=null)){toast('⚠️ Answer all questions first');return;}
+  const allOk=it.questions.every((q,i)=>sel[i]===q.correct);
+  rq_checked[key]=true;
+  ex_grade(rq_progress(key),it.id,allOk);rq_saveProgress();
+  ex_logPattern(it.tag,allOk,key);
+  renderRev();
+}
+function rq_toolbar(key){
+  const items=rq_items(key);
+  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' passage'+(items.length===1?'':'s')+'</span></div>';
+}
+function rq_render(key){
+  const items=rq_items(key),progress=rq_progress(key),label=RQ_LABEL[key],icon=RQ_ICON[key];
+  const dueCount=ex_due(items,progress).length;
+  const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
+  const tb=rq_toolbar(key);
+  const it=rq_cur[key];
+  if(!it){
+    if(items.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="rq_next(\''+key+'\',true)">Practice anyway</button></div>'+exPerfPanel(key,items,progress,label);
+    return tb+'<div class="card empty"><div class="etit">No passages yet</div></div>'+exPerfPanel(key,items,progress,label);
+  }
+  const sel=rq_sel[key]||[],checked=!!rq_checked[key];
+  let h=tb+'<div class="card">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">'+icon+' '+esc(label)+'</div>'
+    +'<span class="tag tbl">'+esc(it.tag)+'</span></div>'
+    +'<div class="rq-passage">'+esc(it.text)+'</div>';
+  it.questions.forEach((q,qi)=>{
+    h+='<div class="rq-q"><div class="rq-qtxt">'+(qi+1)+'. '+esc(q.q)+'</div>';
+    q.choices.forEach((c,ci)=>{
+      let cls='rq-choice';
+      if(checked){if(ci===q.correct)cls+=' ok';else if(ci===sel[qi])cls+=' bad';}
+      else if(sel[qi]===ci)cls+=' picked';
+      h+='<button class="'+cls+'"'+(checked?' disabled':'')+' onclick="rq_selectChoice(\''+key+'\','+qi+','+ci+')">'+esc(c)+'</button>';
+    });
+    h+='</div>';
+  });
+  if(checked){
+    const correctCount=it.questions.filter((q,i)=>sel[i]===q.correct).length,allOk=correctCount===it.questions.length;
+    h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct!':'❌ '+correctCount+'/'+it.questions.length+' correct — reread the passage above for the ones you missed.')+'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="rq_next(\''+key+'\')">Next →</button></div>';
+  }else{
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="rq_check(\''+key+'\')">✓ Check</button></div>';
+  }
+  return h+'</div>'+exPerfPanel(key,items,progress,label);
+}
+
 // ── Complete the Words: add / delete custom items (fill-the-letters format) ──
 const CW_TAGS=['geography','science','environment','history','technology','health','teamwork','travel','business','vocabulary','reading'];
 function openCWAdd(){
@@ -4949,6 +5201,7 @@ function ex_loadLocal(){
   iv_ensureFresh();ex_mergeSeeds(ivInterviews,IV_SEED,iv_saveInterviews);
   if(!localStorage.getItem('c1ivi'))iv_saveInterviews();
   try{ivProgress=JSON.parse(localStorage.getItem('c1ivp')||'{}');}catch(e){ivProgress={};}
+  rq_loadLocal();
 }
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
@@ -5767,6 +6020,8 @@ function startSync(){
     RSPP = db.ref('spProgress');
     RIVI = db.ref('interviewQuestions');
     RIVP = db.ref('ivProgress');
+    RRQI = db.ref('rqItems');
+    RRQP = db.ref('rqProgress');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -5816,6 +6071,8 @@ function startSync(){
     RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVI.on('value',s=>{const v=s.val();if(v){ivInterviews=Object.values(v);iv_ensureFresh();localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(!iv_cur)iv_pick();iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&READING_MODES.includes(revCfg.exMode)&&revCfg.exMode!=='complete'){const k=revCfg.exMode;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&READING_MODES.includes(revCfg.exMode)&&revCfg.exMode!=='complete'&&!rq_cur[revCfg.exMode])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
@@ -6164,6 +6421,7 @@ const ROADMAP_COLORS={'1':'#00a878','2':'#00a878','3':'#00a878','4':'#00a878','5
 const ROADMAP_PHASES={'1':'1','2':'1','3':'1','4':'1','5':'2','6':'2','7':'2','8':'3','9':'3','10':'4','11':'4','12':'4'};
 const ROADMAP_EMOJI=['','🌱','🌱','🌱','🌱','🔧','🔧','🔧','📚','📚','🎓','🎓','🎓'];
 
+function openRoadmapModal(){buildRoadmap();openM('mRoad');}
 function buildRoadmap(){
   const rc=document.getElementById('roadmapContent');
   if(!rc)return;
