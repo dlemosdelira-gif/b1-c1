@@ -246,15 +246,16 @@ textarea{min-height:120px}
 .cw-blank.bad{border-color:#FECACA;background:#FEF2F2;color:#DC2626}
 .cw-sol{font-size:13px;color:#16A34A;font-weight:600;margin-left:4px;font-family:'DM Mono',monospace}
 .cw-clue{font-size:13px;color:#94A3B8;margin-left:4px;font-style:italic}
-.cw-let-pre{font-weight:600;color:#0F172A}
-/* Sized well above the ~26x20px it had before: that was smaller than a comfortable
-   tap target, so real taps/clicks that were a few px off the tiny box missed it
-   entirely and landed on the surrounding text — the field never got focus, so it
-   looked like typing/tapping "didn't work". min-width/min-height here give every
-   gap, even a 1-letter one, a target close to the 40px+ mobile tap-target guideline. */
-.cw-let{display:inline-flex;box-sizing:border-box;border:1.5px solid #93C5FD;border-radius:6px;background:#F1F5FF;color:#1D4ED8;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;text-align:center;padding:5px 6px;margin:2px 3px;outline:none;min-width:40px;min-height:36px;vertical-align:middle;touch-action:manipulation;-webkit-appearance:none}
-.cw-let:focus{border-color:#2563EB;background:#E0EAFF;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-.cw-let::placeholder{color:#93C5FD;font-weight:700;opacity:1}
+.cw-let-pre{font-weight:400;color:#0F172A}
+/* min-width/min-height stay at the 40px+ mobile tap-target guideline (see history:
+   taps that missed a too-small box used to land on surrounding text and silently
+   fail to focus the field). Colors/weight are deliberately quiet — a pale
+   redacted-looking box rather than a bright bordered button — so a run of blanks
+   reads as one flowing passage, matching the official TOEFL "fill in the missing
+   letters in the paragraph" presentation, not a row of separate form fields. */
+.cw-let{display:inline-flex;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:4px;background:#EEF1F5;color:#334155;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;text-align:center;padding:5px 6px;margin:1px 2px;outline:none;min-width:40px;min-height:36px;vertical-align:middle;touch-action:manipulation;-webkit-appearance:none}
+.cw-let:focus{border-color:#2563EB;background:#E0EAFF;color:#1D4ED8;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.cw-let::placeholder{color:#94A3B8;font-weight:600;opacity:1}
 .ex-fb{border-radius:8px;padding:11px 13px;font-size:14px;line-height:1.55;margin-bottom:12px}
 .ex-fb.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
 .ex-fb.bad{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
@@ -4258,7 +4259,7 @@ function cw_render(){
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">'+(isLetters?'✏️ Fill in the missing letters':'✏️ Complete the passage')+'</div>'
     +'<div style="display:flex;align-items:center;gap:8px">'+(isCustom?'<button class="btn bdn bsm" title="Delete this custom exercise" onclick="cw_delItem(\''+cw_cur.id+'\')">🗑</button>':'')+'<span class="tag tbl">'+esc(cw_cur.tag)+'</span></div></div>'
-    +'<div style="font-size:16px;line-height:2.6;color:#0F172A;margin-bottom:12px">'+body+'</div>';
+    +'<div style="font-size:16px;line-height:2;color:#0F172A;margin-bottom:12px">'+body+'</div>';
   if(isLetters&&!cw_checked){h+='<div style="font-size:14px;color:#64748B;margin-bottom:10px">Answered <span id="cwCount">0</span> of '+gapCount+'</div>';}
   if(cw_checked){
     h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some words are off — corrections shown above. ')
