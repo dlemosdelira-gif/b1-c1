@@ -224,6 +224,9 @@ textarea{min-height:120px}
 .exmode-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
 .exmode-btn:hover:not(.on){background:#F1F5F9}
 .exmode-btn.sub{font-size:13px;padding:6px 8px}
+.toefl-row{display:flex;flex-direction:column;gap:1px;padding:8px 8px;cursor:pointer;transition:background .15s;color:#0F172A;font-size:13px;line-height:1.3}
+.toefl-row:hover{background:rgba(37,99,235,.08)}
+.toefl-row-meta{font-size:11px;color:#94A3B8;white-space:nowrap;font-family:'DM Mono',monospace}
 .bs-assembly{min-height:64px;border:2px dashed #BFDBFE;border-radius:10px;background:#F8FAFF;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;margin-bottom:12px}
 .bs-assembly.empty{align-items:center;justify-content:center}
 .bs-prompt{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;font-size:15px;color:#1D4ED8;font-weight:500;line-height:1.5;margin-bottom:12px}
@@ -476,8 +479,8 @@ textarea{min-height:120px}
   <div class="nav">
     <button class="nb on" onclick="goTab('dash')" id="nav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
     <button class="nb" onclick="goTab('prac')" id="nav-prac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Practice</button>
-    <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review<span class="nbdg" id="revbdg">0</span></button>
-    <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards</button>
+    <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>TOEFL</button>
+    <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards<span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('peua')" id="nav-peua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>PEUA</button>
   </div>
 </div>
@@ -537,6 +540,24 @@ textarea{min-height:120px}
     <div class="mhdr"><div class="mtit">📅 Learning Roadmap</div><button class="btn bsm" onclick="closeM('mRoad')">✕</button></div>
     <div class="mbdy">
       <div id="roadmapContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mMyCards" onclick="if(event.target===this)closeM('mMyCards')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:640px">
+    <div class="mhdr"><div class="mtit">📇 My Cards</div><button class="btn bsm" onclick="closeM('mMyCards')">✕</button></div>
+    <div class="mbdy">
+      <div id="cardslist"></div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mRevPerf" onclick="if(event.target===this)closeM('mRevPerf')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">🧠 Review Performance</div><button class="btn bsm" onclick="closeM('mRevPerf')">✕</button></div>
+    <div class="mbdy">
+      <div id="reviewPerfContainer" style="padding:0"></div>
     </div>
   </div>
 </div>
@@ -739,9 +760,6 @@ textarea{min-height:120px}
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📊 Yearly Progress</div>
   <div id="yearHeatmapContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
 
-  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">🧠 Review Performance</div>
-  <div id="reviewPerfContainer" class="card" style="padding:14px;width:100%;box-sizing:border-box;overflow-x:auto"></div>
-
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A;margin-top:20px">📥 Escola do TOEFL — Feedback</div>
   <div id="escolaFeedbackContainer"></div>
 
@@ -772,62 +790,81 @@ textarea{min-height:120px}
     <div class="plbl">Your Prompt</div>
     <div id="activeprompt" style="font-size:14px;color:#0F172A;line-height:1.6"></div>
   </div>
+</div>
 
-  <div class="card csm" style="background:#F8FAFF;margin-top:12px">
-    <div class="exmode-bar" style="margin-bottom:0">
-      <button class="exmode-btn on" id="wm-free" onclick="em_setMode(false)">📝 Academic Discussion</button>
-      <button class="exmode-btn" id="wm-email" onclick="em_setMode(true)">📧 Write an Email</button>
-    </div>
-    <div id="academicDiscussionBox" style="margin-top:12px"></div>
-    <div id="emailScenarioBox" class="hid" style="margin-top:12px"></div>
-    <div id="escolaEmailChart"></div>
+<div class="pg hid" id="pg-rev">
+  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflTitle">🎯 TOEFL Practice</div><span class="wc hid" id="duecnt">0 due</span></div>
+
+  <div id="toeflHub"></div>
+
+  <div class="hid" id="toeflBackBar" style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <button class="btn bsm" onclick="toeflShow(null)">← Menu</button>
+    <div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflActTitle"></div>
   </div>
 
-  <div class="card csm" style="background:#FEF3C7;margin-top:12px;border-color:#FCD34D">
-    <div style="font-size:14px;font-weight:600;color:#B45309;text-align:center;margin-bottom:10px">🎧 Speaking</div>
-    <div class="exmode-bar" style="margin-bottom:10px">
-      <button class="exmode-btn on" id="spm-lr" onclick="sp_setMode(false)">🔊 Listen and Repeat</button>
-      <button class="exmode-btn" id="spm-iv" onclick="sp_setMode(true)">🎙️ Take an Interview</button>
+  <div class="hid" id="toeflEx"></div>
+
+  <div class="hid" id="toeflWriting">
+    <div class="card csm" style="background:#F8FAFF">
+      <div class="exmode-bar" style="margin-bottom:0">
+        <button class="exmode-btn on" id="wm-free" onclick="em_setMode(false)">📝 Academic Discussion</button>
+        <button class="exmode-btn" id="wm-email" onclick="em_setMode(true)">📧 Write an Email</button>
+      </div>
+      <div id="academicDiscussionBox" style="margin-top:12px"></div>
+      <div id="emailScenarioBox" class="hid" style="margin-top:12px"></div>
+      <div id="escolaEmailChart"></div>
     </div>
-    <div id="listenRepeatBox"></div>
-    <div id="interviewBox" class="hid"></div>
   </div>
 
-  <div class="card" style="margin-top:12px">
-    <div class="fb" style="margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
-      <button class="btn bsm" id="micbtn" onclick="toggleListen()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
-      </button>
+  <div class="hid" id="toeflSpeaking">
+    <div class="card csm" style="background:#FEF3C7;border-color:#FCD34D">
+      <div style="font-size:14px;font-weight:600;color:#B45309;text-align:center;margin-bottom:10px">🎧 Speaking</div>
+      <div class="exmode-bar" style="margin-bottom:10px">
+        <button class="exmode-btn on" id="spm-lr" onclick="sp_setMode(false)">🔊 Listen and Repeat</button>
+        <button class="exmode-btn" id="spm-iv" onclick="sp_setMode(true)">🎙️ Take an Interview</button>
+      </div>
+      <div id="listenRepeatBox"></div>
+      <div id="interviewBox" class="hid"></div>
     </div>
-    <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:14px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
-    <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14px;line-height:1.8;min-height:36px;color:#0F172A"></div>
-    <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
-    <div class="fb mt8" style="flex-wrap:wrap;gap:6px">
-      <span class="wc" id="wcount">0 words</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn bpr" id="writingbtn" onclick="openAIModal('writing')" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing
+  </div>
+
+  <div class="hid" id="toeflResponseBox">
+    <div class="card" style="margin-top:12px">
+      <div class="fb" style="margin-bottom:10px">
+        <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
+        <button class="btn bsm" id="micbtn" onclick="toggleListen()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
         </button>
-        <button class="btn bte" id="speakingbtn" onclick="openAIModal('speaking')" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>🎤 Speaking
-        </button>
+      </div>
+      <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:14px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
+      <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14px;line-height:1.8;min-height:36px;color:#0F172A"></div>
+      <textarea id="rtxt" placeholder="Write your response here, or click Speak to dictate…" oninput="onInput()" style="color:#0F172A"></textarea>
+      <div class="fb mt8" style="flex-wrap:wrap;gap:6px">
+        <span class="wc" id="wcount">0 words</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn bpr" id="writingbtn" onclick="openAIModal('writing')" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing
+          </button>
+          <button class="btn bte" id="speakingbtn" onclick="openAIModal('speaking')" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>🎤 Speaking
+          </button>
+        </div>
       </div>
     </div>
   </div>
   <div class="hid" id="anlres"></div>
 </div>
 
-<div class="pg hid" id="pg-rev">
-  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A">Daily Review</div><span class="wc" id="duecnt">0 due</span></div>
-  <div id="revcontent"></div>
-</div>
-
 <div class="pg hid" id="pg-cards">
   <div class="fb">
-    <div style="font-size:14px;font-weight:600;color:#0F172A">My Cards</div>
+    <div style="font-size:14px;font-weight:600;color:#0F172A">Flashcards</div>
+    <span class="wc" id="cardsDueCnt">0 due</span>
   </div>
-  <div id="cardslist"></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+    <button class="btn bte bsm" onclick="openCardsManageModal()">📇 My Cards</button>
+    <button class="btn bte bsm" onclick="openReviewPerfModal()">🧠 Review Performance</button>
+  </div>
+  <div id="cardsStudyContent"></div>
 </div>
 
 <div class="pg hid" id="pg-peua">
@@ -1830,7 +1867,7 @@ function goTab(t){
     if(t==='dash')renderDash();
     else if(t==='prac'){if(!activeLesson){const ls=lessons(activeMonth);activeLesson=ls[0]||null;}ensuranceWeek=findCurrentEnsuranceWeek();renderPrac();}
     else if(t==='rev')renderRev();
-    else if(t==='cards')renderCards();
+    else if(t==='cards')renderCardsStudy();
     else if(t==='peua'){activePeuaMonth=findCurrentPeuaMonth();activeAmaWeek=findCurrentAmaWeek();renderPeua();}
   }catch(e){
     console.error('goTab error:',e);
@@ -1851,7 +1888,7 @@ function render(){
     if(curTab==='dash')renderDash();
     else if(curTab==='prac')renderPrac();
     else if(curTab==='rev')renderRev();
-    else if(curTab==='cards')renderCards();
+    else if(curTab==='cards')renderCardsStudy();
     else if(curTab==='peua')renderPeua();
   }catch(err){console.error('render error on tab '+curTab+':',err);}
 }
@@ -1978,7 +2015,6 @@ function renderDash(){
     html+=`</div></div></div>`;
     hm.innerHTML=html;
   }
-  renderReviewPerf();
   renderEscolaDash();
 }
 
@@ -2872,30 +2908,26 @@ function applyBulkDelete(){
   saveCA();toast('🗑 '+n+' card(s) deleted');selectedCardIds.clear();bulkSelectMode=false;renderCards();render();
 }
 
-// ── REVIEW ────────────────────────────────────────────────────────────────────
-function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
-function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}
-function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
-function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderRev();}}
+// ── FLASHCARD REVIEW CONTROLS ────────────────────────────────────────────────
+function setRevMode(m){revCfg.mode=m;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderCardsStudy();}
+function setRevTopic(t){revCfg.topic=t;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderCardsStudy();}
+function setRevLimit(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.limit=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderCardsStudy();}}
+function setRevRandom(v){const n=parseInt(v,10);if(n>0&&n<=500){revCfg.random=n;flashIdx=0;flipped=false;revSessionCache=null;saveRevCfg();renderCardsStudy();}}
 function revUsedTopics(){
   const s=new Set();
   cards.forEach(c=>{if(c.topic)s.add(c.topic);});
   return Array.from(s).sort();
 }
-function renderRev(){
-  const c=document.getElementById('revcontent');
-  const sel=revModeSelector();
-  const exMode=revCfg.exMode||'flash';
-  // Dispatch to the alternative exercise modes; flashcards fall through below.
-  if(exMode==='build'){if(!bs_cur&&!bs_checked)bs_load();c.innerHTML=sel+bs_render();return;}
-  if(exMode==='complete'){if(!cw_cur&&!cw_checked)cw_load();c.innerHTML=sel+cw_render();return;}
-  if(RQ_LABEL[exMode]){if(rq_cur[exMode]===undefined)rq_load(exMode);c.innerHTML=sel+rq_render(exMode);return;}
+// ── FLASHCARDS (Cards tab) ──────────────────────────────────────────────────
+function renderCardsStudy(){
+  const c=document.getElementById('cardsStudyContent');
+  if(!c)return;
   const allDue=due();
   const dv=revSession();
-  document.getElementById('duecnt').textContent=dv.length+' / '+allDue.length+' due today';
+  document.getElementById('cardsDueCnt').textContent=dv.length+' / '+allDue.length+' due today';
   const topics=revUsedTopics();
   const modes=[['all','All Due','📚'],['topic','By Topic','🏷️'],['random','Random','🎲'],['weakest','Weakest','🔥']];
-  let ctrls=sel+'<div class="card rev-ctrls" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
+  let ctrls='<div class="card rev-ctrls" style="padding:12px;margin-bottom:12px;background:#F8FAFF">'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
     +modes.map(m=>'<button onclick="setRevMode(\''+m[0]+'\')" style="padding:6px 10px;border-radius:8px;border:1px solid '+(revCfg.mode===m[0]?'#2563EB':'#DDE3F5')+';background:'+(revCfg.mode===m[0]?'#2563EB':'#fff')+';color:'+(revCfg.mode===m[0]?'#fff':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;flex:1 1 calc(50% - 4px);">'+m[2]+' '+m[1]+'</button>').join('')
     +'</div>'
@@ -2921,7 +2953,7 @@ function renderRev(){
   const gradeBtns='<div class="rbtns"><button class="rb hard" onclick="handleRev(1)"><div class="rbl">Hard</div><div class="rbs">+1d</div></button><button class="rb good" onclick="handleRev(3)"><div class="rbl">Good</div><div class="rbs">+3d</div></button><button class="rb easy" onclick="handleRev(5)"><div class="rbl">Easy</div><div class="rbs">+7d</div></button></div>';
   // Build the card inside try/catch: if any card has malformed content, fall back
   // to a plain-text version that still has working flip/grade/nav buttons, so a
-  // single bad card can never freeze the whole Review tab.
+  // single bad card can never freeze the Cards tab.
   let ch='';
   try{
     if(!flipped){
@@ -2933,7 +2965,7 @@ function renderRev(){
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
   }catch(err){
-    console.error('renderRev card error:',err,card);
+    console.error('renderCardsStudy card error:',err,card);
     const sFront=esc(card&&card.simple),sBack=esc(card&&card.c1),sEx=esc(card&&card.example),sNote=esc(card&&card.note);
     if(!flipped){
       ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front</div><div class="fword">'+sFront+'</div><div class="ftap">Tap to reveal →</div></div>'
@@ -2946,17 +2978,17 @@ function renderRev(){
   }
   c.innerHTML=ctrls+dots+ch;
 }
-function flipCard(){flipped=!flipped;renderRev();}
+function flipCard(){flipped=!flipped;renderCardsStudy();}
 function navRev(dir){
   const dv=revSession();if(dv.length<=1)return;
   flashIdx=(flashIdx+dir+dv.length)%dv.length;
-  flipped=false;renderRev();
+  flipped=false;renderCardsStudy();
 }
 function handleRev(q){
   const dv=revSession();
   if(flashIdx>=dv.length)flashIdx=0;
   const card=dv[flashIdx];
-  if(!card){renderRev();return;}
+  if(!card){renderCardsStudy();return;}
   const reviewedId=card.id;
   const{date,intervalIdx,easiness}=nxtRev(q,card.intervalIdx||0,card.easiness||2.5);
   const i=cards.findIndex(c=>c.id===card.id);
@@ -2969,7 +3001,7 @@ function handleRev(q){
     revSessionCache=revSessionCache.filter(c=>c.id!==reviewedId);
     if(!revSessionCache.length)revSessionCache=null;
   }
-  // Log review grade for the Dashboard performance report (h=Hard,g=Good,e=Easy)
+  // Log review grade for the Review Performance report (h=Hard,g=Good,e=Easy)
   if(!stats.reviewLog)stats.reviewLog={};
   if(!stats.reviewLog[today])stats.reviewLog[today]={h:0,g:0,e:0};
   const gradeKey=q===1?'h':q===5?'e':'g';
@@ -2991,10 +3023,11 @@ function handleRev(q){
       flashIdx=0;
     }
   }
-  renderRev();
+  renderCardsStudy();
   saveCA();
   render();
 }
+// ── TOEFL hub — see toeflShow()/renderRev() further below for the tab dispatcher.
 // ══ NEW EXERCISE MODES ════════════════════════════════════════════════════════
 // Shared: SM-2 reuse via nxtRev(). Progress objects follow the same schema as
 // cards ({nextReview,intervalIdx,easiness}) keyed by item id. Per-grammar-tag
@@ -3697,42 +3730,95 @@ function ex_due(items,progress){
 }
 function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
 
-// ── REVIEW MODE SELECTOR (Flashcards | Build a Sentence | Reading | Listening) ──
-// "Reading" and "Listening" are groups: picking one shows a second-level bar for
-// its sub-modes, so the top row stays at 4 buttons instead of growing flat with
-// every new task type.
-const READING_MODES=['complete','rd','ra'];
-const LISTENING_MODES=['lcr','lc','an','at'];
-function revModeSelector(){
-  const m=revCfg.exMode||'flash';
-  const inReading=READING_MODES.includes(m);
-  const inListening=LISTENING_MODES.includes(m);
-  let h='<div class="exmode-bar">'
-    +'<button class="exmode-btn'+(m==='flash'?' on':'')+'" onclick="setRevExMode(\'flash\')">📚 Flashcards</button>'
-    +'<button class="exmode-btn'+(m==='build'?' on':'')+'" onclick="setRevExMode(\'build\')">🧩 Build a Sentence</button>'
-    +'<button class="exmode-btn'+(inReading?' on':'')+'" onclick="setRevExMode(revCfg.readingSub||\'complete\')">📖 Reading</button>'
-    +'<button class="exmode-btn'+(inListening?' on':'')+'" onclick="setRevExMode(revCfg.listenSub||\'lcr\')">🎧 Listening</button>'
-    +'</div>';
-  if(inReading){
-    const subs=[['complete','✏️ Complete the Words'],['rd','📰 Read in Daily Life'],['ra','📖 Academic Passage']];
-    h+='<div class="exmode-bar" style="margin-top:-6px">'+subs.map(o=>'<button class="exmode-btn sub'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
-  }
-  if(inListening){
-    const subs=[['lcr','💬 Choose a Response'],['lc','🗣️ Conversation'],['an','📢 Announcement'],['at','🎓 Academic Talk']];
-    h+='<div class="exmode-bar" style="margin-top:-6px">'+subs.map(o=>'<button class="exmode-btn sub'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
-  }
-  return h;
+// ── TOEFL HUB (the renamed "Review" tab) ────────────────────────────────────
+// A menu of every TOEFL 2026 task type, grouped by section, each row a button
+// that opens that activity in place (toeflEx for the self-checking exercise
+// engines, toeflWriting/toeflSpeaking + the shared response box for the
+// AI-graded tasks). toeflActivity holds the currently open activity key, or
+// null while the hub menu itself is showing.
+let toeflActivity=null;
+const TOEFL_ACT_LABEL={complete:'Complete the Words',rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk',build:'Build a Sentence','writing:email':'Write an Email','writing:discussion':'Write for an Academic Discussion','speaking:lr':'Listen and Repeat','speaking:iv':'Take an Interview'};
+const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓',build:'🧩','writing:email':'📧','writing:discussion':'📝','speaking:lr':'🔊','speaking:iv':'🎙️'};
+function toeflHubHTML(){
+  const sections=[
+    {name:'Reading',items:50,time:30,band:true,rows:[
+      ['complete',cwItems.length],['rd',rq_items('rd').length],['ra',rq_items('ra').length]
+    ]},
+    {name:'Listening',items:47,time:29,band:false,rows:[
+      ['lcr',rq_items('lcr').length],['lc',rq_items('lc').length],['an',rq_items('an').length],['at',rq_items('at').length]
+    ]},
+    {name:'Writing',items:12,time:23,band:true,rows:[
+      ['build',bsItems.length],['writing:email',emScenarios.length],['writing:discussion',wrScenarios.length]
+    ]},
+    {name:'Speaking',items:11,time:8,band:false,rows:[
+      ['speaking:lr',spSentences.length],['speaking:iv',ivInterviews.length]
+    ]}
+  ];
+  let rowsHTML='';
+  sections.forEach(sec=>{
+    const bg=sec.band?'#EEF0FF':'#FFFFFF';
+    sec.rows.forEach((r,i)=>{
+      const key=r[0],count=r[1],label=TOEFL_ACT_LABEL[key],icon=TOEFL_ACT_ICON[key];
+      rowsHTML+='<tr style="background:'+bg+'">';
+      if(i===0)rowsHTML+='<td rowspan="'+sec.rows.length+'" style="padding:8px 6px;font-weight:700;color:#0F172A;font-size:12px;vertical-align:top;border-bottom:1px solid #E2E8F0">'+esc(sec.name)+'</td>';
+      rowsHTML+='<td style="padding:0;border-bottom:1px solid #E2E8F0"><div class="toefl-row" onclick="toeflShow(\''+key+'\')"><span>'+icon+' '+esc(label)+'</span><span class="toefl-row-meta">'+count+' item'+(count===1?'':'s')+' →</span></div></td>';
+      if(i===0){
+        rowsHTML+='<td rowspan="'+sec.rows.length+'" style="padding:8px 4px;text-align:center;vertical-align:middle;font-size:12px;font-family:\'DM Mono\',monospace;color:#475569;border-bottom:1px solid #E2E8F0">'+sec.items+'</td>'
+          +'<td rowspan="'+sec.rows.length+'" style="padding:8px 4px;text-align:center;vertical-align:middle;font-size:12px;font-family:\'DM Mono\',monospace;color:#475569;border-bottom:1px solid #E2E8F0">'+sec.time+'m</td>';
+      }
+      rowsHTML+='</tr>';
+    });
+  });
+  return '<div style="overflow-x:auto;margin-bottom:12px"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+    +'<thead><tr style="background:#7C83EE;color:#fff">'
+    +'<th style="padding:8px 6px;text-align:left;font-weight:700;font-size:12px">Section</th>'
+    +'<th style="padding:8px 6px;text-align:left;font-weight:700;font-size:12px">Task type</th>'
+    +'<th style="padding:8px 4px;text-align:center;font-weight:700;font-size:12px">Items</th>'
+    +'<th style="padding:8px 4px;text-align:center;font-weight:700;font-size:12px">Time</th>'
+    +'</tr></thead><tbody>'+rowsHTML+'</tbody></table></div>';
 }
-function setRevExMode(m){
-  revCfg.exMode=m;
-  if(READING_MODES.includes(m))revCfg.readingSub=m;
-  if(LISTENING_MODES.includes(m))revCfg.listenSub=m;
-  saveRevCfg();
-  flipped=false;
-  if(m==='build'){bs_load();}
-  else if(m==='complete'){cw_load();}
-  else if(RQ_LABEL[m]){rq_load(m);}
+// Enter (or leave, if key is null) a TOEFL activity. Visibility is handled with
+// .hid toggling on persistent DOM nodes (not innerHTML rebuilds) for the
+// Writing/Speaking cards and the shared response box, so in-progress typed
+// text in #rtxt survives switching tabs away and back — only renderRev()'s
+// self-checking-exercise branch below ever rebuilds innerHTML, and that's safe
+// since bs_/cw_/rq_ state lives in JS variables, not the DOM.
+function toeflShow(key){
+  toeflActivity=key;
+  const hub=document.getElementById('toeflHub'),back=document.getElementById('toeflBackBar'),
+    ex=document.getElementById('toeflEx'),wr=document.getElementById('toeflWriting'),
+    sp=document.getElementById('toeflSpeaking'),rb=document.getElementById('toeflResponseBox'),
+    duebadge=document.getElementById('duecnt');
+  const isWriting=key==='writing:email'||key==='writing:discussion';
+  const isSpeaking=key==='speaking:lr'||key==='speaking:iv';
+  const isExercise=key==='build'||key==='complete'||!!RQ_LABEL[key];
+  hub.classList.toggle('hid',key!=null);
+  back.classList.toggle('hid',key==null);
+  ex.classList.toggle('hid',!isExercise);
+  wr.classList.toggle('hid',!isWriting);
+  sp.classList.toggle('hid',!isSpeaking);
+  rb.classList.toggle('hid',!(isWriting||isSpeaking));
+  duebadge.classList.toggle('hid',!isExercise);
+  if(key==null)return;
+  document.getElementById('toeflActTitle').textContent=TOEFL_ACT_ICON[key]+' '+TOEFL_ACT_LABEL[key];
+  if(isWriting){em_setMode(key==='writing:email');}
+  else if(isSpeaking){sp_setMode(key==='speaking:iv');}
+  else if(key==='build'){if(!bs_cur&&!bs_checked)bs_load();}
+  else if(key==='complete'){if(!cw_cur&&!cw_checked)cw_load();}
+  else if(RQ_LABEL[key]){if(rq_cur[key]===undefined)rq_load(key);}
   renderRev();
+}
+function renderRev(){
+  const hub=document.getElementById('toeflHub');
+  if(hub)hub.innerHTML=toeflHubHTML();
+  const ex=document.getElementById('toeflEx');
+  if(!ex)return;
+  if(toeflActivity==='build')ex.innerHTML=bs_render();
+  else if(toeflActivity==='complete')ex.innerHTML=cw_render();
+  else if(RQ_LABEL[toeflActivity])ex.innerHTML=rq_render(toeflActivity);
+  // 'writing:*'/'speaking:*' stay live via em_renderScenario()/sp_renderScenario(),
+  // already invoked by em_setMode()/sp_setMode() when the activity was entered —
+  // rebuilding here would risk wiping in-progress text in #rtxt.
 }
 
 // ── BUILD A SENTENCE ──
@@ -3856,7 +3942,7 @@ function bs_saveNew(){
   closeM('mBS');
   toast('✅ Exercise added!');
   // Jump straight into the new exercise.
-  if(revCfg.exMode==='build'){bs_checked=false;bs_setup(bsItems[bsItems.length-1]);renderRev();}
+  if(toeflActivity==='build'){bs_checked=false;bs_setup(bsItems[bsItems.length-1]);renderRev();}
 }
 function bs_delItem(id){
   const it=bsItems.find(x=>x.id===id);if(!it)return;
@@ -4148,7 +4234,7 @@ function cw_saveNew(){
   const item={id:'cwu-'+uid(),tag,mode:'letters',text,custom:true};
   cwItems.push(item);cw_saveItems();
   closeM('mCW');toast('✅ Exercise added!');
-  if(revCfg.exMode==='complete'){cw_checked=false;cw_cur=cwItems[cwItems.length-1];renderRev();}
+  if(toeflActivity==='complete'){cw_checked=false;cw_cur=cwItems[cwItems.length-1];renderRev();}
 }
 function cw_delItem(id){
   const it=cwItems.find(x=>x.id===id);if(!it)return;
@@ -5423,7 +5509,7 @@ function applyCardsSearch(){
 }
 function renderCards(){
   const el=document.getElementById('cardslist');
-  if(cards.length===0){el.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Add C1 upgrades or import from Anki.</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;width:100%"><button class="btn bpr" onclick="goTab(\'prac\')">Go to Practice →</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn bte" style="margin:0;cursor:pointer" onclick="openImportModal()">📊 Import CSV</button><button class="btn bte" style="margin:0;cursor:pointer" onclick="openImportModal()">📚 Import Anki</button></div></div></div>';return;}
+  if(cards.length===0){el.innerHTML='<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><div class="etit">No cards yet</div><div class="esub">Add C1 upgrades or import from Anki.</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;width:100%"><button class="btn bpr" onclick="closeM(\'mMyCards\');goTab(\'rev\')">Go to TOEFL →</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn bte" style="margin:0;cursor:pointer" onclick="openImportModal()">📊 Import CSV</button><button class="btn bte" style="margin:0;cursor:pointer" onclick="openImportModal()">📚 Import Anki</button></div></div></div>';return;}
   let h='<div class="cards-actions">'
     +'<button class="action-btn imp" onclick="openImportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>+ Import</button>'
     +'<button class="action-btn exp" onclick="openExportModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>'
@@ -6231,8 +6317,8 @@ function startSync(){
       setSS('offline', 'DB Error: ' + err.code);
     });
 
-    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; if(!Array.isArray(cards))cards=[]; if(dedupeCardIds())saveCA(); localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); if(curTab==='rev'&&flipped){const dv2=due().length;const b=document.getElementById('revbdg');if(b){b.textContent=dv2;b.classList.toggle('on',dv2>0);}const hc=document.getElementById('hcards');if(hc)hc.textContent=cards.length;renderMeters();renderFlight();}else{render();}}, err => setSS('offline', 'DB Error: ' + err.code));
-    RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight(); if(curTab==='dash')renderReviewPerf();}, err => setSS('offline', 'DB Error: ' + err.code));
+    RCA.on('value',s=>{const v=s.val();if(v!==null){cards=typeof v==='object'&&!Array.isArray(v)?Object.values(v):v||[]; if(!Array.isArray(cards))cards=[]; if(dedupeCardIds())saveCA(); localStorage.setItem('c1ca',JSON.stringify(cards));} setSS('online'); if(curTab==='cards'&&flipped){const dv2=due().length;const b=document.getElementById('revbdg');if(b){b.textContent=dv2;b.classList.toggle('on',dv2>0);}const hc=document.getElementById('hcards');if(hc)hc.textContent=cards.length;renderMeters();renderFlight();}else{render();}}, err => setSS('offline', 'DB Error: ' + err.code));
+    RST.on('value',s=>{const v=s.val();if(v){stats=Object.assign({wordsToday:0,minsSpoken:0,totalMins:0,studyDays:{},reviewLog:{}},v); localStorage.setItem('c1st',JSON.stringify(stats));} setSS('online'); renderMeters(); renderFlight(); if(!document.getElementById('mRevPerf').classList.contains('hid'))renderReviewPerf();}, err => setSS('offline', 'DB Error: ' + err.code));
     RCU.on('value',s=>{const v=s.val();if(v){customLessons=v?Object.values(v):[]; localStorage.setItem('c1cu',JSON.stringify(customLessons));} setSS('online'); if(curTab==='prac')renderPrac();});
     RSE.on('value',s=>{const v=s.val();if(v!==null){mysentences=Array.isArray(v)?v:Object.values(v)||[]; localStorage.setItem('mysentences',JSON.stringify(mysentences));} setSS('online'); renderSentences();}, err => setSS('offline', 'DB Error: ' + err.code));
     RMS.on('value',s=>{const v=s.val();if(v){milestones=v; localStorage.setItem('c1ms',JSON.stringify(v));} setSS('online');}, err => setSS('offline', 'DB Error: ' + err.code));
@@ -6258,10 +6344,10 @@ function startSync(){
     // it because the field was being destroyed out from under the user, not
     // missed. Data still updates in the background either way; the UI just
     // doesn't redraw over an in-progress attempt.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&revCfg.exMode==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&revCfg.exMode==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&revCfg.exMode==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&revCfg.exMode==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&toeflActivity==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&toeflActivity==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&toeflActivity==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMP.on('value',s=>{const v=s.val();if(v){emProgress=v;localStorage.setItem('c1emp',JSON.stringify(emProgress));if(em_active)em_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RWRS.on('value',s=>{const v=s.val();if(v){wrScenarios=Object.values(v);wr_ensureFresh();localStorage.setItem('c1wrs',JSON.stringify(wrScenarios));if(!em_active){if(!wr_cur)wr_pick();wr_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
@@ -6270,8 +6356,8 @@ function startSync(){
     RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVI.on('value',s=>{const v=s.val();if(v){ivInterviews=Object.values(v);iv_ensureFresh();localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(!iv_cur)iv_pick();iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[revCfg.exMode]){const k=revCfg.exMode;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[revCfg.exMode]&&!rq_cur[revCfg.exMode])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[toeflActivity]){const k=toeflActivity;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[toeflActivity]&&!rq_cur[toeflActivity])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
@@ -6621,6 +6707,8 @@ const ROADMAP_PHASES={'1':'1','2':'1','3':'1','4':'1','5':'2','6':'2','7':'2','8
 const ROADMAP_EMOJI=['','🌱','🌱','🌱','🌱','🔧','🔧','🔧','📚','📚','🎓','🎓','🎓'];
 
 function openRoadmapModal(){buildRoadmap();openM('mRoad');}
+function openCardsManageModal(){renderCards();openM('mMyCards');}
+function openReviewPerfModal(){renderReviewPerf();openM('mRevPerf');}
 function buildRoadmap(){
   const rc=document.getElementById('roadmapContent');
   if(!rc)return;
@@ -7218,9 +7306,8 @@ window.onload = function(){
   initApp();
   setTimeout(startSync, 1000);
   document.addEventListener('keydown',function(e){
-    if(curTab!=='rev')return;
-    // Flashcard flip/grade keys only apply in the Flashcards exercise mode.
-    if((revCfg.exMode||'flash')!=='flash')return;
+    // Flashcard flip/grade keys only apply on the Cards tab.
+    if(curTab!=='cards')return;
     const tag=(e.target.tagName||'').toLowerCase();
     if(tag==='input'||tag==='textarea'||tag==='select')return;
     if(e.key===' '||e.code==='Space'){e.preventDefault();flipCard();}
