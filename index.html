@@ -562,6 +562,15 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mPacing" onclick="if(event.target===this)closeM('mPacing')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">⏱ Pacing</div><button class="btn bsm" onclick="closeM('mPacing')">✕</button></div>
+    <div class="mbdy">
+      <div id="pacingContainer"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
@@ -793,13 +802,20 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg hid" id="pg-rev">
-  <div class="fb"><div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflTitle">🎯 TOEFL Practice</div><span class="wc hid" id="duecnt">0 due</span></div>
+  <div class="fb">
+    <div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflTitle">🎯 TOEFL Practice</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="wc hid" id="duecnt">0 due</span>
+      <button class="btn bte bsm" onclick="openPacingModal()">⏱ Pacing</button>
+    </div>
+  </div>
 
   <div id="toeflHub"></div>
 
-  <div class="hid" id="toeflBackBar" style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+  <div class="hid" id="toeflBackBar" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn bsm" onclick="toeflShow(null)">← Menu</button>
-    <div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflActTitle"></div>
+    <div style="font-size:14px;font-weight:600;color:#0F172A;flex:1" id="toeflActTitle"></div>
+    <span id="toeflLiveTimer" style="font-family:'DM Mono',monospace;font-weight:700;color:#2563EB;font-size:14px"></span>
   </div>
 
   <div class="hid" id="toeflEx"></div>
@@ -2639,6 +2655,10 @@ function openAIModal(mode){
   const isDiscussion=curMode==='writing'&&!em_active&&wr_cur;
   const isInterview=curMode==='speaking'&&iv_active&&iv_cur;
   const isListenRepeat=curMode==='speaking'&&!iv_active&&sp_cur;
+  if(isEmail)toefl_logTime('writing:email');
+  else if(isDiscussion)toefl_logTime('writing:discussion');
+  else if(isInterview)toefl_logTime('speaking:iv');
+  else if(isListenRepeat)toefl_logTime('speaking:lr');
   const fp=buildPrompt(curMode,t);
   navigator.clipboard.writeText(t).catch(()=>{});
   document.getElementById('mAititle').textContent=isEmail?'📧 Email Analysis':(isDiscussion?'📝 Academic Discussion Analysis':(isInterview?'🎙️ Interview Analysis':(isListenRepeat?'🎧 Listen and Repeat Analysis':(curMode==='speaking'?'🎤 Speaking Analysis':'✍️ Writing Analysis'))));
@@ -3739,6 +3759,89 @@ function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math
 let toeflActivity=null;
 const TOEFL_ACT_LABEL={complete:'Complete the Words',rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk',build:'Build a Sentence','writing:email':'Write an Email','writing:discussion':'Write for an Academic Discussion','speaking:lr':'Listen and Repeat','speaking:iv':'Take an Interview'};
 const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓',build:'🧩','writing:email':'📧','writing:discussion':'📝','speaking:lr':'🔊','speaking:iv':'🎙️'};
+// ── TOEFL ACTIVITY TIMER / PACING ───────────────────────────────────────────
+// ETS only publishes an approx. time per SECTION (shown in the hub table), not
+// per task type, so these per-item/per-scenario targets are practice-pacing
+// guidelines we set ourselves (labeled as such in the Pacing modal), not
+// official exam timings. Self-checking types (complete/rd/ra/lcr/lc/an/at/
+// build) are timed per item, from when it loads to when Check is pressed.
+// Writing/Speaking are timed per visit to the activity, from opening it to
+// submitting for analysis.
+const TOEFL_ACT_TARGET={complete:90,rd:75,ra:180,lcr:25,lc:110,an:80,at:150,build:40,'writing:email':420,'writing:discussion':480,'speaking:lr':25,'speaking:iv':50};
+let toefl_itemStartTs={};
+function toefl_itemStart(key){toefl_itemStartTs[key]=Date.now();}
+function toefl_logTime(key){
+  const t0=toefl_itemStartTs[key];if(!t0)return;
+  const secs=Math.round((Date.now()-t0)/1000);
+  toefl_itemStartTs[key]=null;
+  if(secs<1||secs>3600)return; // ignore no-op or stale/abandoned-tab durations
+  if(!stats.toeflTimeLog)stats.toeflTimeLog=[];
+  stats.toeflTimeLog.push({date:today,key,secs});
+  if(stats.toeflTimeLog.length>300)stats.toeflTimeLog.splice(0,stats.toeflTimeLog.length-300);
+  saveST();
+}
+function toefl_tickTimer(){
+  const el=document.getElementById('toeflLiveTimer');
+  if(!el)return;
+  const t0=toeflActivity&&toefl_itemStartTs[toeflActivity];
+  if(!t0){el.textContent='';return;}
+  const secs=Math.floor((Date.now()-t0)/1000);
+  el.textContent='⏱ '+Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');
+}
+function toefl_fmtSecs(s){
+  s=Math.round(s);
+  const m=Math.floor(s/60),ss=s%60;
+  return m>0?(m+'m '+ss+'s'):(ss+'s');
+}
+function toefl_pacingStats(){
+  const log=stats.toeflTimeLog||[];
+  const byKey={};
+  log.forEach(e=>{
+    if(!byKey[e.key])byKey[e.key]={sum:0,count:0};
+    byKey[e.key].sum+=e.secs;byKey[e.key].count++;
+  });
+  return Object.keys(TOEFL_ACT_TARGET).map(key=>{
+    const b=byKey[key]||{sum:0,count:0};
+    const avg=b.count?b.sum/b.count:0;
+    const target=TOEFL_ACT_TARGET[key];
+    return {key,label:TOEFL_ACT_LABEL[key],icon:TOEFL_ACT_ICON[key],count:b.count,avg,target,ratio:b.count?avg/target:0};
+  });
+}
+function pacingHTML(){
+  const rows=toefl_pacingStats();
+  const attempted=rows.filter(r=>r.count>0);
+  if(!attempted.length){
+    return '<div style="text-align:center;color:#94A3B8;font-size:14px;padding:10px 0;line-height:1.6">No timed attempts yet.<br>Do a few TOEFL activities to see your pacing here. ⏱</div>';
+  }
+  const col=ratio=>ratio<=1.1?'#16A34A':ratio<=1.5?'#D97706':'#DC2626';
+  let h='<div style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:12px">Targets are practice-pacing guidelines we set (ETS only publishes an approx. time per section, not per item) — use them as a rough compass, not an official benchmark.</div>';
+  const slow=attempted.filter(r=>r.count>=2&&r.ratio>1.3).sort((a,b)=>b.ratio-a.ratio).slice(0,3);
+  if(slow.length){
+    h+='<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:12px">'
+      +'<div style="font-size:13px;font-weight:700;color:#B91C1C;margin-bottom:4px">🐢 Taking longest relative to target</div>'
+      +slow.map(r=>'<div style="font-size:14px;color:#7F1D1D">'+r.icon+' '+esc(r.label)+' — '+toefl_fmtSecs(r.avg)+' avg (target '+toefl_fmtSecs(r.target)+')</div>').join('')
+      +'</div>';
+  }
+  h+=attempted.map(r=>{
+    const pct=Math.min(100,Math.round(r.ratio*100));
+    return '<div style="margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px">'
+      +'<span style="color:#475569">'+r.icon+' '+esc(r.label)+' <span style="color:#94A3B8">('+r.count+')</span></span>'
+      +'<span style="color:'+col(r.ratio)+';font-weight:600">'+toefl_fmtSecs(r.avg)+' <span style="color:#94A3B8;font-weight:400">/ '+toefl_fmtSecs(r.target)+'</span></span>'
+      +'</div>'
+      +'<div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col(r.ratio)+';border-radius:4px"></div></div>'
+      +'</div>';
+  }).join('');
+  const untried=rows.filter(r=>r.count===0);
+  if(untried.length){
+    h+='<div style="margin-top:10px;font-size:13px;color:#94A3B8">Not timed yet: '+untried.map(r=>r.icon+' '+esc(r.label)).join(', ')+'</div>';
+  }
+  return h;
+}
+function openPacingModal(){
+  document.getElementById('pacingContainer').innerHTML=pacingHTML();
+  openM('mPacing');
+}
 function toeflHubHTML(){
   const sections=[
     {name:'Reading',items:50,time:30,band:true,rows:[
@@ -3832,6 +3935,7 @@ function bs_setup(it){
   // Draggable bank: unique id per chip (bank may contain distractors/duplicates).
   bs_tokens=shuffle(bs_bankOf(it).map((w,i)=>({id:i,w})));
   bs_slots=new Array(bs_blankCount(it)).fill(null); // slot -> token id
+  toefl_itemStart('build');
 }
 function bs_load(){
   bs_checked=false;
@@ -3909,6 +4013,7 @@ function bs_check(){
   bs_checked=true;
   ex_grade(bsProgress,bs_cur.id,correct);bs_saveProgress();
   ex_logPattern(bs_cur.tag,correct,'bs');
+  toefl_logTime('build');
   renderRev();
 }
 function bs_next(force){bs_load();if(force&&!bs_cur&&bsItems.length)bs_setup(bsItems[Math.floor(Math.random()*bsItems.length)]);renderRev();}
@@ -3959,6 +4064,7 @@ function cw_load(){
   cw_checked=false;cw_vals=[];cw_liveId=null;cw_liveVals=[];
   const pool=ex_due(cwItems,cwProgress);
   cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
+  if(cw_cur)toefl_itemStart('complete');
 }
 // True if a typed/selected value matches the blank's answer (or an accepted variant).
 function cw_blankOk(b,val){
@@ -4085,9 +4191,10 @@ function cw_check(){
   cw_checked=true;
   ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
   ex_logPattern(cw_cur.tag,allOk,'cw');
+  toefl_logTime('complete');
   renderRev();
 }
-function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];renderRev();}
+function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length){cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];toefl_itemStart('complete');}renderRev();}
 
 // ── READING/LISTENING COMPREHENSION ENGINE ──────────────────────────────────
 // Shared multiple-choice engine for Read in Daily Life, Read an Academic Passage,
@@ -4124,6 +4231,7 @@ function rq_load(key){
   rq_sel[key]=rq_cur[key]?new Array(rq_cur[key].questions.length).fill(null):[];
   rq_checked[key]=false;
   rq_played[key]=false;
+  if(rq_cur[key])toefl_itemStart(key);
 }
 function rq_next(key,force){
   rq_load(key);
@@ -4131,6 +4239,7 @@ function rq_next(key,force){
     const items=rq_items(key);
     rq_cur[key]=items[Math.floor(Math.random()*items.length)];
     rq_sel[key]=new Array(rq_cur[key].questions.length).fill(null);
+    toefl_itemStart(key);
   }
   renderRev();
 }
@@ -4148,6 +4257,7 @@ function rq_check(key){
   rq_checked[key]=true;
   ex_grade(rq_progress(key),it.id,allOk);rq_saveProgress();
   ex_logPattern(it.tag,allOk,key);
+  toefl_logTime(key);
   renderRev();
 }
 // Speaks the current item's stimulus aloud (browser TTS, same approach as
@@ -4359,6 +4469,11 @@ function ex_importFile(file){
 // rather than a blank prompt).
 function em_setMode(on){
   em_active=!!on;
+  if(toeflActivity==='writing:email'||toeflActivity==='writing:discussion'){
+    toeflActivity=em_active?'writing:email':'writing:discussion';
+    const tt=document.getElementById('toeflActTitle');if(tt)tt.textContent=TOEFL_ACT_ICON[toeflActivity]+' '+TOEFL_ACT_LABEL[toeflActivity];
+    toefl_itemStart(toeflActivity);
+  }
   document.getElementById('wm-free').classList.toggle('on',!em_active);
   document.getElementById('wm-email').classList.toggle('on',em_active);
   const emailBox=document.getElementById('emailScenarioBox');
@@ -4941,6 +5056,11 @@ function sp_processResult(r){
 // Email/Academic Discussion toggle for Writing).
 function sp_setMode(on){
   iv_active=!!on;
+  if(toeflActivity==='speaking:lr'||toeflActivity==='speaking:iv'){
+    toeflActivity=iv_active?'speaking:iv':'speaking:lr';
+    const tt=document.getElementById('toeflActTitle');if(tt)tt.textContent=TOEFL_ACT_ICON[toeflActivity]+' '+TOEFL_ACT_LABEL[toeflActivity];
+    toefl_itemStart(toeflActivity);
+  }
   document.getElementById('spm-lr').classList.toggle('on',!iv_active);
   document.getElementById('spm-iv').classList.toggle('on',iv_active);
   const lrBox=document.getElementById('listenRepeatBox');
@@ -7305,6 +7425,7 @@ function importAnkiCards(){
 window.onload = function(){
   initApp();
   setTimeout(startSync, 1000);
+  setInterval(toefl_tickTimer, 1000);
   document.addEventListener('keydown',function(e){
     // Flashcard flip/grade keys only apply on the Cards tab.
     if(curTab!=='cards')return;
