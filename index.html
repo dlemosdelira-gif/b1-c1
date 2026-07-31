@@ -3842,15 +3842,28 @@ function openPacingModal(){
   document.getElementById('pacingContainer').innerHTML=pacingHTML();
   openM('mPacing');
 }
-// ── TOEFL SCORE ESTIMATE (0-6 overall + per-skill) ──────────────────────────
-// TOEFL 2026 reports scores on a 0-6 scale (0=Below A1 ... 6=C2). ETS's actual
-// score comes from a proprietary IRT/equating process we have no access to, so
-// this is a rough approximation built from your own practice data: accuracy on
-// the self-checking exercises, and average AI-rubric scores (0-5) on the
-// AI-graded tasks, converted to the 0-6 scale and combined roughly in
-// proportion to each task's share of the section's official raw score.
-const CEFR_BAND=['Below A1','A1','A2','B1','B2','C1','C2'];
-function toefl_cefrLabel(score){return score==null?'—':CEFR_BAND[Math.max(0,Math.min(6,Math.round(score)))];}
+// ── TOEFL SCORE ESTIMATE (1-6 overall + per-skill, half-band increments) ────
+// Per the official TOEFL iBT Technical Manual (ETS Research Report RR-25-12,
+// Section III-3/III-4): section and overall scores are reported as band scores
+// from 1 to 6, in increments of 0.5, and the overall score is the average of
+// the four section band scores. Table 9 there gives the exact CEFR cut points
+// used below (C2=6, C1=5-5.5, B2=4-4.5, B1=3-3.5, A2=2-2.5, A1=1-1.5). ETS's
+// actual section scores come from a proprietary IRT/equating process we have
+// no access to, so this is a rough approximation built from your own practice
+// data: accuracy on the self-checking exercises, and average AI-rubric scores
+// (0-5) on the AI-graded tasks, combined roughly in proportion to each task's
+// share of the section's official raw score, then rounded to the nearest band.
+function toefl_cefrLabel(score){
+  if(score==null)return '—';
+  if(score>=6)return 'C2';
+  if(score>=5)return 'C1';
+  if(score>=4)return 'B2';
+  if(score>=3)return 'B1';
+  if(score>=2)return 'A2';
+  return 'A1';
+}
+// Round to the nearest half band and clamp to the official 1-6 floor/ceiling.
+function toefl_toBand(raw){return raw==null?null:Math.max(1,Math.min(6,Math.round(raw*2)/2));}
 // Overall accuracy (0-1) for a self-checking exercise mode, aggregated across
 // every grammar/topic tag logged for it in stats.exPerf. Null = no attempts yet.
 function toefl_modeAccuracy(mode){
@@ -3868,22 +3881,24 @@ function toefl_avgScoreLog(progressObj){
 }
 function toefl_scoreEstimate(){
   const avg=arr=>{const v=arr.filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};
-  const reading=(()=>{const r=avg([toefl_modeAccuracy('cw'),toefl_modeAccuracy('rd'),toefl_modeAccuracy('ra')]);return r==null?null:r*6;})();
-  const listening=(()=>{const r=avg([toefl_modeAccuracy('lcr'),toefl_modeAccuracy('lc'),toefl_modeAccuracy('an'),toefl_modeAccuracy('at')]);return r==null?null:r*6;})();
+  const readingAcc=avg([toefl_modeAccuracy('cw'),toefl_modeAccuracy('rd'),toefl_modeAccuracy('ra')]);
+  const reading=toefl_toBand(readingAcc==null?null:readingAcc*6);
+  const listeningAcc=avg([toefl_modeAccuracy('lcr'),toefl_modeAccuracy('lc'),toefl_modeAccuracy('an'),toefl_modeAccuracy('at')]);
+  const listening=toefl_toBand(listeningAcc==null?null:listeningAcc*6);
   // Weighted like the official raw totals: Build a Sentence 10, Email 5, Discussion 5 (of 20).
   const bsAcc=toefl_modeAccuracy('bs'),emAvg=toefl_avgScoreLog(emProgress),wrAvg=toefl_avgScoreLog(wrProgress);
   let wNum=0,wDen=0;
   if(bsAcc!=null){wNum+=bsAcc*6*0.5;wDen+=0.5;}
   if(emAvg!=null){wNum+=(emAvg/5*6)*0.25;wDen+=0.25;}
   if(wrAvg!=null){wNum+=(wrAvg/5*6)*0.25;wDen+=0.25;}
-  const writing=wDen?wNum/wDen:null;
+  const writing=toefl_toBand(wDen?wNum/wDen:null);
   // Weighted like the official item split: Listen and Repeat 7, Take an Interview 4 (of 11).
   const lrAvg=toefl_avgScoreLog(spProgress),ivAvg=toefl_avgScoreLog(ivProgress);
   let sNum=0,sDen=0;
   if(lrAvg!=null){sNum+=(lrAvg/5*6)*0.64;sDen+=0.64;}
   if(ivAvg!=null){sNum+=(ivAvg/5*6)*0.36;sDen+=0.36;}
-  const speaking=sDen?sNum/sDen:null;
-  const overall=avg([reading,listening,writing,speaking]);
+  const speaking=toefl_toBand(sDen?sNum/sDen:null);
+  const overall=toefl_toBand(avg([reading,listening,writing,speaking]));
   return {reading,listening,writing,speaking,overall};
 }
 function toeflScoreCardHTML(){
