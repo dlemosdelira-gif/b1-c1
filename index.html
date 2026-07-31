@@ -4176,6 +4176,14 @@ function cw_activeBlanks(){
   if(cw_cur&&cw_cur.mode==='letters')return cw_gaps(cw_cur);
   return (cw_cur&&cw_cur.blanks)||[];
 }
+// Number of blanks in an arbitrary item (not necessarily cw_cur) — used to
+// enforce the official C-test minimum of 10 gapped words per passage.
+function cw_gapCount(it){
+  if(!it)return 0;
+  if(it.mode==='letters')return cw_gaps(it).length;
+  return (it.blanks||[]).length;
+}
+const CW_MIN_GAPS=10;
 // Live "Answered X of N" counter for letters items (no re-render, keeps focus).
 // Also mirrors every field's current value into cw_liveVals so an unrelated
 // re-render (see the RCWI/RCWP Firebase listeners above) can restore in-progress
@@ -4427,7 +4435,7 @@ function cw_saveNew(){
   const hint=document.getElementById('cwAddHint');
   if(!text){hint.textContent='⚠️ Write the passage first.';return;}
   const gaps=(text.match(new RegExp(CW_GAP_RE.source,'g'))||[]);
-  if(!gaps.length){hint.textContent='⚠️ Mark at least one word to gap, e.g. [[show|2]] shows "sh" and hides the rest.';return;}
+  if(gaps.length<CW_MIN_GAPS){hint.textContent='⚠️ Mark at least '+CW_MIN_GAPS+' words to gap (you have '+gaps.length+') — the official TOEFL format always gaps 10 words per passage, e.g. [[show|2]] shows "sh" and hides the rest.';return;}
   // Validate every token: prefixLen must be between 1 and word length − 1.
   for(const g of gaps){const mm=g.match(/\[\[([^\]|]+)\|(\d+)\]\]/);const w=mm[1],p=parseInt(mm[2],10);if(!(p>=1&&p<w.length)){hint.textContent='⚠️ In '+g+', show fewer letters than the word has (1…'+(w.length-1)+').';return;}}
   const item={id:'cwu-'+uid(),tag,mode:'letters',text,custom:true};
@@ -4503,15 +4511,16 @@ function io_normBS(o){
 }
 function io_normCW(o){
   if(!o||typeof o.text!=='string')return null;
-  // Letters format: at least one [[word|n]] token, prefix shorter than the word.
+  // Letters format: at least CW_MIN_GAPS [[word|n]] tokens (the official TOEFL
+  // C-test format), each with a prefix shorter than the word.
   if(o.mode==='letters'){
     const toks=o.text.match(new RegExp(CW_GAP_RE.source,'g'))||[];
-    if(!toks.length)return null;
+    if(toks.length<CW_MIN_GAPS)return null;
     for(const t of toks){const mm=t.match(/\[\[([^\]|]+)\|(\d+)\]\]/);const w=mm[1],p=parseInt(mm[2],10);if(!(p>=1&&p<w.length))return null;}
     return {id:'cwu-'+uid(),tag:String(o.tag||'vocabulary'),mode:'letters',text:o.text,custom:true};
   }
   // Legacy grammar gap-fill (mc/free) still importable for backward compatibility.
-  if(!Array.isArray(o.blanks)||!o.blanks.length)return null;
+  if(!Array.isArray(o.blanks)||o.blanks.length<CW_MIN_GAPS)return null;
   const blanks=o.text.split('___').length-1;
   if(blanks!==o.blanks.length)return null;
   const mode=o.mode==='free'?'free':'mc';
@@ -5656,7 +5665,11 @@ function iv_ensureFresh(){
 // Built-in items are also kept in sync with CW_SEED's current text — a returning
 // user who already has cwl1..cwl8 saved (e.g. from before a passage was lengthened)
 // would otherwise never see the update, since merging only adds ids that are
-// missing entirely. Any user-created (cwu-) items are always kept either way.
+// missing entirely. User-created (cwu-) items are kept UNLESS they have fewer
+// than CW_MIN_GAPS blanks — the "Add exercise"/import flows used to accept any
+// item with at least 1 gap, so passages far short of the official 10-per-text
+// format could accumulate; those are dropped here (along with their now-orphaned
+// progress record) rather than left in the pool looking like a real TOEFL item.
 function cw_ensureFresh(){
   const hasAllSeedIds=CW_SEED.every(s=>cwItems.some(it=>it&&it.id===s.id));
   const seedTextCurrent=cwItems.every(it=>{
@@ -5664,9 +5677,16 @@ function cw_ensureFresh(){
     const seed=CW_SEED.find(s=>s.id===it.id);
     return !seed||seed.text===it.text;
   });
-  if(!cwItems.length||!hasAllSeedIds||!seedTextCurrent){
-    const custom=cwItems.filter(it=>it&&/^cwu-/.test(it.id));
-    cwItems=CW_SEED.slice().concat(custom);cw_saveItems();
+  const shortCustom=cwItems.filter(it=>it&&/^cwu-/.test(it.id)&&cw_gapCount(it)<CW_MIN_GAPS);
+  if(!cwItems.length||!hasAllSeedIds||!seedTextCurrent||shortCustom.length){
+    const custom=cwItems.filter(it=>it&&/^cwu-/.test(it.id)&&cw_gapCount(it)>=CW_MIN_GAPS);
+    cwItems=CW_SEED.slice().concat(custom);
+    cw_saveItems();
+    if(shortCustom.length){
+      let progressChanged=false;
+      shortCustom.forEach(it=>{if(cwProgress[it.id]){delete cwProgress[it.id];progressChanged=true;}});
+      if(progressChanged)cw_saveProgress();
+    }
   }
 }
 // Add any built-in seed items missing from a returning user's saved set (by id),
@@ -5684,9 +5704,12 @@ function ex_loadLocal(){
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
+  // cwProgress must be loaded before cw_ensureFresh() runs — it drops the SM-2
+  // progress record for any custom item it removes, which is a no-op if
+  // cwProgress is still the pre-load default at that point.
+  try{cwProgress=JSON.parse(localStorage.getItem('c1cwp')||'{}');}catch(e){cwProgress={};}
   cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);
   if(!localStorage.getItem('c1cwi'))cw_saveItems();
-  try{cwProgress=JSON.parse(localStorage.getItem('c1cwp')||'{}');}catch(e){cwProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1ems')||'null');emScenarios=Array.isArray(v)&&v.length?v:EM_SEED.slice();}catch(e){emScenarios=EM_SEED.slice();}
   em_ensureFresh();
   if(!localStorage.getItem('c1ems'))em_saveScenarios();
