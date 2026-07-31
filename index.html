@@ -881,8 +881,8 @@ let iv_cur=null,iv_lastId=null,iv_active=false;
 // and later the four Listening task types share one generic multiple-choice engine (see
 // RQ_TYPES/rq_* below). rqItems/rqProgress/rq_cur/etc. are keyed by task type.
 let RRQI=null,RRQP=null;
-let rqItems={rd:[],ra:[]},rqProgress={rd:{},ra:{}};
-let rq_cur={},rq_checked={},rq_sel={};
+let rqItems={rd:[],ra:[],lcr:[],lc:[],an:[],at:[]},rqProgress={rd:{},ra:{},lcr:{},lc:{},an:{},at:{}};
+let rq_cur={},rq_checked={},rq_sel={},rq_played={};
 let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
@@ -2889,7 +2889,7 @@ function renderRev(){
   // Dispatch to the alternative exercise modes; flashcards fall through below.
   if(exMode==='build'){if(!bs_cur&&!bs_checked)bs_load();c.innerHTML=sel+bs_render();return;}
   if(exMode==='complete'){if(!cw_cur&&!cw_checked)cw_load();c.innerHTML=sel+cw_render();return;}
-  if(exMode==='rd'||exMode==='ra'){if(rq_cur[exMode]===undefined)rq_load(exMode);c.innerHTML=sel+rq_render(exMode);return;}
+  if(RQ_LABEL[exMode]){if(rq_cur[exMode]===undefined)rq_load(exMode);c.innerHTML=sel+rq_render(exMode);return;}
   const allDue=due();
   const dv=revSession();
   document.getElementById('duecnt').textContent=dv.length+' / '+allDue.length+' due today';
@@ -3436,6 +3436,172 @@ const RA_SEED=[
   ]}
 ];
 
+// ── LISTENING: Listen and Choose a Response — a short spoken line (never shown as
+// text) followed by 4 possible responses; test takers pick the most appropriate one.
+const LCR_SEED=[
+  {id:'lcr1',tag:'daily life',text:"Didn't I just see you in the library an hour ago?",questions:[
+    {q:'Choose the best response.',choices:["Yeah, I forgot my charger so I had to go back.","No, I've never been to the library.","I'll see you there in an hour.","The library closes at ten."],correct:0}
+  ]},
+  {id:'lcr2',tag:'daily life',text:"Would you mind grabbing my mail while I'm away this weekend?",questions:[
+    {q:'Choose the best response.',choices:["I already mailed it yesterday.","I'll be away too, sorry.","Sure, no problem at all.","What's the weather like this weekend?"],correct:2}
+  ]},
+  {id:'lcr3',tag:'daily life',text:"How was your presentation this morning?",questions:[
+    {q:'Choose the best response.',choices:["It's scheduled for 9 a.m.","Honestly, better than I expected.","I haven't started writing it yet.","The projector is in the main hall."],correct:1}
+  ]},
+  {id:'lcr4',tag:'daily life',text:"Do you know if the bookstore is still open?",questions:[
+    {q:'Choose the best response.',choices:["I bought three books there.","It's on the second floor.","No, I don't read much.","I think it closes at nine."],correct:3}
+  ]},
+  {id:'lcr5',tag:'daily life',text:"Could you turn the music down a little? I'm on a call.",questions:[
+    {q:'Choose the best response.',choices:["Oh sorry, I didn't realize.","Sure, what song is it?","I don't have any music on.","Can you call me back later?"],correct:0}
+  ]},
+  {id:'lcr6',tag:'daily life',text:"Have you decided which apartment you're renting?",questions:[
+    {q:'Choose the best response.',choices:["I moved in last spring.","Yes, I sold my old furniture.","Not yet, I'm still comparing two of them.","The rent is due on the first."],correct:2}
+  ]},
+  {id:'lcr7',tag:'daily life',text:"Is this seat taken?",questions:[
+    {q:'Choose the best response.',choices:["Yes, I sat here yesterday.","No, go ahead.","It's a comfortable chair.","I don't like sitting."],correct:1}
+  ]},
+  {id:'lcr8',tag:'daily life',text:"You look exhausted — long night?",questions:[
+    {q:'Choose the best response.',choices:["It's a short walk from here.","I slept for ten hours.","The night sky was beautiful.","Yeah, I was up finishing a report."],correct:3}
+  ]}
+];
+
+// ── LISTENING: Listen to a Conversation — a short two-speaker exchange (heard, not
+// shown, until after checking) followed by 3 comprehension questions.
+const LC_SEED=[
+  {id:'lc1',tag:'services',text:"Man: Have you returned the books we borrowed from the library?\nWoman: Why? I thought we could keep them for six weeks.\nMan: Actually, it's now four weeks. They changed the policy. I guess I forgot to tell you!\nWoman: That means they're due tomorrow!\nMan: Exactly.\nWoman: In that case, I'm taking care of it right now.",questions:[
+    {q:'What is the conversation mainly about?',choices:['Buying new books',"Returning library books before they're overdue",'Applying for a library card','Choosing a book to read'],correct:1},
+    {q:'Why does the man mention the policy?',choices:['To recommend a new library','To explain why the books are due sooner than expected','To complain about library staff','To ask the woman to buy the books'],correct:1},
+    {q:'What will the woman probably do next?',choices:['Read the books again','Return the books right away','Ask for an extension','Buy replacement copies'],correct:1}
+  ]},
+  {id:'lc2',tag:'dining',text:"Woman: Are you going to the dining hall tonight? I heard they're doing a pasta bar.\nMan: I was going to cook, but that actually sounds better.\nWoman: It gets crowded around six, so maybe we go a bit earlier.\nMan: Works for me. Five thirty?\nWoman: Perfect, I'll meet you at the front entrance.",questions:[
+    {q:'What are the speakers planning to do?',choices:['Cook dinner together at home','Eat at the dining hall earlier than usual','Order food for delivery','Skip dinner tonight'],correct:1},
+    {q:'Why does the woman suggest going earlier?',choices:['The dining hall closes early','It gets crowded around six','The man has another appointment','The pasta bar ends at six'],correct:1},
+    {q:'Where will they meet?',choices:["In the man's dorm room",'At the front entrance','At the pasta bar counter','In the parking lot'],correct:1}
+  ]},
+  {id:'lc3',tag:'education',text:"Man: Did you manage to register for the writing seminar?\nWoman: Not yet — it was full when I tried this morning.\nMan: Try again around noon. Spots usually open up when people drop other classes.\nWoman: Good idea. I really don't want to wait until next semester.\nMan: You could also email the professor and ask to be added to the waitlist.\nWoman: I'll do both, just to be safe.",questions:[
+    {q:'What problem does the woman have?',choices:['She missed the registration deadline','The class she wants is full','She forgot her class schedule','She does not like the professor'],correct:1},
+    {q:'What does the man suggest she do?',choices:['Choose a different class entirely','Try registering again later and contact the professor','Wait until next semester without trying again','Ask a friend to register for her'],correct:1},
+    {q:'What does the woman decide to do?',choices:['Give up on the class','Only email the professor','Try both suggestions','Wait until next semester'],correct:2}
+  ]},
+  {id:'lc4',tag:'home',text:"Woman: The landlord finally called back about the heater.\nMan: Oh good, what did he say?\nWoman: Someone's coming Thursday morning to fix it.\nMan: Thursday? It's been broken for over a week!\nWoman: I know, but at least it's getting done. I asked if we could get a small discount on rent for the inconvenience.\nMan: Did he agree?\nWoman: He said he'd think about it.",questions:[
+    {q:'What is the conversation mainly about?',choices:['Finding a new apartment','Fixing a broken heater','Paying rent late','Meeting a new landlord'],correct:1},
+    {q:'How does the man react to the repair date?',choices:['He is satisfied with Thursday','He thinks it is too soon','He is a bit frustrated by the delay','He does not mind waiting'],correct:2},
+    {q:'What did the woman ask the landlord for?',choices:['A new apartment','A discount on rent','A refund','An earlier repair date'],correct:1}
+  ]},
+  {id:'lc5',tag:'entertainment',text:"Man: Do you want to catch a movie this weekend?\nWoman: Sure, what's playing?\nMan: There's that new mystery film everyone's talking about, or a comedy that just came out.\nWoman: I'm more in the mood for something funny after this week.\nMan: Comedy it is. Saturday evening?\nWoman: Actually, could we do Sunday instead? I have plans Saturday.",questions:[
+    {q:'What do the speakers decide to do?',choices:['Watch a mystery film on Saturday','Watch a comedy on Sunday','Stay home this weekend','Watch two movies back to back'],correct:1},
+    {q:'Why does the woman prefer a comedy?',choices:['She dislikes mystery films in general','She wants something lighthearted after a hard week','The comedy has better reviews','The mystery film is sold out'],correct:1},
+    {q:'Why does the woman suggest changing the day?',choices:['The theater is closed Saturday','She already has plans Saturday','The comedy is not showing Saturday','She prefers watching movies on Sundays only'],correct:1}
+  ]},
+  {id:'lc6',tag:'travel',text:"Woman: I finally booked our train tickets for the trip.\nMan: Great, which time did you get?\nWoman: The 8 a.m., but it was the only one with seats left together.\nMan: That's fine, early start means more time there anyway.\nWoman: True. I also reserved a table at that restaurant you mentioned.\nMan: Perfect, this trip is coming together nicely.",questions:[
+    {q:'What did the woman do?',choices:['Cancelled the trip','Booked train tickets and a restaurant table','Booked a hotel room','Changed their travel dates'],correct:1},
+    {q:'Why did she choose the 8 a.m. train?',choices:['It was the cheapest option','It was the only one with seats together','The man requested that time','It arrives earlier than other trains'],correct:1},
+    {q:'How does the man feel about the early departure?',choices:['Annoyed, he wanted to sleep in','Fine with it, since it means more time there','Worried they will miss the train','Indifferent, he was not listening'],correct:1}
+  ]},
+  {id:'lc7',tag:'communications',text:"Man: Sorry I missed your call earlier, my phone was on silent.\nWoman: No worries, I just wanted to check if you're still coming to the study group tonight.\nMan: Yes, I'll be there, just running about twenty minutes late.\nWoman: That's fine, we're starting a bit later than planned anyway.\nMan: Great, see you soon then.",questions:[
+    {q:'Why did not the man answer the phone?',choices:['He was busy studying','His phone was on silent','He was outside without his phone','He does not like phone calls'],correct:1},
+    {q:'What did the woman want to know?',choices:['If the man finished his homework','If the man is coming to the study group','If the man can lend her notes','If the study group was cancelled'],correct:1},
+    {q:"How does the man's lateness affect the plan?",choices:['The group will start without him','It does not matter since the group is starting later anyway','The study group is cancelled','The woman will come to him instead'],correct:1}
+  ]},
+  {id:'lc8',tag:'hobbies',text:"Woman: I started taking a pottery class on weekends.\nMan: Really? How's that going?\nWoman: It's harder than it looks, but I'm enjoying it a lot.\nMan: I've always wanted to try something like that. Is there room for beginners?\nWoman: Definitely, most people in my class had never touched clay before.\nMan: I might join you next session, then.",questions:[
+    {q:"What is the woman's new hobby?",choices:['Painting','Pottery','Photography','Cooking'],correct:1},
+    {q:'How does the woman describe the class?',choices:['Too easy to be interesting','Challenging but enjoyable','Boring but relaxing','Too expensive to continue'],correct:1},
+    {q:'What does the man decide about the class?',choices:['He is not interested','He might join next session','He already tried it before','He thinks it is not for beginners'],correct:1}
+  ]}
+];
+
+// ── LISTENING: Listen to an Announcement — a short campus announcement (heard, not
+// shown, until after checking) followed by 2-3 comprehension questions.
+const AN_SEED=[
+  {id:'an1',tag:'event',text:"Good afternoon, everyone. I am excited to share that Dr. Elena Ruiz, a leading researcher in renewable energy, will give a guest lecture next Tuesday at 3 p.m. in the Hartwell Auditorium. She'll be discussing recent advances in solar technology. Seating is limited, so please arrive at least fifteen minutes early.",questions:[
+    {q:'What is this announcement mainly about?',choices:['A new renewable energy course','A guest lecture on solar technology','A change in the class schedule','A research grant opportunity'],correct:1},
+    {q:'What are listeners advised to do?',choices:['Register online in advance','Arrive fifteen minutes early','Bring a notebook','Contact Dr. Ruiz directly'],correct:1}
+  ]},
+  {id:'an2',tag:'schedule',text:"Attention students: starting this Monday, the main library will extend its hours during final exam week. The building will remain open until 2 a.m. Sunday through Thursday. The café on the first floor will also stay open later to support late-night studying. Please remember to bring your student ID for after-hours entry.",questions:[
+    {q:'What is changing at the library?',choices:['It will close earlier during exams','It will stay open later during exam week','It will be closed on weekends','It is moving to a new building'],correct:1},
+    {q:'What do students need to enter after hours?',choices:['A reservation','Their student ID','A staff escort','A printed pass'],correct:1},
+    {q:'Which days does the extended schedule apply to?',choices:['Every day of the week','Sunday through Thursday','Only weekends','Monday and Tuesday only'],correct:1}
+  ]},
+  {id:'an3',tag:'rules',text:"This is a reminder to all students and staff that beginning next week, parking in Lot C will require a valid campus permit at all times, including weekends. Vehicles without a visible permit may be ticketed or towed. Permits can be requested at the campus security office, located next to the main gate.",questions:[
+    {q:'What is the purpose of this announcement?',choices:['To announce a new parking lot','To explain a new permit requirement for Lot C','To close Lot C for construction','To lower parking fees'],correct:1},
+    {q:'What might happen to a car without a permit?',choices:['Nothing, permits are optional','It could be ticketed or towed','The owner receives a warning letter only','It will be moved to another lot'],correct:1}
+  ]},
+  {id:'an4',tag:'achievement',text:"Congratulations are in order for the debate team, which placed first at the regional championship this past weekend, beating twelve other universities. The team will now advance to the national competition next month. A celebration will be held Friday at 5 p.m. in the student center, and everyone is welcome to attend.",questions:[
+    {q:'Why is this announcement being made?',choices:['To recruit new debate team members',"To celebrate the debate team's championship win",'To announce a new competition',"To cancel Friday's event"],correct:1},
+    {q:'What will happen next for the team?',choices:['They will retire from competition','They will advance to nationals','They will repeat the regional round','They will train a new coach'],correct:1},
+    {q:'When is the celebration?',choices:['Monday morning','Friday at 5 p.m.','Next month','This weekend'],correct:1}
+  ]},
+  {id:'an5',tag:'notice',text:"Due to the storm warning issued this morning, all outdoor facilities, including the athletic fields and the tennis courts, will be closed for the rest of the day. Indoor facilities, including the gym and the pool, will remain open as usual. Please check the campus website for updates before heading out this evening.",questions:[
+    {q:'Why are some facilities closing?',choices:['For scheduled maintenance','Because of a storm warning','Due to low attendance','Because of a power outage'],correct:1},
+    {q:'Which facilities remain open?',choices:['The athletic fields','The tennis courts','The gym and pool','All outdoor areas'],correct:2}
+  ]},
+  {id:'an6',tag:'schedule',text:"New students, please note that orientation check-in begins tomorrow at 8 a.m. sharp in the main gymnasium. Bring a valid photo ID and your admission letter. After check-in, you'll be assigned to a small group for a campus tour, followed by lunch with your academic advisor.",questions:[
+    {q:'What should new students bring to check-in?',choices:['A laptop and textbooks','A photo ID and admission letter','Payment for tuition','A copy of their schedule'],correct:1},
+    {q:'What happens right after check-in?',choices:['Lunch with the advisor','A campus tour in small groups','A welcome speech','Class registration'],correct:1}
+  ]},
+  {id:'an7',tag:'notice',text:"As part of our new sustainability initiative, recycling bins will be installed in every classroom building starting next week. Students and staff are encouraged to separate paper, plastic, and food waste. Volunteers are also needed to help track the program's progress — anyone interested should sign up at the sustainability office.",questions:[
+    {q:'What is being introduced next week?',choices:['New classroom buildings','Recycling bins in classroom buildings','A campus cleaning service','A new sustainability course'],correct:1},
+    {q:'How can someone get involved further?',choices:['Attend a lecture','Sign up as a volunteer at the sustainability office','Donate to the program','Email the dean'],correct:1}
+  ]},
+  {id:'an8',tag:'notice',text:"The student health center would like to remind everyone that free flu vaccinations are available this week only, Monday through Friday, from 9 a.m. to 4 p.m. No appointment is necessary, but students should bring their student ID. Vaccinations will be given on a first-come, first-served basis.",questions:[
+    {q:'What is being offered this week?',choices:['Free health checkups','Free flu vaccinations','Discounted gym memberships','Free eye exams'],correct:1},
+    {q:'Is an appointment required?',choices:['Yes, appointments are required','No, it is first-come, first-served','Only for returning students','Only after 4 p.m.'],correct:1}
+  ]}
+];
+
+// ── LISTENING: Listen to an Academic Talk — a short academic-style talk (heard, not
+// shown, until after checking) followed by 4 comprehension questions.
+const AT_SEED=[
+  {id:'at1',tag:'psychology',text:"Today I want to talk about a concept psychologists call directed attention fatigue. When we focus intensely on a demanding task — writing a report, studying for an exam, or even scrolling through work email — our brain uses a limited mental resource to block out distractions. Over time, that resource gets depleted, and we start to feel irritable, distracted, and mentally tired. Interestingly, researchers found that certain activities help restore this resource faster than simply resting. Spending time in a natural environment, like a park or a garden, seems to be particularly effective. Unlike an intense task, nature captures our attention effortlessly, allowing the depleted mental resource to recover without requiring us to actively suppress distractions. This is sometimes called soft fascination, since it holds our interest gently rather than demanding constant effort. Based on this research, some workplaces now encourage short outdoor breaks during the day, not just as a nice gesture, but as a way to genuinely restore employees' mental focus.",questions:[
+    {q:'What is the talk mainly about?',choices:['Why mental exhaustion cannot be treated','How directed attention fatigue occurs and can be restored','The history of workplace break policies','Why nature is more interesting than cities'],correct:1},
+    {q:'According to the speaker, what happens when directed attention fatigue occurs?',choices:['People become more focused over time','People start to feel irritable and mentally tired','People stop needing breaks','People\'s memory improves'],correct:1},
+    {q:'Why is time in nature considered restorative?',choices:['It requires intense concentration','It captures attention effortlessly, unlike demanding tasks','It eliminates the need for sleep','It has no effect on attention'],correct:1},
+    {q:'Why does the speaker mention workplace outdoor breaks?',choices:['To criticize modern office design','To give a practical example of applying the research','To argue that breaks are unnecessary','To compare offices with parks'],correct:1}
+  ]},
+  {id:'at2',tag:'history',text:"The modern Olympic Games, first held in Athens in 1896, were largely the result of one man's persistence: Pierre de Coubertin, a French educator who believed international sporting competition could promote peace and mutual understanding between nations. At the time, the idea faced considerable skepticism — many doubted that countries with political tensions would agree to compete together, let alone that the event could be organized on a regular basis. Coubertin spent years lobbying European governments and sports organizations before securing enough support to hold the first games, which drew athletes from just fourteen countries. Growth after that first event was slow but steady; it took several decades before the Olympics became the large-scale international event we recognize today. Coubertin's original vision, however, has remained remarkably consistent — the modern Games still emphasize the idea that athletic competition, unlike political conflict, can bring people together rather than divide them.",questions:[
+    {q:'What is this talk mainly about?',choices:['The rules of the first Olympic Games','The origins and founding vision of the modern Olympics','A biography of Greek athletes','Why the Olympics moved to different countries'],correct:1},
+    {q:'According to the talk, what challenge did Coubertin face?',choices:['A lack of funding only','Widespread skepticism about international cooperation','Opposition from Greek officials','A shortage of athletes willing to compete'],correct:1},
+    {q:'How many countries participated in the first modern Olympics?',choices:['Four','Fourteen','Forty','One hundred'],correct:1},
+    {q:"Why does the speaker mention Coubertin's original vision at the end?",choices:['To show that it has been abandoned','To argue that it still shapes the Games today','To criticize modern Olympic politics','To compare it with ancient Greek ideals'],correct:1}
+  ]},
+  {id:'at3',tag:'life science',text:"Coral reefs, despite covering less than one percent of the ocean floor, support roughly a quarter of all known marine species. This astonishing productivity depends on a close partnership between coral polyps, small animals that build the reef's structure, and microscopic algae that live inside their tissue. The algae perform photosynthesis, providing the coral with energy, while the coral offers the algae a protected, sunlit environment. This relationship, however, is fragile. When ocean temperatures rise even slightly above normal, corals become stressed and expel the algae living inside them, a process known as coral bleaching. Without the algae, the coral loses both its color and its main energy source, and if the stress continues too long, the coral eventually dies. Because reefs take decades to recover, and rising ocean temperatures are becoming more frequent, scientists consider coral bleaching one of the clearest early signs of the broader impact of a warming ocean.",questions:[
+    {q:'What is the main topic of this talk?',choices:['How coral reefs are formed physically','The partnership between coral and algae, and its vulnerability to heat','The total number of marine species in the ocean','How to build artificial coral reefs'],correct:1},
+    {q:'What role do algae play for coral?',choices:['They protect coral from predators','They provide energy through photosynthesis','They help coral reproduce','They filter the surrounding water'],correct:1},
+    {q:'What happens during coral bleaching?',choices:['Coral grows more algae than usual','Coral expels its algae after heat stress','Coral moves to cooler waters','Coral produces its own light'],correct:1},
+    {q:'Why does the speaker mention that reefs take decades to recover?',choices:['To explain why bleaching events are especially concerning','To argue that reefs recover quickly','To describe how reefs were first discovered','To compare reefs with rainforests'],correct:0}
+  ]},
+  {id:'at4',tag:'physical science',text:"Sunlight looks white, but it's actually made up of many colors, each corresponding to a different wavelength of light. As sunlight enters the atmosphere, it collides with tiny gas molecules, and this interaction scatters the light in different directions, a phenomenon called Rayleigh scattering. Shorter wavelengths, like blue and violet, are scattered far more than longer wavelengths, like red and orange. Since our eyes are more sensitive to blue than to violet, the sky appears predominantly blue during most of the day. At sunrise and sunset, however, sunlight travels through much more atmosphere to reach us, scattering away nearly all the blue light before it arrives. What remains are the longer wavelengths — the reds and oranges that give sunsets their familiar color. So the same basic scattering process explains both the ordinary blue sky and the dramatic colors of sunset, depending simply on how much atmosphere the light has to pass through.",questions:[
+    {q:'What is this talk mainly explaining?',choices:['Why sunlight is completely white','Why the sky is blue and why sunsets are red','How clouds are formed','Why the atmosphere blocks sunlight completely'],correct:1},
+    {q:'According to the talk, which wavelengths scatter the most?',choices:['Longer wavelengths, like red','Shorter wavelengths, like blue and violet','All wavelengths equally','Only wavelengths outside visible light'],correct:1},
+    {q:'Why does the sky look blue rather than violet?',choices:['Violet light does not exist in sunlight','Our eyes are more sensitive to blue than violet','Blue light travels slower than violet','Violet light is absorbed by clouds'],correct:1},
+    {q:'Why are sunsets more red or orange?',choices:['The sun changes color at sunset','Sunlight travels through more atmosphere, scattering away blue light first','Red light is created only at sunset','The atmosphere is thinner at sunset'],correct:1}
+  ]},
+  {id:'at5',tag:'business and economics',text:"Some products become more valuable to each user as more people use them — a phenomenon economists call a network effect. A telephone, for example, is useless if you're the only person who owns one, but becomes increasingly valuable as more people join the network, since each new user creates the possibility of a new connection. This same logic applies to many modern platforms: a marketplace app is more useful with more buyers and sellers, and a social media platform is more engaging when more of your contacts are already using it. Network effects can create a significant advantage for early market leaders, since users often prefer to join the platform where most other people already are, making it difficult for competitors to attract users away, even with a better product. However, this advantage isn't permanent. If a dominant platform neglects user experience or a strong enough alternative emerges, users can migrate elsewhere, as several once-dominant platforms have discovered in recent years.",questions:[
+    {q:'What is a network effect?',choices:['A cost that increases as a company grows','A situation where a product becomes more valuable as more people use it','A marketing technique used only by tech companies','A legal restriction on certain business models'],correct:1},
+    {q:'Why are network effects an advantage for early market leaders?',choices:['They can charge lower prices','Users prefer platforms where most other people already are','They receive government funding','They have exclusive legal rights'],correct:1},
+    {q:'According to the talk, is this advantage permanent?',choices:['Yes, dominant platforms never lose users','No, users can migrate if a platform declines or a better alternative appears','Yes, because of legal protections','No, network effects only last one year'],correct:1},
+    {q:'Why does the speaker mention the telephone example?',choices:['To criticize old technology','To illustrate the basic idea of a network effect simply','To argue phones are no longer useful','To compare cost structures across industries'],correct:1}
+  ]},
+  {id:'at6',tag:'social science',text:"Psychologists have long been interested in how accurately people judge their own abilities. One consistent finding is that people with limited skill or knowledge in a particular area often overestimate their own competence, while people who are highly skilled tend to underestimate how much they know relative to others. Researchers explain this pattern by pointing out that the same skills required to perform a task well are often the skills needed to recognize good or poor performance in the first place. In other words, someone who lacks a certain skill may also lack the ability to judge their own shortcomings in that area. As people gain more expertise, their self-assessments generally become more accurate, partly because they develop a better sense of how much there still is to learn. This research has practical implications for education and workplace training, suggesting that structured feedback from others, rather than self-assessment alone, may be especially important early in the learning process.",questions:[
+    {q:'What is the main topic of this talk?',choices:['Why experts always underestimate themselves','How self-assessment accuracy relates to skill level','A comparison of different intelligence tests','Why feedback is unnecessary in education'],correct:1},
+    {q:'According to the talk, why might a low-skilled person overestimate their ability?',choices:['They receive too much positive feedback','They lack the very skill needed to judge their own performance','They are naturally overconfident by personality','They compare themselves to even less skilled people'],correct:1},
+    {q:'What happens to self-assessment accuracy as expertise increases?',choices:['It becomes less accurate','It generally becomes more accurate','It stays exactly the same','It becomes impossible to measure'],correct:1},
+    {q:'Why does the speaker mention structured feedback at the end?',choices:['To argue that feedback should be avoided','To suggest a practical application of the research for education and training','To criticize workplace training programs','To explain why self-assessment is always reliable'],correct:1}
+  ]},
+  {id:'at7',tag:'art and music',text:"Before the eighteenth century, the harpsichord was the dominant keyboard instrument in Europe, but it had one significant limitation: no matter how hard or softly a player pressed a key, the volume of the note stayed essentially the same, because the strings were plucked by a fixed mechanism. Around 1700, an Italian instrument maker named Bartolomeo Cristofori addressed this limitation by designing a new mechanism that struck the strings with a hammer instead of plucking them. Crucially, the force of the hammer could be controlled directly by how hard the player pressed the key, allowing for both loud and soft playing on the same instrument — hence its original name, gravicembalo col piano e forte, meaning roughly harpsichord with soft and loud. This new expressive range eventually made the piano, as it came to be called, the preferred instrument for composers who wanted far greater dynamic and emotional variation than the harpsichord could offer, and it gradually replaced the harpsichord in most concert settings by the end of the century.",questions:[
+    {q:'What is the main topic of this talk?',choices:["The history of the harpsichord's popularity","How Cristofori's invention gave the piano a dynamic range the harpsichord lacked",'A biography of European composers','Why the piano is more expensive than the harpsichord'],correct:1},
+    {q:'What was the main limitation of the harpsichord?',choices:['It could not be played quickly','Its volume stayed the same regardless of how hard a key was pressed','It had too few keys','It was too large for most rooms'],correct:1},
+    {q:"How did Cristofori's mechanism work?",choices:['Strings were plucked more forcefully','Hammers struck the strings with force controlled by the player','The instrument used electricity','Strings were replaced with metal rods'],correct:1},
+    {q:"What does the piano's original name suggest?",choices:['It could only play loudly','It could play both softly and loudly','It replaced string instruments entirely','It was originally a percussion instrument'],correct:1}
+  ]},
+  {id:'at8',tag:'history',text:"For much of history, access to books was limited mostly to the wealthy, since large personal libraries were expensive to build and maintain. This began to change in the nineteenth century with the rise of the public library movement, which argued that access to books and information should not depend on a person's income. Industrialist Andrew Carnegie became one of the movement's most significant supporters, funding the construction of more than two thousand public libraries across English-speaking countries in the late nineteenth and early twentieth centuries. Carnegie's approach came with a condition: local governments had to agree to fund the library's ongoing operation, ensuring that communities had a long-term stake in keeping the library running rather than treating it as a one-time gift. This model proved influential, and by the mid-twentieth century, publicly funded libraries had become a standard feature of towns and cities throughout much of the world, fundamentally changing who had practical access to books and information.",questions:[
+    {q:'What is this talk mainly about?',choices:['The invention of the printing press','The rise of the public library movement and its funding model','A biography of famous authors','Why libraries are closing today'],correct:1},
+    {q:"What condition did Carnegie attach to his library funding?",choices:['Libraries had to be named after him','Local governments had to fund ongoing operations','Only wealthy patrons could use the libraries','Libraries had to be built within one year'],correct:1},
+    {q:'Why does the speaker mention this funding condition?',choices:["To criticize Carnegie's approach",'To explain why it helped ensure the libraries\' long-term survival','To argue that libraries should be privately funded today','To compare Carnegie with other industrialists'],correct:1},
+    {q:'According to the talk, what was access to books like before the public library movement?',choices:['Equally available to everyone','Mostly limited to wealthy individuals','Restricted only in rural areas','Available only through churches'],correct:1}
+  ]}
+];
+
 // ── EXERCISE STORAGE (localStorage + Firebase, mirroring saveCA/saveST) ──
 function bs_saveItems(){localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(RBSI){const o=bsItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RBSI,Object.keys(o).length?o:null);}}
 function bs_saveProgress(){localStorage.setItem('c1bsp',JSON.stringify(bsProgress));fbSet(RBSP,Object.keys(bsProgress).length?bsProgress:null);}
@@ -3531,22 +3697,28 @@ function ex_due(items,progress){
 }
 function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
 
-// ── REVIEW MODE SELECTOR (Flashcards | Build a Sentence | Reading [group]) ──
-// "Reading" is a group covering Complete the Words plus the two new Read task
-// types; picking it shows a second-level bar so the top row stays at 3 buttons
-// instead of growing flat with every new task type (Listening will join the
-// same way once it's built).
+// ── REVIEW MODE SELECTOR (Flashcards | Build a Sentence | Reading | Listening) ──
+// "Reading" and "Listening" are groups: picking one shows a second-level bar for
+// its sub-modes, so the top row stays at 4 buttons instead of growing flat with
+// every new task type.
 const READING_MODES=['complete','rd','ra'];
+const LISTENING_MODES=['lcr','lc','an','at'];
 function revModeSelector(){
   const m=revCfg.exMode||'flash';
   const inReading=READING_MODES.includes(m);
+  const inListening=LISTENING_MODES.includes(m);
   let h='<div class="exmode-bar">'
     +'<button class="exmode-btn'+(m==='flash'?' on':'')+'" onclick="setRevExMode(\'flash\')">📚 Flashcards</button>'
     +'<button class="exmode-btn'+(m==='build'?' on':'')+'" onclick="setRevExMode(\'build\')">🧩 Build a Sentence</button>'
     +'<button class="exmode-btn'+(inReading?' on':'')+'" onclick="setRevExMode(revCfg.readingSub||\'complete\')">📖 Reading</button>'
+    +'<button class="exmode-btn'+(inListening?' on':'')+'" onclick="setRevExMode(revCfg.listenSub||\'lcr\')">🎧 Listening</button>'
     +'</div>';
   if(inReading){
     const subs=[['complete','✏️ Complete the Words'],['rd','📰 Read in Daily Life'],['ra','📖 Academic Passage']];
+    h+='<div class="exmode-bar" style="margin-top:-6px">'+subs.map(o=>'<button class="exmode-btn sub'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
+  }
+  if(inListening){
+    const subs=[['lcr','💬 Choose a Response'],['lc','🗣️ Conversation'],['an','📢 Announcement'],['at','🎓 Academic Talk']];
     h+='<div class="exmode-bar" style="margin-top:-6px">'+subs.map(o=>'<button class="exmode-btn sub'+(m===o[0]?' on':'')+'" onclick="setRevExMode(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>';
   }
   return h;
@@ -3554,11 +3726,12 @@ function revModeSelector(){
 function setRevExMode(m){
   revCfg.exMode=m;
   if(READING_MODES.includes(m))revCfg.readingSub=m;
+  if(LISTENING_MODES.includes(m))revCfg.listenSub=m;
   saveRevCfg();
   flipped=false;
   if(m==='build'){bs_load();}
   else if(m==='complete'){cw_load();}
-  else if(m==='rd'||m==='ra'){rq_load(m);}
+  else if(RQ_LABEL[m]){rq_load(m);}
   renderRev();
 }
 
@@ -3832,24 +4005,28 @@ function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length)cw_cur=cwIte
 
 // ── READING/LISTENING COMPREHENSION ENGINE ──────────────────────────────────
 // Shared multiple-choice engine for Read in Daily Life, Read an Academic Passage,
-// and (later) the four Listening task types — they're all the same shape: a
-// stimulus (text now, audio later) followed by multiple-choice questions, scored
-// item-correct only when every question in it is answered correctly.
-const RQ_LABEL={rd:'Read in Daily Life',ra:'Read an Academic Passage'};
-const RQ_ICON={rd:'📰',ra:'📖'};
+// and the four Listening task types — they're all the same shape: a stimulus
+// (text for Reading, audio for Listening) followed by multiple-choice questions,
+// scored item-correct only when every question in it is answered correctly.
+const RQ_LABEL={rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk'};
+const RQ_ICON={rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓'};
+const RQ_NOUN={rd:'passage',ra:'passage',lcr:'audio clip',lc:'conversation',an:'announcement',at:'talk'};
+// Listening types are heard, not shown, until after checking (matches the real
+// test — the audio is never written on screen); Reading types show text throughout.
+const RQ_AUDIO={rd:false,ra:false,lcr:true,lc:true,an:true,at:true};
+const RQ_SEEDS={rd:RD_SEED,ra:RA_SEED,lcr:LCR_SEED,lc:LC_SEED,an:AN_SEED,at:AT_SEED};
 function rq_items(key){return rqItems[key]||(rqItems[key]=[]);}
 function rq_progress(key){return rqProgress[key]||(rqProgress[key]={});}
 function rq_ensureFresh(){
-  ex_mergeSeeds(rq_items('rd'),RD_SEED,rq_saveItems);
-  ex_mergeSeeds(rq_items('ra'),RA_SEED,rq_saveItems);
+  Object.keys(RQ_SEEDS).forEach(k=>ex_mergeSeeds(rq_items(k),RQ_SEEDS[k],rq_saveItems));
 }
 function rq_loadLocal(){
-  try{const v=JSON.parse(localStorage.getItem('c1rqi')||'null');rqItems=(v&&typeof v==='object')?v:{rd:RD_SEED.slice(),ra:RA_SEED.slice()};}catch(e){rqItems={rd:RD_SEED.slice(),ra:RA_SEED.slice()};}
+  try{const v=JSON.parse(localStorage.getItem('c1rqi')||'null');rqItems=(v&&typeof v==='object')?v:{};}catch(e){rqItems={};}
+  Object.keys(RQ_SEEDS).forEach(k=>{if(!Array.isArray(rqItems[k]))rqItems[k]=RQ_SEEDS[k].slice();});
   rq_ensureFresh();
   if(!localStorage.getItem('c1rqi'))rq_saveItems();
   try{const v=JSON.parse(localStorage.getItem('c1rqp')||'null');rqProgress=(v&&typeof v==='object')?v:{};}catch(e){rqProgress={};}
-  if(!rqProgress.rd)rqProgress.rd={};
-  if(!rqProgress.ra)rqProgress.ra={};
+  Object.keys(RQ_SEEDS).forEach(k=>{if(!rqProgress[k])rqProgress[k]={};});
 }
 function rq_pick(key){
   const items=rq_items(key),progress=rq_progress(key);
@@ -3860,6 +4037,7 @@ function rq_load(key){
   rq_cur[key]=rq_pick(key);
   rq_sel[key]=rq_cur[key]?new Array(rq_cur[key].questions.length).fill(null):[];
   rq_checked[key]=false;
+  rq_played[key]=false;
 }
 function rq_next(key,force){
   rq_load(key);
@@ -3886,27 +4064,48 @@ function rq_check(key){
   ex_logPattern(it.tag,allOk,key);
   renderRev();
 }
+// Speaks the current item's stimulus aloud (browser TTS, same approach as
+// sp_play()/iv_play()). Speaker labels (Man:/Woman:) are stripped from the
+// spoken audio so it flows naturally, but stay in the transcript shown after checking.
+function rq_play(key){
+  const it=rq_cur[key];if(!it)return;
+  if('speechSynthesis'in window){
+    window.speechSynthesis.cancel();
+    const speakText=it.text.replace(/^(Man|Woman|Narrator|Speaker):\s*/gm,'').replace(/\n/g,' ');
+    const u=new SpeechSynthesisUtterance(speakText);
+    u.lang='en-US';u.rate=0.95;
+    window.speechSynthesis.speak(u);
+  }else{
+    toast('⚠️ Speech playback not supported in this browser');
+  }
+  rq_played[key]=true;
+  const b=document.getElementById('rqPlayBtn_'+key);if(b)b.textContent='🔊 Play again';
+}
 function rq_toolbar(key){
-  const items=rq_items(key);
+  const items=rq_items(key),noun=RQ_NOUN[key]||'item';
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
-    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' passage'+(items.length===1?'':'s')+'</span></div>';
+    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' '+noun+(items.length===1?'':'s')+'</span></div>';
 }
 function rq_render(key){
-  const items=rq_items(key),progress=rq_progress(key),label=RQ_LABEL[key],icon=RQ_ICON[key];
+  const items=rq_items(key),progress=rq_progress(key),label=RQ_LABEL[key],icon=RQ_ICON[key],audio=!!RQ_AUDIO[key];
   const dueCount=ex_due(items,progress).length;
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
   const tb=rq_toolbar(key);
   const it=rq_cur[key];
   if(!it){
-    if(items.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="rq_next(\''+key+'\',true)">Practice anyway</button></div>'+exPerfPanel(key,items,progress,label);
-    return tb+'<div class="card empty"><div class="etit">No passages yet</div></div>'+exPerfPanel(key,items,progress,label);
+    if(items.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">Nothing due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="rq_next(\''+key+'\',true)">Practice anyway</button></div>'+exPerfPanel(key,items,progress,label);
+    return tb+'<div class="card empty"><div class="etit">Nothing here yet</div></div>'+exPerfPanel(key,items,progress,label);
   }
   const sel=rq_sel[key]||[],checked=!!rq_checked[key];
   let h=tb+'<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">'+icon+' '+esc(label)+'</div>'
-    +'<span class="tag tbl">'+esc(it.tag)+'</span></div>'
-    +'<div class="rq-passage">'+esc(it.text)+'</div>';
+    +'<span class="tag tbl">'+esc(it.tag)+'</span></div>';
+  if(audio&&!checked){
+    h+='<button class="rq-audio-btn" id="rqPlayBtn_'+key+'" onclick="rq_play(\''+key+'\')">🔊 '+(rq_played[key]?'Play again':'Play audio')+'</button>';
+  }else{
+    h+=(audio?'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">📝 Transcript (for review)</div>':'')+'<div class="rq-passage">'+esc(it.text)+'</div>';
+  }
   it.questions.forEach((q,qi)=>{
     h+='<div class="rq-q"><div class="rq-qtxt">'+(qi+1)+'. '+esc(q.q)+'</div>';
     q.choices.forEach((c,ci)=>{
@@ -3919,7 +4118,7 @@ function rq_render(key){
   });
   if(checked){
     const correctCount=it.questions.filter((q,i)=>sel[i]===q.correct).length,allOk=correctCount===it.questions.length;
-    h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct!':'❌ '+correctCount+'/'+it.questions.length+' correct — reread the passage above for the ones you missed.')+'</div>'
+    h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct!':'❌ '+correctCount+'/'+it.questions.length+' correct'+(audio?' — check the transcript above for the ones you missed.':' — reread the passage above for the ones you missed.'))+'</div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="rq_next(\''+key+'\')">Next →</button></div>';
   }else{
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="rq_check(\''+key+'\')">✓ Check</button></div>';
@@ -6071,8 +6270,8 @@ function startSync(){
     RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVI.on('value',s=>{const v=s.val();if(v){ivInterviews=Object.values(v);iv_ensureFresh();localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(!iv_cur)iv_pick();iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&READING_MODES.includes(revCfg.exMode)&&revCfg.exMode!=='complete'){const k=revCfg.exMode;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&READING_MODES.includes(revCfg.exMode)&&revCfg.exMode!=='complete'&&!rq_cur[revCfg.exMode])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[revCfg.exMode]){const k=revCfg.exMode;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[revCfg.exMode]&&!rq_cur[revCfg.exMode])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
