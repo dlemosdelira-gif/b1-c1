@@ -195,6 +195,11 @@ textarea{min-height:120px}
 .fcard:hover{border-color:#BFDBFE}
 .fhint{font-size:14px;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
 .fword{font-size:26px;font-weight:700;margin-bottom:12px;line-height:1.5;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
+/* Cards tab only: **bold** markdown (rendered as <strong> by formatText()) shows in
+   red — in the flashcard study view and in the My Cards list/preview. Scoped to
+   these two containers so it doesn't affect bold text elsewhere in the app (lesson
+   notes, TOEFL feedback, etc.), which still render bold in the normal text color. */
+#pg-cards strong,#cardslist strong{color:#DC2626}
 .fword.bl{color:#1D4ED8;font-weight:600}
 .fcloze{font-size:26px;font-weight:500;margin-bottom:12px;line-height:1.7;color:#0F172A;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word}
 .fblank{display:inline-block;background:#BFDBFE;border-radius:4px;min-width:80px;height:20px;vertical-align:middle}
