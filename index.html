@@ -577,6 +577,16 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mChunks" onclick="if(event.target===this)closeM('mChunks')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:520px">
+    <div class="mhdr"><div class="mtit" id="mChunksTitle">💡 Useful Phrases</div><button class="btn bsm" onclick="closeM('mChunks')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div style="font-size:13px;color:#94A3B8;margin-bottom:12px">Tap a phrase to add it to your response, then keep it in your own words as you finish writing.</div>
+      <div id="chunksBody"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
@@ -854,9 +864,12 @@ textarea{min-height:120px}
     <div class="card" style="margin-top:12px">
       <div class="fb" style="margin-bottom:10px">
         <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
-        <button class="btn bsm" id="micbtn" onclick="toggleListen()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
-        </button>
+        <div style="display:flex;gap:6px">
+          <button class="btn bsm hid" id="chunksBtn" onclick="chunks_open()" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">💡 Phrases</button>
+          <button class="btn bsm" id="micbtn" onclick="toggleListen()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
+          </button>
+        </div>
       </div>
       <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:14px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
       <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14px;line-height:1.8;min-height:36px;color:#0F172A"></div>
@@ -2659,6 +2672,44 @@ function buildPrompt(mode,t){
   }
   return p.replace('{{T}}',t);
 }
+// ── USEFUL PHRASES panel ─────────────────────────────────────────────────────
+function chunks_kind(){
+  if(toeflActivity==='writing:email')return 'email';
+  if(toeflActivity==='writing:discussion')return 'discussion';
+  if(toeflActivity==='speaking:iv')return 'interview';
+  return null;
+}
+function chunks_refreshBtn(){
+  const b=document.getElementById('chunksBtn');
+  if(b)b.classList.toggle('hid',!chunks_kind());
+}
+function chunks_render(kind){
+  return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">'+esc(g.title)+'</div><div style="display:flex;flex-direction:column;gap:6px">'
+    +g.phrases.map(p=>'<button type="button" class="btn bsm" style="text-align:left;justify-content:flex-start;white-space:normal;height:auto;line-height:1.4;padding:8px 10px" onclick="chunks_insert(this.textContent)">'+esc(p)+'</button>').join('')
+    +'</div></div>').join('');
+}
+function chunks_open(){
+  const kind=chunks_kind();if(!kind)return;
+  document.getElementById('mChunksTitle').textContent=CHUNKS_LABEL[kind];
+  document.getElementById('chunksBody').innerHTML=chunks_render(kind);
+  openM('mChunks');
+}
+// Inserts at the current cursor position (end of text if the textarea isn't
+// focused) rather than always appending, so a phrase can be dropped in mid-
+// sentence too.
+function chunks_insert(text){
+  const ta=document.getElementById('rtxt');if(!ta)return;
+  const start=typeof ta.selectionStart==='number'?ta.selectionStart:ta.value.length;
+  const end=typeof ta.selectionEnd==='number'?ta.selectionEnd:ta.value.length;
+  const before=ta.value.slice(0,start),after=ta.value.slice(end);
+  const pad=(before&&!/\s$/.test(before))?' ':'';
+  const insert=pad+text+' ';
+  ta.value=before+insert+after;
+  const pos=(before+insert).length;
+  ta.selectionStart=ta.selectionEnd=pos;
+  onInput();
+  ta.focus();
+}
 function openAIModal(mode){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
   curText=t;curMode=mode||'writing';
@@ -3423,6 +3474,38 @@ const IV_SEED=[
   {id:'iv15',set:'i4',order:3,tag:'environment',interviewer:'A sustainability committee member',question:'What is one change your university could make to become more environmentally friendly?'},
   {id:'iv16',set:'i4',order:4,tag:'environment',interviewer:'A sustainability committee member',question:'If your university had unlimited funding for sustainability projects, what would you build or start first?'}
 ];
+
+// ── USEFUL PHRASES ("chunks") ────────────────────────────────────────────────
+// Sentence starters for the three free-production tasks (Write an Email, Write
+// for an Academic Discussion, Take an Interview) — grouped by the rhetorical
+// move each phrase serves (opening, giving a reason, closing, ...), matching
+// the structure those tasks are actually scored on. Deliberately left out of
+// Listen and Repeat: that task is judged on verbatim accuracy, so pre-written
+// phrasing would work against the candidate rather than help them.
+const CHUNKS_LABEL={email:'💡 Useful Phrases — Email',discussion:'💡 Useful Phrases — Academic Discussion',interview:'💡 Useful Phrases — Interview'};
+const CHUNKS={
+  email:[
+    {title:'Opening',phrases:['Dear Sir or Madam,','I am writing to inform you that...','I am writing regarding...']},
+    {title:'Explaining the situation',phrases:['The reason for this is that...','Unfortunately, ...','I recently discovered that...']},
+    {title:'Requesting action',phrases:['I would appreciate it if you could...','Could you please...','I was wondering whether you could...']},
+    {title:'Closing',phrases:['Thank you for your time and consideration.','I look forward to hearing from you.','Best regards,']}
+  ],
+  discussion:[
+    {title:'Giving your opinion',phrases:['In my opinion, ...','I believe that...','From my perspective, ...']},
+    {title:'Referencing a classmate',phrases:['I agree with [Name] that...','I see it differently from [Name].','While [Name] makes a good point, I think...']},
+    {title:'Giving a reason',phrases:['This is mainly because...','One reason for this is that...']},
+    {title:'Giving an example',phrases:['For example, ...','For instance, when I...']},
+    {title:'Concluding',phrases:['Overall, I think...','For these reasons, ...']}
+  ],
+  interview:[
+    {title:'Starting your answer',phrases:['That\'s a good question. I\'d say...','Well, I think...','Honestly, ...']},
+    {title:'Giving a reason',phrases:['The main reason is...','That\'s mainly because...']},
+    {title:'Giving an example',phrases:['For example, ...','Let me give you an example...']},
+    {title:'If you\'re not sure',phrases:['I\'m not completely sure, but...','It depends, but I\'d say...']},
+    {title:'Talking about the future or a hypothetical',phrases:['If I could..., I would...','I think in the future...']},
+    {title:'Wrapping up',phrases:['So overall, ...','That\'s basically how I see it.']}
+  ]
+};
 
 // ── READING: Read in Daily Life — short nonacademic texts (posters, menus, emails,
 // social posts, schedules, receipts, texts, ads), each with 3 multiple-choice questions.
@@ -4659,6 +4742,7 @@ function em_setMode(on){
     if(ta)ta.placeholder='Write your response to the discussion here…';
     const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>📝 Analyze Discussion';
   }
+  chunks_refreshBtn();
 }
 // Prefer an un-practiced scenario; otherwise random.
 function em_pick(){
@@ -5265,6 +5349,7 @@ function sp_setMode(on){
     lrBox.classList.remove('hid');
     sp_renderScenario();
   }
+  chunks_refreshBtn();
 }
 
 // ── TAKE AN INTERVIEW — ETS 0-5 RUBRIC ANALYSIS ──
