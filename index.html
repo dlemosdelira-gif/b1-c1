@@ -3359,38 +3359,69 @@ const WR_SEED=[
    peer1:{name:'Elena',text:'I think binge-watching has actually improved storytelling. Writers can now build longer, more complex arcs since they know audiences will watch multiple episodes back to back.'},
    peer2:{name:'Marcus',text:'I disagree — a lot of shows feel stretched out or repetitive because they\'re designed to keep people watching rather than to tell a tight, satisfying story.'}}
 ];
-// TOEFL "Listen and Repeat" style: a single spoken sentence (8-15 words,
-// natural campus-life register) the candidate hears once and repeats from
-// memory. Read aloud in-app via the Web Speech API's speechSynthesis (the
-// same browser API family already used for speech-to-text input).
+// TOEFL "Listen and Repeat" style: sets of 7 spoken sentences the candidate
+// hears once each and repeats from memory. Matches the official format —
+// each set starts short (a handful of words) and steadily grows longer and
+// more grammatically complex (added clauses, conjunctions) toward item 7,
+// with official per-item response windows of 8/8/10/10/10/12/12 seconds
+// (SP_TIME_BY_ORDER below). Read aloud in-app via the Web Speech API's
+// speechSynthesis (the same browser API family already used for
+// speech-to-text input).
+const SP_TIME_BY_ORDER=[8,8,10,10,10,12,12];
 const SP_SEED=[
-  {id:'sp1',tag:'campus-logistics',text:'The library will be closing early today because of scheduled maintenance work.'},
-  {id:'sp2',tag:'weather',text:'If the weather improves, the field trip will go ahead as originally planned.'},
-  {id:'sp3',tag:'academic-policy',text:'Professor Reynolds asked whether the assignment could be submitted a few days later.'},
-  {id:'sp4',tag:'lectures',text:'Although the lecture ran overtime, most students stayed until the very end.'},
-  {id:'sp5',tag:'meetings',text:'The committee has decided to postpone the meeting until next Thursday afternoon.'},
-  {id:'sp6',tag:'exams',text:'Students who arrive after nine o\'clock will not be allowed into the exam room.'},
-  {id:'sp7',tag:'housing',text:'She mentioned that the new dormitory wouldn\'t be ready until the fall semester.'},
-  {id:'sp8',tag:'events',text:'Despite the heavy rain, the outdoor concert attracted a surprisingly large crowd.'},
-  {id:'sp9',tag:'study-tips',text:'The professor recommended reviewing chapter four before attempting the practice questions.'},
-  {id:'sp10',tag:'grades',text:'Once the results are published, students can request a formal grade review.'}
+  {id:'sp1',set:'s1',order:1,tag:'campus-logistics',text:'The library closes at nine.'},
+  {id:'sp2',set:'s1',order:2,tag:'campus-logistics',text:'Please silence your phone in class.'},
+  {id:'sp3',set:'s1',order:3,tag:'campus-logistics',text:'Students can print documents at the front desk.'},
+  {id:'sp4',set:'s1',order:4,tag:'campus-logistics',text:'The cafeteria will be closed for renovations next week.'},
+  {id:'sp5',set:'s1',order:5,tag:'campus-logistics',text:'Visitors must sign in at the front desk before entering the building.'},
+  {id:'sp6',set:'s1',order:6,tag:'campus-logistics',text:'Because the elevator is being repaired, please use the stairs near the east entrance.'},
+  {id:'sp7',set:'s1',order:7,tag:'campus-logistics',text:'Although the parking garage is closed for repaving, a free shuttle will run every fifteen minutes from the north lot.'},
+  {id:'sp8',set:'s2',order:1,tag:'weather',text:'It might rain later today.'},
+  {id:'sp9',set:'s2',order:2,tag:'weather',text:'Bring an umbrella just in case.'},
+  {id:'sp10',set:'s2',order:3,tag:'weather',text:'The forecast says temperatures will drop tonight.'},
+  {id:'sp11',set:'s2',order:4,tag:'weather',text:'Because of the storm, the outdoor concert was moved indoors.'},
+  {id:'sp12',set:'s2',order:5,tag:'weather',text:'Even though it was raining, a surprisingly large crowd showed up for the festival.'},
+  {id:'sp13',set:'s2',order:6,tag:'weather',text:'If the weather improves by Friday, the field trip will go ahead as originally planned.'},
+  {id:'sp14',set:'s2',order:7,tag:'weather',text:'Despite the heavy wind and occasional showers, most of the scheduled outdoor activities continued without any major delays.'},
+  {id:'sp15',set:'s3',order:1,tag:'academic-policy',text:'The exam starts at nine.'},
+  {id:'sp16',set:'s3',order:2,tag:'academic-policy',text:'No calculators are allowed today.'},
+  {id:'sp17',set:'s3',order:3,tag:'academic-policy',text:'Students must arrive fifteen minutes early.'},
+  {id:'sp18',set:'s3',order:4,tag:'academic-policy',text:'Anyone who arrives late may not be admitted to the room.'},
+  {id:'sp19',set:'s3',order:5,tag:'academic-policy',text:'Professor Reynolds asked whether the assignment could be submitted a few days later.'},
+  {id:'sp20',set:'s3',order:6,tag:'academic-policy',text:'Because the midterm was postponed, the final exam schedule has also been adjusted slightly.'},
+  {id:'sp21',set:'s3',order:7,tag:'academic-policy',text:'Although most students supported the new grading policy, a few argued that it made the course significantly more demanding.'},
+  {id:'sp22',set:'s4',order:1,tag:'lectures',text:'Please take notes during class.'},
+  {id:'sp23',set:'s4',order:2,tag:'lectures',text:'The lecture starts in five minutes.'},
+  {id:'sp24',set:'s4',order:3,tag:'lectures',text:'The professor recommended reviewing chapter four now.'},
+  {id:'sp25',set:'s4',order:4,tag:'lectures',text:'Although the lecture ran overtime, most students stayed until the end.'},
+  {id:'sp26',set:'s4',order:5,tag:'lectures',text:'The teaching assistant will post a summary of today\'s lecture online tonight.'},
+  {id:'sp27',set:'s4',order:6,tag:'lectures',text:'Because so many students had questions, the professor decided to extend office hours this week.'},
+  {id:'sp28',set:'s4',order:7,tag:'lectures',text:'Even though the reading was difficult, students who reviewed their notes beforehand found the discussion much easier to follow.'}
 ];
-// TOEFL "Take an Interview" style: an interviewer (a role, not a named peer)
-// asks a single open-ended question aloud; the candidate answers spontaneously
-// with no prep time. Unlike Listen and Repeat, content/delivery are judged,
-// not verbatim accuracy — so the question is spoken via speechSynthesis but
-// the "who's asking" framing stays visible as text (that part isn't being tested).
+// TOEFL "Take an Interview" style: sets of 4 questions, all asked by the same
+// interviewer about a single shared topic, progressing factual/habit ->
+// personal preference/experience -> opinion/evaluation -> future/hypothetical
+// (the official structure), 45 seconds to answer each with no prep time.
+// Content/delivery are judged, not verbatim accuracy — so the question is
+// spoken via speechSynthesis but the "who's asking" framing stays visible as
+// text (that part isn't being tested).
 const IV_SEED=[
-  {id:'iv1',tag:'campus-life',interviewer:'A campus researcher',question:'What do you think is the best way for new students to make friends when they first arrive at university?'},
-  {id:'iv2',tag:'technology',interviewer:'A student newspaper reporter',question:'Do you think it\'s a good idea for professors to record their lectures so students can watch them again later? Why or why not?'},
-  {id:'iv3',tag:'study-habits',interviewer:'A university counselor',question:'What study habit has helped you the most since you started your studies?'},
-  {id:'iv4',tag:'travel',interviewer:'An international student advisor',question:'What advice would you give to someone visiting your country for the first time?'},
-  {id:'iv5',tag:'work-life',interviewer:'A career services interviewer',question:'Would you rather work for a large company or a small startup after graduation? Explain your choice.'},
-  {id:'iv6',tag:'environment',interviewer:'A sustainability committee member',question:'What is one change your university could make to become more environmentally friendly?'},
-  {id:'iv7',tag:'education',interviewer:'A visiting education researcher',question:'Do you think students learn better working alone or in groups? Give reasons for your opinion.'},
-  {id:'iv8',tag:'health',interviewer:'A campus wellness coordinator',question:'What do you do to manage stress during exam periods?'},
-  {id:'iv9',tag:'culture',interviewer:'A local radio host',question:'What is a tradition from your culture that you think everyone should experience at least once?'},
-  {id:'iv10',tag:'technology',interviewer:'A student club representative',question:'How has social media changed the way you stay in touch with friends and family?'}
+  {id:'iv1',set:'i1',order:1,tag:'campus-life',interviewer:'A campus researcher',question:'How do you usually spend your free time between classes?'},
+  {id:'iv2',set:'i1',order:2,tag:'campus-life',interviewer:'A campus researcher',question:'What has been your favorite way to meet new people since you started here?'},
+  {id:'iv3',set:'i1',order:3,tag:'campus-life',interviewer:'A campus researcher',question:'Do you think your university does enough to help new students make friends?'},
+  {id:'iv4',set:'i1',order:4,tag:'campus-life',interviewer:'A campus researcher',question:'If you could change one thing about campus social life, what would it be?'},
+  {id:'iv5',set:'i2',order:1,tag:'technology',interviewer:'A student newspaper reporter',question:'How many hours a day do you typically spend on your phone?'},
+  {id:'iv6',set:'i2',order:2,tag:'technology',interviewer:'A student newspaper reporter',question:'What\'s an app or piece of technology that has made your studies easier?'},
+  {id:'iv7',set:'i2',order:3,tag:'technology',interviewer:'A student newspaper reporter',question:'Do you think it\'s a good idea for professors to record their lectures so students can watch them again later? Why or why not?'},
+  {id:'iv8',set:'i2',order:4,tag:'technology',interviewer:'A student newspaper reporter',question:'How do you think technology will change the way students learn ten years from now?'},
+  {id:'iv9',set:'i3',order:1,tag:'study-habits',interviewer:'A university counselor',question:'What time of day do you usually study best?'},
+  {id:'iv10',set:'i3',order:2,tag:'study-habits',interviewer:'A university counselor',question:'What study habit has helped you the most since you started your studies?'},
+  {id:'iv11',set:'i3',order:3,tag:'study-habits',interviewer:'A university counselor',question:'Do you think students learn better working alone or in groups? Give reasons for your opinion.'},
+  {id:'iv12',set:'i3',order:4,tag:'study-habits',interviewer:'A university counselor',question:'If you were designing your own course, what would you do differently to help students learn?'},
+  {id:'iv13',set:'i4',order:1,tag:'environment',interviewer:'A sustainability committee member',question:'Do you recycle regularly at home or on campus?'},
+  {id:'iv14',set:'i4',order:2,tag:'environment',interviewer:'A sustainability committee member',question:'What\'s one habit you\'ve changed to be more environmentally friendly?'},
+  {id:'iv15',set:'i4',order:3,tag:'environment',interviewer:'A sustainability committee member',question:'What is one change your university could make to become more environmentally friendly?'},
+  {id:'iv16',set:'i4',order:4,tag:'environment',interviewer:'A sustainability committee member',question:'If your university had unlimited funding for sustainability projects, what would you build or start first?'}
 ];
 
 // ── READING: Read in Daily Life — short nonacademic texts (posters, menus, emails,
@@ -3778,7 +3809,7 @@ const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣�
 // build) are timed per item, from when it loads to when Check is pressed.
 // Writing/Speaking are timed per visit to the activity, from opening it to
 // submitting for analysis.
-const TOEFL_ACT_TARGET={complete:90,rd:75,ra:180,lcr:25,lc:110,an:80,at:150,build:40,'writing:email':420,'writing:discussion':480,'speaking:lr':25,'speaking:iv':50};
+const TOEFL_ACT_TARGET={complete:90,rd:75,ra:180,lcr:25,lc:110,an:80,at:150,build:40,'writing:email':420,'writing:discussion':480,'speaking:lr':10,'speaking:iv':45};
 let toefl_itemStartTs={};
 function toefl_itemStart(key){toefl_itemStartTs[key]=Date.now();}
 function toefl_logTime(key){
@@ -5037,30 +5068,57 @@ function wr_processResult(r){
 // once (no on-screen text) and repeats it from memory. sp_play() reads it
 // aloud via speechSynthesis — the same Web Speech API family already used
 // for speech-to-text dictation input elsewhere in this app.
-function sp_pick(){
+// Walks scenario sets in order (s1, s2, ...); within the first set that still
+// has an unpracticed sentence, picks the lowest `order` one — so a 7-sentence
+// set is worked through 1..7 before the next set starts, matching the real
+// exam. excludeId lets "Next sentence" skip the current item without having
+// to grade it first. Once every set is fully practiced, falls back to a
+// random pick across the whole pool (spaced review, same as the old behavior).
+function sp_pick(excludeId){
   if(!spSentences.length){sp_cur=null;return;}
-  const fresh=spSentences.filter(s=>!spProgress[s.id]);
-  const pool=fresh.length?fresh:spSentences;
-  sp_cur=pool[Math.floor(Math.random()*pool.length)];
+  const sets=Array.from(new Set(spSentences.map(s=>s.set||'')));
+  let next=null;
+  for(const setId of sets){
+    const items=spSentences.filter(s=>s.set===setId).sort((a,b)=>(a.order||0)-(b.order||0));
+    next=items.find(s=>!spProgress[s.id]&&s.id!==excludeId);
+    if(next)break;
+  }
+  if(!next){
+    const pool=spSentences.filter(s=>s.id!==excludeId);
+    next=(pool.length?pool:spSentences)[Math.floor(Math.random()*(pool.length?pool.length:spSentences.length))];
+  }
+  sp_cur=next;
   sp_played=false;
+  toefl_itemStart('speaking:lr');
+}
+// Position within the current set (e.g. "3 of 7") and its official response
+// window (SP_TIME_BY_ORDER), for display only — not wired into the generic
+// TOEFL_ACT_TARGET pacing average, which is per-activity not per-item.
+function sp_setInfo(){
+  if(!sp_cur)return null;
+  const total=spSentences.filter(s=>s.set===sp_cur.set).length;
+  const order=sp_cur.order||1;
+  return {order,total,secs:SP_TIME_BY_ORDER[order-1]||10};
 }
 function sp_renderScenario(){
   const box=document.getElementById('listenRepeatBox');if(!box)return;
   if(!sp_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No sentences available.</div>';return;}
   const done=spProgress[sp_cur.id];
+  const info=sp_setInfo();
   box.innerHTML='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span class="tag tpu">'+esc(sp_cur.tag)+'</span>'
     +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
-    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:10px">Listen and Repeat</div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:4px">Listen and Repeat</div>'
+    +(info?'<div style="text-align:center;font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace;margin-bottom:10px">Sentence '+info.order+' of '+info.total+' · ~'+info.secs+'s to respond</div>':'')
     +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px;text-align:center">Play the sentence once, then repeat it from memory using Speak below — no text is shown until you check your answer.</div>'
     +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
     +'<button class="btn bpr bsm" id="spPlayBtn" onclick="sp_play()">🔊 Play sentence</button>'
-    +'<button class="btn bsm" onclick="sp_shuffle()">🎲 New sentence</button>'
+    +'<button class="btn bsm" onclick="sp_shuffle()">⏭️ Next sentence</button>'
     +'</div>'
     +'</div>';
 }
-function sp_shuffle(){sp_pick();sp_renderScenario();}
+function sp_shuffle(){sp_pick(sp_cur?sp_cur.id:null);sp_renderScenario();}
 function sp_play(){
   if(!sp_cur)return;
   if('speechSynthesis'in window){
@@ -5214,29 +5272,50 @@ function sp_setMode(on){
 // open-ended question aloud and the candidate answers spontaneously with no
 // prep time (unlike Listen and Repeat, content/delivery are scored here, not
 // verbatim accuracy).
-function iv_pick(){
+// Same set-then-order progression as sp_pick(), but for 4-question interview
+// sets that share one interviewer/topic (factual -> personal -> opinion ->
+// hypothetical).
+function iv_pick(excludeId){
   if(!ivInterviews.length){iv_cur=null;return;}
-  const fresh=ivInterviews.filter(s=>!ivProgress[s.id]);
-  const pool=fresh.length?fresh:ivInterviews;
-  iv_cur=pool[Math.floor(Math.random()*pool.length)];
+  const sets=Array.from(new Set(ivInterviews.map(s=>s.set||'')));
+  let next=null;
+  for(const setId of sets){
+    const items=ivInterviews.filter(s=>s.set===setId).sort((a,b)=>(a.order||0)-(b.order||0));
+    next=items.find(s=>!ivProgress[s.id]&&s.id!==excludeId);
+    if(next)break;
+  }
+  if(!next){
+    const pool=ivInterviews.filter(s=>s.id!==excludeId);
+    next=(pool.length?pool:ivInterviews)[Math.floor(Math.random()*(pool.length?pool.length:ivInterviews.length))];
+  }
+  iv_cur=next;
+  toefl_itemStart('speaking:iv');
+}
+// Position within the current 4-question interview set, for display only.
+function iv_setInfo(){
+  if(!iv_cur)return null;
+  const total=ivInterviews.filter(s=>s.set===iv_cur.set).length;
+  return {order:iv_cur.order||1,total};
 }
 function iv_renderScenario(){
   const box=document.getElementById('interviewBox');if(!box)return;
   if(!iv_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No interview questions available.</div>';return;}
   const done=ivProgress[iv_cur.id];
+  const info=iv_setInfo();
   box.innerHTML='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span class="tag tpu">'+esc(iv_cur.tag)+'</span>'
     +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
-    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:6px">Take an Interview</div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:4px">Take an Interview</div>'
+    +(info?'<div style="text-align:center;font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace;margin-bottom:10px">Question '+info.order+' of '+info.total+' · ~45s to respond</div>':'')
     +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px;text-align:center">'+esc(iv_cur.interviewer)+' asks you a question. Play it, then answer right away using Speak below — there\'s no preparation time on the real test.</div>'
     +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
     +'<button class="btn bpr bsm" id="ivPlayBtn" onclick="iv_play()">🔊 Play question</button>'
-    +'<button class="btn bsm" onclick="iv_shuffle()">🎲 New question</button>'
+    +'<button class="btn bsm" onclick="iv_shuffle()">⏭️ Next question</button>'
     +'</div>'
     +'</div>';
 }
-function iv_shuffle(){iv_pick();iv_renderScenario();}
+function iv_shuffle(){iv_pick(iv_cur?iv_cur.id:null);iv_renderScenario();}
 function iv_play(){
   if(!iv_cur)return;
   if('speechSynthesis'in window){
@@ -5682,14 +5761,34 @@ function wr_ensureFresh(){
     wrScenarios=WR_SEED.slice();wr_saveScenarios();
   }
 }
+// Older saved sentences/questions predate the 7-per-set (Listen and Repeat) /
+// 4-per-set (Take an Interview) grouping — plain flat pools with no `set`/
+// `order` fields, and several ids repurposed with entirely different text.
+// Re-seed (and reset progress, since old "practiced" flags would otherwise
+// point at sentences/questions that no longer exist under that id) whenever
+// the saved shape or content doesn't match the current seed.
 function sp_ensureFresh(){
-  if(!spSentences.length||!spSentences[0]||typeof spSentences[0].text!=='string'){
+  const hasAllSeedIds=SP_SEED.every(s=>spSentences.some(it=>it&&it.id===s.id));
+  const seedCurrent=spSentences.every(it=>{
+    if(!it)return true;
+    const seed=SP_SEED.find(s=>s.id===it.id);
+    return !seed||(seed.text===it.text&&seed.set===it.set&&seed.order===it.order);
+  });
+  if(!spSentences.length||!spSentences[0]||typeof spSentences[0].text!=='string'||!hasAllSeedIds||!seedCurrent){
     spSentences=SP_SEED.slice();sp_saveSentences();
+    spProgress={};sp_saveProgress();
   }
 }
 function iv_ensureFresh(){
-  if(!ivInterviews.length||!ivInterviews[0]||typeof ivInterviews[0].question!=='string'){
+  const hasAllSeedIds=IV_SEED.every(s=>ivInterviews.some(it=>it&&it.id===s.id));
+  const seedCurrent=ivInterviews.every(it=>{
+    if(!it)return true;
+    const seed=IV_SEED.find(s=>s.id===it.id);
+    return !seed||(seed.question===it.question&&seed.set===it.set&&seed.order===it.order);
+  });
+  if(!ivInterviews.length||!ivInterviews[0]||typeof ivInterviews[0].question!=='string'||!hasAllSeedIds||!seedCurrent){
     ivInterviews=IV_SEED.slice();iv_saveInterviews();
+    ivProgress={};iv_saveProgress();
   }
 }
 // Complete the Words switched to the TOEFL "fill in the missing letters" format
