@@ -577,16 +577,6 @@ textarea{min-height:120px}
   </div>
 </div>
 
-<div class="mov hid" id="mChunks" onclick="if(event.target===this)closeM('mChunks')">
-  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:520px">
-    <div class="mhdr"><div class="mtit" id="mChunksTitle">💡 Useful Phrases</div><button class="btn bsm" onclick="closeM('mChunks')">✕</button></div>
-    <div class="mbdy" style="overflow-y:auto">
-      <div style="font-size:13px;color:#94A3B8;margin-bottom:12px">Tap a phrase to add it to your response, then keep it in your own words as you finish writing.</div>
-      <div id="chunksBody"></div>
-    </div>
-  </div>
-</div>
-
 <div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
@@ -861,15 +851,18 @@ textarea{min-height:120px}
   </div>
 
   <div class="hid" id="toeflResponseBox">
+    <div class="card hid" id="chunksPanel" style="margin-top:12px;background:#FFFBEB;border-color:#FCD34D">
+      <div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="chunks_toggle(this)">
+        <span id="chunksPanelTitle">💡 Useful Phrases</span><span class="mdlArrow" style="font-size:12px">▸</span>
+      </div>
+      <div class="mdlBody hid" style="margin-top:10px" id="chunksBody"></div>
+    </div>
     <div class="card" style="margin-top:12px">
       <div class="fb" style="margin-bottom:10px">
         <div style="font-size:14px;font-weight:600;color:#0F172A">Your Response</div>
-        <div style="display:flex;gap:6px">
-          <button class="btn bsm hid" id="chunksBtn" onclick="chunks_open()" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">💡 Phrases</button>
-          <button class="btn bsm" id="micbtn" onclick="toggleListen()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
-          </button>
-        </div>
+        <button class="btn bsm" id="micbtn" onclick="toggleListen()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>Speak
+        </button>
       </div>
       <div class="lisbar hid" id="lisbar"><div class="pdot"></div><span style="font-size:14px;color:#DC2626;font-weight:500">Listening… speak clearly in English</span></div>
       <div id="trdsp" class="hid" style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14px;line-height:1.8;min-height:36px;color:#0F172A"></div>
@@ -931,7 +924,12 @@ let shadowOn=false,shadowIv=null,shadowSecs=300;
 let sesStart=null,editCardId=null,selTags=[],pendingUpgrades=[],pendingCorrections=[];
 let curText='';
 let curMode='writing';
-const today=new Date().toISOString().split('T')[0];
+// Local calendar date (YYYY-MM-DD) — toISOString() is UTC-based and rolls
+// over to "tomorrow" hours before local midnight for anyone west of UTC
+// (e.g. as early as 21:00 in Brasília, UTC-3), so every "today"/day-key
+// computation in this app must go through this instead.
+function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMonth()+1)+'-'+f2(d.getDate());}
+const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
@@ -1725,7 +1723,7 @@ function nxtRev(q,idx=0,ef=2.5){
   const d=new Date();
   d.setDate(d.getDate()+days);
   d.setHours(0,0,0,0);
-  return{date:d.toISOString().split('T')[0],intervalIdx:newIdx,easiness:newEf};
+  return{date:localDateStr(d),intervalIdx:newIdx,easiness:newEf};
 }
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
@@ -1854,10 +1852,10 @@ function revSession(){
 function wkDays(){
   const a=[],n=new Date(),dw=n.getDay(),m=new Date(n);
   m.setDate(n.getDate()-(dw===0?6:dw-1));
-  for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);a.push({key:d.toISOString().split('T')[0],lb:['Mon','Tue','Wed','Thu','Fri'][i],td:d.toISOString().split('T')[0]===today});}
+  for(let i=0;i<5;i++){const d=new Date(m);d.setDate(m.getDate()+i);const key=localDateStr(d);a.push({key,lb:['Mon','Tue','Wed','Thu','Fri'][i],td:key===today});}
   return a;
 }
-function streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().split('T')[0];if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
+function streak(){let s=0,d=new Date();for(;;){const k=localDateStr(d);if(checkins[k]){s++;d.setDate(d.getDate()-1);}else break;}return s;}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
 function f2(n){return String(n).padStart(2,'0');}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -1968,7 +1966,7 @@ function renderDash(){
     for(let i=1;i<=31;i++){
       const dt=new Date(y,m,i);
       if(dt.getMonth()!==m)break;
-      const key=dt.toISOString().split('T')[0];
+      const key=localDateStr(dt);
       const v=localStorage.getItem('c1dt-'+key);
       const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
       monthDays.push({day:i,count:c,key:key});
@@ -2042,7 +2040,7 @@ function renderDash(){
     const end=new Date(y,month+1,0).getDate();
     for(let day=1;day<=end;day++){
       const dt=new Date(y,month,day);
-      const key=dt.toISOString().split('T')[0];
+      const key=localDateStr(dt);
       const v=localStorage.getItem('c1dt-'+key);
       const c=v?Object.values(JSON.parse(v)).filter(x=>x).length:0;
       const levels=['#E5E7EB','#D1FAE5','#A7F3D0','#6EE7B7','#10B981'];
@@ -2076,7 +2074,7 @@ function renderReviewPerf(){
   const days=[];
   for(let i=13;i>=0;i--){
     const dt=new Date();dt.setDate(dt.getDate()-i);
-    const key=dt.toISOString().split('T')[0];
+    const key=localDateStr(dt);
     const r=log[key]||{};
     const h=r.h||0,g=r.g||0,e=r.e||0;
     days.push({key,h,g,e,total:h+g+e});
@@ -2227,7 +2225,7 @@ function renderHeatmap(){
     const col=document.createElement('div');col.className='hm-col';
     wk.forEach(d=>{
       const cell=document.createElement('div');cell.className='hm-c';
-      const k=d.toISOString().split('T')[0];
+      const k=localDateStr(d);
       if(d.getFullYear()===yr){
         if(d<=now){
           if(checkins[k]) cell.classList.add('l4');
@@ -2679,20 +2677,28 @@ function chunks_kind(){
   if(toeflActivity==='speaking:iv')return 'interview';
   return null;
 }
-function chunks_refreshBtn(){
-  const b=document.getElementById('chunksBtn');
-  if(b)b.classList.toggle('hid',!chunks_kind());
-}
 function chunks_render(kind){
   return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">'+esc(g.title)+'</div><div style="display:flex;flex-direction:column;gap:6px">'
     +g.phrases.map(p=>'<button type="button" class="btn bsm" style="text-align:left;justify-content:flex-start;white-space:normal;height:auto;line-height:1.4;padding:8px 10px" onclick="chunks_insert(this.textContent)">'+esc(p)+'</button>').join('')
     +'</div></div>').join('');
 }
-function chunks_open(){
-  const kind=chunks_kind();if(!kind)return;
-  document.getElementById('mChunksTitle').textContent=CHUNKS_LABEL[kind];
+// Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
+// card) whenever the active task changes, rather than reusing whatever
+// expand/collapse state was left over from the previous activity.
+function chunks_refreshPanel(){
+  const panel=document.getElementById('chunksPanel');if(!panel)return;
+  const kind=chunks_kind();
+  panel.classList.toggle('hid',!kind);
+  if(!kind)return;
+  document.getElementById('chunksPanelTitle').textContent=CHUNKS_LABEL[kind];
   document.getElementById('chunksBody').innerHTML=chunks_render(kind);
-  openM('mChunks');
+  document.getElementById('chunksBody').classList.add('hid');
+  const arrow=panel.querySelector('.mdlArrow');if(arrow)arrow.textContent='▸';
+}
+function chunks_toggle(headerEl){
+  const body=headerEl.closest('.card')?.querySelector('#chunksBody');if(!body)return;
+  const collapsed=body.classList.toggle('hid');
+  const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
 // Inserts at the current cursor position (end of text if the textarea isn't
 // focused) rather than always appending, so a phrase can be dropped in mid-
@@ -4742,7 +4748,7 @@ function em_setMode(on){
     if(ta)ta.placeholder='Write your response to the discussion here…';
     const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>📝 Analyze Discussion';
   }
-  chunks_refreshBtn();
+  chunks_refreshPanel();
 }
 // Prefer an un-practiced scenario; otherwise random.
 function em_pick(){
@@ -5349,7 +5355,7 @@ function sp_setMode(on){
     lrBox.classList.remove('hid');
     sp_renderScenario();
   }
-  chunks_refreshBtn();
+  chunks_refreshPanel();
 }
 
 // ── TAKE AN INTERVIEW — ETS 0-5 RUBRIC ANALYSIS ──
@@ -7039,19 +7045,19 @@ function recordLessonAttempt(lessonId,isCorrect){
   stats.attempts++;
   if(isCorrect){
     stats.correct++;
-    stats.nextReviewDate=new Date(Date.now()+7*24*60*60*1000).toISOString().split('T')[0];
+    stats.nextReviewDate=localDateStr(new Date(Date.now()+7*24*60*60*1000));
   }else{
     stats.incorrect++;
-    stats.nextReviewDate=new Date(Date.now()+1*24*60*60*1000).toISOString().split('T')[0];
+    stats.nextReviewDate=localDateStr(new Date(Date.now()+1*24*60*60*1000));
   }
-  stats.lastAttempt=new Date().toISOString().split('T')[0];
+  stats.lastAttempt=localDateStr();
   localStorage.setItem('c1lesstats',JSON.stringify(lessonStats));
   if(RDT)RDT.child('lessonStats').set(lessonStats).catch(()=>{});
 }
 
 function getNeedsReviewLessons(){
   if(!lessonsDB.lessons)return[];
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDateStr();
   return lessonsDB.lessons.filter(l=>{
     const stats=getLessonStats(l.id);
     if(stats.incorrect===0)return false;
