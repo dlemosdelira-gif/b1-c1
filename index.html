@@ -632,6 +632,27 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mSPImport" onclick="if(event.target===this)closeM('mSPImport')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">📥 Import Listen and Repeat Pack</div><button class="btn bsm" onclick="closeM('mSPImport')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Pack name / topic *</label><input type="text" id="spImportTopic" placeholder="e.g. Campus Library"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Source (optional)</label><input type="text" id="spImportSource" placeholder="e.g. toeflresources.com — defaults to “manual”"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Sentences — one per line, exactly 7 *</label><textarea id="spImportSentences" style="min-height:160px" placeholder="The library closes at nine.&#10;Please silence your phone in class.&#10;Students can print documents at the front desk.&#10;..."></textarea>
+        <div style="font-size:13px;color:#94A3B8;margin-top:4px">Paste the 7 sentences, one per line, from shortest/simplest to longest/most complex — plain text, no quotes, brackets, or commas.</div></div>
+      <div id="spImportHint" style="font-size:14px;color:#0F172A;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mSPImport')">Close</button>
+        <button class="btn bpr bsm" onclick="sp_importSave()">Import Pack</button>
+      </div>
+      <div style="margin-top:16px;border-top:1px solid #E2E8F0;padding-top:12px">
+        <div class="ctit">Your custom packs</div>
+        <div id="spCustomPacksList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="peuaEditModal" onclick="if(event.target===this)closePeuaEditModal()">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Task</div><button class="btn bsm" onclick="closePeuaEditModal()">✕</button></div>
@@ -852,7 +873,7 @@ textarea{min-height:120px}
 
   <div class="hid" id="toeflResponseBox">
     <div class="card hid" id="chunksPanel" style="margin-top:12px;background:#FFFBEB;border-color:#FCD34D">
-      <div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="chunks_toggle(this)">
+      <div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">
         <span id="chunksPanelTitle">💡 Useful Phrases</span><span class="mdlArrow" style="font-size:12px">▸</span>
       </div>
       <div class="mdlBody hid" style="margin-top:10px" id="chunksBody"></div>
@@ -951,6 +972,10 @@ let cw_liveId=null,cw_liveVals=[];
 let em_active=false,em_cur=null,em_lastId=null;
 let wr_cur=null,wr_lastId=null;
 let sp_cur=null,sp_lastId=null,sp_played=false;
+// Selected Listen and Repeat pack ('' = all packs, sequential progression
+// across every set) — local UI preference only, mirrors bs_topicFilter.
+let sp_packFilter='';
+try{sp_packFilter=localStorage.getItem('c1spPack')||'';}catch(e){sp_packFilter='';}
 let iv_cur=null,iv_lastId=null,iv_active=false;
 // Reading/Listening comprehension: Read in Daily Life (rd), Read an Academic Passage (ra),
 // and later the four Listening task types share one generic multiple-choice engine (see
@@ -2694,11 +2719,6 @@ function chunks_refreshPanel(){
   document.getElementById('chunksBody').innerHTML=chunks_render(kind);
   document.getElementById('chunksBody').classList.add('hid');
   const arrow=panel.querySelector('.mdlArrow');if(arrow)arrow.textContent='▸';
-}
-function chunks_toggle(headerEl){
-  const body=headerEl.closest('.card')?.querySelector('#chunksBody');if(!body)return;
-  const collapsed=body.classList.toggle('hid');
-  const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
 // Inserts at the current cursor position (end of text if the textarea isn't
 // focused) rather than always appending, so a phrase can be dropped in mid-
@@ -5164,22 +5184,103 @@ function wr_processResult(r){
 // exam. excludeId lets "Next sentence" skip the current item without having
 // to grade it first. Once every set is fully practiced, falls back to a
 // random pick across the whole pool (spaced review, same as the old behavior).
+// Distinct packs (built-in sets + custom imports), in first-appearance order,
+// each {set, tag} — `set` is the filter value (stable identity even if two
+// packs happen to share a topic name), `tag` is the display label.
+function sp_packs(){
+  const seen=new Set(),out=[];
+  spSentences.forEach(s=>{if(s&&s.set&&!seen.has(s.set)){seen.add(s.set);out.push({set:s.set,tag:s.tag});}});
+  return out;
+}
+function sp_filteredItems(){return sp_packFilter?spSentences.filter(s=>s.set===sp_packFilter):spSentences;}
+function sp_setPackFilter(v){
+  sp_packFilter=v||'';
+  try{localStorage.setItem('c1spPack',sp_packFilter);}catch(e){}
+  sp_pick();
+  sp_renderScenario();
+}
 function sp_pick(excludeId){
-  if(!spSentences.length){sp_cur=null;return;}
-  const sets=Array.from(new Set(spSentences.map(s=>s.set||'')));
+  const pool0=sp_filteredItems();
+  if(!pool0.length){sp_cur=null;return;}
+  const sets=Array.from(new Set(pool0.map(s=>s.set||'')));
   let next=null;
   for(const setId of sets){
-    const items=spSentences.filter(s=>s.set===setId).sort((a,b)=>(a.order||0)-(b.order||0));
+    const items=pool0.filter(s=>s.set===setId).sort((a,b)=>(a.order||0)-(b.order||0));
     next=items.find(s=>!spProgress[s.id]&&s.id!==excludeId);
     if(next)break;
   }
   if(!next){
-    const pool=spSentences.filter(s=>s.id!==excludeId);
-    next=(pool.length?pool:spSentences)[Math.floor(Math.random()*(pool.length?pool.length:spSentences.length))];
+    const pool=pool0.filter(s=>s.id!==excludeId);
+    next=(pool.length?pool:pool0)[Math.floor(Math.random()*(pool.length?pool.length:pool0.length))];
   }
   sp_cur=next;
   sp_played=false;
   toefl_itemStart('speaking:lr');
+}
+// ── LISTEN AND REPEAT — custom pack import ──
+// Users type/paste their own 7-sentence packs (e.g. transcribed from a prep
+// site) rather than us shipping that site's content in the codebase. Each
+// import becomes 7 ordinary spSentences items sharing a fresh `set` id, so
+// every existing mechanic (sp_pick's set-then-order progression, per-item
+// timing, Firebase sync) picks it up with zero special-casing.
+function sp_openImport(){
+  document.getElementById('spImportTopic').value='';
+  document.getElementById('spImportSource').value='';
+  document.getElementById('spImportSentences').value='';
+  document.getElementById('spImportHint').textContent='';
+  sp_renderCustomPacksList();
+  openM('mSPImport');
+}
+function sp_customPacks(){
+  const seen=new Set(),out=[];
+  spSentences.forEach(s=>{if(s&&s.custom&&s.set&&!seen.has(s.set)){seen.add(s.set);out.push({set:s.set,tag:s.tag,source:s.source||''});}});
+  return out;
+}
+function sp_renderCustomPacksList(){
+  const el=document.getElementById('spCustomPacksList');if(!el)return;
+  const packs=sp_customPacks();
+  if(!packs.length){el.innerHTML='<div style="font-size:13px;color:#94A3B8">No custom packs yet.</div>';return;}
+  el.innerHTML=packs.map(p=>'<div class="upitem"><div style="flex:1"><div style="font-size:14px;color:#0F172A;font-weight:600">'+esc(p.tag)+'</div>'
+    +(p.source?'<div style="font-size:12px;color:#94A3B8">'+esc(p.source)+'</div>':'')+'</div>'
+    +'<button class="btn bsm" onclick="sp_deletePack(\''+p.set+'\')" style="color:#DC2626">🗑</button></div>').join('');
+}
+function sp_importSave(){
+  const hint=document.getElementById('spImportHint');
+  const topic=document.getElementById('spImportTopic').value.trim();
+  const source=document.getElementById('spImportSource').value.trim();
+  const raw=document.getElementById('spImportSentences').value;
+  if(!topic){hint.textContent='⚠️ Enter a pack name / topic.';return;}
+  const sentences=raw.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(sentences.length!==7){hint.textContent='⚠️ You pasted '+sentences.length+' sentence(s) — paste exactly 7, one per line.';return;}
+  const setId='spu-'+uid();
+  const items=sentences.map((text,i)=>({id:'spu-'+uid(),set:setId,order:i+1,tag:topic,text,source:source||'manual',custom:true}));
+  spSentences.push(...items);
+  sp_saveSentences();
+  const counts=sentences.map(s=>s.split(/\s+/).filter(Boolean).length);
+  let regressions=0;
+  for(let i=1;i<counts.length;i++)if(counts[i]<counts[i-1])regressions++;
+  const warn=regressions>1?' ⚠️ Note: sentence length doesn\'t look consistently increasing — double-check the order if you want the difficulty ramp.':'';
+  hint.textContent='✅ Imported "'+topic+'" (7 sentences).'+warn;
+  document.getElementById('spImportTopic').value='';
+  document.getElementById('spImportSource').value='';
+  document.getElementById('spImportSentences').value='';
+  sp_renderCustomPacksList();
+  toast('✅ Pack imported: '+topic);
+  if(toeflActivity==='speaking:lr'){sp_renderScenario();renderRev();}
+}
+function sp_deletePack(setId){
+  if(!confirm('Delete this pack and its practice history?'))return;
+  const ids=spSentences.filter(s=>s.set===setId).map(s=>s.id);
+  spSentences=spSentences.filter(s=>s.set!==setId);
+  sp_saveSentences();
+  let changed=false;
+  ids.forEach(id=>{if(spProgress[id]){delete spProgress[id];changed=true;}});
+  if(changed)sp_saveProgress();
+  if(sp_packFilter===setId){sp_packFilter='';try{localStorage.setItem('c1spPack','');}catch(e){}}
+  if(sp_cur&&sp_cur.set===setId)sp_pick();
+  sp_renderCustomPacksList();
+  toast('🗑 Pack deleted');
+  if(toeflActivity==='speaking:lr')sp_renderScenario();
 }
 // Position within the current set (e.g. "3 of 7") and its official response
 // window (SP_TIME_BY_ORDER), for display only — not wired into the generic
@@ -5190,12 +5291,28 @@ function sp_setInfo(){
   const order=sp_cur.order||1;
   return {order,total,secs:SP_TIME_BY_ORDER[order-1]||10};
 }
+// Pack picker + Import Pack entry point — rendered on every call so a newly
+// imported/deleted pack is reflected immediately.
+function sp_toolbarHTML(){
+  const packs=sp_packs();
+  let h='<div style="display:flex;justify-content:flex-end;margin-bottom:8px">'
+    +'<button class="btn bsm" onclick="sp_openImport()">📥 Import Pack</button>'
+    +'</div>';
+  if(packs.length>1){
+    h+='<div style="margin-bottom:10px"><select onchange="sp_setPackFilter(this.value)" style="width:100%;padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;background:#fff;color:#0F172A;font-family:\'DM Sans\',sans-serif;cursor:pointer">'
+      +'<option value=""'+(sp_packFilter===''?' selected':'')+'>🎯 All packs (sequential)</option>'
+      +packs.map(p=>'<option value="'+esc(p.set)+'"'+(sp_packFilter===p.set?' selected':'')+'>'+esc(p.tag)+'</option>').join('')
+      +'</select></div>';
+  }
+  return h;
+}
 function sp_renderScenario(){
   const box=document.getElementById('listenRepeatBox');if(!box)return;
-  if(!sp_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No sentences available.</div>';return;}
+  let h=sp_toolbarHTML();
+  if(!sp_cur){box.innerHTML=h+'<div style="font-size:14px;color:#94A3B8">No sentences available.</div>';return;}
   const done=spProgress[sp_cur.id];
   const info=sp_setInfo();
-  box.innerHTML='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
+  h+='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span class="tag tpu">'+esc(sp_cur.tag)+'</span>'
     +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
@@ -5207,6 +5324,42 @@ function sp_renderScenario(){
     +'<button class="btn bsm" onclick="sp_shuffle()">⏭️ Next sentence</button>'
     +'</div>'
     +'</div>';
+  h+=sp_evolutionHTML();
+  box.innerHTML=h;
+}
+// Persistent score-history section (promoted from the post-grading-only
+// sp_scoreTrendHTML, which stays as-is for the immediate post-grading
+// feedback view): a longer chronological bar chart plus an average-by-pack
+// breakdown, collapsed by default like the Useful Phrases/Exemplo 5/5 cards.
+function sp_evolutionHTML(){
+  const log=(spProgress.__scoreLog||[]).filter(x=>typeof x.score==='number');
+  if(!log.length)return '';
+  const recent=log.slice(-20);
+  const bars=recent.map(e=>{
+    const pct=Math.max(4,Math.round((e.score/5)*100));
+    const color=e.score>=4?'#16A34A':e.score>=3?'#D97706':'#DC2626';
+    return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:28px;flex:0 0 auto" title="'+esc(e.date)+(e.tag?' · '+esc(e.tag):'')+': '+e.score+'/5">'
+      +'<div style="font-size:12px;font-weight:700;color:'+color+'">'+e.score+'</div>'
+      +'<div style="width:100%;max-width:18px;height:44px;background:#F1F5F9;border-radius:4px;display:flex;align-items:flex-end;overflow:hidden">'
+      +'<div style="width:100%;height:'+pct+'%;background:'+color+';border-radius:4px 4px 0 0"></div></div>'
+      +'<div style="font-size:9px;color:#94A3B8;font-family:\'DM Mono\',monospace;white-space:nowrap">'+esc(e.date.slice(5))+'</div>'
+      +'</div>';
+  }).join('');
+  const byTag={};
+  log.forEach(e=>{const t=e.tag||'(no pack)';if(!byTag[t])byTag[t]={sum:0,count:0};byTag[t].sum+=e.score;byTag[t].count++;});
+  const tagRows=Object.keys(byTag).sort((a,b)=>(byTag[b].sum/byTag[b].count)-(byTag[a].sum/byTag[a].count)).map(t=>{
+    const avg=byTag[t].sum/byTag[t].count;
+    const color=avg>=4?'#16A34A':avg>=3?'#D97706':'#DC2626';
+    return '<div class="upitem"><div style="flex:1;font-size:14px;color:#0F172A">'+esc(t)+'</div><div style="font-size:13px;color:#94A3B8;margin-right:8px">'+byTag[t].count+' attempt'+(byTag[t].count===1?'':'s')+'</div><div style="font-size:14px;font-weight:700;color:'+color+'">'+avg.toFixed(1)+'/5</div></div>';
+  }).join('');
+  return '<div class="card" style="margin-top:12px;background:#F8FAFF">'
+    +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
+    +'<span>📈 Your Evolution</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'
+    +'<div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">Last '+recent.length+' AI-scored repetition'+(recent.length===1?'':'s')+'</div>'
+    +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:4px;margin-bottom:14px">'+bars+'</div>'
+    +(tagRows?'<div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">By pack</div><div class="gg">'+tagRows+'</div>':'')
+    +'</div></div>';
 }
 function sp_shuffle(){sp_pick(sp_cur?sp_cur.id:null);sp_renderScenario();}
 function sp_play(){
@@ -5858,16 +6011,27 @@ function wr_ensureFresh(){
 // Re-seed (and reset progress, since old "practiced" flags would otherwise
 // point at sentences/questions that no longer exist under that id) whenever
 // the saved shape or content doesn't match the current seed.
+// Custom imported packs (spu-*, `custom:true`) are never part of SP_SEED, so
+// they're skipped by the drift check below and preserved across a reseed —
+// same for spProgress.__scoreLog (the Evolution history), which isn't a
+// per-item id and must survive regardless of what triggers a reseed.
 function sp_ensureFresh(){
   const hasAllSeedIds=SP_SEED.every(s=>spSentences.some(it=>it&&it.id===s.id));
   const seedCurrent=spSentences.every(it=>{
-    if(!it)return true;
+    if(!it||it.custom)return true;
     const seed=SP_SEED.find(s=>s.id===it.id);
     return !seed||(seed.text===it.text&&seed.set===it.set&&seed.order===it.order);
   });
   if(!spSentences.length||!spSentences[0]||typeof spSentences[0].text!=='string'||!hasAllSeedIds||!seedCurrent){
-    spSentences=SP_SEED.slice();sp_saveSentences();
-    spProgress={};sp_saveProgress();
+    const custom=spSentences.filter(it=>it&&it.custom);
+    spSentences=SP_SEED.slice().concat(custom);
+    sp_saveSentences();
+    const builtInIds=new Set(SP_SEED.map(s=>s.id));
+    let changed=false;
+    Object.keys(spProgress).forEach(id=>{
+      if(id!=='__scoreLog'&&builtInIds.has(id)){delete spProgress[id];changed=true;}
+    });
+    if(changed)sp_saveProgress();
   }
 }
 function iv_ensureFresh(){
@@ -5942,13 +6106,16 @@ function ex_loadLocal(){
   if(!localStorage.getItem('c1wrs'))wr_saveScenarios();
   try{wrProgress=JSON.parse(localStorage.getItem('c1wrp')||'{}');}catch(e){wrProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1sps')||'null');spSentences=Array.isArray(v)&&v.length?v:SP_SEED.slice();}catch(e){spSentences=SP_SEED.slice();}
+  // spProgress must be loaded before sp_ensureFresh() runs — it clears stale
+  // built-in progress entries on reseed, which is a no-op if spProgress is
+  // still the pre-load default at that point (same fix as cw_ensureFresh's).
+  try{spProgress=JSON.parse(localStorage.getItem('c1spp')||'{}');}catch(e){spProgress={};}
   sp_ensureFresh();ex_mergeSeeds(spSentences,SP_SEED,sp_saveSentences);
   if(!localStorage.getItem('c1sps'))sp_saveSentences();
-  try{spProgress=JSON.parse(localStorage.getItem('c1spp')||'{}');}catch(e){spProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1ivi')||'null');ivInterviews=Array.isArray(v)&&v.length?v:IV_SEED.slice();}catch(e){ivInterviews=IV_SEED.slice();}
+  try{ivProgress=JSON.parse(localStorage.getItem('c1ivp')||'{}');}catch(e){ivProgress={};}
   iv_ensureFresh();ex_mergeSeeds(ivInterviews,IV_SEED,iv_saveInterviews);
   if(!localStorage.getItem('c1ivi'))iv_saveInterviews();
-  try{ivProgress=JSON.parse(localStorage.getItem('c1ivp')||'{}');}catch(e){ivProgress={};}
   rq_loadLocal();
 }
 
