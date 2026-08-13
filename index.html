@@ -858,8 +858,9 @@ textarea{min-height:120px}
 <div class="pg hid" id="pg-rev">
   <div class="fb">
     <div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflTitle">🎯 TOEFL Practice</div>
-    <div style="display:flex;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span class="wc hid" id="duecnt">0 due</span>
+      <button class="btn bsm" id="simToggleBtn" onclick="sim_toggle()">🎯 Iniciar Simulação Cronometrada</button>
       <button class="btn bte bsm" onclick="openPacingModal()">⏱ Pacing</button>
     </div>
   </div>
@@ -869,6 +870,7 @@ textarea{min-height:120px}
   <div class="hid" id="toeflBackBar" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn bsm" onclick="toeflShow(null)">← Menu</button>
     <div style="font-size:14px;font-weight:600;color:#0F172A;flex:1" id="toeflActTitle"></div>
+    <span id="toeflSimBadge" class="hid" style="display:flex;align-items:center;gap:6px"></span>
     <span id="toeflLiveTimer" style="font-family:'DM Mono',monospace;font-weight:700;color:#2563EB;font-size:14px"></span>
   </div>
 
@@ -2812,6 +2814,10 @@ function openAIModal(mode){
   else if(isDiscussion){wrProgress[wr_cur.id]={practiced:true,date:today};wr_lastId=wr_cur.id;wr_saveProgress();wr_renderScenario();}
   else if(isInterview){ivProgress[iv_cur.id]={practiced:true,date:today};iv_lastId=iv_cur.id;iv_saveProgress();}
   else if(isListenRepeat){spProgress[sp_cur.id]={practiced:true,date:today};sp_lastId=sp_cur.id;sp_saveProgress();}
+  // In simulation mode, submitting (whether the user clicked Submit or the
+  // clock ran out via sim_timeUp) locks the response — no revising or
+  // resubmitting, same as the real exam.
+  if(sim_active){sim_locked=true;sim_lockEditor();sim_renderBadge();}
   openM('mAI');
 }
 function copyPrompt(){
@@ -4007,11 +4013,96 @@ function toefl_logTime(key){
 }
 function toefl_tickTimer(){
   const el=document.getElementById('toeflLiveTimer');
-  if(!el)return;
-  const t0=toeflActivity&&toefl_itemStartTs[toeflActivity];
-  if(!t0){el.textContent='';return;}
-  const secs=Math.floor((Date.now()-t0)/1000);
-  el.textContent='⏱ '+Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');
+  if(el){
+    const t0=toeflActivity&&toefl_itemStartTs[toeflActivity];
+    if(!t0)el.textContent='';
+    else{
+      const secs=Math.floor((Date.now()-t0)/1000);
+      el.textContent='⏱ '+Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');
+    }
+  }
+  sim_tick();
+}
+// ── TIMED SIMULATION MODE ────────────────────────────────────────────────────
+// A layer over the existing Writing/Speaking flow, not a parallel
+// implementation: it reuses TOEFL_ACT_TARGET for per-task time budgets,
+// toeflShow()/em_setMode()/sp_setMode() to know which task is active, and
+// openAIModal() itself as the one and only submission path (including the
+// auto-submit-at-zero case below) — this file only adds a countdown display
+// and an edit-lock on top of all of that.
+let sim_active=false,sim_key=null,sim_deadline=null,sim_locked=false;
+const SIM_KEYS=['writing:email','writing:discussion','speaking:lr','speaking:iv'];
+function sim_toggle(){
+  sim_active=!sim_active;
+  if(sim_active&&SIM_KEYS.includes(toeflActivity))sim_start(toeflActivity);
+  else sim_stop();
+  sim_renderToggleBtn();
+}
+function sim_renderToggleBtn(){
+  const b=document.getElementById('simToggleBtn');if(!b)return;
+  b.textContent=sim_active?'🎯 Sair do Modo Simulação':'🎯 Iniciar Simulação Cronometrada';
+  b.style.background=sim_active?'#FEE2E2':'';
+  b.style.color=sim_active?'#B91C1C':'';
+  b.style.borderColor=sim_active?'#FECACA':'';
+}
+// Called whenever a timed Writing/Speaking activity is (re)entered while
+// simulation mode is armed — from toeflShow() and from em_setMode()/
+// sp_setMode() when a sub-mode switch changes which task is active, exactly
+// mirroring how toefl_itemStart() already gets called at those same sites.
+function sim_start(key){
+  if(!sim_active||!TOEFL_ACT_TARGET[key])return;
+  sim_key=key;
+  sim_locked=false;
+  sim_deadline=Date.now()+TOEFL_ACT_TARGET[key]*1000;
+  sim_unlockEditor();
+  sim_renderBadge();
+}
+function sim_stop(){
+  sim_key=null;sim_deadline=null;sim_locked=false;
+  sim_unlockEditor();
+  sim_renderBadge();
+}
+function sim_tick(){
+  if(!sim_active||!sim_deadline){sim_renderBadge();return;}
+  const remain=Math.max(0,Math.round((sim_deadline-Date.now())/1000));
+  sim_renderBadge();
+  if(remain<=0&&!sim_locked)sim_timeUp();
+}
+// No manual pause exists anywhere in this file by design — time simply runs
+// out, same as the real exam.
+function sim_timeUp(){
+  sim_locked=true;
+  const ta=document.getElementById('rtxt');
+  const hasText=!!(ta&&ta.value.trim());
+  sim_lockEditor();
+  if(hasText){
+    toast('⏰ Tempo esgotado — enviando sua resposta automaticamente');
+    openAIModal(sim_key.startsWith('writing')?'writing':'speaking');
+  }else{
+    toast('⏰ Tempo esgotado');
+  }
+}
+function sim_lockEditor(){
+  const ta=document.getElementById('rtxt');if(ta)ta.readOnly=true;
+  const mic=document.getElementById('micbtn');if(mic)mic.disabled=true;
+  const wb=document.getElementById('writingbtn');if(wb)wb.disabled=true;
+  const sb=document.getElementById('speakingbtn');if(sb)sb.disabled=true;
+}
+function sim_unlockEditor(){
+  const ta=document.getElementById('rtxt');if(ta)ta.readOnly=false;
+  const mic=document.getElementById('micbtn');if(mic)mic.disabled=false;
+  onInput(); // resyncs writingbtn/speakingbtn disabled state from word count
+}
+function sim_renderBadge(){
+  const el=document.getElementById('toeflSimBadge');if(!el)return;
+  if(!sim_active||!sim_deadline){el.classList.add('hid');el.innerHTML='';return;}
+  el.classList.remove('hid');
+  const remain=Math.max(0,Math.round((sim_deadline-Date.now())/1000));
+  const m=Math.floor(remain/60),s=remain%60;
+  const urgent=remain<=30;
+  el.innerHTML='<span class="tag" style="background:#FEE2E2;color:#B91C1C;font-weight:700">🎯 SIMULAÇÃO</span>'
+    +'<span style="font-family:\'DM Mono\',monospace;font-weight:700;font-size:16px;color:'+(urgent?'#DC2626':'#0F172A')+'">'+m+':'+String(s).padStart(2,'0')+'</span>'
+    +(sim_locked?'<span class="tag tgg">✓ enviado</span>':'');
 }
 function toefl_fmtSecs(s){
   s=Math.round(s);
@@ -4818,6 +4909,7 @@ function em_setMode(on){
     toeflActivity=em_active?'writing:email':'writing:discussion';
     const tt=document.getElementById('toeflActTitle');if(tt)tt.textContent=TOEFL_ACT_ICON[toeflActivity]+' '+TOEFL_ACT_LABEL[toeflActivity];
     toefl_itemStart(toeflActivity);
+    if(sim_active)sim_start(toeflActivity);
   }
   document.getElementById('wm-free').classList.toggle('on',!em_active);
   document.getElementById('wm-email').classList.toggle('on',em_active);
@@ -5592,6 +5684,7 @@ function sp_setMode(on){
     toeflActivity=iv_active?'speaking:iv':'speaking:lr';
     const tt=document.getElementById('toeflActTitle');if(tt)tt.textContent=TOEFL_ACT_ICON[toeflActivity]+' '+TOEFL_ACT_LABEL[toeflActivity];
     toefl_itemStart(toeflActivity);
+    if(sim_active)sim_start(toeflActivity);
   }
   document.getElementById('spm-lr').classList.toggle('on',!iv_active);
   document.getElementById('spm-iv').classList.toggle('on',iv_active);
