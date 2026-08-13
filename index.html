@@ -653,6 +653,31 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mWrChecklist" onclick="if(event.target===this)closeM('mWrChecklist')">
+  <div class="modal" style="max-width:480px">
+    <div class="mhdr"><div class="mtit">✅ Checklist antes de enviar</div><button class="btn bsm" onclick="closeM('mWrChecklist')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:13px;color:#94A3B8;margin-bottom:12px">Erros estruturais aqui podem zerar a resposta (Faixa 0), mesmo com boa gramática. Confirme os 3 pontos antes de enviar:</div>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;background:#F8FAFF;margin-bottom:8px;cursor:pointer">
+        <input type="checkbox" id="wrChk1" onchange="wr_checklistSync()" style="width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0">
+        <span style="font-size:14px;color:#0F172A;line-height:1.5">Reli o prompt e confirmei o tópico correto</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;background:#F8FAFF;margin-bottom:8px;cursor:pointer">
+        <input type="checkbox" id="wrChk2" onchange="wr_checklistSync()" style="width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0">
+        <span style="font-size:14px;color:#0F172A;line-height:1.5">Identifiquei corretamente o(a) colega que devo responder</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;background:#F8FAFF;margin-bottom:14px;cursor:pointer">
+        <input type="checkbox" id="wrChk3" onchange="wr_checklistSync()" style="width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0">
+        <span style="font-size:14px;color:#0F172A;line-height:1.5">Minha posição está clara logo nas 2 primeiras frases</span>
+      </label>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mWrChecklist')">Cancelar</button>
+        <button class="btn bpr bsm" id="wrChecklistConfirm" onclick="wr_checklistConfirm()" disabled>Enviar para análise</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="peuaEditModal" onclick="if(event.target===this)closePeuaEditModal()">
   <div class="modal">
     <div class="mhdr"><div class="mtit">✏️ Edit Task</div><button class="btn bsm" onclick="closePeuaEditModal()">✕</button></div>
@@ -893,7 +918,7 @@ textarea{min-height:120px}
       <div class="fb mt8" style="flex-wrap:wrap;gap:6px">
         <span class="wc" id="wcount">0 words</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn bpr" id="writingbtn" onclick="openAIModal('writing')" disabled>
+          <button class="btn bpr" id="writingbtn" onclick="wr_submitClick()" disabled>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>✍️ Writing
           </button>
           <button class="btn bte" id="speakingbtn" onclick="openAIModal('speaking')" disabled style="background:#FEF3C7;color:#B45309;border-color:#FCD34D">
@@ -5066,6 +5091,32 @@ function wr_renderScenario(){
     +'</div>';
 }
 function wr_shuffle(){wr_pick();wr_renderScenario();}
+// Write for an Academic Discussion carries structural failure modes (wrong
+// topic, wrong peer referenced, no clear position) that can zero the whole
+// response (Faixa 0) regardless of language quality — unlike Write an
+// Email, which has no equivalent single-mistake-tanks-the-score risk. This
+// gate is Discussion-only: the shared #writingbtn routes through here, and
+// Email mode (em_active) skips straight to the normal submit.
+function wr_submitClick(){
+  if(!em_active&&wr_cur){wr_openChecklist();return;}
+  openAIModal('writing');
+}
+function wr_openChecklist(){
+  ['wrChk1','wrChk2','wrChk3'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  wr_checklistSync();
+  openM('mWrChecklist');
+}
+function wr_checklistSync(){
+  const allChecked=['wrChk1','wrChk2','wrChk3'].every(id=>{const el=document.getElementById(id);return el&&el.checked;});
+  const btn=document.getElementById('wrChecklistConfirm');
+  if(btn)btn.disabled=!allChecked;
+}
+// Canceling (✕, overlay click, or Cancelar) just closes the modal via the
+// standard closeM — the editor is untouched and nothing was submitted.
+function wr_checklistConfirm(){
+  closeM('mWrChecklist');
+  openAIModal('writing');
+}
 function wr_buildAnalysisPrompt(t){
   const q=wr_cur?wr_cur.professorQuestion:'';
   const peers=wr_cur?('- '+wr_cur.peer1.name+': '+wr_cur.peer1.text+'\n- '+wr_cur.peer2.name+': '+wr_cur.peer2.text):'';
