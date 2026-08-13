@@ -812,6 +812,9 @@ textarea{min-height:120px}
 <div class="pg" id="pg-dash">
   <div id="examCountdown" class="card" style="margin-bottom:14px;text-align:center;padding:16px"></div>
 
+  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">🏃 Sprint Semanal</div>
+  <div id="weekSprintContainer" class="card" style="margin-bottom:10px;padding:14px"></div>
+
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
   <div id="dashChecklistContainer">
     <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>
@@ -984,7 +987,8 @@ function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMont
 const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RWG=null;
+let weekGoals={};
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RVOCI=null,RVOCP=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={},vocItems=[],vocProgress={};
@@ -1785,6 +1789,7 @@ function loadLocal(){
   try{customCycleActivities=JSON.parse(localStorage.getItem('c1cycleact')||'{}');}catch(e){customCycleActivities={};}
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
+  try{weekGoals=JSON.parse(localStorage.getItem('c1weekgoals')||'{}');}catch(e){weekGoals={};}
   try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
   try{escolaFeedback=JSON.parse(localStorage.getItem('c1esc')||'[]');}catch(e){escolaFeedback=[];}
   if(!Array.isArray(escolaFeedback))escolaFeedback=[];
@@ -2025,6 +2030,7 @@ function nextMonth(){
 
 function renderDash(){
   renderExamCountdown();
+  renderWeekSprint();
   // Load today's tasks
   const stored=localStorage.getItem('c1dt-'+today);
   const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
@@ -4001,6 +4007,99 @@ function examCountdownHTML(){
 function renderExamCountdown(){
   const el=document.getElementById('examCountdown');
   if(el)el.innerHTML=examCountdownHTML();
+}
+// ── WEEKLY SPRINT ─────────────────────────────────────────────────────────────
+// The "final sprint" is defined as the last SPRINT_WEEKS calendar weeks
+// before the exam date — there's no separate "program start date" setting,
+// so this is the only anchor that needs no extra input from the user.
+// Each week number gets its own independent goal list in weekGoals (keyed
+// 1..SPRINT_WEEKS), so "reset every new week" falls out for free: week N+1
+// simply has nothing in it yet, and past weeks stay exactly as they were
+// for the history view — no explicit archive/rollover step required.
+const SPRINT_WEEKS=6;
+function sprintWeekInfo(){
+  if(examCountdownDays()<=0)return{state:'done'};
+  const examDate=new Date(TOEFL_EXAM_DATE+'T00:00:00');
+  const sprintStart=new Date(examDate.getTime()-SPRINT_WEEKS*7*86400000);
+  const now=new Date(today+'T00:00:00');
+  const daysSinceStart=Math.round((now-sprintStart)/86400000);
+  if(daysSinceStart<0)return{state:'before',daysUntilStart:-daysSinceStart};
+  return{state:'active',week:Math.min(SPRINT_WEEKS,Math.floor(daysSinceStart/7)+1)};
+}
+function sprint_save(){localStorage.setItem('c1weekgoals',JSON.stringify(weekGoals));fbSet(RWG,Object.keys(weekGoals).length?JSON.stringify(weekGoals):null);}
+function sprint_addGoal(week){
+  const input=document.getElementById('sprintGoalInput');
+  const text=((input&&input.value)||'').trim();
+  if(!text)return;
+  if(!weekGoals[week])weekGoals[week]=[];
+  weekGoals[week].push({id:'g-'+uid(),text,done:false});
+  sprint_save();
+  renderWeekSprint();
+}
+function sprint_toggleGoal(week,id){
+  const g=(weekGoals[week]||[]).find(x=>x.id===id);
+  if(!g)return;
+  g.done=!g.done;
+  sprint_save();
+  renderWeekSprint();
+}
+function sprint_removeGoal(week,id){
+  if(!weekGoals[week])return;
+  weekGoals[week]=weekGoals[week].filter(x=>x.id!==id);
+  if(!weekGoals[week].length)delete weekGoals[week];
+  sprint_save();
+  renderWeekSprint();
+}
+function sprint_pastWeeksHTML(currentWeek){
+  const weeks=Object.keys(weekGoals).map(Number).filter(w=>w<currentWeek&&(weekGoals[w]||[]).length).sort((a,b)=>b-a);
+  if(!weeks.length)return '';
+  const body=weeks.map(w=>{
+    const goals=weekGoals[w];
+    const doneCount=goals.filter(g=>g.done).length;
+    return '<div style="margin-bottom:10px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:4px">Semana '+w+' — '+doneCount+'/'+goals.length+' concluída'+(goals.length===1?'':'s')+'</div>'
+      +goals.map(g=>'<div style="font-size:13px;color:'+(g.done?'#16A34A':'#94A3B8')+';padding:2px 0">'+(g.done?'✓':'○')+' '+esc(g.text)+'</div>').join('')
+      +'</div>';
+  }).join('');
+  return '<div style="margin-top:12px;border-top:1px solid #E2E8F0;padding-top:10px">'
+    +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
+    +'<span>🗂️ Ver semanas passadas</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'+body+'</div></div>';
+}
+function renderWeekSprint(){
+  const el=document.getElementById('weekSprintContainer');if(!el)return;
+  const info=sprintWeekInfo();
+  if(info.state==='done'){el.innerHTML='<div style="text-align:center;font-size:14px;color:#16A34A;font-weight:600">🍀 Boa sorte na prova!</div>';return;}
+  if(info.state==='before'){
+    el.innerHTML='<div style="text-align:center">'
+      +'<div style="font-size:13px;color:#94A3B8;margin-bottom:4px">O sprint final de '+SPRINT_WEEKS+' semanas ainda não começou</div>'
+      +'<div style="font-size:14px;color:#475569">Começa em <strong style="font-family:\'DM Mono\',monospace">'+info.daysUntilStart+'</strong> dia'+(info.daysUntilStart===1?'':'s')+'</div>'
+      +'</div>';
+    return;
+  }
+  const week=info.week;
+  const goals=weekGoals[week]||[];
+  const doneCount=goals.filter(g=>g.done).length;
+  let h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<div style="font-size:15px;font-weight:700;color:#0F172A;font-family:\'DM Mono\',monospace">Semana '+week+' de '+SPRINT_WEEKS+'</div>'
+    +(goals.length?'<div style="font-size:13px;color:#94A3B8">'+doneCount+'/'+goals.length+' concluídas</div>':'')
+    +'</div>';
+  if(!goals.length){
+    h+='<div style="font-size:13px;color:#94A3B8;margin-bottom:10px">Nenhuma meta ainda para esta semana.</div>';
+  }else{
+    h+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">'
+      +goals.map(g=>'<div style="display:flex;align-items:center;gap:8px;padding:8px;background:#F8FAFF;border-radius:6px">'
+        +'<div onclick="sprint_toggleGoal('+week+',\''+g.id+'\')" style="flex-shrink:0;width:18px;height:18px;border-radius:4px;border:2px solid '+(g.done?'#16A34A':'#CBD5E1')+';background:'+(g.done?'#16A34A':'#fff')+';cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s">'+(g.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>'
+        +'<div style="flex:1;font-size:14px;color:'+(g.done?'#94A3B8':'#0F172A')+';text-decoration:'+(g.done?'line-through':'none')+'">'+esc(g.text)+'</div>'
+        +'<button onclick="sprint_removeGoal('+week+',\''+g.id+'\')" title="Remove goal" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:#94A3B8;padding:2px;line-height:1" onmouseover="this.style.color=\'#EF4444\'" onmouseout="this.style.color=\'#94A3B8\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+        +'</div>').join('')
+      +'</div>';
+  }
+  h+='<div style="display:flex;gap:6px">'
+    +'<input id="sprintGoalInput" type="text" placeholder="Nova meta, ex: 3 simulados cronometrados" style="flex:1;font-size:13px;padding:8px 10px;border:1px solid #DDE3F5;border-radius:6px;outline:none;font-family:\'DM Sans\',sans-serif" onkeydown="if(event.key===\'Enter\')sprint_addGoal('+week+')">'
+    +'<button class="btn bpr bsm" onclick="sprint_addGoal('+week+')">+ Add</button>'
+    +'</div>';
+  h+=sprint_pastWeeksHTML(week);
+  el.innerHTML=h;
 }
 let toefl_itemStartTs={};
 function toefl_itemStart(key){toefl_itemStartTs[key]=Date.now();}
@@ -7225,6 +7324,7 @@ function startSync(){
     RAC = db.ref('cycleActivities');
     RCIC = db.ref('cycleItemChecked');
     RCN = db.ref('cycleNotes');
+    RWG = db.ref('weekGoals');
     RPTN = db.ref('peuaNotes');
     RAMA = db.ref('amaCompleted');
     RBSI = db.ref('buildSentenceItems');
@@ -7266,6 +7366,7 @@ function startSync(){
     RAC.on('value',s=>{const v=s.val();if(v){try{customCycleActivities=JSON.parse(v); localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
+    RWG.on('value',s=>{const v=s.val();if(v){try{weekGoals=JSON.parse(v); localStorage.setItem('c1weekgoals',JSON.stringify(weekGoals));}catch(e){}} setSS('online'); if(curTab==='dash')renderWeekSprint();}, err=>setSS('offline','DB Error: '+err.code));
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAMA.on('value',s=>{const v=s.val();if(v){amaCompleted=v; localStorage.setItem('c1ama',JSON.stringify(v));} setSS('online'); if(curTab==='peua'&&peuaView==='ama')renderAma();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
