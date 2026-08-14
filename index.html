@@ -4054,20 +4054,19 @@ function renderExamCountdown(){
   if(el)el.innerHTML=examCountdownHTML();
 }
 // ── WEEKLY SPRINT ─────────────────────────────────────────────────────────────
-// The "final sprint" is defined as the last SPRINT_WEEKS calendar weeks
-// before the exam date — there's no separate "program start date" setting,
-// so this is the only anchor that needs no extra input from the user.
-// Each week number gets its own independent goal list in weekGoals (keyed
-// 1..SPRINT_WEEKS), so "reset every new week" falls out for free: week N+1
-// simply has nothing in it yet, and past weeks stay exactly as they were
-// for the history view — no explicit archive/rollover step required.
+// The 6-week sprint starts on a fixed date rather than being derived from
+// the exam date. Each week number gets its own independent goal list in
+// weekGoals (keyed 1..SPRINT_WEEKS), so "reset every new week" falls out
+// for free: week N+1 simply has nothing in it yet, and past weeks stay
+// exactly as they were for the history view — no explicit archive/rollover
+// step required.
+const SPRINT_START_DATE='2026-08-14';
 const SPRINT_WEEKS=6;
 function sprintWeekInfo(){
   if(examCountdownDays()<=0)return{state:'done'};
-  const examDate=new Date(TOEFL_EXAM_DATE+'T00:00:00');
-  const sprintStart=new Date(examDate.getTime()-SPRINT_WEEKS*7*86400000);
+  const start=new Date(SPRINT_START_DATE+'T00:00:00');
   const now=new Date(today+'T00:00:00');
-  const daysSinceStart=Math.round((now-sprintStart)/86400000);
+  const daysSinceStart=Math.round((now-start)/86400000);
   if(daysSinceStart<0)return{state:'before',daysUntilStart:-daysSinceStart};
   return{state:'active',week:Math.min(SPRINT_WEEKS,Math.floor(daysSinceStart/7)+1)};
 }
