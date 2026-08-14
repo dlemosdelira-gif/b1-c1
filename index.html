@@ -908,11 +908,9 @@ textarea{min-height:120px}
       <div class="exmode-bar" style="margin-bottom:10px">
         <button class="exmode-btn on" id="spm-lr" onclick="sp_setMode(false)">🔊 Listen and Repeat</button>
         <button class="exmode-btn" id="spm-iv" onclick="sp_setMode(true)">🎙️ Take an Interview</button>
-        <button class="exmode-btn" id="spm-voc" onclick="sp_setMode('voc')">🔤 Academic Vocabulary</button>
       </div>
       <div id="listenRepeatBox"></div>
       <div id="interviewBox" class="hid"></div>
-      <div id="vocabBox" class="hid"></div>
     </div>
   </div>
 
@@ -1001,9 +999,8 @@ let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RWG=null;
 let weekGoals={};
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RVOCI=null,RVOCP=null;
-let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={},vocItems=[],vocProgress={};
-let voc_cur=null,voc_revealed=false;
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null;
+let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
 // UI preference only, not synced — mirrors how the other exercise-mode filters
@@ -4022,8 +4019,8 @@ function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math
 // AI-graded tasks). toeflActivity holds the currently open activity key, or
 // null while the hub menu itself is showing.
 let toeflActivity=null;
-const TOEFL_ACT_LABEL={complete:'Complete the Words',rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk',build:'Build a Sentence','writing:email':'Write an Email','writing:discussion':'Write for an Academic Discussion','speaking:lr':'Listen and Repeat','speaking:iv':'Take an Interview','speaking:vocab':'Academic Vocabulary'};
-const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓',build:'🧩','writing:email':'📧','writing:discussion':'📝','speaking:lr':'🔊','speaking:iv':'🎙️','speaking:vocab':'🔤'};
+const TOEFL_ACT_LABEL={complete:'Complete the Words',rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk',build:'Build a Sentence','writing:email':'Write an Email','writing:discussion':'Write for an Academic Discussion','speaking:lr':'Listen and Repeat','speaking:iv':'Take an Interview'};
+const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓',build:'🧩','writing:email':'📧','writing:discussion':'📝','speaking:lr':'🔊','speaking:iv':'🎙️'};
 // ── TOEFL ACTIVITY TIMER / PACING ───────────────────────────────────────────
 // ETS only publishes an approx. time per SECTION (shown in the hub table), not
 // per task type, so these per-item/per-scenario targets are practice-pacing
@@ -4057,20 +4054,19 @@ function renderExamCountdown(){
   if(el)el.innerHTML=examCountdownHTML();
 }
 // ── WEEKLY SPRINT ─────────────────────────────────────────────────────────────
-// The "final sprint" is defined as the last SPRINT_WEEKS calendar weeks
-// before the exam date — there's no separate "program start date" setting,
-// so this is the only anchor that needs no extra input from the user.
-// Each week number gets its own independent goal list in weekGoals (keyed
-// 1..SPRINT_WEEKS), so "reset every new week" falls out for free: week N+1
-// simply has nothing in it yet, and past weeks stay exactly as they were
-// for the history view — no explicit archive/rollover step required.
+// The 6-week sprint starts on a fixed date rather than being derived from
+// the exam date. Each week number gets its own independent goal list in
+// weekGoals (keyed 1..SPRINT_WEEKS), so "reset every new week" falls out
+// for free: week N+1 simply has nothing in it yet, and past weeks stay
+// exactly as they were for the history view — no explicit archive/rollover
+// step required.
+const SPRINT_START_DATE='2026-08-14';
 const SPRINT_WEEKS=6;
 function sprintWeekInfo(){
   if(examCountdownDays()<=0)return{state:'done'};
-  const examDate=new Date(TOEFL_EXAM_DATE+'T00:00:00');
-  const sprintStart=new Date(examDate.getTime()-SPRINT_WEEKS*7*86400000);
+  const start=new Date(SPRINT_START_DATE+'T00:00:00');
   const now=new Date(today+'T00:00:00');
-  const daysSinceStart=Math.round((now-sprintStart)/86400000);
+  const daysSinceStart=Math.round((now-start)/86400000);
   if(daysSinceStart<0)return{state:'before',daysUntilStart:-daysSinceStart};
   return{state:'active',week:Math.min(SPRINT_WEEKS,Math.floor(daysSinceStart/7)+1)};
 }
@@ -4405,7 +4401,7 @@ function toeflHubHTML(){
       ['build',bsItems.length],['writing:email',emScenarios.length],['writing:discussion',wrScenarios.length]
     ]},
     {name:'Speaking',items:11,time:8,band:false,rows:[
-      ['speaking:lr',spSentences.length],['speaking:iv',ivInterviews.length],['speaking:vocab',vocItems.length]
+      ['speaking:lr',spSentences.length],['speaking:iv',ivInterviews.length]
     ]}
   ];
   let rowsHTML='';
@@ -4444,22 +4440,19 @@ function toeflShow(key){
     sp=document.getElementById('toeflSpeaking'),rb=document.getElementById('toeflResponseBox'),
     duebadge=document.getElementById('duecnt');
   const isWriting=key==='writing:email'||key==='writing:discussion';
-  const isSpeaking=key==='speaking:lr'||key==='speaking:iv'||key==='speaking:vocab';
+  const isSpeaking=key==='speaking:lr'||key==='speaking:iv';
   const isExercise=key==='build'||key==='complete'||!!RQ_LABEL[key];
   hub.classList.toggle('hid',key!=null);
   back.classList.toggle('hid',key==null);
   ex.classList.toggle('hid',!isExercise);
   wr.classList.toggle('hid',!isWriting);
   sp.classList.toggle('hid',!isSpeaking);
-  // Academic Vocabulary has no written response to grade, so it doesn't use
-  // the shared response box/AI Analysis Bridge the way Listen and Repeat and
-  // Take an Interview do.
-  rb.classList.toggle('hid',!(isWriting||(isSpeaking&&key!=='speaking:vocab')));
+  rb.classList.toggle('hid',!(isWriting||isSpeaking));
   duebadge.classList.toggle('hid',!isExercise);
   if(key!=null){
     document.getElementById('toeflActTitle').textContent=TOEFL_ACT_ICON[key]+' '+TOEFL_ACT_LABEL[key];
     if(isWriting){em_setMode(key==='writing:email');}
-    else if(isSpeaking){sp_setMode(key==='speaking:vocab'?'voc':(key==='speaking:iv'));}
+    else if(isSpeaking){sp_setMode(key==='speaking:iv');}
     else if(key==='build'){if(!bs_cur&&!bs_checked)bs_load();}
     else if(key==='complete'){if(!cw_cur&&!cw_checked)cw_load();}
     else if(RQ_LABEL[key]){if(rq_cur[key]===undefined)rq_load(key);}
@@ -4946,9 +4939,8 @@ function cw_delItem(id){
 // ══ IMPORT / EXPORT (Build a Sentence + Complete the Words) ═══════════════════
 // JSON is lossless; CSV is a spreadsheet-friendly convenience. Both work per mode.
 let io_mode='bs';
-const IO_TITLE={bs:'🧩 Build a Sentence',cw:'✏️ Complete the Words',voc:'🔤 Academic Vocabulary'};
-function openIO(mode){io_mode=mode;const t=document.getElementById('ioTitle');if(t)t.textContent=IO_TITLE[mode]+' — Import / Export';const h=document.getElementById('ioHint');if(h)h.textContent='';openM('mIO');}
-function io_items(){return io_mode==='bs'?bsItems:(io_mode==='voc'?vocItems:cwItems);}
+function openIO(mode){io_mode=mode;const t=document.getElementById('ioTitle');if(t)t.textContent=(mode==='bs'?'🧩 Build a Sentence':'✏️ Complete the Words')+' — Import / Export';const h=document.getElementById('ioHint');if(h)h.textContent='';openM('mIO');}
+function io_items(){return io_mode==='bs'?bsItems:cwItems;}
 function ex_download(name,text,mime){
   const blob=new Blob([text],{type:mime||'text/plain'});
   const url=URL.createObjectURL(blob);
@@ -4958,13 +4950,11 @@ function ex_download(name,text,mime){
 // Strip runtime-only fields; keep the authoring shape.
 function io_clean(it){
   if(io_mode==='bs')return {tag:it.tag,prompt:it.prompt,frame:it.frame,answer:it.answer||[],distract:it.distract||[]};
-  if(io_mode==='voc')return {word:it.word,pronunciation:it.pronunciation||'',example:it.example,tag:it.tag||''};
   return {tag:it.tag,mode:it.mode,text:it.text,blanks:it.blanks||[]};
 }
-const IO_KIND={bs:'build-a-sentence',cw:'complete-the-words',voc:'academic-vocabulary'};
 function ex_exportJSON(){
-  const payload={kind:IO_KIND[io_mode],version:1,items:io_items().map(io_clean)};
-  ex_download(IO_KIND[io_mode]+'.json',JSON.stringify(payload,null,2),'application/json');
+  const payload={kind:io_mode==='bs'?'build-a-sentence':'complete-the-words',version:1,items:io_items().map(io_clean)};
+  ex_download((io_mode==='bs'?'build-a-sentence':'complete-the-words')+'.json',JSON.stringify(payload,null,2),'application/json');
 }
 // ── CSV helpers ──
 function csvCell(s){s=String(s==null?'':s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
@@ -4988,10 +4978,6 @@ function ex_exportCSV(){
     out=csvRow(['tag','prompt','frame','answer','distract'])+'\n';
     io_items().forEach(it=>{out+=csvRow([it.tag,it.prompt,it.frame,(it.answer||[]).join(' / '),(it.distract||[]).join(' / ')])+'\n';});
     ex_download('build-a-sentence.csv',out,'text/csv');
-  }else if(io_mode==='voc'){
-    out=csvRow(['word','pronunciation','example','tag'])+'\n';
-    io_items().forEach(it=>{out+=csvRow([it.word,it.pronunciation||'',it.example,it.tag||''])+'\n';});
-    ex_download('academic-vocabulary.csv',out,'text/csv');
   }else{
     out=csvRow(['tag','mode','text','blanks'])+'\n';
     io_items().forEach(it=>{out+=csvRow([it.tag,it.mode,it.text,JSON.stringify(it.blanks||[])])+'\n';});
@@ -5025,13 +5011,6 @@ function io_normCW(o){
   for(const b of o.blanks){if(!b||typeof b.answer==='undefined')return null;if(mode==='mc'&&!(Array.isArray(b.options)&&b.options.length>=2))return null;}
   return {id:'cwu-'+uid(),tag:String(o.tag||'word-order'),mode,text:o.text,blanks:o.blanks,custom:true};
 }
-// `pronunciation` is deliberately free-form (IPA text or a dictionary audio
-// URL) rather than validated as one or the other — voc_renderWord() decides
-// how to display it at render time based on whether it looks like a URL.
-function io_normVoc(o){
-  if(!o||typeof o.word!=='string'||!o.word.trim()||typeof o.example!=='string'||!o.example.trim())return null;
-  return {id:'vocu-'+uid(),word:o.word.trim(),pronunciation:String(o.pronunciation||'').trim(),example:o.example.trim(),tag:String(o.tag||'').trim(),custom:true};
-}
 function ex_importFile(file){
   if(!file)return;
   const hint=document.getElementById('ioHint');
@@ -5049,25 +5028,18 @@ function ex_importFile(file){
         const idx=n=>header.indexOf(n);
         if(io_mode==='bs'){
           rawItems=body.map(r=>({tag:r[idx('tag')],prompt:r[idx('prompt')],frame:r[idx('frame')],answer:String(r[idx('answer')]||'').split('/').map(x=>x.trim()).filter(Boolean),distract:String(r[idx('distract')]||'').split('/').map(x=>x.trim()).filter(Boolean)}));
-        }else if(io_mode==='voc'){
-          rawItems=body.map(r=>({word:r[idx('word')],pronunciation:r[idx('pronunciation')],example:r[idx('example')],tag:r[idx('tag')]}));
         }else{
           rawItems=body.map(r=>{let bl=[];try{bl=JSON.parse(r[idx('blanks')]);}catch(e){}return {tag:r[idx('tag')],mode:r[idx('mode')],text:r[idx('text')],blanks:bl};});
         }
       }
     }catch(e){hint.textContent='⚠️ Could not parse the file: '+(e.message||'invalid format');return;}
-    const norm=io_mode==='bs'?io_normBS:(io_mode==='voc'?io_normVoc:io_normCW);
+    const norm=io_mode==='bs'?io_normBS:io_normCW;
     let added=0,skipped=0;
     rawItems.forEach(o=>{const n=norm(o);if(n){io_items().push(n);added++;}else skipped++;});
-    if(io_mode==='bs'){bs_normLower();bs_saveItems();}else if(io_mode==='voc'){voc_saveItems();}else{cw_saveItems();}
+    if(io_mode==='bs'){bs_normLower();bs_saveItems();}else{cw_saveItems();}
     hint.textContent='✅ Imported '+added+' exercise(s)'+(skipped?', skipped '+skipped+' invalid':'')+'.';
     toast('✅ Imported '+added+' exercise(s)');
-    if(curTab==='rev'){
-      if(io_mode==='bs'){bs_checked=false;bs_load();}
-      else if(io_mode==='voc'){voc_pick();voc_renderScenario();}
-      else{cw_checked=false;cw_load();}
-      renderRev();
-    }
+    if(curTab==='rev'){if(io_mode==='bs'){bs_checked=false;bs_load();}else{cw_checked=false;cw_load();}renderRev();}
   };
   reader.readAsText(file);
 }
@@ -5850,40 +5822,31 @@ function sp_processResult(r){
   sp_renderFeedback(r);
   sp_renderScenario();
 }
-// Toggles between the app's three Speaking sub-modes. Accepts the original
-// boolean (false='lr', true='iv', from the two original buttons) or the
-// string 'voc' (Academic Vocabulary) — iv_active stays a plain boolean
-// (true only for 'iv') so every existing isInterview/chunks_kind/etc. check
-// elsewhere in the file keeps working unchanged.
-function sp_setMode(mode){
-  const m=mode==='voc'?'voc':(mode?'iv':'lr');
-  iv_active=(m==='iv');
-  const keyMap={lr:'speaking:lr',iv:'speaking:iv',voc:'speaking:vocab'};
-  if(toeflActivity==='speaking:lr'||toeflActivity==='speaking:iv'||toeflActivity==='speaking:vocab'){
-    toeflActivity=keyMap[m];
+// Toggles between the app's two Speaking tasks (mirrors em_setMode's
+// Email/Academic Discussion toggle for Writing).
+function sp_setMode(on){
+  iv_active=!!on;
+  if(toeflActivity==='speaking:lr'||toeflActivity==='speaking:iv'){
+    toeflActivity=iv_active?'speaking:iv':'speaking:lr';
     const tt=document.getElementById('toeflActTitle');if(tt)tt.textContent=TOEFL_ACT_ICON[toeflActivity]+' '+TOEFL_ACT_LABEL[toeflActivity];
-    // Academic Vocabulary has no submission event to pace or time-box, so it
-    // skips both the pacing timer and simulation mode entirely.
-    if(m!=='voc'){toefl_itemStart(toeflActivity);if(sim_active)sim_start(toeflActivity);}
+    toefl_itemStart(toeflActivity);
+    if(sim_active)sim_start(toeflActivity);
   }
-  document.getElementById('spm-lr').classList.toggle('on',m==='lr');
-  document.getElementById('spm-iv').classList.toggle('on',m==='iv');
-  document.getElementById('spm-voc').classList.toggle('on',m==='voc');
+  document.getElementById('spm-lr').classList.toggle('on',!iv_active);
+  document.getElementById('spm-iv').classList.toggle('on',iv_active);
   const lrBox=document.getElementById('listenRepeatBox');
   const ivBox=document.getElementById('interviewBox');
-  const vocBox=document.getElementById('vocabBox');
-  lrBox.classList.toggle('hid',m!=='lr');
-  ivBox.classList.toggle('hid',m!=='iv');
-  vocBox.classList.toggle('hid',m!=='voc');
-  // Vocabulary has no written response, so the shared response box must be
-  // (re)hidden/shown here too — not just from toeflShow() — since the
-  // spm-lr/spm-iv/spm-voc buttons call this directly without going through
-  // toeflShow() again.
-  const rb=document.getElementById('toeflResponseBox');
-  if(rb)rb.classList.toggle('hid',m==='voc');
-  if(m==='iv'){if(!iv_cur)iv_pick();iv_renderScenario();}
-  else if(m==='lr'){if(!sp_cur)sp_pick();sp_renderScenario();}
-  else{if(!voc_cur)voc_pick();voc_renderScenario();}
+  if(iv_active){
+    lrBox.classList.add('hid');
+    if(!iv_cur)iv_pick();
+    ivBox.classList.remove('hid');
+    iv_renderScenario();
+  }else{
+    ivBox.classList.add('hid');
+    if(!sp_cur)sp_pick();
+    lrBox.classList.remove('hid');
+    sp_renderScenario();
+  }
   chunks_refreshPanel();
 }
 
@@ -6381,80 +6344,6 @@ function wr_ensureFresh(){
     wrScenarios=WR_SEED.slice();wr_saveScenarios();
   }
 }
-// ── SPEAKING: ACADEMIC VOCABULARY ────────────────────────────────────────────
-// Structural scaffolding only — no seed content shipped. Items are meant to
-// arrive entirely via the existing io_ import system (openIO('voc'), same
-// paste-a-file flow already used for Build a Sentence/Complete the Words).
-// Practice flow: the word is shown alone first (pronunciation focus, via
-// voc_play() — the same speechSynthesis approach Listen and Repeat's
-// sp_play() uses, just generalized to speak arbitrary text) and the example
-// sentence only appears after an explicit "reveal" step, so the learner
-// isn't reading ahead of the pronunciation.
-function voc_saveItems(){localStorage.setItem('c1voci',JSON.stringify(vocItems));if(RVOCI){const o=vocItems.reduce((a,c)=>{a[c.id]=c;return a;},{});fbSet(RVOCI,Object.keys(o).length?o:null);}}
-function voc_saveProgress(){localStorage.setItem('c1vocp',JSON.stringify(vocProgress));fbSet(RVOCP,Object.keys(vocProgress).length?vocProgress:null);}
-function voc_pick(excludeId){
-  if(!vocItems.length){voc_cur=null;return;}
-  const fresh=vocItems.filter(i=>!vocProgress[i.id]&&i.id!==excludeId);
-  const pool=fresh.length?fresh:vocItems.filter(i=>i.id!==excludeId);
-  const finalPool=pool.length?pool:vocItems;
-  voc_cur=finalPool[Math.floor(Math.random()*finalPool.length)];
-  voc_revealed=false;
-}
-function voc_shuffle(){voc_pick(voc_cur?voc_cur.id:null);voc_renderScenario();}
-function voc_reveal(){
-  if(!voc_cur)return;
-  voc_revealed=true;
-  vocProgress[voc_cur.id]={seen:true,date:today};
-  voc_saveProgress();
-  voc_renderScenario();
-}
-function voc_play(text){
-  if(!text)return;
-  if('speechSynthesis'in window){
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US';u.rate=0.85; // slightly slower than sp_play's 0.95 — isolated-word pronunciation is the focus here
-    window.speechSynthesis.speak(u);
-  }else{
-    toast('⚠️ Speech playback not supported in this browser');
-  }
-}
-function voc_isUrl(s){return /^https?:\/\//i.test(s||'');}
-function voc_renderScenario(){
-  const box=document.getElementById('vocabBox');if(!box)return;
-  if(!vocItems.length){
-    box.innerHTML='<div class="card empty"><div class="etit">No vocabulary words yet</div><div class="esub">Import a CSV/JSON list (word, pronunciation, example) to get started.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="openIO(\'voc\')">📥 Import Vocabulary</button></div>';
-    return;
-  }
-  if(!voc_cur||!vocItems.some(i=>i.id===voc_cur.id))voc_pick();
-  const done=vocProgress[voc_cur.id];
-  let h='<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn bsm" onclick="openIO(\'voc\')">📥 Import / Export</button></div>';
-  h+='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
-    +(voc_cur.tag?'<span class="tag tpu">'+esc(voc_cur.tag)+'</span>':'<span></span>')
-    +(done?'<span class="tag tgg">✓ reviewed</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
-    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:4px">Academic Vocabulary</div>'
-    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:14px;text-align:center">Focus on pronunciation first — reveal the example sentence when ready.</div>'
-    +'<div style="text-align:center;margin-bottom:14px">'
-    +'<div style="font-size:28px;font-weight:700;color:#0F172A;font-family:\'DM Mono\',monospace;margin-bottom:6px">'+esc(voc_cur.word)+'</div>'
-    +(voc_cur.pronunciation?(voc_isUrl(voc_cur.pronunciation)
-      ?'<a href="'+esc(voc_cur.pronunciation)+'" target="_blank" style="font-size:13px;color:#2563EB">🔊 Dictionary audio</a>'
-      :'<div style="font-size:14px;color:#7C83EE;font-family:\'DM Mono\',monospace">'+esc(voc_cur.pronunciation)+'</div>'):'')
-    +'</div>'
-    +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
-    +'<button class="btn bpr bsm" onclick="voc_play(this.dataset.text)" data-text="'+esc(voc_cur.word)+'">🔊 Play word</button>'
-    +(voc_revealed?'':'<button class="btn bsm" onclick="voc_reveal()">👁 Show example sentence</button>')
-    +'<button class="btn bsm" onclick="voc_shuffle()">⏭️ Next word</button>'
-    +'</div>';
-  if(voc_revealed){
-    h+='<div style="border-top:1px dashed #E2E8F0;margin-top:14px;padding-top:12px;text-align:center">'
-      +'<div style="font-size:14px;color:#0F172A;line-height:1.6;margin-bottom:8px">'+esc(voc_cur.example)+'</div>'
-      +'<button class="btn bsm" onclick="voc_play(this.dataset.text)" data-text="'+esc(voc_cur.example)+'">🔊 Play sentence</button>'
-      +'</div>';
-  }
-  h+='</div>';
-  box.innerHTML=h;
-}
 // Older saved sentences/questions predate the 7-per-set (Listen and Repeat) /
 // 4-per-set (Take an Interview) grouping — plain flat pools with no `set`/
 // `order` fields, and several ids repurposed with entirely different text.
@@ -6566,8 +6455,6 @@ function ex_loadLocal(){
   try{ivProgress=JSON.parse(localStorage.getItem('c1ivp')||'{}');}catch(e){ivProgress={};}
   iv_ensureFresh();ex_mergeSeeds(ivInterviews,IV_SEED,iv_saveInterviews);
   if(!localStorage.getItem('c1ivi'))iv_saveInterviews();
-  try{vocItems=JSON.parse(localStorage.getItem('c1voci')||'[]');if(!Array.isArray(vocItems))vocItems=[];}catch(e){vocItems=[];}
-  try{vocProgress=JSON.parse(localStorage.getItem('c1vocp')||'{}');}catch(e){vocProgress={};}
   rq_loadLocal();
 }
 
@@ -7388,8 +7275,6 @@ function startSync(){
     RSPP = db.ref('spProgress');
     RIVI = db.ref('interviewQuestions');
     RIVP = db.ref('ivProgress');
-    RVOCI = db.ref('vocabItems');
-    RVOCP = db.ref('vocabProgress');
     RRQI = db.ref('rqItems');
     RRQP = db.ref('rqProgress');
 
@@ -7442,8 +7327,6 @@ function startSync(){
     RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVI.on('value',s=>{const v=s.val();if(v){ivInterviews=Object.values(v);iv_ensureFresh();localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(!iv_cur)iv_pick();iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RVOCI.on('value',s=>{const v=s.val();if(v){vocItems=Object.values(v);localStorage.setItem('c1voci',JSON.stringify(vocItems));voc_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RVOCP.on('value',s=>{const v=s.val();if(v){vocProgress=v;localStorage.setItem('c1vocp',JSON.stringify(vocProgress));voc_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[toeflActivity]){const k=toeflActivity;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[toeflActivity]&&!rq_cur[toeflActivity])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
