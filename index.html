@@ -577,6 +577,16 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mCriticalErrors" onclick="if(event.target===this)closeM('mCriticalErrors')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">🚨 Erros Críticos</div><button class="btn bsm" onclick="closeM('mCriticalErrors')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:12px">Classificação por palavras-chave no nome do padrão — sem taxonomia nova, só reorganiza o que a AI Analysis Bridge já registra em Grammar Errors.</div>
+      <div id="criticalErrorsContainer"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
@@ -865,6 +875,7 @@ textarea{min-height:120px}
       <span class="wc hid" id="duecnt">0 due</span>
       <button class="btn bsm" id="simToggleBtn" onclick="sim_toggle()">🎯 Iniciar Simulação Cronometrada</button>
       <button class="btn bte bsm" onclick="openPacingModal()">⏱ Pacing</button>
+      <button class="btn bte bsm" onclick="openCriticalErrorsModal()">🚨 Erros Críticos</button>
     </div>
   </div>
 
@@ -3952,6 +3963,43 @@ function exPerfPanel(mode,itemsArg,progressArg,labelArg){
     +'<strong>Coverage:</strong> '+ms.mastered+'/'+ms.total+' mastered · '+ms.due+' due today'+(ms.untried?' · '+ms.untried+' not tried yet':'')
     +'</div></div>';
   return h;
+}
+// ── CRITICAL ERRORS ──────────────────────────────────────────────────────────
+// Reuses stats.patternPerf exactly as ex_logPattern() already fills it (from
+// Build a Sentence/Complete the Words attempts and from grammar_errors[].tag
+// parsed out of every AI Analysis Bridge response for Email/Discussion) —
+// no separate tracking, no new categories. This only re-sorts those same
+// tags into two buckets by a keyword match against the tag name: ones that
+// read as a structural/instruction-following miss (wrong topic, wrong peer,
+// off-topic, a paraphrase-distractor pattern, anything that risks a zero
+// band) versus everything else, which defaults to grammar/vocabulary
+// refinement. No AI prompt currently asks for those structural tags
+// specifically, so today the second bucket will usually hold everything —
+// this only reorganizes whatever tags actually show up, present or future.
+const CRITICAL_ERROR_KEYWORDS=/topic|prompt|peer|colega|band.?0|zero|off-?topic|paraphrase|distract|structure|instruction|format|task-response/i;
+function errorSeverity(tag){return CRITICAL_ERROR_KEYWORDS.test(tag)?'critical':'refinement';}
+function criticalErrorsHTML(){
+  const perf=stats.patternPerf||{};
+  const rows=Object.keys(perf).map(t=>({tag:t,wrong:perf[t].wrong||0,correct:perf[t].correct||0})).filter(r=>r.wrong>0);
+  if(!rows.length){
+    return '<div style="text-align:center;color:#94A3B8;font-size:14px;padding:10px 0;line-height:1.6">Nenhum erro registrado ainda.<br>Erros aparecem aqui conforme você usa a AI Analysis Bridge (Grammar Errors) e pratica Build a Sentence/Complete the Words. 📊</div>';
+  }
+  const critical=rows.filter(r=>errorSeverity(r.tag)==='critical').sort((a,b)=>b.wrong-a.wrong);
+  const refinement=rows.filter(r=>errorSeverity(r.tag)!=='critical').sort((a,b)=>b.wrong-a.wrong);
+  const section=(title,color,bg,border,list,emptyMsg)=>{
+    let h='<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:'+color+';margin-bottom:8px">'+title+'</div>';
+    if(!list.length)h+='<div style="font-size:13px;color:#94A3B8">'+emptyMsg+'</div>';
+    else h+=list.map(r=>'<div style="display:flex;justify-content:space-between;align-items:center;background:'+bg+';border:1px solid '+border+';border-radius:8px;padding:8px 12px;margin-bottom:6px">'
+      +'<span style="font-size:14px;color:#0F172A;font-family:\'DM Mono\',monospace">'+esc(r.tag)+'</span>'
+      +'<span style="font-size:13px;font-weight:700;color:'+color+'">'+r.wrong+'x</span></div>').join('');
+    return h+'</div>';
+  };
+  return section('🚨 Erros que custam pontos de graça (estruturais)','#B91C1C','#FEF2F2','#FECACA',critical,'Nenhum erro estrutural detectado ainda — ótimo sinal.')
+    +section('✏️ Erros de refinamento (gramática/vocabulário)','#B45309','#FFFBEB','#FDE68A',refinement,'Nenhum erro de refinamento registrado ainda.');
+}
+function openCriticalErrorsModal(){
+  document.getElementById('criticalErrorsContainer').innerHTML=criticalErrorsHTML();
+  openM('mCriticalErrors');
 }
 // Apply SM-2 to an item's progress record (same math as flashcards).
 function ex_grade(progress,id,correct){
