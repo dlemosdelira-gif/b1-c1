@@ -2772,14 +2772,26 @@ function chunks_kind(){
   if(toeflActivity==='speaking:iv')return 'interview';
   return null;
 }
+// Each rhetorical-move group is its own collapsible sub-section, closed by
+// default like the outer panel — reference-only browsing (no click-to-insert:
+// this task is meant to make the candidate produce the sentence themselves).
 function chunks_render(kind){
-  return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">'+esc(g.title)+'</div><div style="display:flex;flex-direction:column;gap:6px">'
-    +g.phrases.map(p=>{
-      const text=typeof p==='string'?p:p.t;
-      const tagsHTML=(typeof p==='string'?[]:(p.r||[])).map(reg=>'<span class="tag '+CHUNKS_TAG_CLASS[reg]+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+CHUNKS_TAG_LABEL[reg]+'</span>').join('');
-      return '<button type="button" class="btn bsm" style="text-align:left;justify-content:flex-start;white-space:normal;height:auto;line-height:1.4;padding:8px 10px" data-text="'+esc(text)+'" onclick="chunks_insert(this.dataset.text)">'+esc(text)+tagsHTML+'</button>';
-    }).join('')
+  return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:8px">'
+    +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="chunks_toggleGroup(this)">'
+      +'<span>'+esc(g.title)+'</span><span class="mdlArrow" style="font-size:12px">▸</span>'
+    +'</div>'
+    +'<div class="hid" style="margin-top:8px;display:flex;flex-direction:column;gap:6px">'
+      +g.phrases.map(p=>{
+        const text=typeof p==='string'?p:p.t;
+        const tagsHTML=(typeof p==='string'?[]:(p.r||[])).map(reg=>'<span class="tag '+CHUNKS_TAG_CLASS[reg]+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+CHUNKS_TAG_LABEL[reg]+'</span>').join('');
+        return '<div style="padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;background:#fff;font-size:14px;line-height:1.4">'+esc(text)+tagsHTML+'</div>';
+      }).join('')
     +'</div></div>').join('');
+}
+function chunks_toggleGroup(headerEl){
+  const body=headerEl.nextElementSibling;if(!body)return;
+  const collapsed=body.classList.toggle('hid');
+  const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
 // Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
 // card) whenever the active task changes, rather than reusing whatever
@@ -2793,22 +2805,6 @@ function chunks_refreshPanel(){
   document.getElementById('chunksBody').innerHTML=chunks_render(kind);
   document.getElementById('chunksBody').classList.add('hid');
   const arrow=panel.querySelector('.mdlArrow');if(arrow)arrow.textContent='▸';
-}
-// Inserts at the current cursor position (end of text if the textarea isn't
-// focused) rather than always appending, so a phrase can be dropped in mid-
-// sentence too.
-function chunks_insert(text){
-  const ta=document.getElementById('rtxt');if(!ta)return;
-  const start=typeof ta.selectionStart==='number'?ta.selectionStart:ta.value.length;
-  const end=typeof ta.selectionEnd==='number'?ta.selectionEnd:ta.value.length;
-  const before=ta.value.slice(0,start),after=ta.value.slice(end);
-  const pad=(before&&!/\s$/.test(before))?' ':'';
-  const insert=pad+text+' ';
-  ta.value=before+insert+after;
-  const pos=(before+insert).length;
-  ta.selectionStart=ta.selectionEnd=pos;
-  onInput();
-  ta.focus();
 }
 function openAIModal(mode){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
