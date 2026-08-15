@@ -2774,7 +2774,11 @@ function chunks_kind(){
 }
 function chunks_render(kind){
   return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">'+esc(g.title)+'</div><div style="display:flex;flex-direction:column;gap:6px">'
-    +g.phrases.map(p=>'<button type="button" class="btn bsm" style="text-align:left;justify-content:flex-start;white-space:normal;height:auto;line-height:1.4;padding:8px 10px" onclick="chunks_insert(this.textContent)">'+esc(p)+'</button>').join('')
+    +g.phrases.map(p=>{
+      const text=typeof p==='string'?p:p.t;
+      const tagsHTML=(typeof p==='string'?[]:(p.r||[])).map(reg=>'<span class="tag '+CHUNKS_TAG_CLASS[reg]+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+CHUNKS_TAG_LABEL[reg]+'</span>').join('');
+      return '<button type="button" class="btn bsm" style="text-align:left;justify-content:flex-start;white-space:normal;height:auto;line-height:1.4;padding:8px 10px" data-text="'+esc(text)+'" onclick="chunks_insert(this.dataset.text)">'+esc(text)+tagsHTML+'</button>';
+    }).join('')
     +'</div></div>').join('');
 }
 // Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
@@ -3583,19 +3587,157 @@ const IV_SEED=[
 // Listen and Repeat: that task is judged on verbatim accuracy, so pre-written
 // phrasing would work against the candidate rather than help them.
 const CHUNKS_LABEL={email:'💡 Useful Phrases — Email',discussion:'💡 Useful Phrases — Academic Discussion',interview:'💡 Useful Phrases — Interview'};
+// Register tag shown on each email/discussion phrase, reusing the app's
+// existing .tag color classes (see .tbl/.tgr/.tpu/.trd) instead of adding
+// new CSS. 'critical' marks phrases that resolve a Band-0 structural risk
+// (missing position statement, missing peer reference, ...).
+const CHUNKS_TAG_CLASS={formal:'tbl',neutral:'tgr',informal:'tpu',critical:'trd'};
+const CHUNKS_TAG_LABEL={formal:'formal',neutral:'neutro',informal:'informal',critical:'crítico'};
 const CHUNKS={
   email:[
-    {title:'Opening',phrases:['Dear Sir or Madam,','I am writing to inform you that...','I am writing regarding...']},
-    {title:'Explaining the situation',phrases:['The reason for this is that...','Unfortunately, ...','I recently discovered that...']},
-    {title:'Requesting action',phrases:['I would appreciate it if you could...','Could you please...','I was wondering whether you could...']},
-    {title:'Closing',phrases:['Thank you for your time and consideration.','I look forward to hearing from you.','Best regards,']}
+    {title:'Opening',phrases:[
+      {t:'I am writing to inform you that...',r:['formal']},
+      {t:'I am writing in regard to...',r:['formal']},
+      {t:'I am writing to request...',r:['formal']},
+      {t:'I am reaching out because...',r:['neutral']},
+      {t:'This is to confirm that...',r:['neutral']},
+      {t:'I hope this email finds you well. I am writing to...',r:['formal']},
+      {t:'Further to our previous conversation, I would like to...',r:['formal']},
+      {t:'I am contacting you with regard to...',r:['formal']},
+      {t:"Hope you're doing well! Just wanted to let you know that...",r:['informal']},
+      {t:'Quick note to say that...',r:['informal']},
+      {t:'So, I wanted to reach out about...',r:['informal']}
+    ]},
+    {title:'Requests',phrases:[
+      {t:'I would appreciate it if you could...',r:['formal']},
+      {t:'Could you please provide/confirm/send...',r:['neutral']},
+      {t:'I was wondering whether you might be able to...',r:['neutral']},
+      {t:'Would it be possible to...',r:['neutral']},
+      {t:'I would be grateful if you could...',r:['formal']},
+      {t:'Do you think it would be possible for you to...',r:['formal']},
+      {t:'I would like to ask if you could kindly...',r:['formal']},
+      {t:'Please let me know at your earliest convenience whether...',r:['formal']},
+      {t:'Any chance you could...?',r:['informal']},
+      {t:'Could you do me a favor and...?',r:['informal']},
+      {t:'Mind sending me...?',r:['informal']}
+    ]},
+    {title:'Apologies & bad news',phrases:[
+      {t:'I apologize for any inconvenience this may have caused.',r:['formal']},
+      {t:'I am sorry for the delay in responding.',r:['neutral']},
+      {t:'Unfortunately, due to [reason], I am unable to...',r:['neutral']},
+      {t:'I regret to inform you that...',r:['formal']},
+      {t:'I sincerely apologize for the misunderstanding regarding...',r:['formal']},
+      {t:'Please accept my apologies for missing...',r:['formal','critical']},
+      {t:'I am afraid I will not be able to attend...',r:['neutral']},
+      {t:'Due to an unforeseen circumstance, I must reschedule...',r:['formal']},
+      {t:'Sorry, my bad — I totally forgot to...',r:['informal']},
+      {t:'Ugh, sorry about that, I meant to...',r:['informal']},
+      {t:"Bad news — I can't make it to...",r:['informal']}
+    ]},
+    {title:'Proposing solutions',phrases:[
+      {t:'As an alternative, I suggest that we...',r:['formal']},
+      {t:'Would it work better if we...',r:['neutral']},
+      {t:'One option would be to...',r:['neutral']},
+      {t:'To resolve this, I propose...',r:['formal']},
+      {t:'If this is not possible, perhaps we could instead...',r:['neutral']},
+      {t:'What if we just...?',r:['informal']},
+      {t:'Maybe we could try...instead?',r:['informal']}
+    ]},
+    {title:'Confirmations & thanks',phrases:[
+      {t:'Thank you for your patience regarding this matter.',r:['formal']},
+      {t:'I appreciate you taking the time to...',r:['neutral']},
+      {t:'Please let me know if you need any further information.',r:['neutral']},
+      {t:'Thank you for bringing this to my attention.',r:['formal']},
+      {t:'I can confirm that everything is in order.',r:['neutral']},
+      {t:'I would like to confirm your presence at...',r:['formal','critical']},
+      {t:'Thanks so much, this really helped!',r:['informal']},
+      {t:"Sounds good, I'll be there!",r:['informal']},
+      {t:"Just to confirm, we're still on for...?",r:['informal']}
+    ]},
+    {title:'Closing',phrases:[
+      {t:'I look forward to hearing from you.',r:['formal']},
+      {t:'Please do not hesitate to contact me if you have any questions.',r:['formal']},
+      {t:'Thank you in advance for your assistance.',r:['formal']},
+      {t:'Should you need any further clarification, feel free to reach out.',r:['formal']},
+      {t:'I look forward to your reply.',r:['neutral']},
+      {t:'Best regards, / Kind regards, / Sincerely,',r:['formal']},
+      {t:'Let me know what you think!',r:['informal']},
+      {t:'Talk soon! / Catch you later,',r:['informal']},
+      {t:'Cheers, / Thanks again,',r:['informal']}
+    ]}
   ],
   discussion:[
-    {title:'Giving your opinion',phrases:['In my opinion, ...','I believe that...','From my perspective, ...']},
-    {title:'Referencing a classmate',phrases:['I agree with [Name] that...','I see it differently from [Name].','While [Name] makes a good point, I think...']},
-    {title:'Giving a reason',phrases:['This is mainly because...','One reason for this is that...']},
-    {title:'Giving an example',phrases:['For example, ...','For instance, when I...']},
-    {title:'Concluding',phrases:['Overall, I think...','For these reasons, ...']}
+    {title:'Agreeing',phrases:[
+      {t:"I agree with [Name]'s point that..., because...",r:['formal','critical']},
+      {t:"I completely agree with [Name]'s view on...",r:['neutral']},
+      {t:'[Name] makes a strong point when saying that...',r:['neutral']},
+      {t:"I share [Name]'s opinion that...",r:['formal']},
+      {t:'Yeah, I think [Name] is totally right that...',r:['informal']},
+      {t:"Honestly, I'm with [Name] on this one, because...",r:['informal']}
+    ]},
+    {title:'Disagreeing',phrases:[
+      {t:"I disagree with [Name]'s view, since...",r:['formal','critical']},
+      {t:'Contrary to what [Name] argues, I believe that...',r:['formal']},
+      {t:'I see this differently from [Name], because...',r:['neutral']},
+      {t:"I am not entirely convinced by [Name]'s argument that...",r:['neutral']},
+      {t:"I don't really see it the way [Name] does, because...",r:['informal']},
+      {t:"Honestly, I'd push back on [Name]'s point, since...",r:['informal']}
+    ]},
+    {title:'Partial agreement',phrases:[
+      {t:'While [Name] raises a valid point, I believe that...',r:['formal']},
+      {t:'I partly agree with [Name], but I would add that...',r:['neutral']},
+      {t:"Although [Name]'s reasoning makes sense, I think...",r:['neutral']},
+      {t:'[Name] is right in saying..., however I would argue that...',r:['formal']},
+      {t:"[Name]'s got a point, but I'd say there's more to it, like...",r:['informal']}
+    ]},
+    {title:'Referencing a classmate',phrases:[
+      {t:'Building on what [Name] said,...',r:['neutral']},
+      {t:"Similar to [Name]'s example,...",r:['neutral']},
+      {t:'Unlike [Name], I think...',r:['neutral']},
+      {t:'As [Name] mentioned,...',r:['formal']},
+      {t:"Adding to [Name]'s idea,...",r:['neutral']},
+      {t:"Going back to [Name]'s comment about..., I would like to point out that...",r:['formal']},
+      {t:'Like [Name] said,...',r:['informal']},
+      {t:"Piggybacking on [Name]'s idea,...",r:['informal']}
+    ]},
+    {title:'Developing your argument',phrases:[
+      {t:'This is mainly because...',r:['neutral']},
+      {t:'For instance,...',r:['neutral']},
+      {t:'One key reason is that...',r:['neutral']},
+      {t:'This can be illustrated by...',r:['formal']},
+      {t:'A clear example of this is...',r:['neutral']},
+      {t:'This matters because it directly affects...',r:['neutral']},
+      {t:'In practice, this means that...',r:['neutral']},
+      {t:'Basically, what happens is...',r:['informal']},
+      {t:'Like, take [example] — that shows exactly what I mean.',r:['informal']}
+    ]},
+    {title:'Anticipating a counterargument',phrases:[
+      {t:'Some might argue that..., but...',r:['neutral']},
+      {t:'It could be said that..., however...',r:['formal']},
+      {t:'Even though there are exceptions,...',r:['neutral']},
+      {t:'While there may be some truth to that,...',r:['neutral']},
+      {t:'Sure, that can happen sometimes, but usually...',r:['informal']}
+    ]},
+    {title:'Transition connectors',phrases:[
+      {t:'In addition to this,...',r:['formal']},
+      {t:'On the other hand,...',r:['neutral']},
+      {t:'As a result,...',r:['neutral']},
+      {t:'Furthermore,...',r:['formal']},
+      {t:'Moreover,...',r:['formal']},
+      {t:'That said,...',r:['neutral']},
+      {t:'Consequently,...',r:['formal']},
+      {t:'In this sense,...',r:['neutral']},
+      {t:'Also,...',r:['informal']},
+      {t:'Plus,...',r:['informal']},
+      {t:'Anyway,...',r:['informal']}
+    ]},
+    {title:'Closing',phrases:[
+      {t:'Overall, I believe...',r:['neutral']},
+      {t:'For these reasons,...',r:['formal']},
+      {t:'Taking everything into account,...',r:['formal']},
+      {t:"In short, [Name]'s point and mine both suggest that...",r:['neutral']},
+      {t:"So yeah, that's basically why I think...",r:['informal']}
+    ]}
   ],
   interview:[
     {title:'Starting your answer',phrases:['That\'s a good question. I\'d say...','Well, I think...','Honestly, ...']},
