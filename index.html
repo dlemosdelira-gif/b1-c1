@@ -2794,11 +2794,22 @@ function chunks_kind(){
   if(toeflActivity==='speaking:iv')return 'interview';
   return null;
 }
+// Which rhetorical-move groups belong to which step-mode block, so Useful
+// Phrases can show up inline next to the block that needs it instead of one
+// flat list at the bottom — same CHUNKS data/tags/collapse behavior either
+// way, just filtered+relocated (see chunks_blockHTML below).
+const CHUNKS_BLOCK_GROUPS={
+  email:{opening:['Opening'],body:['Requests','Apologies & bad news','Proposing solutions','Confirmations & thanks'],closing:['Closing']},
+  discussion:{opening:['Agreeing','Disagreeing','Partial agreement','Referencing a classmate'],body:['Developing your argument','Anticipating a counterargument','Transition connectors'],closing:['Closing']}
+};
 // Each rhetorical-move group is its own collapsible sub-section, closed by
 // default like the outer panel — reference-only browsing (no click-to-insert:
 // this task is meant to make the candidate produce the sentence themselves).
-function chunks_render(kind){
-  return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:8px">'
+// onlyTitles optionally restricts which groups render (used by
+// chunks_blockHTML for the step-mode per-block panels); omitted = all groups.
+function chunks_render(kind,onlyTitles){
+  const groups=onlyTitles?(CHUNKS[kind]||[]).filter(g=>onlyTitles.includes(g.title)):(CHUNKS[kind]||[]);
+  return groups.map(g=>'<div style="margin-bottom:8px">'
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="chunks_toggleGroup(this)">'
       +'<span>'+esc(g.title)+'</span><span class="mdlArrow" style="font-size:12px">▸</span>'
     +'</div>'
@@ -2815,14 +2826,29 @@ function chunks_toggleGroup(headerEl){
   const collapsed=body.classList.toggle('hid');
   const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
+// Small collapsible "Useful Phrases" panel scoped to one step-mode block,
+// reusing the exact same group/phrase markup and collapse mechanics as the
+// main panel (bridge_toggleModelAnswer for the outer card, chunks_toggleGroup
+// for each nested group) — called from em_/wr_stepFormHTML.
+function chunks_blockHTML(kind,blockKey){
+  const titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
+  if(!titles||!titles.length)return '';
+  return '<div class="card" style="margin-top:10px;background:#FFFBEB;border-color:#FCD34D">'
+    +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
+    +'<span>💡 Useful Phrases</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'+chunks_render(kind,titles)+'</div>'
+    +'</div>';
+}
 // Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
 // card) whenever the active task changes, rather than reusing whatever
-// expand/collapse state was left over from the previous activity.
+// expand/collapse state was left over from the previous activity. Hidden
+// entirely in step mode, where the per-block panels above take over instead.
 function chunks_refreshPanel(){
   const panel=document.getElementById('chunksPanel');if(!panel)return;
   const kind=chunks_kind();
-  panel.classList.toggle('hid',!kind);
-  if(!kind)return;
+  const stepActive=(kind==='email'&&em_stepMode)||(kind==='discussion'&&wr_stepMode);
+  panel.classList.toggle('hid',!kind||stepActive);
+  if(!kind||stepActive)return;
   document.getElementById('chunksPanelTitle').textContent=CHUNKS_LABEL[kind];
   document.getElementById('chunksBody').innerHTML=chunks_render(kind);
   document.getElementById('chunksBody').classList.add('hid');
@@ -3629,7 +3655,7 @@ const CHUNKS_LABEL={email:'💡 Useful Phrases — Email',discussion:'💡 Usefu
 // new CSS. 'critical' marks phrases that resolve a Band-0 structural risk
 // (missing position statement, missing peer reference, ...).
 const CHUNKS_TAG_CLASS={formal:'tbl',neutral:'tgr',informal:'tpu',critical:'trd'};
-const CHUNKS_TAG_LABEL={formal:'formal',neutral:'neutro',informal:'informal',critical:'crítico'};
+const CHUNKS_TAG_LABEL={formal:'formal',neutral:'neutral',informal:'informal',critical:'critical'};
 const CHUNKS={
   email:[
     {title:'Opening',phrases:[
@@ -5228,8 +5254,8 @@ function ex_importFile(file){
 // Small pill toggle, reused by both em_ and wr_'s render functions.
 function writing_stepToggleHTML(stepActive,toggleFnName){
   return '<div class="exmode-bar" style="margin-bottom:12px">'
-    +'<button class="exmode-btn'+(stepActive?'':' on')+'" onclick="'+toggleFnName+'(false)">✏️ Modo livre</button>'
-    +'<button class="exmode-btn'+(stepActive?' on':'')+'" onclick="'+toggleFnName+'(true)">🧱 Modo por etapas</button>'
+    +'<button class="exmode-btn'+(stepActive?'':' on')+'" onclick="'+toggleFnName+'(false)">✏️ Free mode</button>'
+    +'<button class="exmode-btn'+(stepActive?' on':'')+'" onclick="'+toggleFnName+'(true)">🧱 Step-by-step mode</button>'
     +'</div>';
 }
 // #rtxt becomes a read-only live preview of the assembled blocks in step
@@ -5342,30 +5368,33 @@ function em_stepReset(){
 }
 function em_stepFormHTML(){
   return '<div style="border:1px dashed #CBD5E1;background:#F8FAFC;border-radius:10px;padding:12px;margin-top:10px">'
-    +'<div class="ctit" style="color:#64748B">📋 Passo 0 — Planejamento (opcional, não avaliado)</div>'
+    +'<div class="ctit" style="color:#64748B">📋 Step 0 — Planning (optional, not graded)</div>'
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Purpose</label><input type="text" value="'+esc(em_stepPlan.purpose)+'" oninput="em_onPlanInput(\'purpose\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
     +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Key details</label><input type="text" value="'+esc(em_stepPlan.details)+'" oninput="em_onPlanInput(\'details\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
     +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Ask / next step</label><input type="text" value="'+esc(em_stepPlan.ask)+'" oninput="em_onPlanInput(\'ask\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
     +'</div></div>'
     +'<div class="card" style="margin-top:10px">'
-    +'<div class="ctit">✉️ Bloco 1 — Abertura</div>'
-    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Greeting cordial + apresente o propósito</div>'
+    +'<div class="ctit">✉️ Block 1 — Opening</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Cordial greeting + introduce the purpose</div>'
     +'<textarea oninput="em_onBlockInput(\'opening\',this.value)" style="min-height:60px;color:#0F172A">'+esc(em_stepBlocks.opening)+'</textarea>'
+    +chunks_blockHTML('email','opening')
     +'</div>'
     +'<div class="card" style="margin-top:10px">'
-    +'<div class="ctit">✉️ Bloco 2 — Desenvolvimento</div>'
+    +'<div class="ctit">✉️ Block 2 — Body</div>'
     +'<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">'
-    +[1,2,3].map(i=>'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Ideia '+i+'</label><textarea oninput="em_onBlockInput(\'idea'+i+'\',this.value)" style="min-height:44px;color:#0F172A">'+esc(em_stepBlocks['idea'+i])+'</textarea></div>').join('')
+    +[1,2,3].map(i=>'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Idea '+i+'</label><textarea oninput="em_onBlockInput(\'idea'+i+'\',this.value)" style="min-height:44px;color:#0F172A">'+esc(em_stepBlocks['idea'+i])+'</textarea></div>').join('')
     +'</div>'
-    +'<div style="font-size:12.5px;color:#64748B;line-height:1.6">💡 varie o tipo de frase (afirmação · pergunta · condicional) · use uma frase idiomática ("sounds good", "let me know") · seja específico, não vago</div>'
+    +'<div style="font-size:12.5px;color:#64748B;line-height:1.6">💡 vary the sentence type (statement · question · conditional) · use an idiomatic phrase ("sounds good", "let me know") · be specific, not vague</div>'
+    +chunks_blockHTML('email','body')
     +'</div>'
     +'<div class="card" style="margin-top:10px">'
-    +'<div class="ctit">✉️ Bloco 3 — Fechamento</div>'
-    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Closing line + seu nome — tom cortês e consistente com o registro escolhido</div>'
+    +'<div class="ctit">✉️ Block 3 — Closing</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Closing line + your name — courteous tone, consistent with the register you chose</div>'
     +'<textarea oninput="em_onBlockInput(\'closing\',this.value)" style="min-height:50px;color:#0F172A">'+esc(em_stepBlocks.closing)+'</textarea>'
+    +chunks_blockHTML('email','closing')
     +'</div>'
-    +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Reserve ~1 min para revisar: gramática, tom e cobertura antes de enviar.</div>';
+    +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Set aside ~1 min to review grammar, tone, and coverage before submitting.</div>';
 }
 function em_onPlanInput(key,val){em_stepPlan[key]=val;}
 function em_togglePromptCheck(i){em_promptChecked[i]=!em_promptChecked[i];}
@@ -5384,13 +5413,14 @@ function em_setStepMode(v){
   v=!!v;
   if(v&&!em_stepMode){
     const ta=document.getElementById('rtxt');
-    if(ta&&ta.value.trim()&&!confirm('Mudar para o Modo por etapas vai limpar o rascunho livre atual — as etapas começam em branco. Continuar?'))return;
+    if(ta&&ta.value.trim()&&!confirm('Switching to Step-by-step mode will clear your current free-mode draft — the blocks start empty. Continue?'))return;
     em_stepReset();
   }
   em_stepMode=v;
   em_saveStepMode();
   em_renderScenario();
   writing_applyStepUI(em_stepMode);
+  chunks_refreshPanel();
   if(em_stepMode)em_syncStepText();
 }
 
@@ -5638,37 +5668,40 @@ function wr_stepFormHTML(){
   const peer1=wr_cur.peer1.name,peer2=wr_cur.peer2.name;
   const pillStyle=function(sel){return 'padding:7px 14px;border-radius:999px;border:1px solid '+(sel?'#B91C1C':'#DDE3F5')+';background:'+(sel?'#FEE2E2':'#fff')+';color:'+(sel?'#B91C1C':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif';};
   return '<div style="border:1px dashed #CBD5E1;background:#F8FAFC;border-radius:10px;padding:12px;margin-top:10px">'
-    +'<div class="ctit" style="color:#64748B">📋 Passo 0 — Planejamento (opcional, não avaliado)</div>'
+    +'<div class="ctit" style="color:#64748B">📋 Step 0 — Planning (optional, not graded)</div>'
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Side</label><input type="text" value="'+esc(wr_stepPlan.side)+'" oninput="wr_onPlanInput(\'side\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
     +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Reason(s)</label><input type="text" value="'+esc(wr_stepPlan.reasons)+'" oninput="wr_onPlanInput(\'reasons\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
     +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Example(s)</label><input type="text" value="'+esc(wr_stepPlan.examples)+'" oninput="wr_onPlanInput(\'examples\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
     +'</div></div>'
     +'<div class="card" style="margin-top:10px;background:#FEF2F2;border-color:#FECACA">'
-    +'<div class="ctit" style="color:#B91C1C">🚨 Bloco 1 — Abertura (ponto crítico — risco de Faixa 0)</div>'
-    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Responder a: <span style="color:#DC2626;font-weight:600">obrigatório</span></div>'
+    +'<div class="ctit" style="color:#B91C1C">🚨 Block 1 — Opening (critical point — Band-0 risk)</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Responding to: <span style="color:#DC2626;font-weight:600">required</span></div>'
     +'<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
     +'<button type="button" style="'+pillStyle(wr_stepPeer===peer1)+'" onclick="wr_selectPeer(\''+esc(peer1)+'\')">'+esc(peer1)+'</button>'
     +'<button type="button" style="'+pillStyle(wr_stepPeer===peer2)+'" onclick="wr_selectPeer(\''+esc(peer2)+'\')">'+esc(peer2)+'</button>'
     +'</div>'
-    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Claim (sua posição)</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Claim (your position)</div>'
     +'<textarea oninput="wr_onBlockInput(\'claim\',this.value)" style="min-height:60px;color:#0F172A;border-color:#FCA5A5">'+esc(wr_stepBlocks.claim)+'</textarea>'
-    +'<div style="font-size:12px;color:#94A3B8;margin:8px 0 4px">Bridge para o ponto de um colega <span style="font-weight:400">(opcional)</span></div>'
-    +'<textarea oninput="wr_onBlockInput(\'bridge\',this.value)" placeholder="ex: Building on what [Name] said, ..." style="min-height:40px;color:#0F172A">'+esc(wr_stepBlocks.bridge)+'</textarea>'
+    +'<div style="font-size:12px;color:#94A3B8;margin:8px 0 4px">Bridge to a classmate\'s point <span style="font-weight:400">(optional)</span></div>'
+    +'<textarea oninput="wr_onBlockInput(\'bridge\',this.value)" placeholder="e.g. Building on what [Name] said, ..." style="min-height:40px;color:#0F172A">'+esc(wr_stepBlocks.bridge)+'</textarea>'
+    +chunks_blockHTML('discussion','opening')
     +'</div>'
     +'<div class="card" style="margin-top:10px">'
-    +'<div class="ctit">🧩 Bloco 2 — Desenvolvimento</div>'
+    +'<div class="ctit">🧩 Block 2 — Body</div>'
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Reason 1 + support</div>'
     +'<textarea oninput="wr_onBlockInput(\'reason1\',this.value)" style="min-height:54px;color:#0F172A;margin-bottom:8px">'+esc(wr_stepBlocks.reason1)+'</textarea>'
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Reason 2 + support</div>'
     +'<textarea oninput="wr_onBlockInput(\'reason2\',this.value)" style="min-height:54px;color:#0F172A">'+esc(wr_stepBlocks.reason2)+'</textarea>'
-    +'<div style="font-size:12.5px;color:#64748B;line-height:1.6;margin-top:8px">💡 use discourse markers (however, moreover, for example) · inclua um mini-exemplo plausível (cenário de estudo ou campus, real ou imaginário)</div>'
+    +'<div style="font-size:12.5px;color:#64748B;line-height:1.6;margin-top:8px">💡 use discourse markers (however, moreover, for example) · include a plausible mini-example (a real or imagined study/campus scenario)</div>'
+    +chunks_blockHTML('discussion','body')
     +'</div>'
     +'<div class="card" style="margin-top:10px">'
-    +'<div class="ctit">🏁 Bloco 3 — Fechamento <span style="font-weight:400;color:#94A3B8;text-transform:none;letter-spacing:0">(opcional)</span></div>'
+    +'<div class="ctit">🏁 Block 3 — Closing <span style="font-weight:400;color:#94A3B8;text-transform:none;letter-spacing:0">(optional)</span></div>'
     +'<textarea oninput="wr_onBlockInput(\'closing\',this.value)" style="min-height:44px;color:#0F172A">'+esc(wr_stepBlocks.closing)+'</textarea>'
+    +chunks_blockHTML('discussion','closing')
     +'</div>'
-    +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Reserve tempo para revisar frases e corrigir erros óbvios antes de enviar.</div>';
+    +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Set aside time to review your sentences and fix obvious mistakes before submitting.</div>';
 }
 function wr_onPlanInput(key,val){wr_stepPlan[key]=val;}
 function wr_selectPeer(name){
@@ -5694,13 +5727,14 @@ function wr_setStepMode(v){
   v=!!v;
   if(v&&!wr_stepMode){
     const ta=document.getElementById('rtxt');
-    if(ta&&ta.value.trim()&&!confirm('Mudar para o Modo por etapas vai limpar o rascunho livre atual — as etapas começam em branco. Continuar?'))return;
+    if(ta&&ta.value.trim()&&!confirm('Switching to Step-by-step mode will clear your current free-mode draft — the blocks start empty. Continue?'))return;
     wr_stepReset();
   }
   wr_stepMode=v;
   wr_saveStepMode();
   wr_renderScenario();
   writing_applyStepUI(wr_stepMode);
+  chunks_refreshPanel();
   if(wr_stepMode)wr_syncStepText();
 }
 // Write for an Academic Discussion carries structural failure modes (wrong
@@ -5713,7 +5747,7 @@ function wr_setStepMode(v){
 // "identifiquei o colega" item) checked BEFORE the checklist even opens.
 function wr_submitClick(){
   if(!em_active&&wr_cur){
-    if(wr_stepMode&&!wr_stepPeer){toast('⚠️ Selecione a qual colega você está respondendo antes de enviar');return;}
+    if(wr_stepMode&&!wr_stepPeer){toast('⚠️ Select which classmate you are responding to before submitting');return;}
     wr_openChecklist();
     return;
   }
