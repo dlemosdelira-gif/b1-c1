@@ -579,9 +579,9 @@ textarea{min-height:120px}
 
 <div class="mov hid" id="mCriticalErrors" onclick="if(event.target===this)closeM('mCriticalErrors')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
-    <div class="mhdr"><div class="mtit">🚨 Erros Críticos</div><button class="btn bsm" onclick="closeM('mCriticalErrors')">✕</button></div>
+    <div class="mhdr"><div class="mtit">🚨 Critical Errors</div><button class="btn bsm" onclick="closeM('mCriticalErrors')">✕</button></div>
     <div class="mbdy">
-      <div style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:12px">Classificação por palavras-chave no nome do padrão — sem taxonomia nova, só reorganiza o que a AI Analysis Bridge já registra em Grammar Errors.</div>
+      <div style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:12px">Classified by keyword in the pattern name — no new taxonomy, just reorganizes what the AI Analysis Bridge already logs under Grammar Errors.</div>
       <div id="criticalErrorsContainer"></div>
     </div>
   </div>
@@ -665,24 +665,24 @@ textarea{min-height:120px}
 
 <div class="mov hid" id="mWrChecklist" onclick="if(event.target===this)closeM('mWrChecklist')">
   <div class="modal" style="max-width:480px">
-    <div class="mhdr"><div class="mtit">✅ Checklist antes de enviar</div><button class="btn bsm" onclick="closeM('mWrChecklist')">✕</button></div>
+    <div class="mhdr"><div class="mtit">✅ Checklist before submitting</div><button class="btn bsm" onclick="closeM('mWrChecklist')">✕</button></div>
     <div class="mbdy">
-      <div style="font-size:13px;color:#94A3B8;margin-bottom:12px">Erros estruturais aqui podem zerar a resposta (Faixa 0), mesmo com boa gramática. Confirme os 3 pontos antes de enviar:</div>
+      <div style="font-size:13px;color:#94A3B8;margin-bottom:12px">Structural errors here can zero out the whole response (Band 0), even with good grammar. Confirm all 3 points before submitting:</div>
       <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;background:#F8FAFF;margin-bottom:8px;cursor:pointer">
         <input type="checkbox" id="wrChk1" onchange="wr_checklistSync()" style="width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0">
-        <span style="font-size:14px;color:#0F172A;line-height:1.5">Reli o prompt e confirmei o tópico correto</span>
+        <span style="font-size:14px;color:#0F172A;line-height:1.5">I reread the prompt and confirmed the correct topic</span>
       </label>
       <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;background:#F8FAFF;margin-bottom:8px;cursor:pointer">
         <input type="checkbox" id="wrChk2" onchange="wr_checklistSync()" style="width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0">
-        <span style="font-size:14px;color:#0F172A;line-height:1.5">Identifiquei corretamente o(a) colega que devo responder</span>
+        <span style="font-size:14px;color:#0F172A;line-height:1.5">I correctly identified which classmate I should respond to</span>
       </label>
       <label style="display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:8px;background:#F8FAFF;margin-bottom:14px;cursor:pointer">
         <input type="checkbox" id="wrChk3" onchange="wr_checklistSync()" style="width:16px;height:16px;margin-top:2px;cursor:pointer;flex-shrink:0">
-        <span style="font-size:14px;color:#0F172A;line-height:1.5">Minha posição está clara logo nas 2 primeiras frases</span>
+        <span style="font-size:14px;color:#0F172A;line-height:1.5">My position is clear within the first 2 sentences</span>
       </label>
       <div class="fl g8" style="justify-content:flex-end">
-        <button class="btn bsm" onclick="closeM('mWrChecklist')">Cancelar</button>
-        <button class="btn bpr bsm" id="wrChecklistConfirm" onclick="wr_checklistConfirm()" disabled>Enviar para análise</button>
+        <button class="btn bsm" onclick="closeM('mWrChecklist')">Cancel</button>
+        <button class="btn bpr bsm" id="wrChecklistConfirm" onclick="wr_checklistConfirm()" disabled>Submit for analysis</button>
       </div>
     </div>
   </div>
@@ -820,7 +820,7 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
-  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">🏃 Sprint Semanal</div>
+  <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">🏃 Weekly Sprint</div>
   <div id="weekSprintContainer" class="card" style="margin-bottom:10px;padding:14px"></div>
 
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
@@ -874,9 +874,9 @@ textarea{min-height:120px}
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span class="wc hid" id="duecnt">0 due</span>
-      <button class="btn bsm" id="simToggleBtn" onclick="sim_toggle()">🎯 Iniciar Simulação Cronometrada</button>
+      <button class="btn bsm" id="simToggleBtn" onclick="sim_toggle()">🎯 Start Timed Simulation</button>
       <button class="btn bte bsm" onclick="openPacingModal()">⏱ Pacing</button>
-      <button class="btn bte bsm" onclick="openCriticalErrorsModal()">🚨 Erros Críticos</button>
+      <button class="btn bte bsm" onclick="openCriticalErrorsModal()">🚨 Critical Errors</button>
     </div>
   </div>
 
@@ -1171,122 +1171,122 @@ const PEUA_DATA=[
 // feeds the app's existing streak/dashboard exactly like other roadmap items
 // (see toggleAmaTask): it marks today as a check-in and logs study minutes,
 // same as toggleCI/logSession do elsewhere.
-const AMA_DEADLINE='2026-08-19';   // Prazo real de submissão
-const AMA_GOAL='2026-08-12';       // Minha meta interna (com folga)
-const AMA_RQ='Em categorias terapêuticas altamente reguladas — onde a promoção direta ao médico é restrita —, a troca científica do representante (mecanismo de confiança) tem efeito mais forte sobre a velocidade de adoção médica de uma nova terapia do que a capacidade/treinamento comercial do representante (antecedente)?';
-const AMA_FORMAT='Poster / Research-in-Progress, inglês, sem identificação de autoria no arquivo.';
-const AMA_TRACK='Trilha de submissão (confirmado no site da AMA): "Sales Force Management and Personal Selling" — NÃO o tema geral do congresso (que é sobre IA/geopolítica). Essa trilha pede explicitamente pesquisa sobre venda adaptativa/consultiva, interações comprador-vendedor e formação de confiança — encaixe direto com a pergunta v2.';
+const AMA_DEADLINE='2026-08-19';   // Real submission deadline
+const AMA_GOAL='2026-08-12';       // My internal target (with buffer)
+const AMA_RQ='In highly regulated therapeutic categories — where direct-to-physician promotion is restricted — does a rep\'s scientific exchange (trust mechanism) have a stronger effect on the speed of physician adoption of a new therapy than the rep\'s commercial capability/training (antecedent)?';
+const AMA_FORMAT='Poster / Research-in-Progress, English, no authorship identification in the file.';
+const AMA_TRACK='Submission track (confirmed on the AMA website): "Sales Force Management and Personal Selling" — NOT the conference\'s general theme (which is about AI/geopolitics). This track explicitly calls for research on adaptive/consultative selling, buyer-seller interactions, and trust formation — a direct fit with the v2 question.';
 const AMA_TRACK_CHAIRS='Track chairs: Johannes Habel, Selma Kadic-Maglajlic, Sunil Singh.';
-const AMA_TRACK_TIP='Recomendado (opcional): abrir com 1 frase conectando "restrição regulatória à promoção farmacêutica" ao tema guarda-chuva do ano (incerteza regulatória) — reforça o encaixe com o congresso como um todo.';
+const AMA_TRACK_TIP='Recommended (optional): open with 1 sentence connecting "regulatory restriction on pharmaceutical promotion" to the year\'s umbrella theme (regulatory uncertainty) — reinforces the fit with the conference as a whole.';
 const AMA_STRUCTURE=[
-  'Título',
-  'Short Abstract (75–100 palavras)',
-  'Key Contributions to Academe and Practitioners (até 300 palavras)',
-  'Long Abstract (até 1.000 palavras) — aqui entram: motivação, base teórica/lacuna, pergunta e proposições, dados piloto, contribuição e próximos passos',
-  'Tabela ou figura (opcional, não conta no limite)',
-  'Referências selecionadas (não conta no limite)'
+  'Title',
+  'Short Abstract (75–100 words)',
+  'Key Contributions to Academe and Practitioners (up to 300 words)',
+  'Long Abstract (up to 1,000 words) — includes: motivation, theoretical background/gap, question and propositions, pilot data, contribution and next steps',
+  'Table or figure (optional, does not count toward the limit)',
+  'Selected references (does not count toward the limit)'
 ];
-const AMA_WORDCOUNT_NOTE='Total do texto (exceto tabela/figura e referências): máx. 1.300 palavras.';
+const AMA_WORDCOUNT_NOTE='Total text (excluding table/figure and references): max. 1,300 words.';
 const AMA_DATA=[
-  {week:1,start:'2026-07-21',end:'2026-07-27',range:'21 a 27/jul',title:'Fundação teórica + instrumento',
+  {week:1,start:'2026-07-21',end:'2026-07-27',range:'Jul 21–27',title:'Theoretical foundation + instrument',
    groups:[
-     {name:'Leitura e fichamento (Blocos 1–4 da lista de referências)',tasks:[
-       'Ler abstract + conclusão das 12 referências (não precisa ler na íntegra ainda)',
-       'Fichar cada uma em 2–3 linhas: achado principal + como conecta com a pergunta v2',
-       'Marcar quais 5–6 são "essenciais" (vão para o texto) vs. "apoio" (citação rápida)'
+     {name:'Reading and notes (Blocks 1–4 of the reference list)',tasks:[
+       'Read the abstract + conclusion of all 12 references (no need to read them in full yet)',
+       'Summarize each in 2–3 lines: main finding + how it connects to the v2 question',
+       'Mark which 5–6 are "essential" (go into the text) vs. "supporting" (quick citation)'
      ]},
-     {name:'Estrutura do argumento',tasks:[
-       'Escrever em 1 parágrafo (livre, sem se preocupar com estilo ainda): qual é o gap na literatura que ninguém preencheu?',
-       'Esboçar a lógica mecanismo (confiança/troca científica) vs. antecedente (capacidade/treinamento) em um diagrama simples (pode ser à mão, foto, ou texto)'
+     {name:'Argument structure',tasks:[
+       'Write 1 free-form paragraph (don\'t worry about style yet): what is the gap in the literature that no one has filled?',
+       'Sketch the mechanism logic (trust/scientific exchange) vs. antecedent (capability/training) in a simple diagram (can be by hand, a photo, or text)'
      ]},
-     {name:'Instrumento do survey piloto',tasks:[
-       'Rascunhar 10–12 itens (perfil + confiança/troca científica + capacidade/treinamento + adoção percebida)',
-       'Definir escala (Likert 5 ou 7 pontos)',
-       'Escrever nota de consentimento/anonimato (1 parágrafo, deixa claro que é pesquisa acadêmica independente, não é pesquisa da Sanofi)'
+     {name:'Pilot survey instrument',tasks:[
+       'Draft 10–12 items (profile + trust/scientific exchange + capability/training + perceived adoption)',
+       'Define the scale (5- or 7-point Likert)',
+       'Write a consent/anonymity note (1 paragraph, making clear this is independent academic research, not Sanofi research)'
      ]}
    ],
-   deliverable:'Fichamento de 12 refs + rascunho do survey (documento único)'},
-  {week:2,start:'2026-07-28',end:'2026-08-03',range:'28/jul a 3/ago',title:'Piloto do instrumento + coleta + rascunho em paralelo',
+   deliverable:'Notes on 12 refs + survey draft (single document)'},
+  {week:2,start:'2026-07-28',end:'2026-08-03',range:'Jul 28–Aug 3',title:'Instrument pilot + collection + drafting in parallel',
    groups:[
-     {name:'Testar o instrumento',tasks:[
-       'Enviar o survey para 3–5 contatos de confiança (fora da Sanofi, se possível)',
-       'Perguntar: alguma pergunta confusa? Tempo de resposta? Algo que falta?',
-       'Ajustar o instrumento com base no feedback'
+     {name:'Test the instrument',tasks:[
+       'Send the survey to 3–5 trusted contacts (outside Sanofi if possible)',
+       'Ask: any confusing questions? Response time? Anything missing?',
+       'Adjust the instrument based on feedback'
      ]},
-     {name:'Coleta',tasks:[
-       'Definir lista de contatos-alvo (rede pessoal — representantes/gestores de vendas em farma especializada, qualquer categoria terapêutica, não só onco-hematologia)',
-       'Escrever a mensagem de convite (curta, neutra, sem mencionar Sanofi como fonte)',
-       'Disparar o survey',
-       'Meta: 30–60 respostas até o fim da semana'
+     {name:'Collection',tasks:[
+       'Define target contact list (personal network — reps/sales managers in specialty pharma, any therapeutic category, not just onco-hematology)',
+       'Write the invitation message (short, neutral, without mentioning Sanofi as the source)',
+       'Send out the survey',
+       'Goal: 30–60 responses by the end of the week'
      ]},
-     {name:'Rascunho do texto (em paralelo, não espera a coleta terminar)',tasks:[
-       'Short Abstract (75–100 palavras) — resumo geral do estudo',
-       'Key Contributions to Academe and Practitioners (até 300 palavras) — por que isso importa para pesquisadores E para gestores de vendas farma',
-       'Long Abstract, primeira metade: motivação + base teórica/lacuna + pergunta e proposições (~500 das 1.000 palavras)'
+     {name:'Text draft (in parallel — does not wait for collection to finish)',tasks:[
+       'Short Abstract (75–100 words) — general summary of the study',
+       'Key Contributions to Academe and Practitioners (up to 300 words) — why this matters to researchers AND to pharma sales managers',
+       'Long Abstract, first half: motivation + theoretical background/gap + question and propositions (~500 of the 1,000 words)'
      ]}
    ],
-   deliverable:'Survey rodando + Short Abstract, Key Contributions e metade do Long Abstract rascunhados'},
-  {week:3,start:'2026-08-04',end:'2026-08-10',range:'4 a 10/ago',title:'Fechar coleta + análise + rascunho completo',
+   deliverable:'Survey running + Short Abstract, Key Contributions, and half of the Long Abstract drafted'},
+  {week:3,start:'2026-08-04',end:'2026-08-10',range:'Aug 4–10',title:'Close collection + analysis + full draft',
    groups:[
-     {name:'Fechamento da coleta',tasks:[
-       'Encerrar coleta (mesmo que abaixo da meta — 20 respostas já sustentam um "piloto")',
-       'Organizar os dados em planilha simples'
+     {name:'Closing collection',tasks:[
+       'End collection (even if below target — 20 responses already support a "pilot")',
+       'Organize the data in a simple spreadsheet'
      ]},
-     {name:'Análise (mantém simples — é research-in-progress, não paper competitivo)',tasks:[
-       'Estatística descritiva (médias, desvios por item)',
-       'Correlações básicas entre confiança/troca científica, capacidade e adoção percebida',
-       'Anotar 2–3 achados direcionais (mesmo que não significativos estatisticamente — é aceitável em research-in-progress)'
+     {name:'Analysis (keep it simple — this is research-in-progress, not a competitive paper)',tasks:[
+       'Descriptive statistics (means, deviations per item)',
+       'Basic correlations between trust/scientific exchange, capability, and perceived adoption',
+       'Note 2–3 directional findings (even if not statistically significant — acceptable in research-in-progress)'
      ]},
-     {name:'Rascunho completo',tasks:[
-       'Long Abstract, segunda metade: dados piloto + contribuição e próximos passos (~500 palavras restantes)',
-       'Selecionar referências (não conta no limite — pode incluir todas as 12, se relevante)',
-       'Montar tabela ou figura simples (opcional) com os achados descritivos do piloto',
-       'Juntar Short Abstract + Key Contributions + Long Abstract em documento único, checar contagem total (máx. 1.300 palavras, excluindo tabela/refs)'
+     {name:'Full draft',tasks:[
+       'Long Abstract, second half: pilot data + contribution and next steps (~500 remaining words)',
+       'Select references (does not count toward the limit — can include all 12 if relevant)',
+       'Put together a simple table or figure (optional) with the pilot\'s descriptive findings',
+       'Combine Short Abstract + Key Contributions + Long Abstract into a single document, check the total word count (max. 1,300 words, excluding table/refs)'
      ]}
    ],
-   deliverable:'Rascunho completo do poster, no formato oficial da AMA (Short Abstract + Key Contributions + Long Abstract + refs)'},
-  {week:4,start:'2026-08-11',end:'2026-08-19',range:'11 a 19/ago (meta real: 12/ago)',title:'Revisão e submissão',
+   deliverable:'Full poster draft, in the official AMA format (Short Abstract + Key Contributions + Long Abstract + refs)'},
+  {week:4,start:'2026-08-11',end:'2026-08-19',range:'Aug 11–19 (real target: Aug 12)',title:'Review and submission',
    groups:[
      {name:null,tasks:[
-       'Revisão de inglês (mentoria PHDNOSEUA ou revisor de confiança)',
-       'Checar anonimato: nenhuma identificação de autoria no texto, nome do arquivo, ou propriedades do documento',
-       'Confirmar contagem de palavras final (≤1.300, excluindo tabela/figura e referências)',
-       'Exportar em PDF (formato exigido)',
-       'Selecionar a trilha "Sales Force Management and Personal Selling" no sistema de submissão',
-       'Criar conta/login no sistema de submissão da AMA (Ex Ordo — amawinter2027.exordo.com)',
-       'Submeter',
-       'Guardar comprovante de submissão'
+       'English review (PHDNOSEUA mentorship or a trusted reviewer)',
+       'Check anonymity: no authorship identification in the text, file name, or document properties',
+       'Confirm final word count (≤1,300, excluding table/figure and references)',
+       'Export as PDF (required format)',
+       'Select the "Sales Force Management and Personal Selling" track in the submission system',
+       'Create an account/login in the AMA submission system (Ex Ordo — amawinter2027.exordo.com)',
+       'Submit',
+       'Save the submission confirmation'
      ]}
    ],
-   deliverable:'Poster submetido à AMA 2027 Winter Academic Conference'}
+   deliverable:'Poster submitted to the AMA 2027 Winter Academic Conference'}
 ];
 const AMA_REFS=[
-  {block:'Bloco 1 — Adoção/difusão de novos medicamentos',items:[
+  {block:'Block 1 — Adoption/diffusion of new medicines',items:[
     {n:1,cite:'Rogers, E. M. (2003). Diffusion of Innovations (5th ed.). Free Press.',url:'https://books.google.com/books/about/Diffusion_of_Innovations_5th_Edition.html?id=9U1K5LjUOwEC'},
     {n:2,cite:'Coleman, J., Katz, E., & Menzel, H. (1957). The diffusion of an innovation among physicians. Sociometry, 20(4), 253–270.',url:'https://doi.org/10.2307/2785979'},
     {n:3,cite:'Lublóy, Á. (2014). Factors affecting the uptake of new medicines: A systematic literature review. BMC Health Services Research, 14, 469.',url:'https://bmchealthservres.biomedcentral.com/articles/10.1186/1472-6963-14-469'},
     {n:4,cite:'Donohue, J. M., Guclu, H., Gellad, W. F., et al. (2018). Influence of peer networks on physician adoption of new drugs. PLOS ONE, 13(10), e0204826.',url:'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0204826'}
   ]},
-  {block:'Bloco 2 — Confiança comprador-vendedor em B2B',items:[
+  {block:'Block 2 — Buyer-seller trust in B2B',items:[
     {n:5,cite:'Doney, P. M., & Cannon, J. P. (1997). An examination of the nature of trust in buyer–seller relationships. Journal of Marketing, 61(2), 35–51.',url:'https://journals.sagepub.com/doi/10.1177/002224299706100203'},
     {n:6,cite:'Morgan, R. M., & Hunt, S. D. (1994). The commitment-trust theory of relationship marketing. Journal of Marketing, 58(3), 20–38.',url:'https://journals.sagepub.com/doi/abs/10.1177/002224299405800302'},
     {n:7,cite:'Dwyer, F. R., Schurr, P. H., & Oh, S. (1987). Developing buyer-seller relationships. Journal of Marketing, 51(2), 11–27.',url:'https://journals.sagepub.com/doi/abs/10.1177/002224298705100202'}
   ]},
-  {block:'Bloco 3 — Capacidade/venda adaptativa',items:[
+  {block:'Block 3 — Capability/adaptive selling',items:[
     {n:8,cite:'Weitz, B. A. (1981). Effectiveness in sales interactions: A contingency framework. Journal of Marketing, 45(1), 85–103.',url:'https://journals.sagepub.com/doi/10.1177/002224298104500109'},
     {n:9,cite:'Weitz, B. A., Sujan, H., & Sujan, M. (1986). Knowledge, motivation, and adaptive behavior: A framework for improving selling effectiveness. Journal of Marketing, 50(4), 174–191.',url:'https://journals.sagepub.com/doi/abs/10.1177/002224298605000404'},
     {n:10,cite:'Franke, G. R., & Park, J. E. (2006). Salesperson adaptive selling behavior and customer orientation: A meta-analysis. Journal of Marketing Research, 43(4), 693–702.',url:'https://journals.sagepub.com/doi/abs/10.1509/jmkr.43.4.693'}
   ]},
-  {block:'Bloco 4 — Marketing farmacêutico sob restrição regulatória',items:[
+  {block:'Block 4 — Pharmaceutical marketing under regulatory restriction',items:[
     {n:11,cite:"Fickweiler, F., Fickweiler, W., & Urbach, E. (2017). Interactions between physicians and the pharmaceutical industry generally and sales representatives specifically and their association with physicians' attitudes and prescribing habits: A systematic review. BMJ Open, 7(9), e016408.",url:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5623540/'},
     {n:12,cite:'Weitz, B. A., & Bradford, K. D. (1999). Personal selling and sales management: A relationship marketing perspective. Journal of the Academy of Marketing Science, 27(2), 241–254.',url:'https://link.springer.com/article/10.1177/0092070399272008'}
   ]}
 ];
-const AMA_REFS_NOTE='Itens 1 e 2 (Rogers; Coleman/Katz/Menzel) podem exigir acesso institucional ou biblioteca para o texto completo — o link do item 1 é a página do livro, e o DOI do item 2 resolve para a página da editora (Wiley/JSTOR conforme disponibilidade).';
+const AMA_REFS_NOTE='Items 1 and 2 (Rogers; Coleman/Katz/Menzel) may require institutional or library access for the full text — item 1\'s link is the book\'s page, and item 2\'s DOI resolves to the publisher\'s page (Wiley/JSTOR depending on availability).';
 const AMA_DECISIONS=[
-  'Pergunta de pesquisa: v2 (fixada em 21/jul/2026)',
-  'Formato: poster/research-in-progress, 1.300 palavras',
-  'Fonte de dados: survey próprio, rede pessoal, sem uso de dados internos da Sanofi'
+  'Research question: v2 (locked on Jul 21, 2026)',
+  'Format: poster/research-in-progress, 1,300 words',
+  'Data source: own survey, personal network, no use of internal Sanofi data'
 ];
 
 // ── ENSURANCE CRONOGRAMA ──────────────────────────────────────────────────────────
@@ -1744,8 +1744,8 @@ const ENSURANCE_CRONOGRAMA = {
         {t:"Watch the lesson: Strategies for Write an Email (link). Go back to your Writing set 1 texts. Re-read them and review the feedback received. Redo the Writing exercise: Writing set 1 (link). Compare your Build a Sentence performance today with the first time you did that set.",l:["https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/3eapJbE94g","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/0OvaQvvx7j"]}
       ],
       2: [
-        {t:"Watch a lesson from the English for Real Beginners module covering the recurring grammar issues in the feedback you have received. Refaça o exercpicio de Listening: Listening set 2 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/oODgVNd67P"]},
-        {t:"Pratique repetição de frases com esta história: Cultural Differences : Individualism and Collectivism",l:["https://engnovate.com/dictation-shadowing-exercises/cultural-differences-individualism-and-collectivism/?mode=shadowing"]},
+        {t:"Watch a lesson from the English for Real Beginners module covering the recurring grammar issues in the feedback you have received. Redo the Listening exercise: Listening set 2 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej","https://hotmart.com/pt-BR/club/phdnoseua/products/3784297/content/oODgVNd67P"]},
+        {t:"Practice sentence repetition with this story: Cultural Differences : Individualism and Collectivism",l:["https://engnovate.com/dictation-shadowing-exercises/cultural-differences-individualism-and-collectivism/?mode=shadowing"]},
         {t:"In the Recommended Readings tab, choose a reading. Read carefully, making a list of words whose meaning you do not know.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
       ],
       3: [
@@ -1753,8 +1753,8 @@ const ENSURANCE_CRONOGRAMA = {
         {t:"In the Recommended Readings tab, choose a reading. Read carefully, making a list of words whose meaning you do not know.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
       ],
       4: [
-        {t:"Watch a lesson from the English for Real Beginners module covering the recurring grammar issues in the feedback you have received. Refaça o exercpicio de Listening: Listening set 14 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej","https://hotmart.com/en/club/phdnoseua/products/3784297/content/97BVrqPJ7p"]},
-        {t:"Pratique repetição de frases com esta história: Cultural Differences : Individualism and Collectivism",l:["https://engnovate.com/dictation-shadowing-exercises/cultural-differences-individualism-and-collectivism/?mode=shadowing"]},
+        {t:"Watch a lesson from the English for Real Beginners module covering the recurring grammar issues in the feedback you have received. Redo the Listening exercise: Listening set 14 (link)",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/z7rQZZ2Pej","https://hotmart.com/en/club/phdnoseua/products/3784297/content/97BVrqPJ7p"]},
+        {t:"Practice sentence repetition with this story: Cultural Differences : Individualism and Collectivism",l:["https://engnovate.com/dictation-shadowing-exercises/cultural-differences-individualism-and-collectivism/?mode=shadowing"]},
         {t:"In the Recommended Readings tab, choose a reading. Read carefully, making a list of words whose meaning you do not know.",l:["https://hotmart.com/en/club/phdnoseua/products/3784297/content/a4RDVmLL7n"]}
       ],
       5: [
@@ -2623,7 +2623,7 @@ function renderEnsurance(){
     const notesBorderColor=isGreen?'#BBF7D0':'#DDE3F5';
     const notesIconColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
     const notesLabelColor=hasNote?(isGreen?'#16A34A':'#2563EB'):'#94A3B8';
-    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Notes ✓':'Lesson notes'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><div id="notesprev-${cycleKey}" class="noteprev${noteLong?' clamped':''}" style="font-size:13px;color:#0F172A;line-height:1.6;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;background:rgba(255,255,255,0.6);word-break:break-word">${hasNote?noteToHtml(existingNote):'<span style="color:#94A3B8;font-style:italic">No notes yet — click “Open editor” to add a rich-text summary.</span>'}</div>${noteLong?`<button id="notestgl-${cycleKey}" onclick="toggleNotePreview('${cycleKey}')" style="margin-top:4px;width:100%;padding:4px;border:none;background:none;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">Mostrar +</button>`:''}<button onclick="openCycleNotesModal('${cycleKey}','Cycle ${cycleNum} · Week ${ensuranceWeek}')" style="margin-top:6px;width:100%;padding:7px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer">📝 Open editor</button></div>`;
+    notesSection.innerHTML=`<div onclick="const a=document.getElementById('${notesAreaId}');const open=a.style.display==='block';a.style.display=open?'none':'block';document.getElementById('${notesArrowId}').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${notesIconColor}" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span style="font-size:12px;color:${notesLabelColor}">${hasNote?'Notes ✓':'Lesson notes'}</span><span id="${notesArrowId}" style="color:${notesLabelColor};font-size:11px">${hasNote?'▾':'▸'}</span></div><div id="${notesAreaId}" style="display:${hasNote?'block':'none'};margin-top:6px"><div id="notesprev-${cycleKey}" class="noteprev${noteLong?' clamped':''}" style="font-size:13px;color:#0F172A;line-height:1.6;padding:8px;border:1px solid ${notesBorderColor};border-radius:6px;background:rgba(255,255,255,0.6);word-break:break-word">${hasNote?noteToHtml(existingNote):'<span style="color:#94A3B8;font-style:italic">No notes yet — click “Open editor” to add a rich-text summary.</span>'}</div>${noteLong?`<button id="notestgl-${cycleKey}" onclick="toggleNotePreview('${cycleKey}')" style="margin-top:4px;width:100%;padding:4px;border:none;background:none;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">Show more</button>`:''}<button onclick="openCycleNotesModal('${cycleKey}','Cycle ${cycleNum} · Week ${ensuranceWeek}')" style="margin-top:6px;width:100%;padding:7px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:13px;font-weight:600;cursor:pointer">📝 Open editor</button></div>`;
     card.appendChild(notesSection);
 
     cyclesDiv.appendChild(card);
@@ -3151,7 +3151,7 @@ function removeBulkTopic(){
 }
 function applyBulkDelete(){
   const n=selectedCardIds.size;
-  if(!n){toast('Selecione ao menos 1 card');return;}
+  if(!n){toast('Select at least 1 card');return;}
   if(!confirm('Delete '+n+' selected card(s)?'))return;
   cards=cards.filter(c=>!selectedCardIds.has(c.id));
   saveCA();toast('🗑 '+n+' card(s) deleted');selectedCardIds.clear();bulkSelectMode=false;renderCards();render();
@@ -4184,7 +4184,7 @@ function criticalErrorsHTML(){
   const perf=stats.patternPerf||{};
   const rows=Object.keys(perf).map(t=>({tag:t,wrong:perf[t].wrong||0,correct:perf[t].correct||0})).filter(r=>r.wrong>0);
   if(!rows.length){
-    return '<div style="text-align:center;color:#94A3B8;font-size:14px;padding:10px 0;line-height:1.6">Nenhum erro registrado ainda.<br>Erros aparecem aqui conforme você usa a AI Analysis Bridge (Grammar Errors) e pratica Build a Sentence/Complete the Words. 📊</div>';
+    return '<div style="text-align:center;color:#94A3B8;font-size:14px;padding:10px 0;line-height:1.6">No errors logged yet.<br>Errors show up here as you use the AI Analysis Bridge (Grammar Errors) and practice Build a Sentence/Complete the Words. 📊</div>';
   }
   const critical=rows.filter(r=>errorSeverity(r.tag)==='critical').sort((a,b)=>b.wrong-a.wrong);
   const refinement=rows.filter(r=>errorSeverity(r.tag)!=='critical').sort((a,b)=>b.wrong-a.wrong);
@@ -4196,8 +4196,8 @@ function criticalErrorsHTML(){
       +'<span style="font-size:13px;font-weight:700;color:'+color+'">'+r.wrong+'x</span></div>').join('');
     return h+'</div>';
   };
-  return section('🚨 Erros que custam pontos de graça (estruturais)','#B91C1C','#FEF2F2','#FECACA',critical,'Nenhum erro estrutural detectado ainda — ótimo sinal.')
-    +section('✏️ Erros de refinamento (gramática/vocabulário)','#B45309','#FFFBEB','#FDE68A',refinement,'Nenhum erro de refinamento registrado ainda.');
+  return section('🚨 Errors that cost easy points (structural)','#B91C1C','#FEF2F2','#FECACA',critical,'No structural errors detected yet — great sign.')
+    +section('✏️ Refinement errors (grammar/vocabulary)','#B45309','#FFFBEB','#FDE68A',refinement,'No refinement errors logged yet.');
 }
 function openCriticalErrorsModal(){
   document.getElementById('criticalErrorsContainer').innerHTML=criticalErrorsHTML();
@@ -4247,8 +4247,8 @@ function examCountdownDays(){
 }
 function examCountdownHTML(){
   const days=examCountdownDays();
-  if(days>0)return '🎯 '+days+' dia'+(days===1?'':'s')+' para o TOEFL';
-  return '🍀 Boa sorte na prova!';
+  if(days>0)return '🎯 '+days+' day'+(days===1?'':'s')+' until the TOEFL';
+  return '🍀 Good luck on the exam!';
 }
 function renderExamCountdown(){
   const el=document.getElementById('examCountdown');
@@ -4301,23 +4301,23 @@ function sprint_pastWeeksHTML(currentWeek){
   const body=weeks.map(w=>{
     const goals=weekGoals[w];
     const doneCount=goals.filter(g=>g.done).length;
-    return '<div style="margin-bottom:10px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:4px">Semana '+w+' — '+doneCount+'/'+goals.length+' concluída'+(goals.length===1?'':'s')+'</div>'
+    return '<div style="margin-bottom:10px"><div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:4px">Week '+w+' — '+doneCount+'/'+goals.length+' completed</div>'
       +goals.map(g=>'<div style="font-size:13px;color:'+(g.done?'#16A34A':'#94A3B8')+';padding:2px 0">'+(g.done?'✓':'○')+' '+esc(g.text)+'</div>').join('')
       +'</div>';
   }).join('');
   return '<div style="margin-top:12px;border-top:1px solid #E2E8F0;padding-top:10px">'
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
-    +'<span>🗂️ Ver semanas passadas</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
+    +'<span>🗂️ View past weeks</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
     +'<div class="mdlBody hid" style="margin-top:10px">'+body+'</div></div>';
 }
 function renderWeekSprint(){
   const el=document.getElementById('weekSprintContainer');if(!el)return;
   const info=sprintWeekInfo();
-  if(info.state==='done'){el.innerHTML='<div style="text-align:center;font-size:14px;color:#16A34A;font-weight:600">🍀 Boa sorte na prova!</div>';return;}
+  if(info.state==='done'){el.innerHTML='<div style="text-align:center;font-size:14px;color:#16A34A;font-weight:600">🍀 Good luck on the exam!</div>';return;}
   if(info.state==='before'){
     el.innerHTML='<div style="text-align:center">'
-      +'<div style="font-size:13px;color:#94A3B8;margin-bottom:4px">O sprint final de '+SPRINT_WEEKS+' semanas ainda não começou</div>'
-      +'<div style="font-size:14px;color:#475569">Começa em <strong style="font-family:\'DM Mono\',monospace">'+info.daysUntilStart+'</strong> dia'+(info.daysUntilStart===1?'':'s')+'</div>'
+      +'<div style="font-size:13px;color:#94A3B8;margin-bottom:4px">The final '+SPRINT_WEEKS+'-week sprint hasn\'t started yet</div>'
+      +'<div style="font-size:14px;color:#475569">Starts in <strong style="font-family:\'DM Mono\',monospace">'+info.daysUntilStart+'</strong> day'+(info.daysUntilStart===1?'':'s')+'</div>'
       +'</div>';
     return;
   }
@@ -4325,11 +4325,11 @@ function renderWeekSprint(){
   const goals=weekGoals[week]||[];
   const doneCount=goals.filter(g=>g.done).length;
   let h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
-    +'<div style="font-size:15px;font-weight:700;color:#0F172A;font-family:\'DM Mono\',monospace">Semana '+week+' de '+SPRINT_WEEKS+'</div>'
-    +(goals.length?'<div style="font-size:13px;color:#94A3B8">'+doneCount+'/'+goals.length+' concluídas</div>':'')
+    +'<div style="font-size:15px;font-weight:700;color:#0F172A;font-family:\'DM Mono\',monospace">Week '+week+' of '+SPRINT_WEEKS+'</div>'
+    +(goals.length?'<div style="font-size:13px;color:#94A3B8">'+doneCount+'/'+goals.length+' completed</div>':'')
     +'</div>';
   if(!goals.length){
-    h+='<div style="font-size:13px;color:#94A3B8;margin-bottom:10px">Nenhuma meta ainda para esta semana.</div>';
+    h+='<div style="font-size:13px;color:#94A3B8;margin-bottom:10px">No goals yet for this week.</div>';
   }else{
     h+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">'
       +goals.map(g=>'<div style="display:flex;align-items:center;gap:8px;padding:8px;background:#F8FAFF;border-radius:6px">'
@@ -4340,7 +4340,7 @@ function renderWeekSprint(){
       +'</div>';
   }
   h+='<div style="display:flex;gap:6px">'
-    +'<input id="sprintGoalInput" type="text" placeholder="Nova meta, ex: 3 simulados cronometrados" style="flex:1;font-size:13px;padding:8px 10px;border:1px solid #DDE3F5;border-radius:6px;outline:none;font-family:\'DM Sans\',sans-serif" onkeydown="if(event.key===\'Enter\')sprint_addGoal('+week+')">'
+    +'<input id="sprintGoalInput" type="text" placeholder="New goal, e.g. 3 timed simulations" style="flex:1;font-size:13px;padding:8px 10px;border:1px solid #DDE3F5;border-radius:6px;outline:none;font-family:\'DM Sans\',sans-serif" onkeydown="if(event.key===\'Enter\')sprint_addGoal('+week+')">'
     +'<button class="btn bpr bsm" onclick="sprint_addGoal('+week+')">+ Add</button>'
     +'</div>';
   h+=sprint_pastWeeksHTML(week);
@@ -4387,7 +4387,7 @@ function sim_toggle(){
 }
 function sim_renderToggleBtn(){
   const b=document.getElementById('simToggleBtn');if(!b)return;
-  b.textContent=sim_active?'🎯 Sair do Modo Simulação':'🎯 Iniciar Simulação Cronometrada';
+  b.textContent=sim_active?'🎯 Exit Simulation Mode':'🎯 Start Timed Simulation';
   b.style.background=sim_active?'#FEE2E2':'';
   b.style.color=sim_active?'#B91C1C':'';
   b.style.borderColor=sim_active?'#FECACA':'';
@@ -4423,10 +4423,10 @@ function sim_timeUp(){
   const hasText=!!(ta&&ta.value.trim());
   sim_lockEditor();
   if(hasText){
-    toast('⏰ Tempo esgotado — enviando sua resposta automaticamente');
+    toast('⏰ Time\'s up — submitting your response automatically');
     openAIModal(sim_key.startsWith('writing')?'writing':'speaking');
   }else{
-    toast('⏰ Tempo esgotado');
+    toast('⏰ Time\'s up');
   }
 }
 function sim_lockEditor(){
@@ -4447,9 +4447,9 @@ function sim_renderBadge(){
   const remain=Math.max(0,Math.round((sim_deadline-Date.now())/1000));
   const m=Math.floor(remain/60),s=remain%60;
   const urgent=remain<=30;
-  el.innerHTML='<span class="tag" style="background:#FEE2E2;color:#B91C1C;font-weight:700">🎯 SIMULAÇÃO</span>'
+  el.innerHTML='<span class="tag" style="background:#FEE2E2;color:#B91C1C;font-weight:700">🎯 SIMULATION</span>'
     +'<span style="font-family:\'DM Mono\',monospace;font-weight:700;font-size:16px;color:'+(urgent?'#DC2626':'#0F172A')+'">'+m+':'+String(s).padStart(2,'0')+'</span>'
-    +(sim_locked?'<span class="tag tgg">✓ enviado</span>':'');
+    +(sim_locked?'<span class="tag tgg">✓ submitted</span>':'');
 }
 function toefl_fmtSecs(s){
   s=Math.round(s);
@@ -4568,17 +4568,17 @@ function toeflScoreCardHTML(){
   const s=toefl_scoreEstimate();
   if(s.overall==null){
     return '<div class="card" style="margin-bottom:12px">'
-      +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">📊 Score Estimado</div>'
-      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6">Faça algumas atividades de Reading, Listening, Writing ou Speaking para ver sua estimativa aqui.</div>'
+      +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">📊 Estimated Score</div>'
+      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6">Complete a few Reading, Listening, Writing, or Speaking activities to see your estimate here.</div>'
       +'</div>';
   }
   const skillRow=(icon,label,val)=>{
-    if(val==null)return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="color:#94A3B8">sem dados ainda</span></div><div style="height:6px;background:#F1F5F9;border-radius:4px"></div></div>';
+    if(val==null)return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="color:#94A3B8">no data yet</span></div><div style="height:6px;background:#F1F5F9;border-radius:4px"></div></div>';
     const pct=Math.round(val/6*100),col=val>=5?'#16A34A':val>=3?'#2563EB':'#D97706';
     return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="font-family:\'DM Mono\',monospace;color:'+col+';font-weight:600">'+val.toFixed(1)+'/6 · '+toefl_cefrLabel(val)+'</span></div><div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px"></div></div></div>';
   };
   return '<div class="card" style="margin-bottom:12px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:2px">📊 Score Estimado</div>'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:2px">📊 Estimated Score</div>'
     +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">'
     +'<span style="font-family:\'DM Mono\',monospace;font-size:32px;font-weight:700;color:#2563EB">'+s.overall.toFixed(1)+'</span>'
     +'<span style="font-family:\'DM Mono\',monospace;font-size:15px;color:#94A3B8">/ 6 · '+toefl_cefrLabel(s.overall)+'</span>'
@@ -4587,7 +4587,7 @@ function toeflScoreCardHTML(){
     +skillRow('🎧','Listening',s.listening)
     +skillRow('✍️','Writing',s.writing)
     +skillRow('🎤','Speaking',s.speaking)
-    +'<div style="font-size:11.5px;color:#94A3B8;line-height:1.5;padding-top:8px;margin-top:2px;border-top:1px dashed #DDE3F5">Estimativa aproximada baseada nas suas últimas tentativas — não é a nota oficial do TOEFL (que usa um cálculo estatístico da ETS).</div>'
+    +'<div style="font-size:11.5px;color:#94A3B8;line-height:1.5;padding-top:8px;margin-top:2px;border-top:1px dashed #DDE3F5">Rough estimate based on your most recent attempts — not your official TOEFL score (which uses ETS\'s own statistical scoring).</div>'
     +'</div>';
 }
 function toeflHubHTML(){
@@ -5439,46 +5439,46 @@ function em_buildAnalysisPrompt(t){
   const scenario=em_cur?em_cur.context:'';
   const points=((em_cur&&em_cur.tasks)||[]).map((x,i)=>(i+1)+'. '+x).join('\n');
   const register=em_deriveRegister(em_cur&&em_cur.recipient);
-  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Write an Email" do módulo Writing (formato 2026: cenário de campus/situação cotidiana, resposta de 80-120 palavras, 7 minutos, avaliado na escala oficial 0-5 da ETS).\n\n'
-+'Cenário apresentado ao candidato: '+scenario+'\n'
-+'Pontos obrigatórios que a resposta deveria cobrir:\n'+points+'\n'
-+'Registro esperado (formal/informal, com base no destinatário): '+register+'\n'
-+'Resposta do candidato: '+t+'\n\n'
-+'Avalie a resposta usando o rubric oficial ETS de 6 faixas (0 a 5), considerando holisticamente:\n\n'
-+'FAIXA 5 — Resposta plenamente bem-sucedida: elaboração que sustenta efetivamente o propósito comunicativo; variedade sintática eficaz e vocabulário preciso/idiomático; uso consistente de convenções sociais apropriadas (educação, registro, formulação de pedidos/reclamações/recusas); praticamente nenhum erro além do esperado de um escritor competente sob condição de tempo (typos comuns, confusões tipo there/their não contam contra a nota).\n\n'
-+'FAIXA 4 — Resposta geralmente bem-sucedida: eficaz na maior parte e de fácil compreensão; elaboração adequada; variedade sintática e vocabulário apropriado; convenções sociais majoritariamente corretas; poucos erros léxicos/gramaticais.\n\n'
-+'FAIXA 3 — Resposta parcialmente bem-sucedida: cumpre a tarefa de modo geral, mas limitações de fluência podem prejudicar partes da mensagem; elaboração parcial do propósito comunicativo; faixa moderada de sintaxe e vocabulário; alguns erros perceptíveis de estrutura, forma de palavra, uso idiomático ou convenções sociais.\n\n'
-+'FAIXA 2 — Resposta majoritariamente malsucedida: reflete uma tentativa de endereçar a tarefa, mas é majoritariamente ineficaz; mensagem pode ser limitada ou difícil de interpretar; elaboração limitada ou irrelevante; linguagem conectada em nível de frase mas com faixa limitada de sintaxe/vocabulário; acúmulo de erros estruturais.\n\n'
-+'FAIXA 1 — Resposta malsucedida: tentativa ineficaz de endereçar a tarefa; limitações de linguagem podem impedir a expressão das ideias, ao ponto de a mensagem ser quase ininteligível; pouquíssima elaboração; linguagem telegráfica (frases curtas/desconectadas); erros sérios e frequentes; pouca linguagem original (muito copiada do enunciado).\n\n'
-+'FAIXA 0 — Resposta em branco, rejeita o tópico, não está em inglês, é cópia integral do enunciado, ou não tem relação alguma com o prompt.\n\n'
-+'REGRA CRÍTICA DE CALIBRAÇÃO: separe erros superficiais de digitação (typos como "alot", "didnt", confusões there/their, letra minúscula por pressa) de erros gramaticais reais (concordância verbal, gerúndio após preposição, infinitivo após modal, uso incorreto de artigo). Erros superficiais isolados NÃO reduzem a nota de uma resposta que, fora isso, atende à faixa 5. Só erros gramaticais recorrentes ou que prejudicam a clareza devem puxar a nota para baixo.\n\n'
-+'Além da análise de scoring em JSON, gere também um campo "modelAnswer5" contendo uma resposta modelo nota 5/5 (faixa 5, "fully successful") para este MESMO cenário de email (mesmo destinatário, mesmo contexto, mesmos pontos obrigatórios) — não um exemplo genérico. O modelo deve ter registro apropriado ao destinatário, estrutura de e-mail completa (saudação, corpo desenvolvido, fechamento), 150-200+ palavras, e nenhum erro de preposição, infinitivo após modal ou gerúndio após preposição.\n\n'
-+'Gere também um campo "modelAnswerNotes" (2-3 frases em português) destacando os 2-3 elementos que tornam esse modelo diferente da resposta do candidato — foco nos pontos que causaram a perda de nota dele.\n\n'
-+'Retorne SOMENTE um objeto JSON (sem markdown, sem texto antes ou depois), seguindo exatamente este schema:\n\n'
+  return 'You are a certified TOEFL iBT rater, specialized in the "Write an Email" Writing task (2026 format: campus/everyday scenario, 80-120 word response, 7 minutes, graded on the official ETS 0-5 scale).\n\n'
++'Scenario presented to the candidate: '+scenario+'\n'
++'Required points the response should cover:\n'+points+'\n'
++'Expected register (formal/informal, based on the recipient): '+register+'\n'
++'Candidate response: '+t+'\n\n'
++'Evaluate the response using the official ETS 6-band rubric (0 to 5), considered holistically:\n\n'
++'BAND 5 — Fully successful response: elaboration effectively supports the communicative purpose; effective syntactic variety and precise/idiomatic vocabulary; consistent use of appropriate social conventions (politeness, register, phrasing requests/complaints/refusals); virtually no errors beyond what is expected of a competent writer under timed conditions (common typos, there/their-type mix-ups do not count against the score).\n\n'
++'BAND 4 — Generally successful response: effective for the most part and easy to follow; adequate elaboration; appropriate syntactic variety and vocabulary; social conventions mostly correct; few lexical/grammatical errors.\n\n'
++'BAND 3 — Partially successful response: generally accomplishes the task, but fluency limitations may undermine parts of the message; partial elaboration of the communicative purpose; moderate range of syntax and vocabulary; some noticeable errors in structure, word form, idiomatic usage, or social conventions.\n\n'
++'BAND 2 — Mostly unsuccessful response: reflects an attempt to address the task, but is mostly ineffective; the message may be limited or hard to interpret; limited or irrelevant elaboration; language connected at the sentence level but with a limited range of syntax/vocabulary; accumulation of structural errors.\n\n'
++'BAND 1 — Unsuccessful response: ineffective attempt to address the task; language limitations may prevent the ideas from being expressed, to the point the message is nearly unintelligible; very little elaboration; telegraphic language (short/disconnected sentences); serious and frequent errors; little original language (largely copied from the prompt).\n\n'
++'BAND 0 — Blank response, rejects the topic, is not in English, is an entire copy of the prompt, or bears no relation to the prompt at all.\n\n'
++'CRITICAL CALIBRATION RULE: separate surface typing errors (typos like "alot", "didnt", there/their mix-ups, lowercase letters from typing fast) from real grammar errors (subject-verb agreement, gerund after preposition, infinitive after modal, incorrect article use). Isolated surface errors should NOT lower the score of a response that otherwise meets Band 5. Only recurring grammar errors, or ones that hurt clarity, should pull the score down.\n\n'
++'Beyond the JSON scoring analysis, also generate a "modelAnswer5" field containing a model 5/5 (Band 5, "fully successful") response for this SAME email scenario (same recipient, same context, same required points) — not a generic example. The model should use register appropriate to the recipient, a complete email structure (greeting, developed body, closing), 150-200+ words, and no preposition, infinitive-after-modal, or gerund-after-preposition errors.\n\n'
++'Also generate a "modelAnswerNotes" field (2-3 sentences in English) highlighting the 2-3 elements that make this model different from the candidate\'s response — focus on the points that cost them points.\n\n'
++'Return ONLY a JSON object (no markdown, no text before or after), following exactly this schema:\n\n'
 +'{\n'
 +'  "score": 0-5,\n'
 +'  "band_label": "fully successful | generally successful | partially successful | mostly unsuccessful | unsuccessful | no scorable response",\n'
 +'  "word_count": number,\n'
 +'  "word_count_flag": "ok | too_short | too_long",\n'
 +'  "points_coverage": [\n'
-+'    { "point": "texto do ponto obrigatório", "addressed": true/false, "elaboration_quality": "adequate | limited | none" }\n'
++'    { "point": "text of the required point", "addressed": true/false, "elaboration_quality": "adequate | limited | none" }\n'
 +'  ],\n'
 +'  "register_check": {\n'
 +'    "expected": "formal | informal",\n'
 +'    "matched": true/false,\n'
-+'    "notes": "breve explicação em português"\n'
++'    "notes": "brief explanation in English"\n'
 +'  },\n'
-+'  "syntactic_variety": "breve avaliação em português (ex: usa afirmação, pergunta e condicional / repetitivo, só afirmações simples)",\n'
++'  "syntactic_variety": "brief assessment in English (e.g. uses statement, question, and conditional / repetitive, only simple statements)",\n'
 +'  "surface_errors": [\n'
-+'    { "text": "trecho com o erro", "note": "typo comum, não afeta a nota" }\n'
++'    { "text": "excerpt with the error", "note": "common typo, does not affect the score" }\n'
 +'  ],\n'
 +'  "grammar_errors": [\n'
-+'    { "text": "trecho com o erro", "tag": "gerund-after-preposition | infinitive-after-modal | subject-verb-agreement | article | outro", "explanation": "breve explicação em inglês" }\n'
++'    { "text": "excerpt with the error", "tag": "gerund-after-preposition | infinitive-after-modal | subject-verb-agreement | article | other", "explanation": "brief explanation in English" }\n'
 +'  ],\n'
-+'  "strengths": ["ponto forte 1", "ponto forte 2"],\n'
-+'  "overall_feedback": "2-3 frases em português resumindo o desempenho e o principal ponto de melhoria",\n'
-+'  "modelAnswer5": "texto completo do exemplo 5/5 para este mesmo cenário",\n'
-+'  "modelAnswerNotes": "explicação curta do que diferencia o modelo da resposta do candidato"\n'
++'  "strengths": ["strength 1", "strength 2"],\n'
++'  "overall_feedback": "2-3 sentences in English summarizing performance and the main area for improvement",\n'
++'  "modelAnswer5": "full text of the 5/5 example for this same scenario",\n'
++'  "modelAnswerNotes": "short explanation of what differentiates the model from the candidate\'s response"\n'
 +'}';
 }
 // Store one row per AI-scored submission under the existing emailProgress
@@ -5772,22 +5772,22 @@ function wr_checklistConfirm(){
 function wr_buildAnalysisPrompt(t){
   const q=wr_cur?wr_cur.professorQuestion:'';
   const peers=wr_cur?('- '+wr_cur.peer1.name+': '+wr_cur.peer1.text+'\n- '+wr_cur.peer2.name+': '+wr_cur.peer2.text):'';
-  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Write for an Academic Discussion" do módulo Writing (formato 2026: pergunta do professor + 2 respostas de colegas, resposta de 100-130 palavras, 10 minutos, escala oficial ETS 0-5).\n\n'
-+'Pergunta do professor: '+q+'\n'
-+'Respostas dos colegas:\n'+peers+'\n'
-+'Resposta do candidato: '+t+'\n\n'
-+'Avalie usando o rubric oficial ETS de 6 faixas (0-5):\n\n'
-+'FAIXA 5 — Elaboração relevante e bem desenvolvida (explicações, exemplificações ou detalhes); variedade eficaz de estruturas sintáticas e escolha de palavras precisa/idiomática; praticamente nenhum erro além do esperado sob condição de tempo.\n\n'
-+'FAIXA 4 — Contribuição relevante, facilmente compreensível; elaboração adequada; variedade de estruturas e vocabulário apropriado; poucos erros léxicos/gramaticais.\n\n'
-+'FAIXA 3 — Contribuição majoritariamente relevante e compreensível; elaboração de um exemplo/detalhe pode estar ausente, pouco clara ou parcialmente irrelevante; alguma variedade sintática; alguns erros perceptíveis de estrutura, forma de palavra ou uso idiomático.\n\n'
-+'FAIXA 2 — Reflete uma tentativa de contribuir, mas limitações de linguagem tornam as ideias difíceis de acompanhar; elaboração fraca ou só parcialmente relevante; faixa limitada de estruturas/vocabulário; acúmulo de erros.\n\n'
-+'FAIXA 1 — Tentativa ineficaz; poucas ou nenhuma ideia coerente; faixa severamente limitada de vocabulário/estruturas; erros sérios e frequentes; linguagem pouco original (muito copiada do enunciado).\n\n'
-+'FAIXA 0 — Em branco, rejeita o tópico, não está em inglês, cópia integral do enunciado, ou sem relação com o prompt.\n\n'
-+'REGRA CRÍTICA: verifique OBRIGATORIAMENTE dois pontos que derrubam a nota independentemente da gramática: (a) a resposta declara uma posição clara logo nas primeiras frases? (b) a resposta referencia pelo menos um dos colegas (concordando, discordando, ou complementando o ponto dele)? Se qualquer um dos dois estiver ausente, a nota fica limitada a no máximo 3, mesmo com gramática impecável — sinalize isso explicitamente no feedback.\n\n'
-+'Separe erros superficiais de digitação (não afetam a nota) de erros gramaticais reais (concordância, gerúndio após preposição, infinitivo após modal, artigo).\n\n'
-+'Além da análise de scoring, gere também um campo "modelAnswer5" contendo uma resposta modelo nota 5/5 (faixa 5) para esta MESMA pergunta do professor e MESMOS colegas — não um exemplo genérico. O modelo DEVE referenciar nominalmente pelo menos um dos colegas mencionados acima (ex: "I agree with '+(wr_cur?wr_cur.peer1.name:'X')+' that..." / "Unlike '+(wr_cur?wr_cur.peer2.name:'Y')+', I believe..."), ter 150-225 palavras, variedade sintática (subordinação, orações relativas, conectores variados), e cada argumento apoiado por um exemplo concreto.\n\n'
-+'Gere também um campo "modelAnswerNotes" (2-3 frases em português) destacando os 2-3 elementos que tornam esse modelo diferente da resposta do candidato — foco nos pontos que causaram a perda de nota dele.\n\n'
-+'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
+  return 'You are a certified TOEFL iBT rater, specialized in the "Write for an Academic Discussion" Writing task (2026 format: professor question + 2 classmate responses, 100-130 word response, 10 minutes, official ETS 0-5 scale).\n\n'
++'Professor question: '+q+'\n'
++'Classmate responses:\n'+peers+'\n'
++'Candidate response: '+t+'\n\n'
++'Evaluate using the official ETS 6-band rubric (0-5):\n\n'
++'BAND 5 — Relevant and well-developed elaboration (explanations, examples, or details); effective variety of syntactic structures and precise/idiomatic word choice; virtually no errors beyond what is expected under timed conditions.\n\n'
++'BAND 4 — Relevant, easily understandable contribution; adequate elaboration; variety of structures and appropriate vocabulary; few lexical/grammatical errors.\n\n'
++'BAND 3 — Mostly relevant and understandable contribution; elaboration of an example/detail may be missing, unclear, or partially irrelevant; some syntactic variety; some noticeable errors in structure, word form, or idiomatic usage.\n\n'
++'BAND 2 — Reflects an attempt to contribute, but language limitations make the ideas hard to follow; weak or only partially relevant elaboration; limited range of structures/vocabulary; accumulation of errors.\n\n'
++'BAND 1 — Ineffective attempt; few or no coherent ideas; severely limited range of vocabulary/structures; serious and frequent errors; little original language (largely copied from the prompt).\n\n'
++'BAND 0 — Blank, rejects the topic, is not in English, an entire copy of the prompt, or bears no relation to the prompt.\n\n'
++'CRITICAL RULE: you MUST check two points that tank the score regardless of grammar: (a) does the response state a clear position within the first few sentences? (b) does the response reference at least one of the classmates (agreeing, disagreeing, or building on their point)? If either is missing, the score is capped at 3 at most, even with flawless grammar — flag this explicitly in the feedback.\n\n'
++'Separate surface typing errors (do not affect the score) from real grammar errors (agreement, gerund after preposition, infinitive after modal, article).\n\n'
++'Beyond the scoring analysis, also generate a "modelAnswer5" field containing a model 5/5 (Band 5) response for this SAME professor question and SAME classmates — not a generic example. The model MUST reference at least one of the classmates above by name (e.g. "I agree with '+(wr_cur?wr_cur.peer1.name:'X')+' that..." / "Unlike '+(wr_cur?wr_cur.peer2.name:'Y')+', I believe..."), be 150-225 words, show syntactic variety (subordination, relative clauses, varied connectors), and support each argument with a concrete example.\n\n'
++'Also generate a "modelAnswerNotes" field (2-3 sentences in English) highlighting the 2-3 elements that make this model different from the candidate\'s response — focus on the points that cost them points.\n\n'
++'Return ONLY a JSON object (no markdown, no text before or after):\n'
 +'{\n'
 +'  "score": 0-5,\n'
 +'  "band_label": string,\n'
@@ -5795,15 +5795,15 @@ function wr_buildAnalysisPrompt(t){
 +'  "word_count_flag": "ok | too_short | too_long",\n'
 +'  "has_clear_position": true/false,\n'
 +'  "references_peer": true/false,\n'
-+'  "position_and_peer_note": "explicação breve se algum dos dois estiver ausente",\n'
++'  "position_and_peer_note": "brief explanation if either is missing",\n'
 +'  "elaboration_quality": "adequate | limited | none",\n'
 +'  "syntactic_variety": string,\n'
 +'  "surface_errors": [{ "text": string, "note": string }],\n'
 +'  "grammar_errors": [{ "text": string, "tag": string, "explanation": string }],\n'
 +'  "strengths": [string],\n'
 +'  "overall_feedback": string,\n'
-+'  "modelAnswer5": "texto completo do exemplo 5/5 para esta mesma pergunta, referenciando um colega pelo nome",\n'
-+'  "modelAnswerNotes": "explicação curta do que diferencia o modelo da resposta do candidato"\n'
++'  "modelAnswer5": "full text of the 5/5 example for this same question, referencing a classmate by name",\n'
++'  "modelAnswerNotes": "short explanation of what differentiates the model from the candidate\'s response"\n'
 +'}';
 }
 function wr_logScore(scenarioId,score,tag,modelAnswer5,modelAnswerNotes){
@@ -6137,18 +6137,18 @@ function sp_play(){
 }
 function sp_buildAnalysisPrompt(t){
   const original=sp_cur?sp_cur.text:'';
-  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Listen and Repeat" do módulo Speaking (formato 2026: o candidato ouve uma frase uma única vez e a reproduz de memória, sem texto na tela, escala oficial ETS 0-5 por item).\n\n'
-+'Frase original (áudio-fonte): '+original+'\n'
-+'Transcrição da reprodução do candidato: '+t+'\n\n'
-+'Avalie usando o rubric oficial ETS de 6 faixas (0-5):\n\n'
-+'FAIXA 5 — Repetição exata ou captura completa do sentido; inteligibilidade não prejudicada.\n\n'
-+'FAIXA 4 — Captura o sentido, mas não é repetição exata; mudanças pequenas de palavras/gramática que não alteram o sentido; no máximo uma ou duas palavras de conteúdo ambíguas.\n\n'
-+'FAIXA 3 — Resposta essencialmente completa, mas não captura o sentido original com precisão; inteligibilidade ocasionalmente prejudica a compreensão.\n\n'
-+'FAIXA 2 — Falta uma parte significativa da frase e/ou é bastante imprecisa.\n\n'
-+'FAIXA 1 — Resposta fragmentada, repete só o início e para, ou preenche com conteúdo impreciso.\n\n'
-+'FAIXA 0 — Silêncio, resposta irrelevante, ou repetição da própria pergunta/frase-fonte.\n\n'
-+'Compare palavra por palavra a transcrição do candidato com a frase original. Identifique especificamente: palavras omitidas, palavras substituídas (o que ele ouviu vs. o que estava lá), e se a estrutura gramatical foi preservada.\n\n'
-+'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
+  return 'You are a certified TOEFL iBT rater, specialized in the "Listen and Repeat" Speaking task (2026 format: the candidate hears a sentence once and repeats it from memory, no text on screen, official ETS 0-5 scale per item).\n\n'
++'Original sentence (audio source): '+original+'\n'
++'Transcript of the candidate\'s repetition: '+t+'\n\n'
++'Evaluate using the official ETS 6-band rubric (0-5):\n\n'
++'BAND 5 — Exact repetition or complete capture of the meaning; intelligibility not impaired.\n\n'
++'BAND 4 — Captures the meaning, but is not an exact repetition; small word/grammar changes that do not alter the meaning; at most one or two ambiguous content words.\n\n'
++'BAND 3 — Essentially complete response, but does not precisely capture the original meaning; intelligibility occasionally impairs comprehension.\n\n'
++'BAND 2 — A significant part of the sentence is missing and/or it is quite imprecise.\n\n'
++'BAND 1 — Fragmented response, repeats only the beginning and stops, or fills in with imprecise content.\n\n'
++'BAND 0 — Silence, irrelevant response, or repetition of the question/source sentence itself.\n\n'
++'Compare the candidate\'s transcript word by word against the original sentence. Specifically identify: omitted words, substituted words (what they heard vs. what was there), and whether the grammatical structure was preserved.\n\n'
++'Return ONLY a JSON object (no markdown, no text before or after):\n'
 +'{\n'
 +'  "score": 0-5,\n'
 +'  "band_label": string,\n'
@@ -6336,27 +6336,27 @@ function iv_play(){
 function iv_buildAnalysisPrompt(t){
   const q=iv_cur?iv_cur.question:'';
   const interviewer=iv_cur?iv_cur.interviewer:'an interviewer';
-  return 'Você é um avaliador certificado do TOEFL iBT, especializado na tarefa "Take an Interview" do módulo Speaking (formato 2026: '+interviewer+' faz uma pergunta em áudio e o candidato responde espontaneamente, sem tempo de preparação, escala oficial ETS 0-5).\n\n'
-+'Pergunta do entrevistador: '+q+'\n'
-+'Resposta do candidato (transcrição): '+t+'\n\n'
-+'Avalie usando o rubric oficial ETS de 6 faixas (0-5):\n\n'
-+'FAIXA 5 — Resposta plenamente bem-sucedida: aborda totalmente a pergunta, é clara e fluente. A resposta é sobre o tópico e bem elaborada. Ritmo de fala conversacional bom, mantido com pausas apropriadas e naturais. Pronúncia é facilmente inteligível; ritmo e entonação transmitem o sentido com eficácia. Uma faixa de gramática e vocabulário precisos permite a expressão clara de sentidos precisos.\n\n'
-+'FAIXA 4 — Resposta geralmente bem-sucedida: aborda a pergunta e é razoavelmente clara. A resposta é sobre o tópico e elaborada, mas pode carecer de conectores eficazes em nível de frase. Ritmo de fala bom é geralmente mantido, com alguma pausa que pode afetar minimamente o fluxo. Inteligibilidade e sentido não são prejudicados por pronúncia, ritmo e entonação, embora palavras/frases ocasionais possam exigir esforço mínimo para entender. Gramática e vocabulário são adequados para expressar sentidos gerais na maior parte do tempo.\n\n'
-+'FAIXA 3 — Resposta parcialmente bem-sucedida: aborda a pergunta, mas com elaboração e/ou clareza limitadas. A resposta é geralmente sobre o tópico, mas a elaboração pode ser relativamente limitada. Pausas frequentes ou longas resultam em um ritmo entrecortado; palavras de preenchimento são frequentes. Inteligibilidade é às vezes afetada por imprecisões na pronúncia ou ritmo/acentuação em nível de palavra. Faixa e precisão limitadas de gramática e vocabulário restringem perceptivelmente a precisão e clareza dos sentidos.\n\n'
-+'FAIXA 2 — Resposta majoritariamente malsucedida: reflete uma tentativa de abordar a pergunta, mas não é sustentada de forma significativa e/ou inteligível. A resposta está minimamente conectada à pergunta do entrevistador, mas tem pouca ou nenhuma elaboração relevante, ou consiste principalmente de linguagem da própria pergunta. Inteligibilidade é limitada; o sentido pretendido pelo falante é frequentemente difícil de discernir. A resposta mostra uma faixa muito limitada de gramática e vocabulário.\n\n'
-+'FAIXA 1 — Resposta malsucedida: aborda minimamente a pergunta, e pode demonstrar controle muito limitado da linguagem. A resposta está apenas vagamente conectada à linguagem da pergunta do entrevistador. A resposta é majoritariamente ininteligível. A resposta consiste principalmente de palavras ou frases isoladas.\n\n'
-+'FAIXA 0 — Sem resposta OU a resposta é inteiramente ininteligível OU não há inglês na resposta OU o conteúdo é inteiramente desconectado da pergunta (ou consiste apenas de frases como "eu não sei").\n\n'
-+'Separe erros superficiais de digitação/transcrição (não afetam a nota) de problemas reais de conteúdo, elaboração, ritmo e gramática/vocabulário descritos no rubric acima.\n\n'
-+'Retorne SOMENTE um JSON (sem markdown, sem texto antes ou depois):\n'
+  return 'You are a certified TOEFL iBT rater, specialized in the "Take an Interview" Speaking task (2026 format: '+interviewer+' asks a question via audio and the candidate responds spontaneously, with no prep time, official ETS 0-5 scale).\n\n'
++'Interviewer\'s question: '+q+'\n'
++'Candidate response (transcript): '+t+'\n\n'
++'Evaluate using the official ETS 6-band rubric (0-5):\n\n'
++'BAND 5 — Fully successful response: fully addresses the question, is clear and fluent. The response is on-topic and well elaborated. Good conversational speaking pace, maintained with appropriate and natural pauses. Pronunciation is easily intelligible; pace and intonation effectively convey meaning. A range of accurate grammar and vocabulary allows precise meanings to be clearly expressed.\n\n'
++'BAND 4 — Generally successful response: addresses the question and is reasonably clear. The response is on-topic and elaborated, but may lack effective sentence-level connectors. Good speaking pace is generally maintained, with some pausing that may minimally affect flow. Intelligibility and meaning are not impaired by pronunciation, pace, and intonation, though occasional words/phrases may require minimal effort to understand. Grammar and vocabulary are adequate to express general meanings most of the time.\n\n'
++'BAND 3 — Partially successful response: addresses the question, but with limited elaboration and/or clarity. The response is generally on-topic, but elaboration may be relatively limited. Frequent or long pauses result in a choppy pace; filler words are frequent. Intelligibility is sometimes affected by inaccuracies in pronunciation or word-level pace/stress. Limited range and accuracy of grammar and vocabulary noticeably constrain the precision and clarity of meanings.\n\n'
++'BAND 2 — Mostly unsuccessful response: reflects an attempt to address the question, but is not meaningfully and/or intelligibly sustained. The response is minimally connected to the interviewer\'s question, but has little to no relevant elaboration, or mostly consists of language from the question itself. Intelligibility is limited; the speaker\'s intended meaning is often hard to discern. The response shows a very limited range of grammar and vocabulary.\n\n'
++'BAND 1 — Unsuccessful response: minimally addresses the question, and may show very limited control of the language. The response is only loosely connected to the language of the interviewer\'s question. The response is mostly unintelligible. The response mostly consists of isolated words or phrases.\n\n'
++'BAND 0 — No response, OR the response is entirely unintelligible, OR there is no English in the response, OR the content is entirely disconnected from the question (or consists only of phrases like "I don\'t know").\n\n'
++'Separate surface typing/transcription errors (do not affect the score) from real content, elaboration, pacing, and grammar/vocabulary issues as described in the rubric above.\n\n'
++'Return ONLY a JSON object (no markdown, no text before or after):\n'
 +'{\n'
 +'  "score": 0-5,\n'
 +'  "band_label": string,\n'
 +'  "on_topic": true/false,\n'
 +'  "elaboration": "well-developed | adequate | limited | minimal | none",\n'
-+'  "pacing_notes": "breve avaliação em português do ritmo/pausas",\n'
-+'  "pronunciation_notes": "breve avaliação em português de pronúncia/ritmo/entonação",\n'
-+'  "grammar_vocab_notes": "breve avaliação em português da faixa e precisão de gramática/vocabulário",\n'
-+'  "overall_feedback": "2-3 frases em português resumindo o desempenho e o principal ponto de melhoria"\n'
++'  "pacing_notes": "brief assessment in English of pace/pausing",\n'
++'  "pronunciation_notes": "brief assessment in English of pronunciation/pace/intonation",\n'
++'  "grammar_vocab_notes": "brief assessment in English of the range and accuracy of grammar/vocabulary",\n'
++'  "overall_feedback": "2-3 sentences in English summarizing performance and the main area for improvement"\n'
 +'}';
 }
 function iv_logScore(scenarioId,score,tag){
@@ -6434,10 +6434,10 @@ function iv_processResult(r){
 // Modal subtitle shown right below "Send this prompt to Claude", so it's
 // clear which official TOEFL task's rubric is about to be applied.
 function bridge_getTaskLabel(mode){
-  if(mode==='writing'&&em_active&&em_cur)return 'Avaliação oficial: Write an Email (TOEFL iBT)';
-  if(mode==='writing')return 'Avaliação oficial: Write for an Academic Discussion (TOEFL iBT)';
-  if(mode==='speaking'&&iv_active)return 'Avaliação oficial: Take an Interview (TOEFL iBT)';
-  if(mode==='speaking')return 'Avaliação oficial: Listen and Repeat (TOEFL iBT)';
+  if(mode==='writing'&&em_active&&em_cur)return 'Official evaluation: Write an Email (TOEFL iBT)';
+  if(mode==='writing')return 'Official evaluation: Write for an Academic Discussion (TOEFL iBT)';
+  if(mode==='speaking'&&iv_active)return 'Official evaluation: Take an Interview (TOEFL iBT)';
+  if(mode==='speaking')return 'Official evaluation: Listen and Repeat (TOEFL iBT)';
   return '';
 }
 // Collapsible "model answer" card shared by Email and Academic Discussion
@@ -7096,8 +7096,8 @@ function renderPeua(){
     html+=`<div draggable="true" ondragstart="dragStartPeua(event,${activePeuaMonth},${idx})" ondragover="dragOverPeua(event)" ondrop="dropPeua(event,${activePeuaMonth},${idx})" ondragend="dragEndPeua(event)" style="display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:8px;background:${isDone?'#F0FDF4':'#F8FAFF'};border:1px solid ${isDone?'#BBF7D0':'#E5E7EB'};transition:all 0.2s;cursor:grab;user-select:none" class="peuaTaskItem">
       <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
         <div style="display:flex;flex-direction:column;gap:2px;opacity:0.6">
-          <button onclick="movePeuaTask(${activePeuaMonth},${idx},-1)" ${canMoveUp?'':'disabled'} style="width:20px;height:16px;padding:0;border-radius:3px;border:1px solid #DDE3F5;background:#fff;cursor:${canMoveUp?'pointer':'not-allowed'};font-size:10px;color:#475569;opacity:${canMoveUp?'1':'0.3'};transition:all 0.2s" title="Mover para cima">▲</button>
-          <button onclick="movePeuaTask(${activePeuaMonth},${idx},1)" ${canMoveDown?'':'disabled'} style="width:20px;height:16px;padding:0;border-radius:3px;border:1px solid #DDE3F5;background:#fff;cursor:${canMoveDown?'pointer':'not-allowed'};font-size:10px;color:#475569;opacity:${canMoveDown?'1':'0.3'};transition:all 0.2s" title="Mover para baixo">▼</button>
+          <button onclick="movePeuaTask(${activePeuaMonth},${idx},-1)" ${canMoveUp?'':'disabled'} style="width:20px;height:16px;padding:0;border-radius:3px;border:1px solid #DDE3F5;background:#fff;cursor:${canMoveUp?'pointer':'not-allowed'};font-size:10px;color:#475569;opacity:${canMoveUp?'1':'0.3'};transition:all 0.2s" title="Move up">▲</button>
+          <button onclick="movePeuaTask(${activePeuaMonth},${idx},1)" ${canMoveDown?'':'disabled'} style="width:20px;height:16px;padding:0;border-radius:3px;border:1px solid #DDE3F5;background:#fff;cursor:${canMoveDown?'pointer':'not-allowed'};font-size:10px;color:#475569;opacity:${canMoveDown?'1':'0.3'};transition:all 0.2s" title="Move down">▼</button>
         </div>
         <span style="font-size:16px;opacity:0.5;cursor:grab;flex-shrink:0;display:none;@media(max-width:768px){display:none}">⋮⋮</span>
         <input type="checkbox" ${isDone?'checked':''} onchange="togglePeuaTask(${activePeuaMonth},${idx},this.checked)" style="width:14px;height:14px;margin-top:2px;cursor:pointer;flex-shrink:0">
@@ -7105,7 +7105,7 @@ function renderPeua(){
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
         <button onclick="openPeuaNotesModal(${activePeuaMonth},'${taskUid}','${taskAttr}')" style="position:relative;padding:4px 6px;border-radius:4px;border:1px solid ${taskHasNote?'#7C3AED':'#DDD6FE'};background:${taskHasNote?'#F5F3FF':'#FAF5FF'};cursor:pointer;font-size:12px;color:#7C3AED;transition:all 0.2s" title="${taskHasNote?'Edit note':'Add note'}">📝${taskHasNote?'<span style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#10B981;border:1px solid #fff"></span>':''}</button>
-        <button onclick="openEditPeuaTask(${activePeuaMonth},${idx},'${taskAttr}')" style="padding:4px 6px;border-radius:4px;border:1px solid #BFDBFE;background:#EFF6FF;cursor:pointer;font-size:12px;color:#2563EB;transition:all 0.2s" title="Editar">✏️</button>
+        <button onclick="openEditPeuaTask(${activePeuaMonth},${idx},'${taskAttr}')" style="padding:4px 6px;border-radius:4px;border:1px solid #BFDBFE;background:#EFF6FF;cursor:pointer;font-size:12px;color:#2563EB;transition:all 0.2s" title="Edit">✏️</button>
         <button onclick="deletePeuaTask(${activePeuaMonth},${idx})" style="padding:4px 6px;border-radius:4px;border:1px solid #FECACA;background:#FEF2F2;cursor:pointer;font-size:12px;color:#DC2626;transition:all 0.2s" title="Delete">🗑️</button>
       </div>
       ${isDone?'<span style="color:#10B981;font-weight:600;font-size:12px;flex-shrink:0">✓</span>':''}
@@ -7229,26 +7229,26 @@ function renderAma(){
     +'<div style="font-size:14px;color:#94A3B8;font-style:italic">'+esc(AMA_FORMAT)+'</div></div>'
     +'<div style="text-align:right;flex-shrink:0">'
     +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:#2563EB">'+overall.done+'/'+overall.total+'</div>'
-    +'<div style="font-size:13px;color:#94A3B8">'+overallPct+'% concluído</div></div></div>'
+    +'<div style="font-size:13px;color:#94A3B8">'+overallPct+'% complete</div></div></div>'
     +'<div style="width:100%;height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-bottom:12px">'
     +'<div style="height:100%;width:'+overallPct+'%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:4px;transition:width .4s"></div></div>'
     +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">'
     +'<div style="background:#fff;border:1px solid #FECACA;border-radius:8px;padding:10px">'
-    +'<div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Prazo real (AMA)</div>'
-    +'<div style="font-size:15px;font-weight:700;color:#DC2626">19/ago/2026</div>'
-    +'<div style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+(dDeadline>=0?dDeadline+' dias restantes':'prazo encerrado')+'</div></div>'
+    +'<div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Real deadline (AMA)</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#DC2626">Aug 19, 2026</div>'
+    +'<div style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+(dDeadline>=0?dDeadline+' days left':'deadline passed')+'</div></div>'
     +'<div style="background:#fff;border:1px solid #BBF7D0;border-radius:8px;padding:10px">'
-    +'<div style="font-size:13px;color:#94A3B8;margin-bottom:2px">Minha meta interna</div>'
-    +'<div style="font-size:15px;font-weight:700;color:#16A34A">12/ago/2026</div>'
-    +'<div style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+(dGoal>=0?dGoal+' dias restantes':'meta vencida')+'</div></div>'
+    +'<div style="font-size:13px;color:#94A3B8;margin-bottom:2px">My internal target</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#16A34A">Aug 12, 2026</div>'
+    +'<div style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+(dGoal>=0?dGoal+' days left':'target passed')+'</div></div>'
     +'</div></div>'
     +'<div class="card" style="padding:14px;margin-bottom:14px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">🎯 Trilha de submissão</div>'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">🎯 Submission track</div>'
     +'<div style="font-size:14px;color:#475569;line-height:1.6;margin-bottom:6px">'+esc(AMA_TRACK)+'</div>'
     +'<div style="font-size:13px;color:#7C3AED;font-weight:600;margin-bottom:4px">'+esc(AMA_TRACK_CHAIRS)+'</div>'
     +'<div style="font-size:13px;color:#94A3B8;font-style:italic;line-height:1.5">'+esc(AMA_TRACK_TIP)+'</div></div>'
     +'<div class="card" style="padding:14px;margin-bottom:14px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px">📋 Estrutura oficial exigida pela AMA</div>'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px">📋 Official structure required by the AMA</div>'
     +'<ol style="margin:0 0 8px 18px;padding:0;font-size:14px;color:#475569;line-height:1.7">'
     +AMA_STRUCTURE.map(s=>'<li>'+esc(s)+'</li>').join('')
     +'</ol>'
@@ -7258,7 +7258,7 @@ function renderAma(){
     const c=amaWeekCounts(w);
     const on=activeAmaWeek===w.week;
     return '<button onclick="switchAmaWeek('+w.week+')" style="padding:8px 12px;border-radius:8px;border:1px solid '+(on?'#2563EB':'#DDE3F5')+';background:'+(on?'#2563EB':'#fff')+';color:'+(on?'#fff':'#475569')+';cursor:pointer;font-weight:600;font-size:14px;transition:all .15s;text-align:left">'
-      +'<div>Semana '+w.week+'</div>'
+      +'<div>Week '+w.week+'</div>'
       +'<div style="font-size:13px;font-weight:400;opacity:.85">'+esc(w.range)+' · '+c.done+'/'+c.total+'</div></button>';
   }).join('');
 
@@ -7269,7 +7269,7 @@ function renderAma(){
 
   let html='<div class="card" style="border:1px solid #DDE3F5;padding:14px;margin-bottom:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">'
-    +'<div><div style="font-size:18px;font-weight:700;color:#0F172A">Semana '+w.week+' — '+esc(w.range)+'</div>'
+    +'<div><div style="font-size:18px;font-weight:700;color:#0F172A">Week '+w.week+' — '+esc(w.range)+'</div>'
     +'<div style="font-size:14px;color:#475569;margin-top:2px">'+esc(w.title)+'</div></div>'
     +'<div style="text-align:right;font-size:14px;flex-shrink:0"><div style="font-weight:600;color:#2563EB">'+c.done+'/'+c.total+'</div><div style="font-size:13px;color:#94A3B8">'+pctW+'%</div></div></div>'
     +'<div style="width:100%;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;margin-bottom:14px">'
@@ -7288,24 +7288,24 @@ function renderAma(){
     html+='</div>';
   });
 
-  html+='<div style="margin-top:10px;padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:14px;color:#1D4ED8"><strong>Entregável da semana:</strong> '+esc(w.deliverable)+'</div>';
+  html+='<div style="margin-top:10px;padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:14px;color:#1D4ED8"><strong>Deliverable for the week:</strong> '+esc(w.deliverable)+'</div>';
   html+='</div>';
 
   // References — reference material for Week 1's reading tasks, kept visible
   // regardless of the selected week since later weeks may still cite them.
   html+='<div class="card" style="padding:14px;margin-bottom:14px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px">📚 Referências-chave (12)</div>';
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px">📚 Key References (12)</div>';
   AMA_REFS.forEach(block=>{
     html+='<div style="font-size:13px;font-weight:600;color:#7C3AED;margin:10px 0 6px">'+esc(block.block)+'</div>';
     block.items.forEach(it=>{
       html+='<div style="font-size:14px;color:#475569;line-height:1.5;margin-bottom:6px"><strong style="color:#0F172A">'+it.n+'.</strong> '+esc(it.cite)+' — <a href="'+esc(it.url)+'" target="_blank" rel="noopener" style="color:#2563EB;word-break:break-all">'+esc(it.url)+'</a></div>';
     });
   });
-  html+='<div style="font-size:13px;color:#94A3B8;margin-top:8px;font-style:italic;line-height:1.5">Nota: '+esc(AMA_REFS_NOTE)+'</div></div>';
+  html+='<div style="font-size:13px;color:#94A3B8;margin-top:8px;font-style:italic;line-height:1.5">Note: '+esc(AMA_REFS_NOTE)+'</div></div>';
 
   // Decision log
   html+='<div class="card" style="padding:14px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px">🗒️ Registro de decisões</div>'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:8px">🗒️ Decision log</div>'
     +'<ul style="margin:0;padding-left:18px;font-size:14px;color:#475569;line-height:1.7">'
     +AMA_DECISIONS.map(d=>'<li>'+esc(d)+'</li>').join('')
     +'</ul></div>';
@@ -7356,8 +7356,8 @@ function isHtmlNote(s){return /<[a-z!/][\s\S]*>/i.test(String(s==null?'':s));}
 function noteToHtml(s){s=String(s==null?'':s);return isHtmlNote(s)?sanitizeNoteHtml(s):formatText(s);}
 // Plain-text length of a note (tags stripped) — used to decide whether to clamp.
 function noteTextLen(s){s=String(s==null?'':s);if(isHtmlNote(s)){const d=document.createElement('div');d.innerHTML=s;return (d.textContent||'').replace(/\s+/g,' ').trim().length;}return s.replace(/\s+/g,' ').trim().length;}
-// Expand/collapse a long cycle-note preview ("Mostrar +" / "Mostrar −").
-function toggleNotePreview(key){const p=document.getElementById('notesprev-'+key);const b=document.getElementById('notestgl-'+key);if(!p)return;const clamped=p.classList.toggle('clamped');if(b)b.textContent=clamped?'Mostrar +':'Mostrar −';}
+// Expand/collapse a long cycle-note preview ("Show more" / "Show less").
+function toggleNotePreview(key){const p=document.getElementById('notesprev-'+key);const b=document.getElementById('notestgl-'+key);if(!p)return;const clamped=p.classList.toggle('clamped');if(b)b.textContent=clamped?'Show more':'Show less';}
 // Light sanitiser: drop scripts/styles/embeds and any on*/javascript: handlers so
 // pasted content can't inject anything. Personal single-user data, kept pragmatic.
 function sanitizeNoteHtml(html){
@@ -7793,14 +7793,14 @@ function renderSentences(){
   if(!lst) return;
   lst.innerHTML = '';
   if(mysentences.length === 0){
-    lst.innerHTML = '<div style="color:#94A3B8;font-size:14px;padding:8px">Adicione suas primeiras frases</div>';
+    lst.innerHTML = '<div style="color:#94A3B8;font-size:14px;padding:8px">Add your first sentences</div>';
     return;
   }
   mysentences.forEach((s,i)=>{
     const div = document.createElement('div');
     div.className = 'sentence-item' + (i === selectedSentenceIdx ? ' selected' : '');
     const contextText = s.context ? `<div style="font-size:14px;color:#6B7280;margin-top:4px">${s.context}</div>` : '';
-    div.innerHTML = `<div style="flex:1"><div class="sentence-text">${s.text}</div>${contextText}</div><div class="sentence-actions"><button class="sentence-btn" onclick="openEditModal(${i})" title="Editar">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Delete">🗑️</button></div>`;
+    div.innerHTML = `<div style="flex:1"><div class="sentence-text">${s.text}</div>${contextText}</div><div class="sentence-actions"><button class="sentence-btn" onclick="openEditModal(${i})" title="Edit">✏️</button><button class="sentence-btn" onclick="deleteSentence(${i})" title="Delete">🗑️</button></div>`;
     div.addEventListener('click',(e)=>{if(!e.target.closest('.sentence-btn')) selectSentence(i);});
     lst.appendChild(div);
   });
@@ -8176,8 +8176,8 @@ function renderMonthProgress(){
 const DEFAULT_MILESTONES={
   'obsidian':{name:'Obsidian Vault Setup',completed:false},
   'podcast':{name:'Native Podcast 100%',completed:false},
-  'escrita':{name:'Escrita Fluida (200+ words)',completed:false},
-  'fala':{name:'Fala Confiante com Nuance',completed:false},
+  'escrita':{name:'Fluent Writing (200+ words)',completed:false},
+  'fala':{name:'Confident Speaking with Nuance',completed:false},
   'academic':{name:'Academic Writing Mastery',completed:false},
   'exam':{name:'C1 Exam Ready',completed:false}
 };
@@ -8208,49 +8208,49 @@ function renderMilestones(){
   if (!container) return;
 
   const TOEFL_MILESTONES = {
-    "maio": {month: 5, title: "🌱 Month 1: Foundations (Maio)", icon: "🌱", target: "Baseline & Test Format", desc: "Build foundation for 8-month journey", weeks: [
+    "maio": {month: 5, title: "🌱 Month 1: Foundations (May)", icon: "🌱", target: "Baseline & Test Format", desc: "Build foundation for 8-month journey", weeks: [
       {w: 1, focus: "📋 Test Format Mastery", tasks: ["Take official diagnostic (TOEFL practice test 1)", "Score each section (R/L/S/W)", "Identify weakest area (priority for July-Aug)"], checkpoint: "Know test structure, score breakdown"},
       {w: 2, focus: "🎯 Goal Setting & Planning", tasks: ["Create study schedule (5-7 days/week)", "Set section targets: Reading 22+, Listening 20+, Speaking 20+, Writing 22+", "Join study group or find accountability partner"], checkpoint: "Clear roadmap for next 7 months"},
       {w: 3, focus: "📚 Baseline Assessment", tasks: ["Analyze diagnostic weaknesses (reading speed? listening detail? speaking fluency?)", "Watch 2-3 official TOEFL videos on each section", "Review official TOEFL rubrics for Speaking/Writing"], checkpoint: "Know exact weak areas"},
       {w: 4, focus: "🚀 Start Section Review", tasks: ["Read 1 official passage + 10 Q's (target 60%)", "Listen to 1 lecture + 6 Q's (target 50%)", "Record independent speaking task (task 1)"], checkpoint: "Feel the rhythm of exam"}
     ]},
-    "junho": {month: 6, title: "📖 Month 2: Reading + Listening (Junho)", icon: "📖", target: "Reading 18-20/30, Listening 15-18/30", desc: "Build receptive skills foundation (65-75% accuracy)", weeks: [
+    "junho": {month: 6, title: "📖 Month 2: Reading + Listening (June)", icon: "📖", target: "Reading 18-20/30, Listening 15-18/30", desc: "Build receptive skills foundation (65-75% accuracy)", weeks: [
       {w: 1, focus: "🔍 Reading Strategy: Skimming", tasks: ["Learn TOEFL reading format (2 passages, 10 Q each, 35 min)", "Practice skimming 3 passages (5 min each)", "Focus on main idea questions first"], checkpoint: "Time: 5-7 min per passage, 60%+ accuracy"},
       {w: 2, focus: "📖 Reading Vocabulary & Inference", tasks: ["Extract 50 academic words from 3 passages", "Do 15 vocabulary-in-context questions", "Practice 10 inference questions"], checkpoint: "Know 50 new academic words"},
       {w: 3, focus: "👂 Listening Part 1: Conversations", tasks: ["Complete 6 official conversations (3 min each)", "Take Cornell notes (main idea + key details)", "Identify question types: detail, inference, purpose"], checkpoint: "70%+ on conversation questions"},
       {w: 4, focus: "🎓 Listening Part 2: Lectures", tasks: ["Complete 6 official lectures (5 min each)", "Focus on lecture structure (intro > main > examples)", "Practice 24 questions total"], checkpoint: "70%+ on lecture questions, good notes"}
     ]},
-    "julho": {month: 7, title: "🎤 Month 3: Speaking Mastery (Julho)", icon: "🎤", target: "Speaking 20+/30 (fluency + content)", desc: "Master 4 speaking tasks, 45-60s responses", weeks: [
+    "julho": {month: 7, title: "🎤 Month 3: Speaking Mastery (July)", icon: "🎤", target: "Speaking 20+/30 (fluency + content)", desc: "Master 4 speaking tasks, 45-60s responses", weeks: [
       {w: 1, focus: "🗣️ Task 1: Independent Speaking", tasks: ["Understand task 1 format (personal experience, 45s)", "Template: Intro (5s) + 2 detailed examples (20s) + conclusion (5s)", "Record 5 responses on different topics", "Self-assess: clear examples? natural pace?"], checkpoint: "45s response with 2 clear examples"},
       {w: 2, focus: "💬 Tasks 2-4: Integrated Speaking", tasks: ["Understand integrated tasks (read passage > listen > speak 60s)", "Template: Paraphrase source + key point from lecture/reading", "Practice 3 complete sets of tasks 2-4", "Focus: smooth transitions, no fillers (um, like)"], checkpoint: "60s response with synthesis of 2 sources"},
       {w: 3, focus: "🎙️ Pronunciation & Delivery", tasks: ["Record all 4 tasks (10 min total)", "Listen for: stress placement, intonation, connected speech", "Practice 10 minimal pairs (th, r/l, vowels)", "Record again - compare before/after"], checkpoint: "Natural delivery, clear pronunciation"},
       {w: 4, focus: "🔥 Speaking Fluency Boot Camp", tasks: ["3x full mock (4 tasks back-to-back, 16 min each)", "Grade for: content (20%), fluency (20%), pronunciation (20%), delivery (40%)", "Self-score: aim for 15-18/30", "Record weakest task 3x for review"], checkpoint: "Confident 60s responses, minimal hesitation"}
     ]},
-    "agosto": {month: 8, title: "✍️ Month 4: Writing Mastery (Agosto)", icon: "✍️", target: "Writing 22+/30 (structure + grammar)", desc: "Master essays: synthesis + discussion, 350+ words", weeks: [
+    "agosto": {month: 8, title: "✍️ Month 4: Writing Mastery (August)", icon: "✍️", target: "Writing 22+/30 (structure + grammar)", desc: "Master essays: synthesis + discussion, 350+ words", weeks: [
       {w: 1, focus: "📝 Task 1: Integrated Essay (Synthesis)", tasks: ["Learn task 1 format (read + listen + write, 20 min, 150-225 words)", "Essay structure: Intro + Body (3 paragraphs) + Conclusion", "Template: Reading says X, Lecture says Y, Connection is Z", "Write 3 essays from official materials"], checkpoint: "200+ word essay, clear synthesis"},
       {w: 2, focus: "✏️ Task 2: Academic Discussion", tasks: ["Learn task 2 format (10 min, 100+ words, agree/disagree)", "Structure: Intro (opinion) + Body (2 reasons + examples) + Conclusion", "Practice writing 5 responses on different topics", "Grade for: opinion clarity, reason strength, example quality"], checkpoint: "150+ word response, clear position"},
       {w: 3, focus: "🔧 Grammar & Sentence Variety", tasks: ["Check all 8 essays for: subject-verb agreement, tense consistency, article usage", "Add variety: complex sentences, compound sentences, transitions", "Count sentence types: write 50%+ complex sentences", "No repeated sentence starters"], checkpoint: "Error-free essay, varied syntax"},
       {w: 4, focus: "⏱️ Timed Writing & Confidence", tasks: ["3x full writing section (2 essays, 50 min total)", "Task 1: 20 min for 200 words (no editing after)", "Task 2: 10 min for 150 words", "Grade both: Self-score 20-22/30"], checkpoint: "Complete both essays in time with 20+/30 score"}
     ]},
-    "setembro": {month: 9, title: "⏱️ Month 5: Full Mock Tests (Setembro)", icon: "⏱️", target: "Full-length mocks: 65-75/120", desc: "Complete 3-4 full tests, build endurance", weeks: [
+    "setembro": {month: 9, title: "⏱️ Month 5: Full Mock Tests (September)", icon: "⏱️", target: "Full-length mocks: 65-75/120", desc: "Complete 3-4 full tests, build endurance", weeks: [
       {w: 1, focus: "🧪 Mock Test 1 (Full)", tasks: ["Complete one full TOEFL (Reading + Listening + Speaking + Writing, 3+ hours)", "Conditions: quiet, timed, no breaks (except official ones)", "Score all 4 sections (0-30 scale)", "Analyze: which questions did you rush?"], checkpoint: "Full test completed, baseline score 60-70"},
       {w: 2, focus: "📊 Error Analysis & Focus Areas", tasks: ["Review mock 1: categorize errors (careless, unclear, too slow, knowledge gap)", "Identify pattern: are errors in one skill? one question type?", "Create focus list: top 5 weak areas", "Plan targeted drills for September"], checkpoint: "Clear action plan from mock 1"},
       {w: 3, focus: "🎯 Mock Test 2 + Drills", tasks: ["Drill weakest area 3x before mock 2", "Complete mock test 2 (full, timed, same conditions)", "Score again - should see 3-5 point improvement", "Compare mock 1 vs 2: progress? still weak areas?"], checkpoint: "65-75/120 on mock 2"},
       {w: 4, focus: "🔄 Refine Strategies", tasks: ["Take mock 3 (optional)", "Focus on: pacing (don't rush!), accuracy over speed", "Review top 10 errors across all mocks", "Solidify strategies: which study method works best?"], checkpoint: "Consistent score 65-75 across mocks"}
     ]},
-    "outubro": {month: 10, title: "🔥 Month 6: Final Push (Outubro)", icon: "🔥", target: "Each section 20+/30, total 70-80/120", desc: "Intensive weak area drills, Polish strategies", weeks: [
+    "outubro": {month: 10, title: "🔥 Month 6: Final Push (October)", icon: "🔥", target: "Each section 20+/30, total 70-80/120", desc: "Intensive weak area drills, Polish strategies", weeks: [
       {w: 1, focus: "📚 Listening Deep Dive", tasks: ["Take 3 full listening sections (3 days) with detailed note review", "Goal: 25+/30 on each (80%+ accuracy)", "Analyze: lecture vs conversation? main idea vs detail?", "If weak: drill that question type 20x before next mock"], checkpoint: "80%+ on listening questions"},
       {w: 2, focus: "📖 Reading Speed + Accuracy", tasks: ["Take 3 full reading sections (timed 35 min)", "Goal: 25+/30 (80%+ accuracy)", "Track: which passages faster? which question types harder?", "Do vocabulary drills if vocabulary-in-context weak"], checkpoint: "Complete reading in time with 80%+ accuracy"},
       {w: 3, focus: "🗣️ Speaking Confidence Boost", tasks: ["Record 2 full speaking sections (8 tasks total)", "Self-grade by rubric: aim for 23-24/30", "If weak: drill delivery/pronunciation until confident", "Practice responses to 20 new topics"], checkpoint: "Consistent 22-24/30 on speaking"},
       {w: 4, focus: "✍️ Writing Polish", tasks: ["Write 4 essays under timed conditions", "Grade both task 1 & 2: aim for 23-24/30", "Proofread obsessively - each error costs 1-2 points", "Goal: 350+ words, error-free"], checkpoint: "Consistent 22-24/30 on writing"}
     ]},
-    "novembro": {month: 11, title: "✨ Month 7: Polish & Review (Novembro)", icon: "✨", target: "Consistent 78-82/120, Confidence 8/10", desc: "Vocabulary mastery, template review, confidence building", weeks: [
+    "novembro": {month: 11, title: "✨ Month 7: Polish & Review (November)", icon: "✨", target: "Consistent 78-82/120, Confidence 8/10", desc: "Vocabulary mastery, template review, confidence building", weeks: [
       {w: 1, focus: "🔤 Vocabulary Final Push", tasks: ["Review 150+ academic words you learned", "Daily flashcard review: 30 min/day", "Goal: 90%+ recognition + usage", "Use new words in writing practice"], checkpoint: "Know 150+ academic words cold"},
       {w: 2, focus: "📋 Essay Templates & Examples", tasks: ["Memorize strong essay templates for task 1 & 2", "Collect 10 powerful real-world examples", "Practice: can you write 350+ words in 30 min?", "Do 2 full writing sections"], checkpoint: "Templates & examples ready for exam"},
       {w: 3, focus: "🎙️ Speaking Polish", tasks: ["Record 2 full speaking sections", "Focus: pronunciation, pace, examples", "Aim for 24-25/30", "Do 20 independent topics practice"], checkpoint: "Polished delivery, high confidence"},
       {w: 4, focus: "🎯 Final Confidence Builder", tasks: ["Take 1 final full mock", "Goal: 78-82/120 (confirms readiness)", "Review any remaining weak spots", "Prep logistics: test center, photo ID, what to bring"], checkpoint: "Confidence 8/10, ready for January exam"}
     ]},
-    "janeiro": {month: 1, title: "🎉 January: TOEFL Exam (Janeiro)", icon: "🎉", target: "Official Score: 80+ (R:22+ L:20+ S:20+ W:22+)", desc: "January 2027 TOEFL iBT Test Day", weeks: [
+    "janeiro": {month: 1, title: "🎉 January: TOEFL Exam", icon: "🎉", target: "Official Score: 80+ (R:22+ L:20+ S:20+ W:22+)", desc: "January 2027 TOEFL iBT Test Day", weeks: [
       {w: 1, focus: "🗓️ Exam Logistics", tasks: ["Confirm test date, center location, time", "Prepare: passport/ID, admission ticket, calculator", "Light review only - trust 8 months of preparation", "Get good sleep"], checkpoint: "Ready for exam day"},
       {w: 2, focus: "📝 Test Day - TOEFL 80+", tasks: ["Read all instructions carefully (2 min)", "Reading: 35 min, target 22+/30", "Listening: 41 min, target 20+/30", "Speaking: 16 min, target 20+/30 (fluent, clear)", "Writing: 50 min, target 22+/30 (error-free, 350+)"], checkpoint: "Complete all 4 sections, submit on time"},
       {w: 3, focus: "🏆 Results & Reflection", tasks: ["Receive official TOEFL score (usually 2-3 days)", "If 80+: Celebrate! 🎉 Goal achieved!", "If <80: Identify weak areas, plan retake strategy", "Document: what worked? what to improve?"], checkpoint: "Official TOEFL iBT results"},
@@ -8264,7 +8264,7 @@ function renderMilestones(){
     try { completed = JSON.parse(stored); } catch(e) {}
   }
 
-  let html = '<div style="padding: 14px 0; font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 14px;">🎯 TOEFL 80+ Roadmap (8 Months Detalhado)</div>';
+  let html = '<div style="padding: 14px 0; font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 14px;">🎯 TOEFL 80+ Roadmap (8-Month Detailed Plan)</div>';
 
   Object.entries(TOEFL_MILESTONES).forEach(([key, m]) => {
     const isCompleted = completed[key] === true;
