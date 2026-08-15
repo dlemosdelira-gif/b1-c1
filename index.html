@@ -907,11 +907,13 @@ textarea{min-height:120px}
     <div class="card csm" style="background:#FEF3C7;border-color:#FCD34D">
       <div style="font-size:14px;font-weight:600;color:#B45309;text-align:center;margin-bottom:10px">🎧 Speaking</div>
       <div class="exmode-bar" style="margin-bottom:10px">
-        <button class="exmode-btn on" id="spm-lr" onclick="sp_setMode(false)">🔊 Listen and Repeat</button>
-        <button class="exmode-btn" id="spm-iv" onclick="sp_setMode(true)">🎙️ Take an Interview</button>
+        <button class="exmode-btn on" id="spm-lr" onclick="sp_setMode('lr')">🔊 Listen and Repeat</button>
+        <button class="exmode-btn" id="spm-iv" onclick="sp_setMode('iv')">🎙️ Take an Interview</button>
+        <button class="exmode-btn" id="spm-chunk" onclick="sp_setMode('chunk')">🧩 Chunk &amp; Delay Trainer</button>
       </div>
       <div id="listenRepeatBox"></div>
       <div id="interviewBox" class="hid"></div>
+      <div id="chunkTrainerBox" class="hid"></div>
     </div>
   </div>
 
@@ -1000,7 +1002,7 @@ let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RWG=null;
 let weekGoals={};
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null;
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RCHP=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
@@ -1022,6 +1024,14 @@ let sp_cur=null,sp_lastId=null,sp_played=false;
 let sp_packFilter='';
 try{sp_packFilter=localStorage.getItem('c1spPack')||'';}catch(e){sp_packFilter='';}
 let iv_cur=null,iv_lastId=null,iv_active=false;
+// Chunk & Delay Trainer — drills the SAME Listen and Repeat packs (spSentences),
+// not a separate content bank. State: which pack/sentence-index the trainer is
+// at, per-item chunk/stress cache + fail streak, and a __scoreLog like sp_'s.
+let chunk_active=false,sp_chunkCur=null,sp_chunkStage='ready',sp_chunkSuggestNext=null;
+let sp_chunkDelayTimer=null,sp_chunkTrainer_lastFeedback='';
+let sp_chunkProgress={packs:{},items:{}};
+let sp_chunkPackFilter='';
+try{sp_chunkPackFilter=localStorage.getItem('c1chPack')||'';}catch(e){sp_chunkPackFilter='';}
 // Reading/Listening comprehension: Read in Daily Life (rd), Read an Academic Passage (ra),
 // and later the four Listening task types share one generic multiple-choice engine (see
 // RQ_TYPES/rq_* below). rqItems/rqProgress/rq_cur/etc. are keyed by task type.
@@ -4157,8 +4167,8 @@ function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math
 // AI-graded tasks). toeflActivity holds the currently open activity key, or
 // null while the hub menu itself is showing.
 let toeflActivity=null;
-const TOEFL_ACT_LABEL={complete:'Complete the Words',rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk',build:'Build a Sentence','writing:email':'Write an Email','writing:discussion':'Write for an Academic Discussion','speaking:lr':'Listen and Repeat','speaking:iv':'Take an Interview'};
-const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓',build:'🧩','writing:email':'📧','writing:discussion':'📝','speaking:lr':'🔊','speaking:iv':'🎙️'};
+const TOEFL_ACT_LABEL={complete:'Complete the Words',rd:'Read in Daily Life',ra:'Read an Academic Passage',lcr:'Listen and Choose a Response',lc:'Listen to a Conversation',an:'Listen to an Announcement',at:'Listen to an Academic Talk',build:'Build a Sentence','writing:email':'Write an Email','writing:discussion':'Write for an Academic Discussion','speaking:lr':'Listen and Repeat','speaking:iv':'Take an Interview','speaking:chunk':'Chunk & Delay Trainer'};
+const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣️',an:'📢',at:'🎓',build:'🧩','writing:email':'📧','writing:discussion':'📝','speaking:lr':'🔊','speaking:iv':'🎙️','speaking:chunk':'🧩'};
 // ── TOEFL ACTIVITY TIMER / PACING ───────────────────────────────────────────
 // ETS only publishes an approx. time per SECTION (shown in the hub table), not
 // per task type, so these per-item/per-scenario targets are practice-pacing
@@ -4167,7 +4177,7 @@ const TOEFL_ACT_ICON={complete:'✏️',rd:'📰',ra:'📖',lcr:'💬',lc:'🗣�
 // build) are timed per item, from when it loads to when Check is pressed.
 // Writing/Speaking are timed per visit to the activity, from opening it to
 // submitting for analysis.
-const TOEFL_ACT_TARGET={complete:90,rd:75,ra:180,lcr:25,lc:110,an:80,at:150,build:40,'writing:email':420,'writing:discussion':480,'speaking:lr':10,'speaking:iv':45};
+const TOEFL_ACT_TARGET={complete:90,rd:75,ra:180,lcr:25,lc:110,an:80,at:150,build:40,'writing:email':420,'writing:discussion':480,'speaking:lr':10,'speaking:iv':45,'speaking:chunk':20};
 // ── EXAM COUNTDOWN ───────────────────────────────────────────────────────────
 const TOEFL_EXAM_DATE='2026-09-30';
 // Whole calendar days from today to the exam date, both taken as local
@@ -4535,7 +4545,7 @@ function toeflHubHTML(){
       ['build',bsItems.length],['writing:email',emScenarios.length],['writing:discussion',wrScenarios.length]
     ]},
     {name:'Speaking',items:11,time:8,band:false,rows:[
-      ['speaking:lr',spSentences.length],['speaking:iv',ivInterviews.length]
+      ['speaking:lr',spSentences.length],['speaking:iv',ivInterviews.length],['speaking:chunk',spSentences.length]
     ]}
   ];
   let rowsHTML='';
@@ -4574,7 +4584,7 @@ function toeflShow(key){
     sp=document.getElementById('toeflSpeaking'),rb=document.getElementById('toeflResponseBox'),
     duebadge=document.getElementById('duecnt');
   const isWriting=key==='writing:email'||key==='writing:discussion';
-  const isSpeaking=key==='speaking:lr'||key==='speaking:iv';
+  const isSpeaking=key==='speaking:lr'||key==='speaking:iv'||key==='speaking:chunk';
   const isExercise=key==='build'||key==='complete'||!!RQ_LABEL[key];
   hub.classList.toggle('hid',key!=null);
   back.classList.toggle('hid',key==null);
@@ -4586,7 +4596,7 @@ function toeflShow(key){
   if(key!=null){
     document.getElementById('toeflActTitle').textContent=TOEFL_ACT_ICON[key]+' '+TOEFL_ACT_LABEL[key];
     if(isWriting){em_setMode(key==='writing:email');}
-    else if(isSpeaking){sp_setMode(key==='speaking:iv');}
+    else if(isSpeaking){sp_setMode(key==='speaking:iv'?'iv':(key==='speaking:chunk'?'chunk':'lr'));}
     else if(key==='build'){if(!bs_cur&&!bs_checked)bs_load();}
     else if(key==='complete'){if(!cw_cur&&!cw_checked)cw_load();}
     else if(RQ_LABEL[key]){if(rq_cur[key]===undefined)rq_load(key);}
@@ -5804,8 +5814,11 @@ function sp_renderScenario(){
 // sp_scoreTrendHTML, which stays as-is for the immediate post-grading
 // feedback view): a longer chronological bar chart plus an average-by-pack
 // breakdown, collapsed by default like the Useful Phrases/Exemplo 5/5 cards.
-function sp_evolutionHTML(){
-  const log=(spProgress.__scoreLog||[]).filter(x=>typeof x.score==='number');
+// Shared by classic Listen and Repeat's AI-graded log and the Chunk & Delay
+// Trainer's locally-scored log — same shape, same layout, just a different
+// unit label and data source.
+function toefl_scoreEvolutionHTML(log,unitLabel){
+  log=(log||[]).filter(x=>typeof x.score==='number');
   if(!log.length)return '';
   const recent=log.slice(-20);
   const bars=recent.map(e=>{
@@ -5829,11 +5842,12 @@ function sp_evolutionHTML(){
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
     +'<span>📈 Your Evolution</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
     +'<div class="mdlBody hid" style="margin-top:10px">'
-    +'<div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">Last '+recent.length+' AI-scored repetition'+(recent.length===1?'':'s')+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">Last '+recent.length+' '+unitLabel+(recent.length===1?'':'s')+'</div>'
     +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:4px;margin-bottom:14px">'+bars+'</div>'
     +(tagRows?'<div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:6px">By pack</div><div class="gg">'+tagRows+'</div>':'')
     +'</div></div>';
 }
+function sp_evolutionHTML(){return toefl_scoreEvolutionHTML(spProgress.__scoreLog,'AI-scored repetition');}
 function sp_shuffle(){sp_pick(sp_cur?sp_cur.id:null);sp_renderScenario();}
 function sp_play(){
   if(!sp_cur)return;
@@ -5957,32 +5971,399 @@ function sp_processResult(r){
   sp_renderFeedback(r);
   sp_renderScenario();
 }
-// Toggles between the app's two Speaking tasks (mirrors em_setMode's
-// Email/Academic Discussion toggle for Writing).
-function sp_setMode(on){
-  iv_active=!!on;
-  if(toeflActivity==='speaking:lr'||toeflActivity==='speaking:iv'){
-    toeflActivity=iv_active?'speaking:iv':'speaking:lr';
+// Toggles between the app's three Speaking sub-modes (mirrors em_setMode's
+// Email/Academic Discussion toggle for Writing). mode is 'lr'|'iv'|'chunk'.
+function sp_setMode(mode){
+  iv_active=mode==='iv';
+  chunk_active=mode==='chunk';
+  if(toeflActivity==='speaking:lr'||toeflActivity==='speaking:iv'||toeflActivity==='speaking:chunk'){
+    toeflActivity=iv_active?'speaking:iv':(chunk_active?'speaking:chunk':'speaking:lr');
     const tt=document.getElementById('toeflActTitle');if(tt)tt.textContent=TOEFL_ACT_ICON[toeflActivity]+' '+TOEFL_ACT_LABEL[toeflActivity];
     toefl_itemStart(toeflActivity);
-    if(sim_active)sim_start(toeflActivity);
+    // Chunk Trainer is a drilling tool, not an official exam task — kept out
+    // of Simulation Mode via the same SIM_KEYS allow-list sim_toggle() uses.
+    if(sim_active&&SIM_KEYS.includes(toeflActivity))sim_start(toeflActivity);
   }
-  document.getElementById('spm-lr').classList.toggle('on',!iv_active);
+  document.getElementById('spm-lr').classList.toggle('on',!iv_active&&!chunk_active);
   document.getElementById('spm-iv').classList.toggle('on',iv_active);
+  document.getElementById('spm-chunk').classList.toggle('on',chunk_active);
   const lrBox=document.getElementById('listenRepeatBox');
   const ivBox=document.getElementById('interviewBox');
+  const chunkBox=document.getElementById('chunkTrainerBox');
+  // Chunk Trainer grades itself locally (no external AI-bridge round trip
+  // per repetition), so the shared "🎤 Speaking" AI button doesn't apply here.
+  const speakBtn=document.getElementById('speakingbtn');
+  if(speakBtn)speakBtn.classList.toggle('hid',chunk_active);
+  lrBox.classList.toggle('hid',iv_active||chunk_active);
+  ivBox.classList.toggle('hid',!iv_active);
+  chunkBox.classList.toggle('hid',!chunk_active);
   if(iv_active){
-    lrBox.classList.add('hid');
     if(!iv_cur)iv_pick();
-    ivBox.classList.remove('hid');
     iv_renderScenario();
+  }else if(chunk_active){
+    if(!sp_chunkCur)sp_chunkTrainer_pick();
+    sp_chunkTrainer_render();
   }else{
-    ivBox.classList.add('hid');
     if(!sp_cur)sp_pick();
-    lrBox.classList.remove('hid');
     sp_renderScenario();
   }
   chunks_refreshPanel();
+}
+
+// ── CHUNK & DELAY TRAINER (sp_chunkTrainer_*) ────────────────────────────────
+// A drilling sub-mode over the SAME Listen and Repeat packs (spSentences) —
+// not a separate content bank. Pack order 1-7 doubles as the difficulty ramp:
+// CHUNK_TRAINER_LEVEL_BY_ORDER maps it to levels 1-5, which
+// CHUNK_TRAINER_DELAY_MS_BY_LEVEL turns into the blank-screen delay (2s→4s).
+// Unlike classic Listen and Repeat (graded via the external AI bridge —
+// paste a prompt into Claude, paste the JSON back), this mode grades every
+// repetition with a small local word-level diff. That's a deliberate
+// departure, not an oversight: an external round trip on every single
+// repetition would defeat the point of a fast delay→repeat drill loop. The
+// resulting 0-5 band is a local heuristic, not the official ETS-graded score
+// — labeled as such everywhere it's shown.
+const CHUNK_TRAINER_LEVEL_BY_ORDER=[1,1,2,2,3,4,5];
+const CHUNK_TRAINER_DELAY_MS_BY_LEVEL=[0,2000,2500,3000,3500,4000]; // index 1-5; [0] unused
+const CHUNK_TRAINER_FUNCTION_WORDS=new Set(['a','an','the','in','on','at','to','for','of','with','by','from','about','into','onto','over','under','between','through','during','before','after','since','until','above','below','across','against','along','among','around','behind','beside','beyond','despite','except','inside','near','outside','past','toward','towards','upon','within','without','as','than','i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','its','our','their','mine','yours','hers','ours','theirs','this','that','these','those','who','whom','whose','which','what','am','is','are','was','were','be','being','been','do','does','did','have','has','had','will','would','shall','should','can','could','may','might','must','and','but','or','nor','so','yet','because','although','though','while','if','unless']);
+const CHUNK_TRAINER_SPLIT_WORDS=new Set(['and','but','or','because','since','although','though','while','if','that','when','before','after','so','which','who','where']);
+function sp_chunkTrainer_isContentWord(word){
+  const clean=word.toLowerCase().replace(/[^a-z']/g,'');
+  return !!clean&&!CHUNK_TRAINER_FUNCTION_WORDS.has(clean);
+}
+// Heuristic phrase-boundary chunker targeting 2-4 chunks: candidate split
+// points are right after a comma/semicolon or right before a common
+// connective word; each of the (targetCount-1) cuts picks the candidate
+// closest to its ideal even-division mark, falling back to a plain
+// word-count split if nothing linguistic is nearby. Not linguistically
+// exhaustive — good enough for these short, mostly single-clause sentences.
+function sp_chunkTrainer_splitChunks(text){
+  const words=text.trim().split(/\s+/).filter(Boolean);
+  const n=words.length;
+  if(n<=3)return [text.trim()];
+  const targetCount=n<=6?2:(n<=10?3:4);
+  const candidates=[];
+  for(let i=1;i<n;i++){
+    const prevEndsComma=/[,;]$/.test(words[i-1]);
+    const isConnective=CHUNK_TRAINER_SPLIT_WORDS.has(words[i].toLowerCase().replace(/[^a-z']/g,''));
+    if(prevEndsComma||isConnective)candidates.push(i);
+  }
+  const cuts=[];
+  for(let k=1;k<targetCount;k++){
+    const targetIdx=Math.round((n*k)/targetCount);
+    let best=null,bestDist=Infinity;
+    candidates.forEach(c=>{
+      if(cuts.includes(c))return;
+      const d=Math.abs(c-targetIdx);
+      if(d<bestDist){bestDist=d;best=c;}
+    });
+    cuts.push(best!=null&&bestDist<=3?best:targetIdx);
+  }
+  const uniqueCuts=[...new Set(cuts)].filter(c=>c>0&&c<n).sort((a,b)=>a-b);
+  const bounds=[0,...uniqueCuts,n];
+  return bounds.slice(0,-1).map((s,i)=>words.slice(s,bounds[i+1]).join(' ')).filter(Boolean);
+}
+// Computed once per sentence then persisted onto sp_chunkProgress.items, so
+// re-entering the trainer never recomputes chunking/stress for an item
+// already seen (and keeps the split stable even if the heuristic changes).
+function sp_chunkTrainer_ensureCache(item){
+  if(!item)return null;
+  let entry=sp_chunkProgress.items[item.id];
+  if(entry&&entry.chunks&&entry.chunks.length)return entry;
+  const chunks=sp_chunkTrainer_splitChunks(item.text);
+  const stress=item.text.trim().split(/\s+/).filter(Boolean).map(sp_chunkTrainer_isContentWord);
+  entry=Object.assign({failStreak:0,lastScore:null,spaced:false,spacedDate:null},entry||{},{chunks,stress});
+  sp_chunkProgress.items[item.id]=entry;
+  sp_chunkTrainer_saveProgress();
+  return entry;
+}
+function sp_chunkTrainer_level(item){return item?(CHUNK_TRAINER_LEVEL_BY_ORDER[(item.order||1)-1]||1):1;}
+function sp_chunkTrainer_delayMs(item){return CHUNK_TRAINER_DELAY_MS_BY_LEVEL[sp_chunkTrainer_level(item)]||2000;}
+function sp_chunkTrainer_saveProgress(){
+  localStorage.setItem('c1chp',JSON.stringify(sp_chunkProgress));
+  const hasData=Object.keys(sp_chunkProgress.packs||{}).length||Object.keys(sp_chunkProgress.items||{}).length;
+  fbSet(RCHP,hasData?sp_chunkProgress:null);
+}
+function sp_chunkTrainer_setPackFilter(v){
+  sp_chunkPackFilter=v||'';
+  try{localStorage.setItem('c1chPack',sp_chunkPackFilter);}catch(e){}
+  sp_chunkTrainer_pick();
+  sp_chunkTrainer_render();
+}
+function sp_chunkTrainer_packItems(setId){return spSentences.filter(s=>s.set===setId).sort((a,b)=>(a.order||0)-(b.order||0));}
+// Reuses sp_packs() (the same pack list Listen and Repeat's selector reads)
+// but tracks its OWN progression pointer per pack — switching packs here
+// never disturbs classic Listen and Repeat's spProgress, and vice versa.
+function sp_chunkTrainer_activeSet(){
+  if(sp_chunkPackFilter)return sp_chunkPackFilter;
+  const packs=sp_packs();
+  for(const p of packs){
+    const items=sp_chunkTrainer_packItems(p.set);
+    const idx=(sp_chunkProgress.packs[p.set]&&sp_chunkProgress.packs[p.set].idx)||0;
+    if(idx<items.length)return p.set;
+  }
+  return packs.length?packs[0].set:null;
+}
+function sp_chunkTrainer_pick(){
+  const setId=sp_chunkTrainer_activeSet();
+  sp_chunkSuggestNext=null;
+  if(!setId){sp_chunkCur=null;return;}
+  const items=sp_chunkTrainer_packItems(setId);
+  if(!sp_chunkProgress.packs[setId])sp_chunkProgress.packs[setId]={idx:0};
+  const idx=sp_chunkProgress.packs[setId].idx||0;
+  if(idx>=items.length){
+    sp_chunkCur=null;
+    // The resolved pack has nothing left — true whether it's a single
+    // pinned pack that just finished, or (via activeSet()'s packs[0]
+    // fallback) every pack being done in "All packs" mode. Scan every OTHER
+    // pack for anything unfinished before claiming there's nothing left, so
+    // a pinned-and-complete pack correctly offers the next available one
+    // instead of a misleading "all packs complete".
+    const packs=sp_packs();
+    for(const p of packs){
+      if(p.set===setId)continue;
+      const pItems=sp_chunkTrainer_packItems(p.set);
+      const pIdx=(sp_chunkProgress.packs[p.set]&&sp_chunkProgress.packs[p.set].idx)||0;
+      if(pIdx<pItems.length){sp_chunkSuggestNext=p;break;}
+    }
+    return;
+  }
+  sp_chunkCur=items[idx];
+  sp_chunkStage='ready';
+  sp_chunkTrainer_ensureCache(sp_chunkCur);
+  toefl_itemStart('speaking:chunk');
+}
+function sp_chunkTrainer_speak(text){
+  if('speechSynthesis'in window){
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US';u.rate=0.9;
+    window.speechSynthesis.speak(u);
+  }else{
+    toast('⚠️ Speech playback not supported in this browser');
+  }
+}
+function sp_chunkTrainer_play(){
+  if(!sp_chunkCur)return;
+  sp_chunkTrainer_speak(sp_chunkCur.text);
+  sp_chunkStage='blank';
+  sp_chunkTrainer_render();
+  const delay=sp_chunkTrainer_delayMs(sp_chunkCur);
+  clearTimeout(sp_chunkDelayTimer);
+  sp_chunkDelayTimer=setTimeout(()=>{sp_chunkStage='record';sp_chunkTrainer_render();},delay);
+}
+// Word-level LCS alignment between the original sentence and the candidate's
+// transcript, classifying each original word as matched/omitted/altered and
+// leftover transcript words as added. Small inputs only (one sentence at a
+// time), so the O(n*m) DP table is negligible. This is new logic, not a
+// reuse of an existing app-wide diff — the app's only prior word-diff
+// (escola_diffMiddle) is a prefix/suffix trim, not general alignment.
+function sp_chunkTrainer_norm(w){return w.toLowerCase().replace(/[^a-z0-9']/g,'');}
+function sp_chunkTrainer_diff(originalText,transcriptText){
+  const orig=originalText.trim().split(/\s+/).filter(Boolean);
+  const said=transcriptText.trim().split(/\s+/).filter(Boolean);
+  const on=orig.map(sp_chunkTrainer_norm),sn=said.map(sp_chunkTrainer_norm);
+  const n=on.length,m=sn.length;
+  const dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i][j]=on[i]===sn[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const matched=new Array(n).fill(false),usedSaid=new Array(m).fill(false);
+  let i=0,j=0;
+  while(i<n&&j<m){
+    if(on[i]===sn[j]){matched[i]=true;usedSaid[j]=true;i++;j++;}
+    else if(dp[i+1][j]>=dp[i][j+1]){i++;}
+    else{j++;}
+  }
+  // Unmatched original words and unused transcript words are paired 1:1 in
+  // order (altered = a substitution), with any surplus classified as pure
+  // omitted (original side) or added (transcript side).
+  const unmatchedOrigIdx=[],unusedSaidIdx=[];
+  for(let k=0;k<n;k++)if(!matched[k])unmatchedOrigIdx.push(k);
+  for(let k=0;k<m;k++)if(!usedSaid[k])unusedSaidIdx.push(k);
+  const pairCount=Math.min(unmatchedOrigIdx.length,unusedSaidIdx.length);
+  const altered=[],omitted=[];
+  for(let k=0;k<pairCount;k++)altered.push({original:orig[unmatchedOrigIdx[k]],heard:said[unusedSaidIdx[k]]});
+  for(let k=pairCount;k<unmatchedOrigIdx.length;k++)omitted.push(orig[unmatchedOrigIdx[k]]);
+  const added=unusedSaidIdx.slice(pairCount).map(k=>said[k]);
+  return {omitted,altered,added,origWordCount:n};
+}
+function sp_chunkTrainer_scoreFromDiff(diff){
+  const n=Math.max(1,diff.origWordCount);
+  if(!diff.omitted.length&&!diff.altered.length&&!diff.added.length)return 5;
+  const ratio=(diff.omitted.length+diff.altered.length)/n;
+  if(ratio<=0.15&&diff.added.length<=1)return 4;
+  if(ratio<=0.4)return 3;
+  if(ratio<=0.7)return 2;
+  return 1;
+}
+function sp_chunkTrainer_logScore(sentenceId,score,tag){
+  if(typeof score!=='number')return;
+  const log=sp_chunkProgress.__scoreLog=sp_chunkProgress.__scoreLog||[];
+  log.push({date:today,score,scenarioId:sentenceId||'',tag:tag||''});
+  if(log.length>50)log.splice(0,log.length-50);
+}
+// Feeds the app's existing error-taxonomy (ex_logPattern → Critical Errors
+// panel) and, for weak repetitions, the Build-a-Sentence fill-in-the-blank
+// bank — reusing systems that actually still exist. (Academic Vocabulary was
+// deliberately removed earlier so TOEFL stages stay faithful to the real
+// exam; this does not resurrect it.) Uses tag 'chunk-trainer', distinct from
+// the unrelated 'chunk' flashcard type already used by Useful Phrases/Anki
+// imports, to avoid mixing the two card sets.
+function sp_chunkTrainer_captureErrors(item,diff,score){
+  diff.omitted.forEach(()=>ex_logPattern('chunk-omitted-word',false,'chunk'));
+  diff.altered.forEach(()=>ex_logPattern('chunk-altered-word',false,'chunk'));
+  diff.added.forEach(()=>ex_logPattern('chunk-added-word',false,'chunk'));
+  if(!diff.omitted.length&&!diff.altered.length&&!diff.added.length)ex_logPattern('chunk-omitted-word',true,'chunk');
+  if(score<=2&&(diff.omitted.length||diff.altered.length)){
+    const chunks=(sp_chunkProgress.items[item.id]&&sp_chunkProgress.items[item.id].chunks)||[item.text];
+    const badWord=(diff.omitted[0]||(diff.altered[0]&&diff.altered[0].original)||'').toLowerCase();
+    const badChunk=chunks.find(c=>badWord&&c.toLowerCase().includes(badWord))||chunks[0];
+    const frame=badChunk?item.text.replace(badChunk,'___'):item.text;
+    if(frame!==item.text&&!bsItems.some(b=>b.frame===frame&&b.tag==='chunk-trainer')){
+      bsItems.push({id:'bsu-'+uid(),tag:'chunk-trainer',prompt:'From your Chunk & Delay Trainer practice — fill in the missing chunk:',frame,answer:[badChunk],distract:diff.altered[0]?[diff.altered[0].heard]:[],custom:true});
+      bs_saveItems();
+    }
+  }
+}
+// Progression rule: advance past the current sentence only on a Faixa 4-5
+// (score>=4). On failure the same sentence/level repeats; after 3
+// consecutive fails it's marked for spaced review (~48h) but still advances,
+// so a stuck item can't lock up the whole session.
+function sp_chunkTrainer_submit(){
+  if(!sp_chunkCur)return;
+  toefl_logTime('speaking:chunk');
+  const transcript=(document.getElementById('rtxt').value||'').trim();
+  const item=sp_chunkCur;
+  const entry=sp_chunkTrainer_ensureCache(item);
+  let diff,score;
+  if(!transcript){
+    diff={omitted:item.text.trim().split(/\s+/).filter(Boolean),altered:[],added:[],origWordCount:item.text.trim().split(/\s+/).filter(Boolean).length};
+    score=0;
+  }else{
+    diff=sp_chunkTrainer_diff(item.text,transcript);
+    score=sp_chunkTrainer_scoreFromDiff(diff);
+  }
+  sp_chunkTrainer_captureErrors(item,diff,score);
+  sp_chunkTrainer_logScore(item.id,score,item.tag);
+  entry.lastScore=score;
+  const passed=score>=4;
+  if(passed){entry.failStreak=0;entry.spaced=false;entry.spacedDate=null;}
+  else entry.failStreak=(entry.failStreak||0)+1;
+  const spacedNow=!passed&&entry.failStreak>=3;
+  if(spacedNow){
+    entry.spaced=true;
+    const d=new Date(today+'T00:00:00');d.setDate(d.getDate()+2);
+    entry.spacedDate=localDateStr(d);
+  }
+  const advance=passed||spacedNow;
+  if(advance){
+    const setId=item.set;
+    if(!sp_chunkProgress.packs[setId])sp_chunkProgress.packs[setId]={idx:0};
+    sp_chunkProgress.packs[setId].idx=(sp_chunkProgress.packs[setId].idx||0)+1;
+  }
+  sp_chunkTrainer_saveProgress();
+  sp_chunkStage='feedback';
+  sp_chunkTrainer_renderFeedback(diff,score,passed,spacedNow);
+}
+function sp_chunkTrainer_next(){sp_chunkTrainer_pick();sp_chunkTrainer_render();}
+function sp_chunkTrainer_retry(){
+  sp_chunkStage='ready';
+  const ta=document.getElementById('rtxt');if(ta){ta.value='';onInput();}
+  sp_chunkTrainer_render();
+}
+// Reinforcement replay after a miss (spec step 8): hear + re-attempt the
+// same sentence once more with no new scoring, purely for muscle memory.
+function sp_chunkTrainer_replayCorrected(){
+  if(!sp_chunkCur)return;
+  sp_chunkTrainer_speak(sp_chunkCur.text);
+  const ta=document.getElementById('rtxt');if(ta){ta.value='';onInput();}
+  toast('🔁 Listen, then repeat the corrected version — no new score');
+}
+function sp_chunkTrainer_renderFeedback(diff,score,passed,spaced){
+  const color=score>=4?'#16A34A':score>=3?'#D97706':'#DC2626';
+  const cache=sp_chunkProgress.items[sp_chunkCur.id]||{};
+  const chunks=cache.chunks&&cache.chunks.length?cache.chunks:[sp_chunkCur.text];
+  const stress=cache.stress||[];
+  let wIdx=0;
+  // Chunks only get revealed here, in the post-attempt feedback — never
+  // before the user has actually tried the repetition.
+  const chunksHTML=chunks.map(c=>{
+    const cWords=c.split(/\s+/).filter(Boolean).map(w=>{
+      const isContent=stress[wIdx];wIdx++;
+      return '<span style="'+(isContent?'font-weight:700;color:#0F172A':'color:#94A3B8;font-weight:400')+'">'+esc(w)+'</span>';
+    }).join(' ');
+    return '<span style="display:inline-block;padding:4px 8px;margin:2px;border:1px solid #DDE3F5;border-radius:6px;background:#F8FAFF">'+cWords+'</span>';
+  }).join('');
+  let h='<div class="card fb" style="align-items:flex-start;margin-top:12px">'
+    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Chunk Trainer — local score</div>'
+    +'<div style="font-size:26px;font-weight:700;font-family:\'DM Mono\',monospace;color:'+color+'">'+score+'<span style="font-size:14px;font-weight:400;color:#94A3B8">/5</span></div></div>'
+    +'</div>';
+  h+='<div class="card" style="background:#F8FAFF;border-color:#BFDBFE;margin-top:10px"><div class="ctit">🧩 Chunks (revealed)</div><div>'+chunksHTML+'</div></div>';
+  if(diff.omitted.length)h+='<div class="card" style="background:#F8FAFC;border-color:#E2E8F0;margin-top:10px"><div class="ctit" style="color:#64748B">➖ Omitted</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+diff.omitted.map(w=>'<span class="tag" style="background:#F1F5F9;color:#475569">'+esc(w)+'</span>').join('')+'</div></div>';
+  if(diff.altered.length)h+='<div class="card" style="background:#FEF2F2;border-color:#FECACA;margin-top:10px"><div class="ctit" style="color:#DC2626">🔁 Altered</div><div class="gg">'+diff.altered.map(a=>'<div class="upitem"><div style="flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:14px;color:#DC2626;text-decoration:line-through">'+esc(a.heard)+'</span><span style="color:#94A3B8">→</span><span style="font-size:14px;font-weight:600;color:#16A34A">'+esc(a.original)+'</span></div></div>').join('')+'</div></div>';
+  if(diff.added.length)h+='<div class="card" style="background:#FFFBEB;border-color:#FCD34D;margin-top:10px"><div class="ctit" style="color:#B45309">➕ Added</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+diff.added.map(w=>'<span class="tag" style="background:#FEF3C7;color:#B45309">'+esc(w)+'</span>').join('')+'</div></div>';
+  h+='<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">';
+  if(passed){
+    h+='<button class="btn bpr bsm" onclick="sp_chunkTrainer_next()">⏭️ Next sentence</button>';
+  }else{
+    h+='<button class="btn bsm" onclick="sp_chunkTrainer_replayCorrected()">🔁 Practice corrected version</button>'
+      +'<button class="btn bpr bsm" onclick="sp_chunkTrainer_retry()">↺ Try again</button>';
+    if(spaced)h+='<button class="btn bsm" onclick="sp_chunkTrainer_next()">⏭️ Skip for now (review in ~48h)</button>';
+  }
+  h+='</div>';
+  if(spaced)h+='<div style="text-align:center;font-size:12px;color:#94A3B8;margin-top:8px">Marked for spaced review — you\'ll see it again in ~48h.</div>';
+  sp_chunkTrainer_lastFeedback=h;
+  sp_chunkTrainer_render();
+}
+function sp_chunkTrainer_evolutionHTML(){return toefl_scoreEvolutionHTML(sp_chunkProgress.__scoreLog,'local-scored repetition');}
+function sp_chunkTrainer_toolbarHTML(){
+  const packs=sp_packs();
+  if(packs.length<=1)return '';
+  return '<div style="margin-bottom:10px"><select onchange="sp_chunkTrainer_setPackFilter(this.value)" style="width:100%;padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;background:#fff;color:#0F172A;font-family:\'DM Sans\',sans-serif;cursor:pointer">'
+    +'<option value=""'+(sp_chunkPackFilter===''?' selected':'')+'>🎯 All packs (sequential)</option>'
+    +packs.map(p=>'<option value="'+esc(p.set)+'"'+(sp_chunkPackFilter===p.set?' selected':'')+'>'+esc(p.tag)+'</option>').join('')
+    +'</select></div>';
+}
+function sp_chunkTrainer_render(){
+  const box=document.getElementById('chunkTrainerBox');if(!box)return;
+  let h=sp_chunkTrainer_toolbarHTML();
+  if(!sp_chunkCur){
+    if(sp_chunkSuggestNext){
+      h+='<div class="card" style="text-align:center;background:#F0FDF4;border-color:#BBF7D0">'
+        +'<div style="font-size:14px;font-weight:600;color:#16A34A;margin-bottom:8px">🎉 Pack complete!</div>'
+        +'<button class="btn bpr bsm" onclick="sp_chunkTrainer_setPackFilter(\''+esc(sp_chunkSuggestNext.set)+'\')">Start "'+esc(sp_chunkSuggestNext.tag)+'" →</button>'
+        +'</div>';
+    }else if(sp_packs().length){
+      h+='<div class="card" style="text-align:center;background:#F0FDF4;border-color:#BBF7D0"><div style="font-size:14px;font-weight:600;color:#16A34A">🎉 All available packs complete!</div></div>';
+    }else{
+      h+='<div style="font-size:14px;color:#94A3B8;text-align:center">No packs available — import one from Listen and Repeat classic mode first.</div>';
+    }
+    box.innerHTML=h+sp_chunkTrainer_evolutionHTML();
+    return;
+  }
+  const level=sp_chunkTrainer_level(sp_chunkCur);
+  const total=sp_chunkTrainer_packItems(sp_chunkCur.set).length;
+  const idx=sp_chunkCur.order||1;
+  h+='<div style="border:1px solid #FCD34D;background:#fff;border-radius:10px;padding:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<span class="tag tpu">'+esc(sp_chunkCur.tag)+'</span>'
+    +'<span class="tag tbl">Level '+level+'/5</span>'
+    +'</div>'
+    +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:4px">🧩 Chunk &amp; Delay Trainer</div>'
+    +'<div style="text-align:center;font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace;margin-bottom:10px">Sentence '+idx+' of '+total+' · delay '+(sp_chunkTrainer_delayMs(sp_chunkCur)/1000)+'s</div>';
+  if(sp_chunkStage==='ready'){
+    h+='<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px;text-align:center">Listen once. The screen goes blank, then repeat the sentence from memory using Speak below.</div>'
+      +'<div style="display:flex;justify-content:center"><button class="btn bpr bsm" onclick="sp_chunkTrainer_play()">🔊 Play &amp; start delay</button></div>';
+  }else if(sp_chunkStage==='blank'){
+    h+='<div style="text-align:center;padding:30px 0;font-size:14px;color:#94A3B8">🧠 Hold the sentence in memory…</div>';
+  }else if(sp_chunkStage==='record'){
+    h+='<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px;text-align:center">Now repeat it from memory — click Speak below, then Check.</div>'
+      +'<div style="display:flex;justify-content:center"><button class="btn bpr bsm" onclick="sp_chunkTrainer_submit()">✅ Check my repetition</button></div>';
+  }else if(sp_chunkStage==='feedback'){
+    h+='<div style="text-align:center;font-size:13px;color:#94A3B8">See your comparison below.</div>';
+  }
+  h+='</div>';
+  if(sp_chunkStage==='feedback'&&sp_chunkTrainer_lastFeedback)h+=sp_chunkTrainer_lastFeedback;
+  h+=sp_chunkTrainer_evolutionHTML();
+  box.innerHTML=h;
 }
 
 // ── TAKE AN INTERVIEW — ETS 0-5 RUBRIC ANALYSIS ──
@@ -6590,6 +6971,9 @@ function ex_loadLocal(){
   try{ivProgress=JSON.parse(localStorage.getItem('c1ivp')||'{}');}catch(e){ivProgress={};}
   iv_ensureFresh();ex_mergeSeeds(ivInterviews,IV_SEED,iv_saveInterviews);
   if(!localStorage.getItem('c1ivi'))iv_saveInterviews();
+  try{const v=JSON.parse(localStorage.getItem('c1chp')||'null');sp_chunkProgress=(v&&typeof v==='object')?v:{packs:{},items:{}};}catch(e){sp_chunkProgress={packs:{},items:{}};}
+  if(!sp_chunkProgress.packs)sp_chunkProgress.packs={};
+  if(!sp_chunkProgress.items)sp_chunkProgress.items={};
   rq_loadLocal();
 }
 
@@ -7410,6 +7794,7 @@ function startSync(){
     RSPP = db.ref('spProgress');
     RIVI = db.ref('interviewQuestions');
     RIVP = db.ref('ivProgress');
+    RCHP = db.ref('chunkTrainerProgress');
     RRQI = db.ref('rqItems');
     RRQP = db.ref('rqProgress');
 
@@ -7462,6 +7847,7 @@ function startSync(){
     RSPP.on('value',s=>{const v=s.val();if(v){spProgress=v;localStorage.setItem('c1spp',JSON.stringify(spProgress));sp_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVI.on('value',s=>{const v=s.val();if(v){ivInterviews=Object.values(v);iv_ensureFresh();localStorage.setItem('c1ivi',JSON.stringify(ivInterviews));if(!iv_cur)iv_pick();iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RCHP.on('value',s=>{const v=s.val();if(v){sp_chunkProgress=v;if(!sp_chunkProgress.packs)sp_chunkProgress.packs={};if(!sp_chunkProgress.items)sp_chunkProgress.items={};localStorage.setItem('c1chp',JSON.stringify(sp_chunkProgress));if(toeflActivity==='speaking:chunk')sp_chunkTrainer_render();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[toeflActivity]){const k=toeflActivity;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[toeflActivity]&&!rq_cur[toeflActivity])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
