@@ -1000,7 +1000,7 @@ let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RWG=null;
 let weekGoals={};
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null;
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
@@ -1016,6 +1016,22 @@ let cw_cur=null,cw_checked=false,cw_vals=[];
 let cw_liveId=null,cw_liveVals=[];
 let em_active=false,em_cur=null,em_lastId=null;
 let wr_cur=null,wr_lastId=null;
+// Step-by-step mode (opt-in, per-task) — a guided block form that lives
+// alongside the free-text #rtxt, not a replacement for it. Block/plan state
+// is plain in-memory JS (never persisted: Passo 0 is explicitly non-graded
+// and resets with each scenario), but the on/off preference itself is a
+// small synced scalar, same pattern as activeMonth/RMO.
+let em_stepMode=false,wr_stepMode=false;
+try{em_stepMode=localStorage.getItem('c1emStep')==='1';}catch(e){em_stepMode=false;}
+try{wr_stepMode=localStorage.getItem('c1wrStep')==='1';}catch(e){wr_stepMode=false;}
+let em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
+let em_stepPlan={purpose:'',details:'',ask:''};
+let em_promptChecked={};
+let em_lastStepBlocks=null; // snapshot at submit time, for block-of-error lookup
+let wr_stepBlocks={bridge:'',claim:'',reason1:'',reason2:'',closing:''};
+let wr_stepPlan={side:'',reasons:'',examples:''};
+let wr_stepPeer=null;
+let wr_lastStepBlocks=null;
 let sp_cur=null,sp_lastId=null,sp_played=false;
 // Selected Listen and Repeat pack ('' = all packs, sequential progression
 // across every set) — local UI preference only, mirrors bs_topicFilter.
@@ -2674,7 +2690,13 @@ function renderPracMonthly_UNUSED(){
 }
 function onInput(){
   const t=document.getElementById('rtxt').value,w=t.trim().split(/\s+/).filter(Boolean).length;
-  document.getElementById('wcount').textContent=w+' words';
+  const wc=document.getElementById('wcount');
+  wc.textContent=w+' words';
+  // ETS sets no official minimum for either Writing task, so this is a
+  // non-blocking visual cue only (red below 100, back to the normal gray at
+  // 100+) — writingbtn's own enable threshold below is unrelated and unchanged.
+  const isWritingTask=toeflActivity==='writing:email'||toeflActivity==='writing:discussion';
+  wc.style.color=(isWritingTask&&w<100)?'#DC2626':'';
   document.getElementById('writingbtn').disabled=w<2;
   document.getElementById('speakingbtn').disabled=w<2;
 }
@@ -2827,8 +2849,27 @@ function openAIModal(mode){
   // Mark the relevant scenario/sentence/question as practiced now; capture
   // the score later in processJSON once the pasted analysis comes back.
   em_lastId=null;wr_lastId=null;sp_lastId=null;iv_lastId=null;
-  if(isEmail){emProgress[em_cur.id]={practiced:true,date:today};em_lastId=em_cur.id;em_saveProgress();em_renderScenario();}
-  else if(isDiscussion){wrProgress[wr_cur.id]={practiced:true,date:today};wr_lastId=wr_cur.id;wr_saveProgress();wr_renderScenario();}
+  // Snapshot which text came from which block, only while step mode was
+  // actually active — used to tag grammar_errors by block once the AI
+  // result comes back (see em_processEmailResult/wr_processResult).
+  em_lastStepBlocks=null;wr_lastStepBlocks=null;
+  if(isEmail){
+    emProgress[em_cur.id]={practiced:true,date:today};em_lastId=em_cur.id;em_saveProgress();
+    if(em_stepMode){
+      const ideas=[em_stepBlocks.idea1,em_stepBlocks.idea2,em_stepBlocks.idea3].map(s=>(s||'').trim()).filter(Boolean).join(' ');
+      em_lastStepBlocks={opening:(em_stepBlocks.opening||'').trim(),body:ideas,closing:(em_stepBlocks.closing||'').trim()};
+    }
+    em_renderScenario();
+  }
+  else if(isDiscussion){
+    wrProgress[wr_cur.id]={practiced:true,date:today};wr_lastId=wr_cur.id;wr_saveProgress();
+    if(wr_stepMode){
+      const opening=[wr_stepBlocks.bridge,wr_stepBlocks.claim].map(s=>(s||'').trim()).filter(Boolean).join(' ');
+      const body=[wr_stepBlocks.reason1,wr_stepBlocks.reason2].map(s=>(s||'').trim()).filter(Boolean).join(' ');
+      wr_lastStepBlocks={opening,body,closing:(wr_stepBlocks.closing||'').trim()};
+    }
+    wr_renderScenario();
+  }
   else if(isInterview){ivProgress[iv_cur.id]={practiced:true,date:today};iv_lastId=iv_cur.id;iv_saveProgress();}
   else if(isListenRepeat){spProgress[sp_cur.id]={practiced:true,date:today};sp_lastId=sp_cur.id;sp_saveProgress();}
   // In simulation mode, submitting (whether the user clicked Submit or the
@@ -5179,6 +5220,45 @@ function ex_importFile(file){
   reader.readAsText(file);
 }
 
+// ── WRITING STEP MODE (shared by em_/wr_) ────────────────────────────────────
+// A guided block form that lives ALONGSIDE the free-text #rtxt, not a second
+// submission path: every block keystroke re-assembles into #rtxt (which stays
+// the single thing openAIModal()/wr_submitClick()/onInput() ever read), so
+// nothing downstream of #rtxt needs to know step mode exists.
+// Small pill toggle, reused by both em_ and wr_'s render functions.
+function writing_stepToggleHTML(stepActive,toggleFnName){
+  return '<div class="exmode-bar" style="margin-bottom:12px">'
+    +'<button class="exmode-btn'+(stepActive?'':' on')+'" onclick="'+toggleFnName+'(false)">✏️ Modo livre</button>'
+    +'<button class="exmode-btn'+(stepActive?' on':'')+'" onclick="'+toggleFnName+'(true)">🧱 Modo por etapas</button>'
+    +'</div>';
+}
+// #rtxt becomes a read-only live preview of the assembled blocks in step
+// mode (dictation has no single unambiguous block target, so mic is hidden
+// too) — everything else about it (word count, submit gating) is untouched.
+function writing_applyStepUI(stepActive){
+  const ta=document.getElementById('rtxt');
+  if(ta){
+    ta.readOnly=stepActive;
+    ta.style.background=stepActive?'#F8FAFC':'';
+    if(stepActive)ta.placeholder='Preview — assembled automatically from your blocks above';
+  }
+  const micbtn=document.getElementById('micbtn');if(micbtn)micbtn.classList.toggle('hid',stepActive);
+  const lisbar=document.getElementById('lisbar');if(lisbar&&stepActive)lisbar.classList.add('hid');
+}
+// Locates which block an AI-reported error excerpt came from, by a simple
+// case-insensitive substring match — good enough for "which of 3 blocks",
+// not a general diff engine. Returns null (silently un-tagged, same as
+// today) if the excerpt doesn't match any block verbatim.
+function writing_findBlock(snippet,blocks){
+  if(!snippet)return null;
+  const needle=String(snippet).toLowerCase();
+  for(const key of Object.keys(blocks)){
+    const hay=(blocks[key]||'').toLowerCase();
+    if(hay&&needle&&hay.includes(needle))return key;
+  }
+  return null;
+}
+
 // ── WRITE AN EMAIL (Practice tab sub-mode) ──
 // The app's two official TOEFL Writing tasks — toggles between Write an Email
 // and Write for an Academic Discussion (there's no generic free-writing task
@@ -5215,6 +5295,7 @@ function em_setMode(on){
     if(ta)ta.placeholder='Write your response to the discussion here…';
     const wb=document.getElementById('writingbtn');if(wb)wb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>📝 Analyze Discussion';
   }
+  writing_applyStepUI(em_active?em_stepMode:wr_stepMode);
   chunks_refreshPanel();
 }
 // Prefer an un-practiced scenario; otherwise random.
@@ -5223,25 +5304,95 @@ function em_pick(){
   const fresh=emScenarios.filter(s=>!emProgress[s.id]);
   const pool=fresh.length?fresh:emScenarios;
   em_cur=pool[Math.floor(Math.random()*pool.length)];
+  em_stepReset();
 }
 function em_renderScenario(){
   const box=document.getElementById('emailScenarioBox');if(!box)return;
   if(!em_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No email scenarios available.</div>';return;}
   const done=emProgress[em_cur.id];
-  const tasks=(em_cur.tasks||[]).map(t=>'<li style="margin-bottom:4px">'+esc(t)+'</li>').join('');
-  box.innerHTML='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:14px">'
+  let h=writing_stepToggleHTML(em_stepMode,'em_setStepMode');
+  h+='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span class="tag tpu">'+esc(em_cur.tag)+'</span>'
     +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
     +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:10px">Write an Email</div>'
     +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:10px">'+esc(em_cur.context)+'</div>'
-    +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:4px">Write an email to '+esc(em_cur.recipient)+'. In your email, do the following:</div>'
-    +'<ul style="margin:0 0 10px 20px;padding:0;font-size:14px;color:#0F172A;line-height:1.6">'+tasks+'</ul>'
-    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have '+EM_MINUTES+' minutes to complete this task. Write as much as you can in complete sentences.</div>'
+    +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:4px">Write an email to '+esc(em_cur.recipient)+'. In your email, do the following:</div>';
+  if(em_stepMode){
+    h+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">'
+      +(em_cur.tasks||[]).map((t,i)=>'<label style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;font-size:14px;color:#0F172A;line-height:1.5"><input type="checkbox" '+(em_promptChecked[i]?'checked':'')+' onchange="em_togglePromptCheck('+i+')" style="width:15px;height:15px;margin-top:2px;cursor:pointer;flex-shrink:0">'+esc(t)+'</label>').join('')
+      +'</div>';
+  }else{
+    const tasks=(em_cur.tasks||[]).map(t=>'<li style="margin-bottom:4px">'+esc(t)+'</li>').join('');
+    h+='<ul style="margin:0 0 10px 20px;padding:0;font-size:14px;color:#0F172A;line-height:1.6">'+tasks+'</ul>';
+  }
+  h+='<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have '+EM_MINUTES+' minutes to complete this task. Write as much as you can in complete sentences.</div>'
     +'<div><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button></div>'
     +'</div>';
+  if(em_stepMode)h+=em_stepFormHTML();
+  box.innerHTML=h;
 }
-function em_shuffle(){em_pick();em_renderScenario();}
+function em_shuffle(){em_pick();em_renderScenario();if(em_stepMode)em_syncStepText();}
+// Passo 0 is explicitly non-graded and never sent anywhere — pure in-memory
+// scratch space, reset with every new scenario/step-mode entry.
+function em_stepReset(){
+  em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
+  em_stepPlan={purpose:'',details:'',ask:''};
+  em_promptChecked={};
+}
+function em_stepFormHTML(){
+  return '<div style="border:1px dashed #CBD5E1;background:#F8FAFC;border-radius:10px;padding:12px;margin-top:10px">'
+    +'<div class="ctit" style="color:#64748B">📋 Passo 0 — Planejamento (opcional, não avaliado)</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Purpose</label><input type="text" value="'+esc(em_stepPlan.purpose)+'" oninput="em_onPlanInput(\'purpose\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
+    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Key details</label><input type="text" value="'+esc(em_stepPlan.details)+'" oninput="em_onPlanInput(\'details\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
+    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Ask / next step</label><input type="text" value="'+esc(em_stepPlan.ask)+'" oninput="em_onPlanInput(\'ask\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
+    +'</div></div>'
+    +'<div class="card" style="margin-top:10px">'
+    +'<div class="ctit">✉️ Bloco 1 — Abertura</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Greeting cordial + apresente o propósito</div>'
+    +'<textarea oninput="em_onBlockInput(\'opening\',this.value)" style="min-height:60px;color:#0F172A">'+esc(em_stepBlocks.opening)+'</textarea>'
+    +'</div>'
+    +'<div class="card" style="margin-top:10px">'
+    +'<div class="ctit">✉️ Bloco 2 — Desenvolvimento</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">'
+    +[1,2,3].map(i=>'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Ideia '+i+'</label><textarea oninput="em_onBlockInput(\'idea'+i+'\',this.value)" style="min-height:44px;color:#0F172A">'+esc(em_stepBlocks['idea'+i])+'</textarea></div>').join('')
+    +'</div>'
+    +'<div style="font-size:12.5px;color:#64748B;line-height:1.6">💡 varie o tipo de frase (afirmação · pergunta · condicional) · use uma frase idiomática ("sounds good", "let me know") · seja específico, não vago</div>'
+    +'</div>'
+    +'<div class="card" style="margin-top:10px">'
+    +'<div class="ctit">✉️ Bloco 3 — Fechamento</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Closing line + seu nome — tom cortês e consistente com o registro escolhido</div>'
+    +'<textarea oninput="em_onBlockInput(\'closing\',this.value)" style="min-height:50px;color:#0F172A">'+esc(em_stepBlocks.closing)+'</textarea>'
+    +'</div>'
+    +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Reserve ~1 min para revisar: gramática, tom e cobertura antes de enviar.</div>';
+}
+function em_onPlanInput(key,val){em_stepPlan[key]=val;}
+function em_togglePromptCheck(i){em_promptChecked[i]=!em_promptChecked[i];}
+function em_onBlockInput(key,val){em_stepBlocks[key]=val;em_syncStepText();}
+// Concatenates the WRITING blocks only (never the Passo 0 planning fields)
+// into #rtxt, keeping it the single thing openAIModal()/onInput() read —
+// same rubric prompt, same scoring, zero duplicated evaluation logic.
+function em_syncStepText(){
+  const ideas=[em_stepBlocks.idea1,em_stepBlocks.idea2,em_stepBlocks.idea3].map(s=>(s||'').trim()).filter(Boolean).join(' ');
+  const parts=[(em_stepBlocks.opening||'').trim(),ideas,(em_stepBlocks.closing||'').trim()].filter(Boolean);
+  const ta=document.getElementById('rtxt');
+  if(ta){ta.value=parts.join('\n\n');onInput();}
+}
+function em_saveStepMode(){localStorage.setItem('c1emStep',em_stepMode?'1':'0');fbSet(RESM,em_stepMode);}
+function em_setStepMode(v){
+  v=!!v;
+  if(v&&!em_stepMode){
+    const ta=document.getElementById('rtxt');
+    if(ta&&ta.value.trim()&&!confirm('Mudar para o Modo por etapas vai limpar o rascunho livre atual — as etapas começam em branco. Continuar?'))return;
+    em_stepReset();
+  }
+  em_stepMode=v;
+  em_saveStepMode();
+  em_renderScenario();
+  writing_applyStepUI(em_stepMode);
+  if(em_stepMode)em_syncStepText();
+}
 
 // ── WRITE AN EMAIL — ETS 0-5 RUBRIC ANALYSIS (AI Analysis Bridge) ──
 // The generic C1-coach template (buildPrompt's old em_active branch) just
@@ -5432,7 +5583,15 @@ function em_processEmailResult(r){
   }
   if(score!=null)em_logScore(id,score,scenario?scenario.tag:'',modelAnswer5,modelAnswerNotes);
   em_saveProgress();
-  (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
+  // In step mode, tag which block (opening/body/closing) each grammar error
+  // landed in — reuses ex_logPattern's existing (previously-unused-here)
+  // `mode` bucketing param, no new error-storage structure.
+  (r.grammar_errors||[]).forEach(ge=>{
+    if(!ge||!ge.tag)return;
+    const block=em_lastStepBlocks?writing_findBlock(ge.text,em_lastStepBlocks):null;
+    ex_logPattern(ge.tag,false,block?'em-step:'+block:undefined);
+  });
+  em_lastStepBlocks=null;
   em_renderFeedback(r);
   if(em_active)em_renderScenario();
 }
@@ -5446,12 +5605,14 @@ function wr_pick(){
   const fresh=wrScenarios.filter(s=>!wrProgress[s.id]);
   const pool=fresh.length?fresh:wrScenarios;
   wr_cur=pool[Math.floor(Math.random()*pool.length)];
+  wr_stepReset();
 }
 function wr_renderScenario(){
   const box=document.getElementById('academicDiscussionBox');if(!box)return;
   if(!wr_cur){box.innerHTML='<div style="font-size:14px;color:#94A3B8">No discussion prompts available.</div>';return;}
   const done=wrProgress[wr_cur.id];
-  box.innerHTML='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:14px">'
+  let h=writing_stepToggleHTML(wr_stepMode,'wr_setStepMode');
+  h+='<div style="border:1px solid #BFDBFE;background:#fff;border-radius:10px;padding:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span class="tag tpu">'+esc(wr_cur.tag)+'</span>'
     +(done?'<span class="tag tgg">✓ practiced'+(done.level?' · '+esc(done.level):'')+'</span>':'<span style="font-size:13px;color:#94A3B8;font-family:\'DM Mono\',monospace">new</span>')+'</div>'
@@ -5462,16 +5623,100 @@ function wr_renderScenario(){
     +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have 10 minutes and should write 100-130 words. State your position clearly and respond to at least one classmate.</div>'
     +'<div><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button></div>'
     +'</div>';
+  if(wr_stepMode)h+=wr_stepFormHTML();
+  box.innerHTML=h;
 }
-function wr_shuffle(){wr_pick();wr_renderScenario();}
+function wr_shuffle(){wr_pick();wr_renderScenario();if(wr_stepMode)wr_syncStepText();}
+// Passo 0 is explicitly non-graded and never sent anywhere — pure in-memory
+// scratch space, reset with every new scenario/step-mode entry.
+function wr_stepReset(){
+  wr_stepBlocks={bridge:'',claim:'',reason1:'',reason2:'',closing:''};
+  wr_stepPlan={side:'',reasons:'',examples:''};
+  wr_stepPeer=null;
+}
+function wr_stepFormHTML(){
+  const peer1=wr_cur.peer1.name,peer2=wr_cur.peer2.name;
+  const pillStyle=function(sel){return 'padding:7px 14px;border-radius:999px;border:1px solid '+(sel?'#B91C1C':'#DDE3F5')+';background:'+(sel?'#FEE2E2':'#fff')+';color:'+(sel?'#B91C1C':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif';};
+  return '<div style="border:1px dashed #CBD5E1;background:#F8FAFC;border-radius:10px;padding:12px;margin-top:10px">'
+    +'<div class="ctit" style="color:#64748B">📋 Passo 0 — Planejamento (opcional, não avaliado)</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Side</label><input type="text" value="'+esc(wr_stepPlan.side)+'" oninput="wr_onPlanInput(\'side\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
+    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Reason(s)</label><input type="text" value="'+esc(wr_stepPlan.reasons)+'" oninput="wr_onPlanInput(\'reasons\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
+    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Example(s)</label><input type="text" value="'+esc(wr_stepPlan.examples)+'" oninput="wr_onPlanInput(\'examples\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
+    +'</div></div>'
+    +'<div class="card" style="margin-top:10px;background:#FEF2F2;border-color:#FECACA">'
+    +'<div class="ctit" style="color:#B91C1C">🚨 Bloco 1 — Abertura (ponto crítico — risco de Faixa 0)</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Responder a: <span style="color:#DC2626;font-weight:600">obrigatório</span></div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
+    +'<button type="button" style="'+pillStyle(wr_stepPeer===peer1)+'" onclick="wr_selectPeer(\''+esc(peer1)+'\')">'+esc(peer1)+'</button>'
+    +'<button type="button" style="'+pillStyle(wr_stepPeer===peer2)+'" onclick="wr_selectPeer(\''+esc(peer2)+'\')">'+esc(peer2)+'</button>'
+    +'</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Claim (sua posição)</div>'
+    +'<textarea oninput="wr_onBlockInput(\'claim\',this.value)" style="min-height:60px;color:#0F172A;border-color:#FCA5A5">'+esc(wr_stepBlocks.claim)+'</textarea>'
+    +'<div style="font-size:12px;color:#94A3B8;margin:8px 0 4px">Bridge para o ponto de um colega <span style="font-weight:400">(opcional)</span></div>'
+    +'<textarea oninput="wr_onBlockInput(\'bridge\',this.value)" placeholder="ex: Building on what [Name] said, ..." style="min-height:40px;color:#0F172A">'+esc(wr_stepBlocks.bridge)+'</textarea>'
+    +'</div>'
+    +'<div class="card" style="margin-top:10px">'
+    +'<div class="ctit">🧩 Bloco 2 — Desenvolvimento</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Reason 1 + support</div>'
+    +'<textarea oninput="wr_onBlockInput(\'reason1\',this.value)" style="min-height:54px;color:#0F172A;margin-bottom:8px">'+esc(wr_stepBlocks.reason1)+'</textarea>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:4px">Reason 2 + support</div>'
+    +'<textarea oninput="wr_onBlockInput(\'reason2\',this.value)" style="min-height:54px;color:#0F172A">'+esc(wr_stepBlocks.reason2)+'</textarea>'
+    +'<div style="font-size:12.5px;color:#64748B;line-height:1.6;margin-top:8px">💡 use discourse markers (however, moreover, for example) · inclua um mini-exemplo plausível (cenário de estudo ou campus, real ou imaginário)</div>'
+    +'</div>'
+    +'<div class="card" style="margin-top:10px">'
+    +'<div class="ctit">🏁 Bloco 3 — Fechamento <span style="font-weight:400;color:#94A3B8;text-transform:none;letter-spacing:0">(opcional)</span></div>'
+    +'<textarea oninput="wr_onBlockInput(\'closing\',this.value)" style="min-height:44px;color:#0F172A">'+esc(wr_stepBlocks.closing)+'</textarea>'
+    +'</div>'
+    +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Reserve tempo para revisar frases e corrigir erros óbvios antes de enviar.</div>';
+}
+function wr_onPlanInput(key,val){wr_stepPlan[key]=val;}
+function wr_selectPeer(name){
+  wr_stepPeer=name;
+  if(!wr_stepBlocks.claim||!wr_stepBlocks.claim.trim())wr_stepBlocks.claim="Responding to "+name+"'s point, ";
+  wr_renderScenario();
+  wr_syncStepText();
+}
+function wr_onBlockInput(key,val){wr_stepBlocks[key]=val;wr_syncStepText();}
+// Bridge (if filled) leads into the claim as one opening paragraph; the two
+// reasons form the body paragraph; the optional closing is its own
+// paragraph. Same #rtxt-mirroring principle as em_syncStepText().
+function wr_syncStepText(){
+  const opening=[wr_stepBlocks.bridge,wr_stepBlocks.claim].map(s=>(s||'').trim()).filter(Boolean).join(' ');
+  const body=[wr_stepBlocks.reason1,wr_stepBlocks.reason2].map(s=>(s||'').trim()).filter(Boolean).join('\n\n');
+  const closing=(wr_stepBlocks.closing||'').trim();
+  const parts=[opening,body,closing].filter(Boolean);
+  const ta=document.getElementById('rtxt');
+  if(ta){ta.value=parts.join('\n\n');onInput();}
+}
+function wr_saveStepMode(){localStorage.setItem('c1wrStep',wr_stepMode?'1':'0');fbSet(RWSM,wr_stepMode);}
+function wr_setStepMode(v){
+  v=!!v;
+  if(v&&!wr_stepMode){
+    const ta=document.getElementById('rtxt');
+    if(ta&&ta.value.trim()&&!confirm('Mudar para o Modo por etapas vai limpar o rascunho livre atual — as etapas começam em branco. Continuar?'))return;
+    wr_stepReset();
+  }
+  wr_stepMode=v;
+  wr_saveStepMode();
+  wr_renderScenario();
+  writing_applyStepUI(wr_stepMode);
+  if(wr_stepMode)wr_syncStepText();
+}
 // Write for an Academic Discussion carries structural failure modes (wrong
 // topic, wrong peer referenced, no clear position) that can zero the whole
 // response (Faixa 0) regardless of language quality — unlike Write an
 // Email, which has no equivalent single-mistake-tanks-the-score risk. This
 // gate is Discussion-only: the shared #writingbtn routes through here, and
-// Email mode (em_active) skips straight to the normal submit.
+// Email mode (em_active) skips straight to the normal submit. In step mode,
+// the peer selector is a hard requirement (mirrors the checklist's own
+// "identifiquei o colega" item) checked BEFORE the checklist even opens.
 function wr_submitClick(){
-  if(!em_active&&wr_cur){wr_openChecklist();return;}
+  if(!em_active&&wr_cur){
+    if(wr_stepMode&&!wr_stepPeer){toast('⚠️ Selecione a qual colega você está respondendo antes de enviar');return;}
+    wr_openChecklist();
+    return;
+  }
   openAIModal('writing');
 }
 function wr_openChecklist(){
@@ -5641,7 +5886,15 @@ function wr_processResult(r){
   }
   if(score!=null)wr_logScore(id,score,scenario?scenario.tag:'',modelAnswer5,modelAnswerNotes);
   wr_saveProgress();
-  (r.grammar_errors||[]).forEach(ge=>{if(ge&&ge.tag)ex_logPattern(ge.tag,false);});
+  // In step mode, tag which block (opening/body/closing) each grammar error
+  // landed in — reuses ex_logPattern's existing `mode` bucketing param, no
+  // new error-storage structure (same approach as em_processEmailResult).
+  (r.grammar_errors||[]).forEach(ge=>{
+    if(!ge||!ge.tag)return;
+    const block=wr_lastStepBlocks?writing_findBlock(ge.text,wr_lastStepBlocks):null;
+    ex_logPattern(ge.tag,false,block?'wr-step:'+block:undefined);
+  });
+  wr_lastStepBlocks=null;
   wr_renderFeedback(r);
   if(!em_active)wr_renderScenario();
 }
@@ -7406,6 +7659,8 @@ function startSync(){
     RESC = db.ref('escolaFeedback');
     RWRS = db.ref('discussionScenarios');
     RWRP = db.ref('wrProgress');
+    RESM = db.ref('emailStepMode');
+    RWSM = db.ref('wrStepMode');
     RSPS = db.ref('listenRepeatSentences');
     RSPP = db.ref('spProgress');
     RIVI = db.ref('interviewQuestions');
@@ -7438,6 +7693,8 @@ function startSync(){
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAMA.on('value',s=>{const v=s.val();if(v){amaCompleted=v; localStorage.setItem('c1ama',JSON.stringify(v));} setSS('online'); if(curTab==='peua'&&peuaView==='ama')renderAma();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
+    RESM.once('value',s=>{const v=s.val();if(typeof v==='boolean'&&v!==em_stepMode){em_stepMode=v; localStorage.setItem('c1emStep',v?'1':'0'); if(em_active)em_renderScenario();} });
+    RWSM.once('value',s=>{const v=s.val();if(typeof v==='boolean'&&v!==wr_stepMode){wr_stepMode=v; localStorage.setItem('c1wrStep',v?'1':'0'); if(!em_active)wr_renderScenario();} });
 
     // New exercise modes. Items fall back to seeds; progress falls back to {}.
     // IMPORTANT: never call renderRev() here while the user has an unanswered
