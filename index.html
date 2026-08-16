@@ -2606,8 +2606,13 @@ function renderEnsurance(){
       const summaryBtnHTML=entries.length
         ?`<button onclick="recap_openSummaryModal(${prevW})" style="margin-bottom:10px;padding:6px 10px;border:1px solid #FCD34D;border-radius:6px;background:#FFFBEB;color:#B45309;font-size:12px;font-weight:600;cursor:pointer">${savedSummary?'🔄 Regenerate summary':'🧠 Summarize with AI'}</button>`
         :'';
+      // The raw per-cycle notes are collapsed by default (a second click,
+      // nested inside the already-collapsed banner) so that once a summary
+      // exists, it's the one thing shown without extra clicks — the original
+      // notes stay one tap away as the source material behind it. An empty
+      // week doesn't need that extra click, so it's shown directly instead.
       const notesHTML=entries.length
-        ?entries.map(e=>'<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px">Cycle '+esc(String(e.c))+'</div><div style="white-space:pre-wrap">'+noteToHtml(e.notes)+'</div></div>').join('')
+        ?`<div onclick="const c=document.getElementById('recap-notes-body');const open=c.style.display==='block';c.style.display=open?'none':'block';document.getElementById('recap-notes-arrow').textContent=open?'▸':'▾'" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;margin-bottom:6px"><span id="recap-notes-arrow" style="font-size:11px">▸</span><span style="font-size:12px;font-weight:600">📄 Original notes (${entries.length}/${cycleNums.length} cycles)</span></div><div id="recap-notes-body" style="display:none">${entries.map(e=>'<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px">Cycle '+esc(String(e.c))+'</div><div style="white-space:pre-wrap">'+noteToHtml(e.notes)+'</div></div>').join('')}</div>`
         :'<span style="color:#D97706;font-style:italic">No notes for this week. Open a cycle\'s notes editor (📝) to add a lesson summary.</span>';
 
       const recapDiv=document.createElement('div');
