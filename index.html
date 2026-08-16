@@ -2796,20 +2796,20 @@ function chunks_kind(){
 }
 // Which rhetorical-move groups belong to which step-mode block, so Useful
 // Phrases can show up inline next to the block that needs it instead of one
-// flat list at the bottom — same CHUNKS data/tags/collapse behavior either
-// way, just filtered+relocated (see chunks_blockHTML below).
+// flat list at the bottom — same CHUNKS data/tags either way, just
+// filtered+relocated (see chunks_blockHTML below).
 const CHUNKS_BLOCK_GROUPS={
   email:{opening:['Opening'],body:['Requests','Apologies & bad news','Proposing solutions','Confirmations & thanks'],closing:['Closing']},
   discussion:{opening:['Agreeing','Disagreeing','Partial agreement','Referencing a classmate'],body:['Developing your argument','Anticipating a counterargument','Transition connectors'],closing:['Closing']}
 };
+const CHUNKS_BLOCK_LABEL={opening:'Opening',body:'Body',closing:'Closing'};
 // Each rhetorical-move group is its own collapsible sub-section, closed by
 // default like the outer panel — reference-only browsing (no click-to-insert:
 // this task is meant to make the candidate produce the sentence themselves).
-// onlyTitles optionally restricts which groups render (used by
-// chunks_blockHTML for the step-mode per-block panels); omitted = all groups.
-function chunks_render(kind,onlyTitles){
-  const groups=onlyTitles?(CHUNKS[kind]||[]).filter(g=>onlyTitles.includes(g.title)):(CHUNKS[kind]||[]);
-  return groups.map(g=>'<div style="margin-bottom:8px">'
+// This is the FREE-mode "browse everything" panel only; the step-mode
+// per-block panels use chunks_blockHTML below instead.
+function chunks_render(kind){
+  return (CHUNKS[kind]||[]).map(g=>'<div style="margin-bottom:8px">'
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="chunks_toggleGroup(this)">'
       +'<span>'+esc(g.title)+'</span><span class="mdlArrow" style="font-size:12px">▸</span>'
     +'</div>'
@@ -2826,17 +2826,35 @@ function chunks_toggleGroup(headerEl){
   const collapsed=body.classList.toggle('hid');
   const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
-// Small collapsible "Useful Phrases" panel scoped to one step-mode block,
-// reusing the exact same group/phrase markup and collapse mechanics as the
-// main panel (bridge_toggleModelAnswer for the outer card, chunks_toggleGroup
-// for each nested group) — called from em_/wr_stepFormHTML.
+// Single collapsible "Useful Phrases — <Block>" panel scoped to one
+// step-mode block — one opening/close, not one per rhetorical-move group.
+// Every phrase from every group mapped to this block is pooled together and
+// re-grouped by register (Formal/Neutral/Informal) instead, since "which
+// tone do I want here" is the more useful filter once you're inside a
+// specific block rather than "which rhetorical move." A phrase also tagged
+// 'critical' keeps that badge inline within its register group.
 function chunks_blockHTML(kind,blockKey){
   const titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
   if(!titles||!titles.length)return '';
+  const byRegister={formal:[],neutral:[],informal:[]};
+  (CHUNKS[kind]||[]).filter(g=>titles.includes(g.title)).forEach(g=>g.phrases.forEach(p=>{
+    const text=typeof p==='string'?p:p.t;
+    const regs=(typeof p==='string'?[]:(p.r||[]));
+    const registerKey=regs.find(r=>r!=='critical')||'neutral';
+    if(!byRegister[registerKey])byRegister[registerKey]=[];
+    byRegister[registerKey].push({text,critical:regs.includes('critical')});
+  }));
+  const body=['formal','neutral','informal'].filter(r=>byRegister[r]&&byRegister[r].length).map(r=>{
+    const label=CHUNKS_TAG_LABEL[r].charAt(0).toUpperCase()+CHUNKS_TAG_LABEL[r].slice(1);
+    return '<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">'+esc(label)+'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px">'
+      +byRegister[r].map(p=>'<div style="padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;background:#fff;font-size:14px;line-height:1.4">'+esc(p.text)+(p.critical?'<span class="tag '+CHUNKS_TAG_CLASS.critical+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+CHUNKS_TAG_LABEL.critical+'</span>':'')+'</div>').join('')
+      +'</div></div>';
+  }).join('');
   return '<div class="card" style="margin-top:10px;background:#FFFBEB;border-color:#FCD34D">'
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
-    +'<span>💡 Useful Phrases</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
-    +'<div class="mdlBody hid" style="margin-top:10px">'+chunks_render(kind,titles)+'</div>'
+    +'<span>💡 Useful Phrases — '+esc(CHUNKS_BLOCK_LABEL[blockKey]||'')+'</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'+body+'</div>'
     +'</div>';
 }
 // Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
