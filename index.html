@@ -2826,23 +2826,51 @@ function chunks_toggleGroup(headerEl){
   const collapsed=body.classList.toggle('hid');
   const arrow=headerEl.querySelector('.mdlArrow');if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
+// Which registers are worth showing for the CURRENT scenario — the actual
+// customization the user asked for: a formal email hides the informal
+// section (and vice versa), always keeping neutral since it fits either
+// tone. Email reuses em_deriveRegister(recipient) (already computed for the
+// rubric prompt); Academic Discussion has no per-scenario recipient signal,
+// so it defaults to the same formal/neutral safe-tone guidance already
+// given elsewhere in the app (see wr_stepFormHTML's Passo 0 area) rather
+// than guessing. Returns null for kinds with no register concept (interview,
+// or when called from the unfiltered free-mode main panel).
+function chunks_allowedRegisters(kind){
+  if(kind==='email')return em_deriveRegister(em_cur&&em_cur.recipient)==='informal'?['informal','neutral']:['formal','neutral'];
+  if(kind==='discussion')return ['formal','neutral'];
+  return null;
+}
+function chunks_registerHintHTML(kind){
+  if(kind==='email'){
+    return em_deriveRegister(em_cur&&em_cur.recipient)==='informal'
+      ? 'This email is to someone you know — informal/neutral phrasing shown.'
+      : 'This email calls for a formal tone — formal/neutral phrasing shown.';
+  }
+  if(kind==='discussion')return 'Academic Discussion favors a neutral, semi-formal tone — formal/neutral phrasing shown.';
+  return '';
+}
 // Single collapsible "Useful Phrases — <Block>" panel scoped to one
 // step-mode block — one opening/close, not one per rhetorical-move group.
 // Every phrase from every group mapped to this block is pooled together and
 // re-grouped by register (Formal/Neutral/Informal) instead, since "which
 // tone do I want here" is the more useful filter once you're inside a
-// specific block rather than "which rhetorical move." A phrase also tagged
-// 'critical' keeps that badge inline within its register group.
+// specific block rather than "which rhetorical move." Phrases whose
+// register doesn't fit the current scenario are filtered out entirely
+// (chunks_allowedRegisters) — except phrases also tagged 'critical', which
+// always show since they resolve a Band-0 structural risk regardless of tone.
 function chunks_blockHTML(kind,blockKey){
   const titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
   if(!titles||!titles.length)return '';
+  const allowed=chunks_allowedRegisters(kind);
   const byRegister={formal:[],neutral:[],informal:[]};
   (CHUNKS[kind]||[]).filter(g=>titles.includes(g.title)).forEach(g=>g.phrases.forEach(p=>{
     const text=typeof p==='string'?p:p.t;
     const regs=(typeof p==='string'?[]:(p.r||[]));
     const registerKey=regs.find(r=>r!=='critical')||'neutral';
+    const critical=regs.includes('critical');
+    if(allowed&&!allowed.includes(registerKey)&&!critical)return;
     if(!byRegister[registerKey])byRegister[registerKey]=[];
-    byRegister[registerKey].push({text,critical:regs.includes('critical')});
+    byRegister[registerKey].push({text,critical});
   }));
   const body=['formal','neutral','informal'].filter(r=>byRegister[r]&&byRegister[r].length).map(r=>{
     const label=CHUNKS_TAG_LABEL[r].charAt(0).toUpperCase()+CHUNKS_TAG_LABEL[r].slice(1);
@@ -2851,10 +2879,13 @@ function chunks_blockHTML(kind,blockKey){
       +byRegister[r].map(p=>'<div style="padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;background:#fff;font-size:14px;line-height:1.4">'+esc(p.text)+(p.critical?'<span class="tag '+CHUNKS_TAG_CLASS.critical+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+CHUNKS_TAG_LABEL.critical+'</span>':'')+'</div>').join('')
       +'</div></div>';
   }).join('');
+  const hint=chunks_registerHintHTML(kind);
   return '<div class="card" style="margin-top:10px;background:#FFFBEB;border-color:#FCD34D">'
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
     +'<span>💡 Useful Phrases — '+esc(CHUNKS_BLOCK_LABEL[blockKey]||'')+'</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
-    +'<div class="mdlBody hid" style="margin-top:10px">'+body+'</div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'
+    +(hint?'<div style="font-size:12px;color:#94A3B8;font-style:italic;margin-bottom:10px">'+esc(hint)+'</div>':'')
+    +body+'</div>'
     +'</div>';
 }
 // Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
