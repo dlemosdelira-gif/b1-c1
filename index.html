@@ -525,6 +525,37 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mRecapSummary" onclick="if(event.target===this)closeM('mRecapSummary')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
+    <div class="mhdr"><div class="mtit">🧠 Summarize Last Week's Notes</div><button class="btn bsm" onclick="closeM('mRecapSummary')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div class="mstep"><div class="mnum">1</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Send this prompt to Claude:</div>
+          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:160px;overflow-y:auto;word-break:break-word" id="recapPromptBox"></div>
+          <div class="fl g6 mt8">
+            <button class="btn bpr bsm" onclick="recap_copyPrompt()">Copy Full Prompt</button>
+            <button class="btn bsm" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D" onclick="recap_openInClaude()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
+            </button>
+            <span class="cbdg" id="recapCpbdg">✓ Copied!</span>
+          </div>
+        </div>
+      </div>
+      <div class="mstep"><div class="mnum">2</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's summary here:</div>
+          <textarea id="recapSummaryIn" style="min-height:120px;font-size:14px;width:100%;box-sizing:border-box" placeholder="Paste the summary text..."></textarea>
+          <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
+            <button class="btn bsm" onclick="closeM('mRecapSummary')">Cancel</button>
+            <button class="btn bpr bsm" onclick="recap_saveSummary()">💾 Save Summary</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
@@ -997,7 +1028,7 @@ function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMont
 const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RWG=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RWG=null,RRS=null;
 let weekGoals={};
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
@@ -1058,6 +1089,12 @@ let cycleExpanded={};
 let customCycleActivities={};
 let cycleItemChecked={};
 let cycleNotes={};
+// AI-generated summaries of a previous week's cycle notes, keyed by that
+// week's number. Built via the same copy-prompt/paste-response pattern as
+// the AI Analysis Bridge (openAIModal/processJSON) since the app has no
+// server-side AI call — see recap_openSummaryModal().
+let recapSummaries={};
+let recapCurWeekKey=null,recapCurPrompt='';
 let bulkSelectMode=false;
 let selectedCardIds=new Set();
 let cardsTopicFilter='';
@@ -1815,6 +1852,7 @@ function loadLocal(){
   try{customCycleActivities=JSON.parse(localStorage.getItem('c1cycleact')||'{}');}catch(e){customCycleActivities={};}
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
+  try{recapSummaries=JSON.parse(localStorage.getItem('c1recapsum')||'{}');}catch(e){recapSummaries={};}
   try{weekGoals=JSON.parse(localStorage.getItem('c1weekgoals')||'{}');}catch(e){weekGoals={};}
   try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
   try{escolaFeedback=JSON.parse(localStorage.getItem('c1esc')||'[]');}catch(e){escolaFeedback=[];}
@@ -1861,6 +1899,59 @@ function saveCustomCycleAct(){localStorage.setItem('c1cycleact',JSON.stringify(c
 function saveCycleItemChecked(){localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));fbSet(RCIC,Object.keys(cycleItemChecked).length?JSON.stringify(cycleItemChecked):null);}
 function toggleCycleItem(itemKey){cycleItemChecked[itemKey]=!cycleItemChecked[itemKey];saveCycleItemChecked();renderEnsurance();}
 function saveCycleNotes(){localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));fbSet(RCN,Object.keys(cycleNotes).length?JSON.stringify(cycleNotes):null);}
+function saveRecapSummaries(){localStorage.setItem('c1recapsum',JSON.stringify(recapSummaries));fbSet(RRS,Object.keys(recapSummaries).length?JSON.stringify(recapSummaries):null);}
+function recap_notePlainText(raw){
+  const d=document.createElement('div');
+  d.innerHTML=noteToHtml(raw);
+  return (d.textContent||'').replace(/\s+/g,' ').trim();
+}
+// Every cycle of `week` that has a saved note, in cycle order. The single
+// source of truth for both the Recap banner's note list and the AI summary
+// prompt, so they never drift apart.
+function recap_weekNoteEntries(week){
+  const weekData=ENSURANCE_CRONOGRAMA.semanas[week];
+  if(!weekData)return[];
+  return Object.keys(weekData.ciclos).map(Number).sort((a,b)=>a-b)
+    .map(c=>({c,notes:cycleNotes[`${week}-${c}`]||''}))
+    .filter(e=>e.notes);
+}
+function recap_buildSummaryPrompt(prevW,entries){
+  const notesBlock=entries.map(e=>'Cycle '+e.c+':\n'+recap_notePlainText(e.notes)).join('\n\n');
+  return 'You are helping a TOEFL student review their study notes from last week (Week '+prevW+'). Below are their raw lesson notes from each cycle they completed that week.\n\n'+notesBlock+'\n\nWrite a concise summary of the main topics covered and the key takeaways worth remembering, as 5-8 short bullet points. If any note mentions something the student found difficult or wants to revisit, call that out separately under a "Worth reviewing again" heading. Return plain text only, no JSON, no markdown formatting.';
+}
+function recap_openSummaryModal(week){
+  const entries=recap_weekNoteEntries(week);
+  if(!entries.length){toast('⚠️ No notes to summarize for that week');return;}
+  const weekKey=String(week);
+  recapCurWeekKey=weekKey;
+  recapCurPrompt=recap_buildSummaryPrompt(week,entries);
+  document.getElementById('recapPromptBox').textContent=recapCurPrompt;
+  document.getElementById('recapSummaryIn').value=recapSummaries[weekKey]||'';
+  document.getElementById('recapCpbdg').classList.remove('on');
+  openM('mRecapSummary');
+}
+function recap_copyPrompt(){
+  navigator.clipboard.writeText(recapCurPrompt).then(()=>document.getElementById('recapCpbdg').classList.add('on'));
+}
+function recap_openInClaude(){
+  navigator.clipboard.writeText(recapCurPrompt).then(()=>{
+    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+    document.getElementById('recapCpbdg').classList.add('on');
+  }).catch(()=>{
+    toast('⚠️ Copy failed — use Copy Full Prompt instead');
+  });
+}
+function recap_saveSummary(){
+  const txt=document.getElementById('recapSummaryIn').value.trim();
+  if(!txt){toast('⚠️ Paste the summary first');return;}
+  if(!recapCurWeekKey)return;
+  recapSummaries[recapCurWeekKey]=txt;
+  saveRecapSummaries();
+  closeM('mRecapSummary');
+  toast('✅ Summary saved');
+  if(curTab==='prac')renderPrac();
+}
 function setCycleNote(key,val){cycleNotes[key]=val.trim();if(!cycleNotes[key])delete cycleNotes[key];saveCycleNotes();}
 // Flat "week-cycle" key sequence across the whole 16-week program, in
 // program order (cycle numbers within a week aren't necessarily 1..6 for
@@ -1881,17 +1972,6 @@ function nextCycleKeys(week,cycle,count){
   const startIdx=all.indexOf(`${week}-${cycle}`);
   if(startIdx===-1||count<=0)return[];
   return all.slice(startIdx+1,startIdx+1+count);
-}
-// The cycle key immediately before this week's first cycle in program order
-// (i.e. the last cycle of the previous week), or null if there isn't one.
-function prevCycleKey(week){
-  const weekData=ENSURANCE_CRONOGRAMA.semanas[week];
-  if(!weekData)return null;
-  const firstCycle=Object.keys(weekData.ciclos).map(Number).sort((a,b)=>a-b)[0];
-  if(firstCycle===undefined)return null;
-  const all=cycleKeysList();
-  const idx=all.indexOf(`${week}-${firstCycle}`);
-  return idx>0?all[idx-1]:null;
 }
 function addCycleActivity(week,cycle){
   const key=`${week}-${cycle}`;
@@ -2507,39 +2587,32 @@ function renderEnsurance(){
   </div>`;
   document.getElementById('lessonlist').innerHTML=navHTML;
 
-  // Recap banner: summarize the single cycle immediately before this week's
-  // first cycle in program order (i.e. "the previous cycle"), not every
-  // cycle from the previous week — completion rate + which activities were
-  // done vs still pending + the lesson notes for that one cycle.
+  // Recap banner: every cycle's notes from the previous week, plus an
+  // optional AI-generated summary of them (built via the same copy-prompt/
+  // paste-response pattern as the AI Analysis Bridge, since there's no
+  // server-side AI call in this app — see recap_openSummaryModal()).
   if(ensuranceWeek>1){
-    const prevKey=prevCycleKey(ensuranceWeek);
-    if(prevKey){
-      const [prevW,prevC]=prevKey.split('-');
-      const prevWeekData=ENSURANCE_CRONOGRAMA.semanas[prevW];
-      const activities=(prevWeekData&&prevWeekData.ciclos[prevC])||[];
-      const customActs=customCycleActivities[prevKey]||[];
-      const items=[
-        ...activities.map((a,i)=>({t:a.t||'',key:`${prevKey}-s-${i}`})),
-        ...customActs.map((a,i)=>({t:a.t||'',key:`${prevKey}-c-${i}`}))
-      ];
-      const doneItems=items.filter(it=>cycleItemChecked[it.key]);
-      const pendingItems=items.filter(it=>!cycleItemChecked[it.key]);
-      const isDone=ensuranceCompleted[prevKey]||false;
-      const prevNote=cycleNotes[prevKey]||'';
+    const prevW=ensuranceWeek-1;
+    const prevWeekData=ENSURANCE_CRONOGRAMA.semanas[prevW];
+    if(prevWeekData){
+      const cycleNums=Object.keys(prevWeekData.ciclos).map(Number).sort((a,b)=>a-b);
+      const entries=recap_weekNoteEntries(prevW);
+      const weekKey=String(prevW);
+      const savedSummary=recapSummaries[weekKey]||'';
 
-      const statusLine=items.length
-        ?`<div style="margin-bottom:8px"><b>${isDone?'✅ Marked done':`◻ ${doneItems.length}/${items.length} activities checked`}</b></div>`
+      const summaryHTML=savedSummary
+        ?`<div style="background:#fff;border:1px solid #FDE68A;border-radius:6px;padding:10px;margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">🧠 Summary</div><div style="white-space:pre-wrap">${esc(savedSummary)}</div></div>`
         :'';
-      let listHTML='';
-      if(doneItems.length)listHTML+=`<div style="margin-bottom:6px"><b>Completed:</b> ${doneItems.map(it=>esc(it.t)).join('; ')}</div>`;
-      if(pendingItems.length&&!isDone)listHTML+=`<div style="margin-bottom:6px"><b>Still pending:</b> ${pendingItems.map(it=>esc(it.t)).join('; ')}</div>`;
-      const noteHTML=prevNote
-        ?`<div><b>Notes:</b><div style="white-space:pre-wrap;margin-top:2px">${noteToHtml(prevNote)}</div></div>`
-        :'<span style="color:#D97706;font-style:italic">No notes were added for this cycle. Open its notes editor (📝) to add a lesson summary.</span>';
+      const summaryBtnHTML=entries.length
+        ?`<button onclick="recap_openSummaryModal(${prevW})" style="margin-bottom:10px;padding:6px 10px;border:1px solid #FCD34D;border-radius:6px;background:#FFFBEB;color:#B45309;font-size:12px;font-weight:600;cursor:pointer">${savedSummary?'🔄 Regenerate summary':'🧠 Summarize with AI'}</button>`
+        :'';
+      const notesHTML=entries.length
+        ?entries.map(e=>'<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px">Cycle '+esc(String(e.c))+'</div><div style="white-space:pre-wrap">'+noteToHtml(e.notes)+'</div></div>').join('')
+        :'<span style="color:#D97706;font-style:italic">No notes for this week. Open a cycle\'s notes editor (📝) to add a lesson summary.</span>';
 
       const recapDiv=document.createElement('div');
       recapDiv.style.cssText='background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;margin-bottom:12px;overflow:hidden';
-      recapDiv.innerHTML=`<div onclick="const c=document.getElementById('recap-prev-body');const open=c.style.display==='block';c.style.display=open?'none':'block';document.getElementById('recap-prev-arrow').textContent=open?'▸':'▾'" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none"><div style="font-size:13px;font-weight:600;color:#92400E">📖 Recap — Previous Cycle (Week ${prevW} · Cycle ${prevC})</div><span id="recap-prev-arrow" style="color:#92400E;font-size:12px">▸</span></div><div id="recap-prev-body" style="display:none;padding:0 14px 12px;font-size:13px;color:#78350F;line-height:1.6">${statusLine}${listHTML}${noteHTML}</div>`;
+      recapDiv.innerHTML=`<div onclick="const c=document.getElementById('recap-prev-body');const open=c.style.display==='block';c.style.display=open?'none':'block';document.getElementById('recap-prev-arrow').textContent=open?'▸':'▾'" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none"><div style="font-size:13px;font-weight:600;color:#92400E">📖 Recap — Week ${prevW} (${entries.length}/${cycleNums.length} cycles with notes)</div><span id="recap-prev-arrow" style="color:#92400E;font-size:12px">▸</span></div><div id="recap-prev-body" style="display:none;padding:0 14px 12px;font-size:13px;color:#78350F;line-height:1.6">${summaryHTML}${summaryBtnHTML}${notesHTML}</div>`;
       document.getElementById('lessonlist').appendChild(recapDiv);
     }
   }
@@ -5127,17 +5200,57 @@ function rq_check(key){
   toefl_logTime(key);
   renderRev();
 }
+// Two distinct EN voices for two-speaker playback (e.g. "Listen to a
+// Conversation"), so each speaker's turns sound like a different person
+// instead of the whole exchange being read by one voice. Falls back to
+// undefined (browser default voice) when the OS/browser only exposes one —
+// rq_play() layers a pitch difference on top for that case, since voice
+// availability is entirely outside this app's control (client-side Web
+// Speech API only, no server-side TTS).
+function rq_pickVoicePair(){
+  let voices=[];
+  try{voices=window.speechSynthesis.getVoices()||[];}catch(e){}
+  const en=voices.filter(v=>/^en/i.test(v.lang));
+  const pool=en.length?en:voices;
+  const a=pool[0]||null;
+  const b=pool.find(v=>v!==a)||a;
+  return[a,b];
+}
 // Speaks the current item's stimulus aloud (browser TTS, same approach as
-// sp_play()/iv_play()). Speaker labels (Man:/Woman:) are stripped from the
-// spoken audio so it flows naturally, but stay in the transcript shown after checking.
+// sp_play()/iv_play()). When the text has two labeled speakers (Man:/Woman:/
+// Narrator:/Speaker:), each speaker's lines are queued as separate
+// utterances with a different voice + pitch so the conversation is easier
+// to follow; speaker labels are stripped from the spoken audio either way,
+// but stay in the transcript shown after checking.
 function rq_play(key){
   const it=rq_cur[key];if(!it)return;
   if('speechSynthesis'in window){
     window.speechSynthesis.cancel();
-    const speakText=it.text.replace(/^(Man|Woman|Narrator|Speaker):\s*/gm,'').replace(/\n/g,' ');
-    const u=new SpeechSynthesisUtterance(speakText);
-    u.lang='en-US';u.rate=0.95;
-    window.speechSynthesis.speak(u);
+    const labelRe=/^(Man|Woman|Narrator|Speaker):\s*(.*)$/;
+    const turns=it.text.split('\n').reduce((acc,line)=>{
+      const m=line.match(labelRe);
+      if(m)acc.push({label:m[1],text:m[2]});
+      else if(acc.length)acc[acc.length-1].text+=' '+line;
+      return acc;
+    },[]);
+    const labels=[...new Set(turns.map(t=>t.label))];
+    if(labels.length>=2){
+      const[voiceA,voiceB]=rq_pickVoicePair();
+      const cfgFor={[labels[0]]:{voice:voiceA,pitch:1},[labels[1]]:{voice:voiceB,pitch:1.3}};
+      turns.forEach(t=>{
+        const txt=t.text.trim();if(!txt)return;
+        const u=new SpeechSynthesisUtterance(txt);
+        const cfg=cfgFor[t.label]||{pitch:1};
+        u.lang='en-US';u.rate=0.95;u.pitch=cfg.pitch;
+        if(cfg.voice)u.voice=cfg.voice;
+        window.speechSynthesis.speak(u);
+      });
+    }else{
+      const speakText=it.text.replace(/^(Man|Woman|Narrator|Speaker):\s*/gm,'').replace(/\n/g,' ');
+      const u=new SpeechSynthesisUtterance(speakText);
+      u.lang='en-US';u.rate=0.95;
+      window.speechSynthesis.speak(u);
+    }
   }else{
     toast('⚠️ Speech playback not supported in this browser');
   }
@@ -7765,6 +7878,7 @@ function startSync(){
     RAC = db.ref('cycleActivities');
     RCIC = db.ref('cycleItemChecked');
     RCN = db.ref('cycleNotes');
+    RRS = db.ref('recapSummaries');
     RWG = db.ref('weekGoals');
     RPTN = db.ref('peuaNotes');
     RAMA = db.ref('amaCompleted');
@@ -7807,6 +7921,7 @@ function startSync(){
     RAC.on('value',s=>{const v=s.val();if(v){try{customCycleActivities=JSON.parse(v); localStorage.setItem('c1cycleact',JSON.stringify(customCycleActivities));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
+    RRS.on('value',s=>{const v=s.val();if(v){try{recapSummaries=JSON.parse(v); localStorage.setItem('c1recapsum',JSON.stringify(recapSummaries));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RWG.on('value',s=>{const v=s.val();if(v){try{weekGoals=JSON.parse(v); localStorage.setItem('c1weekgoals',JSON.stringify(weekGoals));}catch(e){}} setSS('online'); if(curTab==='dash')renderWeekSprint();}, err=>setSS('offline','DB Error: '+err.code));
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAMA.on('value',s=>{const v=s.val();if(v){amaCompleted=v; localStorage.setItem('c1ama',JSON.stringify(v));} setSS('online'); if(curTab==='peua'&&peuaView==='ama')renderAma();}, err=>setSS('offline','DB Error: '+err.code));
