@@ -556,6 +556,44 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mRQGen" onclick="if(event.target===this)closeM('mRQGen')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
+    <div class="mhdr"><div class="mtit" id="rqGenTitle">➕ Generate Item from Text</div><button class="btn bsm" onclick="closeM('mRQGen')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div class="mstep"><div class="mnum">1</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Paste text from the internet (article, email, notice, etc.):</div>
+          <textarea id="rqGenSource" style="min-height:100px;font-size:14px;width:100%;box-sizing:border-box" placeholder="Paste source text here..."></textarea>
+          <button class="btn bpr bsm mt8" onclick="rq_buildGenPromptFromInput()">Build Prompt →</button>
+        </div>
+      </div>
+      <div class="mstep" id="rqGenStep2" style="display:none"><div class="mnum">2</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Send this prompt to Claude:</div>
+          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:160px;overflow-y:auto;word-break:break-word" id="rqGenPromptBox"></div>
+          <div class="fl g6 mt8">
+            <button class="btn bpr bsm" onclick="rq_genCopyPrompt()">Copy Full Prompt</button>
+            <button class="btn bsm" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D" onclick="rq_genOpenInClaude()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
+            </button>
+            <span class="cbdg" id="rqGenCpbdg">✓ Copied!</span>
+          </div>
+        </div>
+      </div>
+      <div class="mstep"><div class="mnum">3</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
+          <textarea id="rqGenIn" style="min-height:120px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='{"tag":"...","text":"...","questions":[...]}'></textarea>
+          <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
+            <button class="btn bsm" onclick="closeM('mRQGen')">Cancel</button>
+            <button class="btn bpr bsm" onclick="rq_genSaveItem()">➕ Add to My Bank</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
@@ -5153,6 +5191,67 @@ const RQ_NOUN={rd:'passage',ra:'passage',lcr:'audio clip',lc:'conversation',an:'
 // test — the audio is never written on screen); Reading types show text throughout.
 const RQ_AUDIO={rd:false,ra:false,lcr:true,lc:true,an:true,at:true};
 const RQ_SEEDS={rd:RD_SEED,ra:RA_SEED,lcr:LCR_SEED,lc:LC_SEED,an:AN_SEED,at:AT_SEED};
+// What kind of text each type expects, and how many questions is typical —
+// used to build the "generate from pasted text" prompt below. Every RQ_SEEDS
+// item already shares one shape ({id,tag,text,questions:[{q,choices,correct}]}),
+// so one generic generator covers all six types; only these two hints vary.
+const RQ_GEN_HINT={
+  rd:'a short everyday reading text (notice, menu, receipt, email, social media post, schedule, etc.), condensed/adapted from the source if needed',
+  ra:'a TOEFL-style academic passage (2-4 paragraphs, academic tone), condensed/adapted from the source if needed',
+  lcr:'a single short conversational line (one sentence) that a person might say out loud, suitable for a "choose the best response" item',
+  lc:'a short two-speaker conversation (5-8 lines total), with every line prefixed by "Man:" or "Woman:" and lines separated by \\n',
+  an:'a short single-speaker campus-style announcement (3-5 sentences)',
+  at:'a short single-speaker academic talk/lecture excerpt (one substantial paragraph)'
+};
+const RQ_GEN_QCOUNT={rd:3,ra:4,lcr:1,lc:3,an:3,at:4};
+let rqGenKey=null,rqGenCurPrompt='';
+function rq_buildGenPrompt(key,sourceText){
+  const label=RQ_LABEL[key]||'reading/listening',hint=RQ_GEN_HINT[key]||'a short passage',qCount=RQ_GEN_QCOUNT[key]||3;
+  return 'You are creating a new TOEFL iBT practice item ("'+label+'") from the source text below. Adapt/condense the source text into '+hint+'.\n\nSource text:\n"""\n'+sourceText+'\n"""\n\nThen write '+qCount+' TOEFL-style multiple-choice comprehension question(s) about it (main idea, detail, inference, vocabulary-in-context, etc. as appropriate), each with exactly 4 answer choices and exactly one correct answer.\n\nReturn ONLY valid JSON in this exact shape, no markdown, no commentary:\n{"tag":"short topic tag, lowercase, 1-2 words","text":"the adapted passage/dialogue text","questions":[{"q":"question text","choices":["choice A","choice B","choice C","choice D"],"correct":0}]}\n\n"correct" is the zero-based index of the right choice in "choices". Provide exactly '+qCount+' question(s).';
+}
+function rq_openGenModal(key){
+  rqGenKey=key;
+  document.getElementById('rqGenTitle').textContent='➕ Generate '+(RQ_LABEL[key]||'Item')+' from Text';
+  document.getElementById('rqGenSource').value='';
+  document.getElementById('rqGenPromptBox').textContent='';
+  document.getElementById('rqGenStep2').style.display='none';
+  document.getElementById('rqGenIn').value='';
+  document.getElementById('rqGenCpbdg').classList.remove('on');
+  openM('mRQGen');
+}
+function rq_buildGenPromptFromInput(){
+  const src=document.getElementById('rqGenSource').value.trim();
+  if(!src){toast('⚠️ Paste some source text first');return;}
+  rqGenCurPrompt=rq_buildGenPrompt(rqGenKey,src);
+  document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
+  document.getElementById('rqGenStep2').style.display='block';
+}
+function rq_genCopyPrompt(){
+  navigator.clipboard.writeText(rqGenCurPrompt).then(()=>document.getElementById('rqGenCpbdg').classList.add('on'));
+}
+function rq_genOpenInClaude(){
+  navigator.clipboard.writeText(rqGenCurPrompt).then(()=>{
+    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+    document.getElementById('rqGenCpbdg').classList.add('on');
+  }).catch(()=>{
+    toast('⚠️ Copy failed — use Copy Full Prompt instead');
+  });
+}
+function rq_genSaveItem(){
+  const raw=document.getElementById('rqGenIn').value.trim();
+  if(!raw){toast('⚠️ Paste the generated JSON first');return;}
+  let r;
+  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  const qOk=Array.isArray(r&&r.questions)&&r.questions.length&&r.questions.every(q=>q&&typeof q.q==='string'&&Array.isArray(q.choices)&&q.choices.length===4&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<4);
+  if(!r||typeof r.text!=='string'||!r.text.trim()||!qOk){toast('⚠️ Response is missing text, or a question is missing 4 choices/a valid correct index');return;}
+  const item={id:'u'+uid(),tag:(r.tag||'custom').toString().slice(0,30),text:r.text,questions:r.questions.map(q=>({q:q.q,choices:q.choices.slice(0,4),correct:q.correct}))};
+  rq_items(rqGenKey).push(item);
+  rq_saveItems();
+  closeM('mRQGen');
+  toast('✅ Added to your '+(RQ_NOUN[rqGenKey]||'item')+' bank');
+  if(curTab==='rev')renderRev();
+}
 function rq_items(key){return rqItems[key]||(rqItems[key]=[]);}
 function rq_progress(key){return rqProgress[key]||(rqProgress[key]={});}
 function rq_ensureFresh(){
@@ -5265,7 +5364,8 @@ function rq_play(key){
 function rq_toolbar(key){
   const items=rq_items(key),noun=RQ_NOUN[key]||'item';
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
-    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' '+noun+(items.length===1?'':'s')+'</span></div>';
+    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' '+noun+(items.length===1?'':'s')+'</span>'
+    +'<button onclick="rq_openGenModal(\''+key+'\')" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">➕ Generate from text</button></div>';
 }
 function rq_render(key){
   const items=rq_items(key),progress=rq_progress(key),label=RQ_LABEL[key],icon=RQ_ICON[key],audio=!!RQ_AUDIO[key];
