@@ -5249,7 +5249,14 @@ function rq_genSaveItem(){
   rq_items(rqGenKey).push(item);
   rq_saveItems();
   closeM('mRQGen');
-  toast('✅ Added to your '+(RQ_NOUN[rqGenKey]||'item')+' bank');
+  toast('✅ Added — starting it now!');
+  // Jump straight into the item just generated, instead of leaving whatever
+  // was on screen before and making the user hunt for it in the rotation.
+  rq_cur[rqGenKey]=item;
+  rq_sel[rqGenKey]=new Array(item.questions.length).fill(null);
+  rq_checked[rqGenKey]=false;
+  rq_played[rqGenKey]=false;
+  toefl_itemStart(rqGenKey);
   if(curTab==='rev')renderRev();
 }
 function rq_items(key){return rqItems[key]||(rqItems[key]=[]);}
