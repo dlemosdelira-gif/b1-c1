@@ -473,7 +473,7 @@ textarea{min-height:120px}
       <div class="logo-ic"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div>
         <div class="logo-name">TOEFL 80+ <span style="font-size:14px;font-weight:400;color:#94A3B8;font-family:'DM Mono',monospace">Prep Hub</span> <span style="font-size:11px;font-weight:600;color:#2563EB;font-family:'DM Mono',monospace;background:#EFF6FF;padding:1px 6px;border-radius:6px" title="App version">v5</span></div>
-        <div class="logo-sub"><span class="sdot off" id="sdot"></span><span id="slbl">Local only</span></div>
+        <div class="logo-sub"><span class="sdot off" id="sdot"></span><span id="slbl">Local only</span> <span onclick="openAISettingsModal()" title="AI settings" style="cursor:pointer;margin-left:4px">⚙️</span></div>
       </div>
     </div>
     <div class="hst">
@@ -497,7 +497,12 @@ textarea{min-height:120px}
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
     <div class="mhdr"><div class="mtit" id="mAititle">🤖 AI Analysis Bridge</div><button class="btn bsm" onclick="closeM('mAI')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
-      <div class="mstep"><div class="mnum">1</div>
+      <div id="aiLoading" class="hid" style="text-align:center;padding:34px 10px">
+        <div style="font-size:32px;margin-bottom:10px">🤖</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Grading with Gemini…</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
+      </div>
+      <div class="mstep" id="aiStep1"><div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:2px">Your text was copied. Send this prompt to Claude:</div>
           <div id="bridgeTaskLabel" style="font-size:13px;color:#2563EB;font-weight:600;margin-bottom:6px"></div>
@@ -511,7 +516,7 @@ textarea{min-height:120px}
           </div>
         </div>
       </div>
-      <div class="mstep"><div class="mnum">2</div>
+      <div class="mstep" id="aiStep2"><div class="mnum">2</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
           <textarea id="jsonin" style="min-height:120px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='{"corrections":[...],"improvements":[...],"overall_feedback":"...","score_estimate":65}'></textarea>
@@ -525,11 +530,33 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mAISettings" onclick="if(event.target===this)closeM('mAISettings')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:520px">
+    <div class="mhdr"><div class="mtit">⚙️ AI Settings</div><button class="btn bsm" onclick="closeM('mAISettings')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add a free Gemini API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call Gemini automatically. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563EB">aistudio.google.com/apikey</a> (no card required). The key is stored only in this browser (localStorage) — never synced, never committed anywhere. Leave it blank to keep using the manual copy/paste flow.</div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model</label><input type="text" id="aiModelInput" placeholder="gemini-2.0-flash"></div>
+      <div class="fl g8 mt8">
+        <button class="btn bpr bsm" onclick="ai_saveSettings()">Save</button>
+        <button class="btn bsm" onclick="ai_testKey()">Test connection</button>
+        <button class="btn bsm" onclick="ai_clearSettings()" style="color:#EF4444">Remove key</button>
+      </div>
+      <div id="aiSettingsStatus" style="margin-top:10px;font-size:12px;line-height:1.5"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mRecapSummary" onclick="if(event.target===this)closeM('mRecapSummary')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
     <div class="mhdr"><div class="mtit">🧠 Summarize Last Week's Notes</div><button class="btn bsm" onclick="closeM('mRecapSummary')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
-      <div class="mstep"><div class="mnum">1</div>
+      <div id="recapLoading" class="hid" style="text-align:center;padding:34px 10px">
+        <div style="font-size:32px;margin-bottom:10px">🧠</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Summarizing with Gemini…</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
+      </div>
+      <div class="mstep" id="recapStep1"><div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Send this prompt to Claude:</div>
           <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:160px;overflow-y:auto;word-break:break-word" id="recapPromptBox"></div>
@@ -542,7 +569,7 @@ textarea{min-height:120px}
           </div>
         </div>
       </div>
-      <div class="mstep"><div class="mnum">2</div>
+      <div class="mstep" id="recapStep2"><div class="mnum">2</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's summary here:</div>
           <textarea id="recapSummaryIn" style="min-height:120px;font-size:14px;width:100%;box-sizing:border-box" placeholder="Paste the summary text..."></textarea>
@@ -560,6 +587,11 @@ textarea{min-height:120px}
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
     <div class="mhdr"><div class="mtit" id="rqGenTitle">➕ Generate Item from Text</div><button class="btn bsm" onclick="closeM('mRQGen')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
+      <div id="rqGenLoading" class="hid" style="text-align:center;padding:34px 10px">
+        <div style="font-size:32px;margin-bottom:10px">➕</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Generating with Gemini…</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
+      </div>
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Paste text from the internet (article, email, notice, etc.):</div>
@@ -580,7 +612,7 @@ textarea{min-height:120px}
           </div>
         </div>
       </div>
-      <div class="mstep"><div class="mnum">3</div>
+      <div class="mstep" id="rqGenStep3"><div class="mnum">3</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
           <textarea id="rqGenIn" style="min-height:120px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='{"tag":"...","text":"...","questions":[...]}'></textarea>
@@ -1966,7 +1998,28 @@ function recap_openSummaryModal(week){
   document.getElementById('recapPromptBox').textContent=recapCurPrompt;
   document.getElementById('recapSummaryIn').value=recapSummaries[weekKey]||'';
   document.getElementById('recapCpbdg').classList.remove('on');
+  recap_showLoading(false);
   openM('mRecapSummary');
+  if(ai_hasKey()){recap_showLoading(true);recap_autoSummarize(weekKey,recapCurPrompt);}
+}
+function recap_showLoading(on){
+  const l=document.getElementById('recapLoading'),s1=document.getElementById('recapStep1'),s2=document.getElementById('recapStep2');
+  if(l)l.classList.toggle('hid',!on);
+  if(s1)s1.classList.toggle('hid',on);
+  if(s2)s2.classList.toggle('hid',on);
+}
+async function recap_autoSummarize(weekKey,prompt){
+  try{
+    const text=await gemini_call(prompt,{json:false});
+    recapSummaries[weekKey]=text.trim();
+    saveRecapSummaries();
+    closeM('mRecapSummary');
+    toast('🧠 Summary generated!');
+    if(curTab==='prac')renderPrac();
+  }catch(e){
+    toast('⚠️ Gemini failed ('+e.message+') — switched to manual mode');
+    recap_showLoading(false);
+  }
 }
 function recap_copyPrompt(){
   navigator.clipboard.writeText(recapCurPrompt).then(()=>document.getElementById('recapCpbdg').classList.add('on'));
@@ -2914,6 +2967,75 @@ function updMic(){
   else{b.className='btn bsm';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';bar.classList.add('hid');}
 }
 
+// ── AI PROVIDER (Gemini, optional) ──────────────────────────────────────────
+// A free Gemini API key lets grading/summarizing/generating call the model
+// directly instead of the manual copy-prompt/paste-response flow. The key
+// lives ONLY in this browser's localStorage — never synced to Firebase,
+// never written into this file — since the repo/Pages site is public and a
+// key committed to source would be scraped and drained within minutes.
+function ai_getKey(){try{return localStorage.getItem('c1geminiKey')||'';}catch(e){return'';}}
+function ai_getModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-2.0-flash';}catch(e){return'gemini-2.0-flash';}}
+function ai_hasKey(){return!!ai_getKey();}
+async function gemini_call(prompt,opts){
+  opts=opts||{};
+  const key=ai_getKey();
+  if(!key)throw new Error('No Gemini API key configured');
+  const model=ai_getModel();
+  const body={contents:[{parts:[{text:prompt}]}]};
+  if(opts.json)body.generationConfig={responseMimeType:'application/json'};
+  let res;
+  try{
+    res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key),{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+  }catch(e){throw new Error('Network error reaching Gemini: '+e.message);}
+  if(!res.ok){
+    let msg=res.status+' '+res.statusText;
+    try{const errJson=await res.json();if(errJson&&errJson.error&&errJson.error.message)msg=errJson.error.message;}catch(e){}
+    throw new Error(msg);
+  }
+  const data=await res.json();
+  const text=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
+  if(!text)throw new Error('Empty response from Gemini');
+  return text;
+}
+function openAISettingsModal(){
+  document.getElementById('aiApiKeyInput').value=ai_getKey();
+  document.getElementById('aiModelInput').value=ai_getModel();
+  document.getElementById('aiSettingsStatus').innerHTML='';
+  openM('mAISettings');
+}
+function ai_saveSettings(){
+  const key=document.getElementById('aiApiKeyInput').value.trim();
+  const model=document.getElementById('aiModelInput').value.trim()||'gemini-2.0-flash';
+  localStorage.setItem('c1geminiKey',key);
+  localStorage.setItem('c1geminiModel',model);
+  document.getElementById('aiSettingsStatus').innerHTML=key
+    ?'<span style="color:#16A34A">✅ Saved. Grading, the Recap summary, and the exercise generator will now call Gemini automatically.</span>'
+    :'<span style="color:#94A3B8">Key cleared — back to manual copy/paste mode.</span>';
+  toast(key?'✅ Gemini key saved':'Key cleared');
+}
+function ai_clearSettings(){
+  localStorage.removeItem('c1geminiKey');
+  document.getElementById('aiApiKeyInput').value='';
+  document.getElementById('aiSettingsStatus').innerHTML='<span style="color:#94A3B8">Key removed — back to manual copy/paste mode.</span>';
+  toast('🗑 Gemini key removed');
+}
+async function ai_testKey(){
+  const statusEl=document.getElementById('aiSettingsStatus');
+  const key=document.getElementById('aiApiKeyInput').value.trim();
+  if(!key){statusEl.innerHTML='<span style="color:#EF4444">Paste a key first</span>';return;}
+  localStorage.setItem('c1geminiKey',key);
+  localStorage.setItem('c1geminiModel',document.getElementById('aiModelInput').value.trim()||'gemini-2.0-flash');
+  statusEl.innerHTML='<span style="color:#94A3B8">Testing…</span>';
+  try{
+    const text=await gemini_call('Reply with exactly: OK',{json:false});
+    statusEl.innerHTML='<span style="color:#16A34A">✅ Connected! Gemini replied: "'+esc(text.trim().slice(0,60))+'"</span>';
+  }catch(e){
+    statusEl.innerHTML='<span style="color:#EF4444">❌ '+esc(e.message)+'</span>';
+  }
+}
+
 // ── AI BRIDGE ─────────────────────────────────────────────────────────────────
 function buildPrompt(mode,t){
   let p=mdata(activeMonth).ai;
@@ -3072,6 +3194,7 @@ function openAIModal(mode){
   document.getElementById('bridgeTaskLabel').textContent=bridge_getTaskLabel(curMode);
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
+  ai_showLoading(false);
   // Mark the relevant scenario/sentence/question as practiced now; capture
   // the score later in processJSON once the pasted analysis comes back.
   em_lastId=null;wr_lastId=null;sp_lastId=null;iv_lastId=null;
@@ -3103,6 +3226,26 @@ function openAIModal(mode){
   // resubmitting, same as the real exam.
   if(sim_active){sim_locked=true;sim_lockEditor();sim_renderBadge();}
   openM('mAI');
+  if(ai_hasKey()){ai_showLoading(true);ai_autoGrade(fp);}
+}
+function ai_showLoading(on){
+  const l=document.getElementById('aiLoading'),s1=document.getElementById('aiStep1'),s2=document.getElementById('aiStep2');
+  if(l)l.classList.toggle('hid',!on);
+  if(s1)s1.classList.toggle('hid',on);
+  if(s2)s2.classList.toggle('hid',on);
+}
+async function ai_autoGrade(fp){
+  try{
+    const text=await gemini_call(fp,{json:true});
+    let r;
+    try{r=JSON.parse(text.replace(/```json|```/g,'').trim());}
+    catch(e){throw new Error('Gemini returned invalid JSON');}
+    closeM('mAI');
+    ai_finishProcessing(r);
+  }catch(e){
+    toast('⚠️ Gemini failed ('+e.message+') — switched to manual mode');
+    ai_showLoading(false);
+  }
 }
 function copyPrompt(){
   const fp=buildPrompt(curMode,document.getElementById('rtxt').value.trim());
@@ -3129,6 +3272,11 @@ function processJSON(){
   try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}
   catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
   closeM('mAI');
+  ai_finishProcessing(r);
+}
+// Shared by the manual paste-back path (processJSON) and the automatic
+// Gemini path (ai_autoGrade) once either has a parsed result object.
+function ai_finishProcessing(r){
   const w=curText.trim().split(/\s+/).filter(Boolean).length;
   stats.wordsToday=(stats.wordsToday||0)+w;
   stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
@@ -5217,14 +5365,37 @@ function rq_openGenModal(key){
   document.getElementById('rqGenStep2').style.display='none';
   document.getElementById('rqGenIn').value='';
   document.getElementById('rqGenCpbdg').classList.remove('on');
+  rq_genShowLoading(false);
   openM('mRQGen');
 }
 function rq_buildGenPromptFromInput(){
   const src=document.getElementById('rqGenSource').value.trim();
   if(!src){toast('⚠️ Paste some source text first');return;}
   rqGenCurPrompt=rq_buildGenPrompt(rqGenKey,src);
-  document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
-  document.getElementById('rqGenStep2').style.display='block';
+  if(ai_hasKey()){
+    rq_genShowLoading(true);
+    rq_autoGenerate(rqGenCurPrompt);
+  }else{
+    document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
+    document.getElementById('rqGenStep2').style.display='block';
+  }
+}
+function rq_genShowLoading(on){
+  const l=document.getElementById('rqGenLoading'),s2=document.getElementById('rqGenStep2'),s3=document.getElementById('rqGenStep3');
+  if(l)l.classList.toggle('hid',!on);
+  if(on&&s2)s2.style.display='none';
+  if(s3)s3.classList.toggle('hid',on);
+}
+async function rq_autoGenerate(prompt){
+  try{
+    const text=await gemini_call(prompt,{json:true});
+    rq_genFinish(text);
+  }catch(e){
+    toast('⚠️ Gemini failed ('+e.message+') — switched to manual mode');
+    rq_genShowLoading(false);
+    document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
+    document.getElementById('rqGenStep2').style.display='block';
+  }
 }
 function rq_genCopyPrompt(){
   navigator.clipboard.writeText(rqGenCurPrompt).then(()=>document.getElementById('rqGenCpbdg').classList.add('on'));
@@ -5241,10 +5412,15 @@ function rq_genOpenInClaude(){
 function rq_genSaveItem(){
   const raw=document.getElementById('rqGenIn').value.trim();
   if(!raw){toast('⚠️ Paste the generated JSON first');return;}
+  rq_genFinish(raw);
+}
+// Shared by the manual paste-back path (rq_genSaveItem) and the automatic
+// Gemini path (rq_autoGenerate) once either has the raw response text.
+function rq_genFinish(raw){
   let r;
-  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('⚠️ Invalid JSON — copy the full response');rq_genShowLoading(false);return;}
   const qOk=Array.isArray(r&&r.questions)&&r.questions.length&&r.questions.every(q=>q&&typeof q.q==='string'&&Array.isArray(q.choices)&&q.choices.length===4&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<4);
-  if(!r||typeof r.text!=='string'||!r.text.trim()||!qOk){toast('⚠️ Response is missing text, or a question is missing 4 choices/a valid correct index');return;}
+  if(!r||typeof r.text!=='string'||!r.text.trim()||!qOk){toast('⚠️ Response is missing text, or a question is missing 4 choices/a valid correct index');rq_genShowLoading(false);return;}
   const item={id:'u'+uid(),tag:(r.tag||'custom').toString().slice(0,30),text:r.text,questions:r.questions.map(q=>({q:q.q,choices:q.choices.slice(0,4),correct:q.correct}))};
   rq_items(rqGenKey).push(item);
   rq_saveItems();
