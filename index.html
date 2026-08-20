@@ -536,13 +536,21 @@ textarea{min-height:120px}
     <div class="mbdy">
       <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add a free Gemini API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call Gemini automatically. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563EB">aistudio.google.com/apikey</a> (no card required). The key is stored only in this browser (localStorage) — never synced, never committed anywhere. Leave it blank to keep using the manual copy/paste flow.</div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model (grading/generation)</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
       <div class="fl g8 mt8">
         <button class="btn bpr bsm" onclick="ai_saveSettings()">Save</button>
         <button class="btn bsm" onclick="ai_testKey()">Test connection</button>
         <button class="btn bsm" onclick="ai_clearSettings()" style="color:#EF4444">Remove key</button>
       </div>
       <div id="aiSettingsStatus" style="margin-top:10px;font-size:12px;line-height:1.5"></div>
+      <div style="border-top:1px solid #E5E7EB;margin-top:16px;padding-top:14px">
+        <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:10px">Optional: natural Gemini voices for Listening/Speaking audio (multi-speaker for "Listen to a Conversation") instead of the browser's built-in voice. Falls back to the browser voice automatically if this fails.</div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">TTS Model</label><input type="text" id="aiTtsModelInput" placeholder="gemini-3.1-flash-tts-preview"></div>
+        <div class="fl g8 mt8">
+          <button class="btn bsm" onclick="ai_testTts()">Test voice</button>
+        </div>
+        <div id="aiTtsStatus" style="margin-top:10px;font-size:12px;line-height:1.5"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2999,26 +3007,99 @@ async function gemini_call(prompt,opts){
   if(!text)throw new Error('Empty response from Gemini');
   return text;
 }
+
+// ── GEMINI TTS (optional, natural voices for Listening/Speaking audio) ─────
+// Separate model from text generation (TTS-specific models, e.g. the
+// "-tts-preview" family). Same key, same "never leaves this browser" rule.
+function ai_getTtsModel(){try{return localStorage.getItem('c1geminiTtsModel')||'gemini-3.1-flash-tts-preview';}catch(e){return'gemini-3.1-flash-tts-preview';}}
+function ai_base64ToBytes(b64){
+  const bin=atob(b64);
+  const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  return bytes;
+}
+// Gemini TTS returns raw headerless 16-bit PCM — wrap it in a minimal WAV
+// header so <audio>/the Audio() element can play it directly.
+function ai_pcmToWavBlob(pcmBytes,sampleRate){
+  sampleRate=sampleRate||24000;
+  const numChannels=1,bitsPerSample=16;
+  const byteRate=sampleRate*numChannels*bitsPerSample/8;
+  const blockAlign=numChannels*bitsPerSample/8;
+  const dataSize=pcmBytes.length;
+  const buffer=new ArrayBuffer(44+dataSize);
+  const view=new DataView(buffer);
+  function writeStr(off,str){for(let i=0;i<str.length;i++)view.setUint8(off+i,str.charCodeAt(i));}
+  writeStr(0,'RIFF');view.setUint32(4,36+dataSize,true);writeStr(8,'WAVE');
+  writeStr(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);
+  view.setUint16(22,numChannels,true);view.setUint32(24,sampleRate,true);
+  view.setUint32(28,byteRate,true);view.setUint16(32,blockAlign,true);view.setUint16(34,bitsPerSample,true);
+  writeStr(36,'data');view.setUint32(40,dataSize,true);
+  new Uint8Array(buffer,44).set(pcmBytes);
+  return new Blob([buffer],{type:'audio/wav'});
+}
+// opts.speakers: [{voice}] for a single narrator, or [{name,voice},{name,voice}]
+// for a two-speaker dialogue (text must have each line prefixed "Name: ...",
+// matching the same names passed here). Returns a playable blob: URL.
+async function gemini_tts(text,opts){
+  opts=opts||{};
+  const key=ai_getKey();
+  if(!key)throw new Error('No Gemini API key configured');
+  const model=ai_getTtsModel();
+  const speakers=opts.speakers&&opts.speakers.length?opts.speakers:[{voice:'Kore'}];
+  const speechConfig=speakers.length>1
+    ?{multiSpeakerVoiceConfig:{speakerVoiceConfigs:speakers.map(s=>({speaker:s.name,voiceConfig:{prebuiltVoiceConfig:{voiceName:s.voice}}}))}}
+    :{voiceConfig:{prebuiltVoiceConfig:{voiceName:speakers[0].voice}}};
+  const body={contents:[{parts:[{text:text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:speechConfig}};
+  let res;
+  try{
+    res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key),{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+  }catch(e){throw new Error('Network error reaching Gemini TTS: '+e.message);}
+  if(!res.ok){
+    let msg=res.status+' '+res.statusText;
+    try{const errJson=await res.json();if(errJson&&errJson.error&&errJson.error.message)msg=errJson.error.message;}catch(e){}
+    throw new Error(msg);
+  }
+  const data=await res.json();
+  const part=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0];
+  const inline=part&&part.inlineData;
+  if(!inline||!inline.data)throw new Error('No audio returned from Gemini TTS');
+  const rateMatch=(inline.mimeType||'').match(/rate=(\d+)/);
+  const sampleRate=rateMatch?parseInt(rateMatch[1],10):24000;
+  const blob=ai_pcmToWavBlob(ai_base64ToBytes(inline.data),sampleRate);
+  return URL.createObjectURL(blob);
+}
+let ai_curAudio=null;
+function ai_playAudioUrl(url){
+  if(ai_curAudio){try{ai_curAudio.pause();}catch(e){}}
+  ai_curAudio=new Audio(url);
+  ai_curAudio.play().catch(()=>{});
+}
+
 function openAISettingsModal(){
   document.getElementById('aiApiKeyInput').value=ai_getKey();
   document.getElementById('aiModelInput').value=ai_getModel();
+  document.getElementById('aiTtsModelInput').value=ai_getTtsModel();
   document.getElementById('aiSettingsStatus').innerHTML='';
   openM('mAISettings');
 }
 function ai_saveSettings(){
   const key=document.getElementById('aiApiKeyInput').value.trim();
   const model=document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash';
+  const ttsModel=document.getElementById('aiTtsModelInput').value.trim()||'gemini-3.1-flash-tts-preview';
   localStorage.setItem('c1geminiKey',key);
   localStorage.setItem('c1geminiModel',model);
+  localStorage.setItem('c1geminiTtsModel',ttsModel);
   document.getElementById('aiSettingsStatus').innerHTML=key
-    ?'<span style="color:#16A34A">✅ Saved. Grading, the Recap summary, and the exercise generator will now call Gemini automatically.</span>'
-    :'<span style="color:#94A3B8">Key cleared — back to manual copy/paste mode.</span>';
+    ?'<span style="color:#16A34A">✅ Saved. Grading, the Recap summary, the exercise generator, and Listening/Speaking audio will now use Gemini automatically.</span>'
+    :'<span style="color:#94A3B8">Key cleared — back to manual copy/paste and browser voices.</span>';
   toast(key?'✅ Gemini key saved':'Key cleared');
 }
 function ai_clearSettings(){
   localStorage.removeItem('c1geminiKey');
   document.getElementById('aiApiKeyInput').value='';
-  document.getElementById('aiSettingsStatus').innerHTML='<span style="color:#94A3B8">Key removed — back to manual copy/paste mode.</span>';
+  document.getElementById('aiSettingsStatus').innerHTML='<span style="color:#94A3B8">Key removed — back to manual copy/paste and browser voices.</span>';
   toast('🗑 Gemini key removed');
 }
 async function ai_testKey(){
@@ -3027,10 +3108,26 @@ async function ai_testKey(){
   if(!key){statusEl.innerHTML='<span style="color:#EF4444">Paste a key first</span>';return;}
   localStorage.setItem('c1geminiKey',key);
   localStorage.setItem('c1geminiModel',document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash');
+  localStorage.setItem('c1geminiTtsModel',document.getElementById('aiTtsModelInput').value.trim()||'gemini-3.1-flash-tts-preview');
   statusEl.innerHTML='<span style="color:#94A3B8">Testing…</span>';
   try{
     const text=await gemini_call('Reply with exactly: OK',{json:false});
     statusEl.innerHTML='<span style="color:#16A34A">✅ Connected! Gemini replied: "'+esc(text.trim().slice(0,60))+'"</span>';
+  }catch(e){
+    statusEl.innerHTML='<span style="color:#EF4444">❌ '+esc(e.message)+'</span>';
+  }
+}
+async function ai_testTts(){
+  const statusEl=document.getElementById('aiTtsStatus');
+  const key=document.getElementById('aiApiKeyInput').value.trim();
+  if(!key){statusEl.innerHTML='<span style="color:#EF4444">Paste a key first</span>';return;}
+  localStorage.setItem('c1geminiKey',key);
+  localStorage.setItem('c1geminiTtsModel',document.getElementById('aiTtsModelInput').value.trim()||'gemini-3.1-flash-tts-preview');
+  statusEl.innerHTML='<span style="color:#94A3B8">Generating a sample…</span>';
+  try{
+    const url=await gemini_tts('Hello! This is a test of the TOEFL prep voice.',{speakers:[{voice:'Kore'}]});
+    ai_playAudioUrl(url);
+    statusEl.innerHTML='<span style="color:#16A34A">✅ Voice generated — you should hear it now.</span>';
   }catch(e){
     statusEl.innerHTML='<span style="color:#EF4444">❌ '+esc(e.message)+'</span>';
   }
@@ -5503,14 +5600,51 @@ function rq_pickVoicePair(){
   const b=pool.find(v=>v!==a)||a;
   return[a,b];
 }
-// Speaks the current item's stimulus aloud (browser TTS, same approach as
-// sp_play()/iv_play()). When the text has two labeled speakers (Man:/Woman:/
-// Narrator:/Speaker:), each speaker's lines are queued as separate
-// utterances with a different voice + pitch so the conversation is easier
-// to follow; speaker labels are stripped from the spoken audio either way,
-// but stay in the transcript shown after checking.
+// Speaks the current item's stimulus aloud. With a Gemini key configured,
+// tries Gemini's TTS first — real multi-speaker dialogue for two-speaker
+// text instead of the same browser voice at two different pitches — and
+// falls back to the browser-voice approach below on any failure (no key,
+// network error, unexpected response) so playback never just goes silent.
 function rq_play(key){
   const it=rq_cur[key];if(!it)return;
+  rq_played[key]=true;
+  const b=document.getElementById('rqPlayBtn_'+key);if(b)b.textContent='🔊 Play again';
+  if(ai_hasKey()){
+    rq_playGemini(it).catch(e=>{
+      toast('⚠️ Gemini voice failed ('+e.message+') — using browser voice');
+      rq_playBrowser(it);
+    });
+  }else{
+    rq_playBrowser(it);
+  }
+}
+async function rq_playGemini(it){
+  const labelRe=/^(Man|Woman|Narrator|Speaker):\s*(.*)$/;
+  const turns=it.text.split('\n').reduce((acc,line)=>{
+    const m=line.match(labelRe);
+    if(m)acc.push({label:m[1],text:m[2]});
+    else if(acc.length)acc[acc.length-1].text+=' '+line;
+    return acc;
+  },[]);
+  const labels=[...new Set(turns.map(t=>t.label))];
+  let url;
+  if(labels.length>=2){
+    const speakers=[{name:labels[0],voice:'Puck'},{name:labels[1],voice:'Kore'}];
+    const dialogueText=turns.map(t=>t.label+': '+t.text.trim()).filter(Boolean).join('\n');
+    url=await gemini_tts(dialogueText,{speakers});
+  }else{
+    const plain=it.text.replace(/^(Man|Woman|Narrator|Speaker):\s*/gm,'').replace(/\n/g,' ');
+    url=await gemini_tts(plain,{speakers:[{voice:'Kore'}]});
+  }
+  ai_playAudioUrl(url);
+}
+// Browser TTS (speechSynthesis) fallback — same approach as
+// sp_playBrowser()/iv_playBrowser(). When the text has two labeled speakers
+// (Man:/Woman:/Narrator:/Speaker:), each speaker's lines are queued as
+// separate utterances with a different voice + pitch so the conversation is
+// easier to follow; speaker labels are stripped from the spoken audio
+// either way, but stay in the transcript shown after checking.
+function rq_playBrowser(it){
   if('speechSynthesis'in window){
     window.speechSynthesis.cancel();
     const labelRe=/^(Man|Woman|Narrator|Speaker):\s*(.*)$/;
@@ -5541,8 +5675,6 @@ function rq_play(key){
   }else{
     toast('⚠️ Speech playback not supported in this browser');
   }
-  rq_played[key]=true;
-  const b=document.getElementById('rqPlayBtn_'+key);if(b)b.textContent='🔊 Play again';
 }
 function rq_toolbar(key){
   const items=rq_items(key),noun=RQ_NOUN[key]||'item';
@@ -6609,6 +6741,18 @@ function sp_evolutionHTML(){
 function sp_shuffle(){sp_pick(sp_cur?sp_cur.id:null);sp_renderScenario();}
 function sp_play(){
   if(!sp_cur)return;
+  sp_played=true;
+  const b=document.getElementById('spPlayBtn');if(b)b.textContent='🔊 Play again';
+  if(ai_hasKey()){
+    gemini_tts(sp_cur.text,{speakers:[{voice:'Kore'}]}).then(ai_playAudioUrl).catch(e=>{
+      toast('⚠️ Gemini voice failed ('+e.message+') — using browser voice');
+      sp_playBrowser();
+    });
+  }else{
+    sp_playBrowser();
+  }
+}
+function sp_playBrowser(){
   if('speechSynthesis'in window){
     window.speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(sp_cur.text);
@@ -6617,8 +6761,6 @@ function sp_play(){
   }else{
     toast('⚠️ Speech playback not supported in this browser');
   }
-  sp_played=true;
-  const b=document.getElementById('spPlayBtn');if(b)b.textContent='🔊 Play again';
 }
 function sp_buildAnalysisPrompt(t){
   const original=sp_cur?sp_cur.text:'';
@@ -6808,6 +6950,17 @@ function iv_renderScenario(){
 function iv_shuffle(){iv_pick(iv_cur?iv_cur.id:null);iv_renderScenario();}
 function iv_play(){
   if(!iv_cur)return;
+  const b=document.getElementById('ivPlayBtn');if(b)b.textContent='🔊 Play again';
+  if(ai_hasKey()){
+    gemini_tts(iv_cur.question,{speakers:[{voice:'Kore'}]}).then(ai_playAudioUrl).catch(e=>{
+      toast('⚠️ Gemini voice failed ('+e.message+') — using browser voice');
+      iv_playBrowser();
+    });
+  }else{
+    iv_playBrowser();
+  }
+}
+function iv_playBrowser(){
   if('speechSynthesis'in window){
     window.speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(iv_cur.question);
@@ -6816,7 +6969,6 @@ function iv_play(){
   }else{
     toast('⚠️ Speech playback not supported in this browser');
   }
-  const b=document.getElementById('ivPlayBtn');if(b)b.textContent='🔊 Play again';
 }
 function iv_buildAnalysisPrompt(t){
   const q=iv_cur?iv_cur.question:'';
