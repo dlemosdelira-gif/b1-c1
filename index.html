@@ -536,7 +536,7 @@ textarea{min-height:120px}
     <div class="mbdy">
       <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add a free Gemini API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call Gemini automatically. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563EB">aistudio.google.com/apikey</a> (no card required). The key is stored only in this browser (localStorage) — never synced, never committed anywhere. Leave it blank to keep using the manual copy/paste flow.</div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model</label><input type="text" id="aiModelInput" placeholder="gemini-2.0-flash"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
       <div class="fl g8 mt8">
         <button class="btn bpr bsm" onclick="ai_saveSettings()">Save</button>
         <button class="btn bsm" onclick="ai_testKey()">Test connection</button>
@@ -2974,7 +2974,7 @@ function updMic(){
 // never written into this file — since the repo/Pages site is public and a
 // key committed to source would be scraped and drained within minutes.
 function ai_getKey(){try{return localStorage.getItem('c1geminiKey')||'';}catch(e){return'';}}
-function ai_getModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-2.0-flash';}catch(e){return'gemini-2.0-flash';}}
+function ai_getModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-3.6-flash';}catch(e){return'gemini-3.6-flash';}}
 function ai_hasKey(){return!!ai_getKey();}
 async function gemini_call(prompt,opts){
   opts=opts||{};
@@ -3007,7 +3007,7 @@ function openAISettingsModal(){
 }
 function ai_saveSettings(){
   const key=document.getElementById('aiApiKeyInput').value.trim();
-  const model=document.getElementById('aiModelInput').value.trim()||'gemini-2.0-flash';
+  const model=document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash';
   localStorage.setItem('c1geminiKey',key);
   localStorage.setItem('c1geminiModel',model);
   document.getElementById('aiSettingsStatus').innerHTML=key
@@ -3026,7 +3026,7 @@ async function ai_testKey(){
   const key=document.getElementById('aiApiKeyInput').value.trim();
   if(!key){statusEl.innerHTML='<span style="color:#EF4444">Paste a key first</span>';return;}
   localStorage.setItem('c1geminiKey',key);
-  localStorage.setItem('c1geminiModel',document.getElementById('aiModelInput').value.trim()||'gemini-2.0-flash');
+  localStorage.setItem('c1geminiModel',document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash');
   statusEl.innerHTML='<span style="color:#94A3B8">Testing…</span>';
   try{
     const text=await gemini_call('Reply with exactly: OK',{json:false});
