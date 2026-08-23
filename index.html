@@ -950,7 +950,7 @@ textarea{min-height:120px}
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:18px">🎯</span>
       <div>
-        <div style="font-weight:600;color:#0F172A">4.5 Mode</div>
+        <div style="font-weight:600;color:#0F172A">5.0 Mode</div>
         <div style="font-size:11px;color:#94A3B8">Where am I? What's the gap? What do I train now?</div>
       </div>
     </div>
@@ -5141,6 +5141,56 @@ function readiness_biggestGap(){
   }
   return{type:'none'};
 }
+// ── NEXT BEST DRILL (Phase 2) ────────────────────────────────────────────────
+// Turns the Biggest Gap into one concrete next step: which existing activity
+// to open, and (for a task-skill gap) which Step-by-step block to scaffold.
+// No new exercises exist yet — Phase 3/4 add isolated Engage/Elaboration
+// micro-drills; until then this points at the closest real activity so the
+// recommendation is never a dead end.
+const TASK_SKILL_DRILL_MAP={
+  Position:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
+  Engage:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
+  Develop:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
+  Support:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
+  Purpose:{key:'writing:email',step:'em',label:'Write an Email'},
+  Elaboration:{key:'writing:email',step:'em',label:'Write an Email'},
+  Register:{key:'writing:email',step:'em',label:'Write an Email'}
+};
+function readiness_nextBestDrill(){
+  const gap=readiness_biggestGap();
+  if(gap.type==='none')return null;
+  if(gap.type==='task'){
+    const m=TASK_SKILL_DRILL_MAP[gap.name];
+    if(!m)return null;
+    const secs=TOEFL_ACT_TARGET[m.key]||300,mins=Math.max(1,Math.round(secs/60));
+    return{
+      title:m.label+' — '+gap.name,
+      why:gap.detail+' Step-by-step mode will highlight that part while you write.',
+      estLabel:'~'+mins+' min · 1 focused attempt',
+      actKey:m.key,actStep:m.step,actFilter:null
+    };
+  }
+  const tag=gap.name;
+  const matching=bsItems.filter(it=>it&&it.tag===tag);
+  if(!matching.length)return null; // no seeded exercise for this exact tag yet
+  const n=Math.min(5,matching.length),secs=(TOEFL_ACT_TARGET.build||40)*n,mins=Math.max(1,Math.round(secs/60));
+  return{
+    title:'Build a Sentence — '+tag,
+    why:gap.detail+' Drilling this pattern on its own is the fastest way to move it out of Priority.',
+    estLabel:n+' exercise'+(n===1?'':'s')+' · ~'+mins+' min',
+    actKey:'build',actStep:null,actFilter:tag
+  };
+}
+function startNextBestDrill(){
+  const d=readiness_nextBestDrill();
+  if(!d)return;
+  closeM('mSkillDiag');
+  goTab('rev');
+  toeflShow(d.actKey);
+  if(d.actStep==='wr')wr_setStepMode(true);
+  else if(d.actStep==='em')em_setStepMode(true);
+  if(d.actFilter)bs_setTopicFilter(d.actFilter);
+}
 function renderReadiness(){
   const box=document.getElementById('readinessContainer');
   const tgl=document.getElementById('mode45Toggle');
@@ -5163,15 +5213,25 @@ function renderReadiness(){
       +'<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:#DC2626;font-weight:600">'+tag+'</div>'
       +'<div style="color:#475569;font-size:12.5px;margin-top:4px;line-height:1.5">'+esc(gap.detail)+'</div></div></div>';
   }
+  const drill=readiness_nextBestDrill();
+  const drillHTML=!drill?'':'<div class="card" style="margin-top:10px;background:#EFF6FF;border:1px solid #BFDBFE">'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:.6px;color:#2563EB;text-transform:uppercase;margin-bottom:8px">🎯 Next Best Drill</div>'
+    +'<div style="font-weight:700;font-size:14px;color:#1D4ED8;margin-bottom:4px">'+esc(drill.title)+'</div>'
+    +'<div style="font-size:12.5px;color:#475569;line-height:1.5;margin-bottom:10px">'+esc(drill.why)+'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+    +'<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:#64748B">'+esc(drill.estLabel)+'</span>'
+    +'<button class="btn" style="padding:7px 13px;font-size:12.5px" onclick="startNextBestDrill()">Start Drill →</button>'
+    +'</div></div>';
   box.innerHTML='<div class="card" style="background:linear-gradient(135deg,#1E3A8A,#2563EB);color:#fff;margin-top:10px">'
     +'<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1.2px;opacity:.75">ESTIMATED READINESS</div>'
     +(s.overall==null
       ?'<div style="font-size:13px;opacity:.85;margin-top:4px">Complete a few graded activities to see your estimate here.</div>'
       :'<div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:700;margin:2px 0">'+s.overall.toFixed(1)+' <span style="font-size:14px;font-weight:400;opacity:.75">/ 6 · '+toefl_cefrLabel(s.overall)+'</span></div>'
       +'<div style="font-size:11.5px;opacity:.8;margin-bottom:8px">Practice estimate, not an official TOEFL score</div>')
-    +'<div style="display:flex;justify-content:space-between;font-size:12px;opacity:.9;border-top:1px solid rgba(255,255,255,.25);padding-top:8px;margin-top:6px"><span>Target</span><span>4.5+</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:12px;opacity:.9;border-top:1px solid rgba(255,255,255,.25);padding-top:8px;margin-top:6px"><span>Target</span><span>5.0+</span></div>'
     +'</div>'
     +'<div style="margin-top:10px">'+gapHTML+'</div>'
+    +drillHTML
     +'<div class="card tap" onclick="openSkillDiag()" style="margin-top:10px;text-align:center;color:#2563EB;font-weight:600;font-size:12.5px;cursor:pointer">View full skill map →</div>';
 }
 function skillDiagHTML(){
