@@ -131,6 +131,13 @@ html,body{width:100%; max-width:100vw; overflow-x:hidden; background:#F0F4FF;col
 .tgr{background:#F1F5F9;color:#475569;border:1px solid #DDE3F5}
 .tbl{background:#EFF6FF;color:#1D4ED8}
 .tpu{background:#F5F3FF;color:#7C3AED}
+
+/* ── 4.5 READINESS ENGINE ── */
+.skstate45{font-size:11px;font-family:'DM Mono',monospace;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.skstate45.strong{background:#F0FDF4;color:#16A34A}
+.skstate45.dev{background:#FFFBEB;color:#D97706}
+.skstate45.priority{background:#FEF2F2;color:#DC2626}
+.skstate45.na{background:#F1F5F9;color:#94A3B8}
 .trd{background:#FEF2F2;color:#DC2626}
 .tgg{background:#F0FDF4;color:#16A34A}
 .tcu{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
@@ -696,6 +703,16 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mSkillDiag" onclick="if(event.target===this)closeM('mSkillDiag')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">🗺️ Skill Diagnostic</div><button class="btn bsm" onclick="closeM('mSkillDiag')">✕</button></div>
+    <div class="mbdy">
+      <div style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:12px">🔴 Priority · 🟡 Developing · 🟢 Strong — based on what you've already practiced. Needs a few graded attempts first; shows "Not enough data" otherwise.</div>
+      <div id="skillDiagContainer"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
@@ -929,6 +946,18 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
+  <div class="card csm" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">🎯</span>
+      <div>
+        <div style="font-weight:600;color:#0F172A">4.5 Mode</div>
+        <div style="font-size:11px;color:#94A3B8">Where am I? What's the gap? What do I train now?</div>
+      </div>
+    </div>
+    <div id="mode45Toggle" onclick="toggle45Mode()" style="width:38px;height:22px;border-radius:20px;cursor:pointer;position:relative;flex-shrink:0;transition:background .15s"></div>
+  </div>
+  <div id="readinessContainer"></div>
+
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">🏃 Weekly Sprint</div>
   <div id="weekSprintContainer" class="card" style="margin-bottom:10px;padding:14px"></div>
 
@@ -1133,6 +1162,11 @@ let wr_cur=null,wr_lastId=null;
 let em_stepMode=false,wr_stepMode=false;
 try{em_stepMode=localStorage.getItem('c1emStep')==='1';}catch(e){em_stepMode=false;}
 try{wr_stepMode=localStorage.getItem('c1wrStep')==='1';}catch(e){wr_stepMode=false;}
+// 4.5 Readiness Engine — Phase 1 (Dashboard + Skill Diagnostic). Read-only:
+// reorganizes stats.patternPerf/exPerf/__scoreLog data that already exists,
+// writes nothing new. Local UI preference only, same pattern as em_stepMode.
+let mode45=false;
+try{mode45=localStorage.getItem('c145mode')==='1';}catch(e){mode45=false;}
 let em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
 let em_stepPlan={purpose:'',details:'',ask:''};
 let em_promptChecked={};
@@ -2246,6 +2280,7 @@ function nextMonth(){
 }
 
 function renderDash(){
+  renderReadiness();
   renderWeekSprint();
   // Load today's tasks
   const stored=localStorage.getItem('c1dt-'+today);
@@ -5034,6 +5069,137 @@ function toeflScoreCardHTML(){
     +skillRow('🎤','Speaking',s.speaking)
     +'<div style="font-size:11.5px;color:#94A3B8;line-height:1.5;padding-top:8px;margin-top:2px;border-top:1px dashed #DDE3F5">Rough estimate based on your most recent attempts — not your official TOEFL score (which uses ETS\'s own statistical scoring).</div>'
     +'</div>';
+}
+// ── 4.5 READINESS ENGINE (Phase 1) ──────────────────────────────────────────
+// Dashboard "4.5 Mode" + Skill Diagnostic. Purely a read layer: Task Skills
+// come from the wr-step:*/em-step:* grammar-error tallies writing_findBlock()
+// already logs into stats.exPerf (see wr_processResult/em_processEmailResult);
+// Language Skills come from the same stats.patternPerf every other exercise
+// mode already fills. No new tags are written and no exercise is added here.
+function toggle45Mode(){
+  mode45=!mode45;
+  try{localStorage.setItem('c145mode',mode45?'1':'0');}catch(e){}
+  renderDash();
+}
+// Sum of "wrong" counts across every grammar tag logged under one step-block
+// bucket (e.g. 'wr-step:bridge') — this bucket only ever logs errors (see
+// wr_processResult), so it's an error tally, not an accuracy percentage.
+function readiness_blockWrong(modeKey){
+  const perf=(stats.exPerf&&stats.exPerf[modeKey])||{};
+  return Object.values(perf).reduce((s,t)=>s+(t.wrong||0),0);
+}
+// totalSubmissions = how many full Discussion/Email responses have been AI-graded
+// so far (__scoreLog length) — the real denominator behind the error tally above.
+function readiness_blockState(wrong,totalSubmissions){
+  if(totalSubmissions<3)return{emoji:'⚪',label:'Not enough data',cls:'na'};
+  if(wrong===0)return{emoji:'🟢',label:'Strong',cls:'strong'};
+  if(wrong<=Math.max(1,Math.round(totalSubmissions*0.25)))return{emoji:'🟡',label:'Developing',cls:'dev'};
+  return{emoji:'🔴',label:'Priority',cls:'priority'};
+}
+function readiness_taskSkillRows(){
+  const wrTotal=(wrProgress.__scoreLog||[]).length,emTotal=(emProgress.__scoreLog||[]).length;
+  const mk=(group,name,wrong,total)=>({group,name,wrong,total,state:readiness_blockState(wrong,total)});
+  const elabWrong=['idea1','idea2','idea3'].reduce((s,b)=>s+readiness_blockWrong('em-step:'+b),0);
+  return [
+    mk('Academic Discussion','Position',readiness_blockWrong('wr-step:claim'),wrTotal),
+    mk('Academic Discussion','Engage',readiness_blockWrong('wr-step:bridge'),wrTotal),
+    mk('Academic Discussion','Develop',readiness_blockWrong('wr-step:reason1'),wrTotal),
+    mk('Academic Discussion','Support',readiness_blockWrong('wr-step:reason2'),wrTotal),
+    mk('Write an Email','Purpose',readiness_blockWrong('em-step:opening'),emTotal),
+    mk('Write an Email','Elaboration',elabWrong,emTotal),
+    mk('Write an Email','Register',readiness_blockWrong('em-step:closing'),emTotal)
+  ];
+}
+// Language Skills = stats.patternPerf as-is, same accuracy math exPerfPanel()
+// already uses (≥3 attempts to count, weakest first).
+function readiness_languageSkillRows(){
+  const perf=stats.patternPerf||{};
+  return Object.keys(perf).map(tag=>{
+    const c=perf[tag].correct||0,w=perf[tag].wrong||0,a=c+w;
+    let state;
+    if(a<3)state={emoji:'⚪',label:'Not enough data',cls:'na'};
+    else if(c/a>=0.8)state={emoji:'🟢',label:'Strong',cls:'strong'};
+    else if(c/a>=0.6)state={emoji:'🟡',label:'Developing',cls:'dev'};
+    else state={emoji:'🔴',label:'Priority',cls:'priority'};
+    return{tag,acc:a?c/a:null,a,state};
+  }).sort((a,b)=>(a.acc==null?1:a.acc)-(b.acc==null?1:b.acc));
+}
+// Task-skill structural gaps cap the score regardless of grammar, so they win
+// the "Biggest Gap" slot whenever there's enough data; otherwise falls back
+// to the weakest language (grammar/vocabulary) pattern.
+function readiness_biggestGap(){
+  const taskPriority=readiness_taskSkillRows().filter(r=>r.state.cls==='priority').sort((a,b)=>b.wrong-a.wrong);
+  if(taskPriority.length){
+    const g=taskPriority[0];
+    const art=/^[aeiou]/i.test(g.name)?'an':'a';
+    return{type:'task',group:g.group,name:g.name,detail:g.wrong+' of your last '+g.total+' graded '+g.group+' responses had '+art+' '+g.name.toLowerCase()+' issue flagged.'};
+  }
+  const langPriority=readiness_languageSkillRows().filter(r=>r.state.cls==='priority');
+  if(langPriority.length){
+    const g=langPriority[0];
+    return{type:'language',name:g.tag,detail:Math.round(g.acc*100)+'% accuracy over '+g.a+' attempts.'};
+  }
+  return{type:'none'};
+}
+function renderReadiness(){
+  const box=document.getElementById('readinessContainer');
+  const tgl=document.getElementById('mode45Toggle');
+  if(tgl){
+    tgl.style.background=mode45?'#2563EB':'#CBD5E1';
+    tgl.innerHTML='<div style="position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;'+(mode45?'right':'left')+':3px;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>';
+  }
+  if(!box)return;
+  if(!mode45){box.innerHTML='';return;}
+  const s=toefl_scoreEstimate();
+  const gap=readiness_biggestGap();
+  let gapHTML;
+  if(gap.type==='none'){
+    gapHTML='<div class="card" style="text-align:center;color:#94A3B8;font-size:13px;padding:16px">Do a few graded Writing exercises to see your biggest gap here.</div>';
+  }else{
+    const tag=gap.type==='task'?(gap.group+' · '+gap.name).toUpperCase():esc(gap.name);
+    gapHTML='<div class="card tap" onclick="openSkillDiag()" style="border-left:3px solid #DC2626;display:flex;gap:12px;align-items:flex-start;cursor:pointer">'
+      +'<div style="width:30px;height:30px;border-radius:8px;background:#FEF2F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🔴</div>'
+      +'<div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Biggest gap</div>'
+      +'<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:#DC2626;font-weight:600">'+tag+'</div>'
+      +'<div style="color:#475569;font-size:12.5px;margin-top:4px;line-height:1.5">'+esc(gap.detail)+'</div></div></div>';
+  }
+  box.innerHTML='<div class="card" style="background:linear-gradient(135deg,#1E3A8A,#2563EB);color:#fff;margin-top:10px">'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1.2px;opacity:.75">ESTIMATED READINESS</div>'
+    +(s.overall==null
+      ?'<div style="font-size:13px;opacity:.85;margin-top:4px">Complete a few graded activities to see your estimate here.</div>'
+      :'<div style="font-family:\'DM Mono\',monospace;font-size:28px;font-weight:700;margin:2px 0">'+s.overall.toFixed(1)+' <span style="font-size:14px;font-weight:400;opacity:.75">/ 6 · '+toefl_cefrLabel(s.overall)+'</span></div>'
+      +'<div style="font-size:11.5px;opacity:.8;margin-bottom:8px">Practice estimate, not an official TOEFL score</div>')
+    +'<div style="display:flex;justify-content:space-between;font-size:12px;opacity:.9;border-top:1px solid rgba(255,255,255,.25);padding-top:8px;margin-top:6px"><span>Target</span><span>4.5+</span></div>'
+    +'</div>'
+    +'<div style="margin-top:10px">'+gapHTML+'</div>'
+    +'<div class="card tap" onclick="openSkillDiag()" style="margin-top:10px;text-align:center;color:#2563EB;font-weight:600;font-size:12.5px;cursor:pointer">View full skill map →</div>';
+}
+function skillDiagHTML(){
+  const chip=r=>'<span class="skstate45 '+r.state.cls+'">'+r.state.emoji+' '+r.state.label+'</span>';
+  const taskRows=readiness_taskSkillRows();
+  const groups=[...new Set(taskRows.map(r=>r.group))];
+  let h='<div style="font-size:11px;font-family:\'DM Mono\',monospace;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Task Skills</div>';
+  groups.forEach(g=>{
+    h+='<div style="font-size:12px;font-weight:700;color:#475569;margin:10px 2px 4px">'+esc(g)+'</div>';
+    taskRows.filter(r=>r.group===g).forEach(r=>{
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #EEF2FC"><span style="font-size:13px">'+esc(r.name)+'</span>'+chip(r)+'</div>';
+    });
+  });
+  h+='<div style="font-size:11.5px;color:#94A3B8;padding:8px 2px;line-height:1.5">Interview and Listen &amp; Repeat don\'t have a per-skill breakdown yet — that needs the AI rubric prompts to return skill-scoped fields, planned for a later phase.</div>';
+  h+='<div style="font-size:11px;font-family:\'DM Mono\',monospace;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase;margin:14px 0 6px">Language Skills</div>';
+  const langRows=readiness_languageSkillRows();
+  if(!langRows.length){
+    h+='<div style="font-size:13px;color:#94A3B8;padding:8px 2px">No grammar patterns logged yet.</div>';
+  }else{
+    langRows.forEach(r=>{
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #EEF2FC"><span style="font-size:13px;font-family:\'DM Mono\',monospace">'+esc(r.tag)+(r.acc!=null?' <span style="color:#94A3B8">('+Math.round(r.acc*100)+'%, '+r.a+')</span>':'')+'</span>'+chip(r)+'</div>';
+    });
+  }
+  return h;
+}
+function openSkillDiag(){
+  document.getElementById('skillDiagContainer').innerHTML=skillDiagHTML();
+  openM('mSkillDiag');
 }
 function toeflHubHTML(){
   const sections=[
