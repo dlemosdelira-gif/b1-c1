@@ -713,6 +713,15 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mDscDrill" onclick="if(event.target===this)closeM('mDscDrill')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:520px">
+    <div class="mhdr"><div class="mtit" id="dscDrillTitle">🧩 Skill Drill</div><button class="btn bsm" onclick="closeM('mDscDrill')">✕</button></div>
+    <div class="mbdy">
+      <div id="dscDrillContainer"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mBS" onclick="if(event.target===this)closeM('mBS')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">🧩 Add Build-a-Sentence Exercise</div><button class="btn bsm" onclick="closeM('mBS')">✕</button></div>
@@ -1167,6 +1176,12 @@ try{wr_stepMode=localStorage.getItem('c1wrStep')==='1';}catch(e){wr_stepMode=fal
 // writes nothing new. Local UI preference only, same pattern as em_stepMode.
 let mode45=false;
 try{mode45=localStorage.getItem('c145mode')==='1';}catch(e){mode45=false;}
+// Academic Discussion skill drills (Phase 3). dsc_lastId mirrors the
+// em_lastId/wr_lastId/iv_lastId/sp_lastId convention so ai_finishProcessing
+// can route a graded drill response the same way. ai_overridePrompt lets
+// copyPrompt()/openInClaude() work for a drill's own prompt text without
+// threading a new mode through buildPrompt()'s #rtxt-based dispatch.
+let dsc_lastId=null,ai_overridePrompt=null;
 let em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
 let em_stepPlan={purpose:'',details:'',ask:''};
 let em_promptChecked={};
@@ -3310,6 +3325,7 @@ function chunks_refreshPanel(){
 }
 function openAIModal(mode){
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
+  ai_overridePrompt=null;
   curText=t;curMode=mode||'writing';
   const isEmail=curMode==='writing'&&em_active&&em_cur;
   const isDiscussion=curMode==='writing'&&!em_active&&wr_cur;
@@ -3380,10 +3396,18 @@ async function ai_autoGrade(fp){
   }
 }
 function copyPrompt(){
-  const fp=buildPrompt(curMode,document.getElementById('rtxt').value.trim());
+  const fp=ai_overridePrompt||buildPrompt(curMode,document.getElementById('rtxt').value.trim());
   navigator.clipboard.writeText(fp).then(()=>document.getElementById('cpbdg').classList.add('on'));
 }
 function openInClaude(){
+  if(ai_overridePrompt){
+    navigator.clipboard.writeText(ai_overridePrompt).then(()=>{
+      toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+      setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+      document.getElementById('cpbdg').classList.add('on');
+    }).catch(()=>{toast('⚠️ Copy failed — use Copy Full Prompt instead');});
+    return;
+  }
   const t=document.getElementById('rtxt').value.trim();
   if(!t){toast('⚠️ Write something first');return;}
   curText=t;
@@ -3417,6 +3441,7 @@ function ai_finishProcessing(r){
   renderMeters();
   // Each TOEFL task carries its own ETS rubric JSON schema and renderer; the
   // *_lastId flags (set in openAIModal, only one at a time) route accordingly.
+  if(dsc_lastId){dsc_processResult(r);return;}
   if(em_lastId){em_processEmailResult(r);return;}
   if(wr_lastId){wr_processResult(r);return;}
   if(iv_lastId){iv_processResult(r);return;}
@@ -5147,11 +5172,10 @@ function readiness_biggestGap(){
 // No new exercises exist yet — Phase 3/4 add isolated Engage/Elaboration
 // micro-drills; until then this points at the closest real activity so the
 // recommendation is never a dead end.
+// Academic Discussion gaps now route to the isolated micro-drills below
+// (dsc_*); Write an Email doesn't have those yet (Phase 4), so its gaps
+// still point at the full task with Step-by-step mode pre-selected.
 const TASK_SKILL_DRILL_MAP={
-  Position:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
-  Engage:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
-  Develop:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
-  Support:{key:'writing:discussion',step:'wr',label:'Academic Discussion'},
   Purpose:{key:'writing:email',step:'em',label:'Write an Email'},
   Elaboration:{key:'writing:email',step:'em',label:'Write an Email'},
   Register:{key:'writing:email',step:'em',label:'Write an Email'}
@@ -5160,6 +5184,16 @@ function readiness_nextBestDrill(){
   const gap=readiness_biggestGap();
   if(gap.type==='none')return null;
   if(gap.type==='task'){
+    if(gap.group==='Academic Discussion'){
+      const skillKey=DSC_SKILL_BY_NAME[gap.name];
+      if(!skillKey)return null;
+      return{
+        title:'Academic Discussion — '+gap.name,
+        why:gap.detail+' A 5-exercise micro-drill on just that skill — no full response required.',
+        estLabel:'5 exercises · ~5 min',
+        actKey:'dsc',actSkill:skillKey
+      };
+    }
     const m=TASK_SKILL_DRILL_MAP[gap.name];
     if(!m)return null;
     const secs=TOEFL_ACT_TARGET[m.key]||300,mins=Math.max(1,Math.round(secs/60));
@@ -5185,11 +5219,154 @@ function startNextBestDrill(){
   const d=readiness_nextBestDrill();
   if(!d)return;
   closeM('mSkillDiag');
+  if(d.actKey==='dsc'){dsc_start(d.actSkill);return;}
   goTab('rev');
   toeflShow(d.actKey);
   if(d.actStep==='wr')wr_setStepMode(true);
   else if(d.actStep==='em')em_setStepMode(true);
   if(d.actFilter)bs_setTopicFilter(d.actFilter);
+}
+
+// ── ACADEMIC DISCUSSION SKILL DRILLS (Phase 3) ──────────────────────────────
+// Isolated, one-response-at-a-time practice for a single rhetorical block —
+// no full 100-130 word Discussion required. Reuses wrScenarios (the same
+// professor question + 2 classmates already used by the full task) and the
+// existing AI Analysis Bridge modal (mAI) for grading, just with a lighter
+// on-target/feedback rubric instead of the full ETS 0-5 scale. Results are
+// logged into the SAME stats.exPerf['wr-step:'+block] bucket the full task
+// already writes grammar errors into (see wr_processResult), so the Skill
+// Diagnostic's per-block reading only gets more accurate over time — no
+// parallel storage.
+const DSC_SKILLS={
+  claim:{label:'Position',blockKey:'wr-step:claim'},
+  bridge:{label:'Engage',blockKey:'wr-step:bridge'},
+  reason1:{label:'Develop',blockKey:'wr-step:reason1'},
+  reason2:{label:'Support',blockKey:'wr-step:reason2'}
+};
+const DSC_SKILL_BY_NAME={Position:'claim',Engage:'bridge',Develop:'reason1',Support:'reason2'};
+let dsc_skill=null,dsc_cur=null,dsc_sessionDone=0;
+const DSC_SESSION_SIZE=5;
+function dsc_start(skillKey){
+  if(!DSC_SKILLS[skillKey]||!wrScenarios.length){toast('⚠️ No Academic Discussion scenarios available yet');return;}
+  dsc_skill=skillKey;
+  dsc_sessionDone=0;
+  dsc_pick();
+  openM('mDscDrill');
+}
+function dsc_pick(){
+  const scenario=wrScenarios[Math.floor(Math.random()*wrScenarios.length)];
+  const peer=Math.random()<0.5?scenario.peer1:scenario.peer2;
+  dsc_cur={scenario,peer};
+  dsc_renderPrompt();
+}
+function dsc_taskLabel(){
+  const peer=dsc_cur.peer;
+  switch(dsc_skill){
+    case 'claim':return 'Write ONE sentence stating a clear position on the professor\'s question below.';
+    case 'bridge':return 'Write ONE sentence that responds to '+esc(peer.name)+' and builds on their point.';
+    case 'reason1':return 'In 1-2 sentences, explain WHY you agree or disagree with '+esc(peer.name)+'.';
+    case 'reason2':return 'Give ONE concrete example that supports or challenges '+esc(peer.name)+'\'s point.';
+  }
+}
+function dsc_contextHTML(){
+  const{scenario,peer}=dsc_cur;
+  if(dsc_skill==='claim'){
+    return '<div class="card" style="background:#F8FAFF"><div style="font-size:11px;color:#94A3B8;font-family:\'DM Mono\',monospace;margin-bottom:4px">PROFESSOR</div><div style="font-size:13.5px">'+esc(scenario.professorQuestion)+'</div></div>';
+  }
+  return '<div class="card" style="background:#F8FAFF;display:flex;gap:10px;align-items:flex-start">'
+    +'<div style="width:28px;height:28px;border-radius:50%;background:#7C3AED;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+esc((peer.name||'?')[0])+'</div>'
+    +'<div><div style="font-size:11px;font-weight:700;color:#7C3AED;margin-bottom:2px">'+esc(peer.name.toUpperCase())+'</div><div style="font-size:13.5px">'+esc(peer.text)+'</div></div></div>';
+}
+function dsc_dotsHTML(){
+  let h='<div style="display:flex;gap:5px;justify-content:center;margin-top:10px">';
+  for(let i=0;i<DSC_SESSION_SIZE;i++)h+='<div style="width:'+(i<dsc_sessionDone?'16px':'6px')+';height:6px;border-radius:4px;background:'+(i<dsc_sessionDone?'#2563EB':'#DDE3F5')+'"></div>';
+  return h+'</div>';
+}
+function dsc_renderPrompt(){
+  const box=document.getElementById('dscDrillContainer');if(!box)return;
+  document.getElementById('dscDrillTitle').textContent='🧩 '+DSC_SKILLS[dsc_skill].label+' Drill · '+(dsc_sessionDone+1)+' of '+DSC_SESSION_SIZE;
+  box.innerHTML=dsc_contextHTML()
+    +'<div style="font-size:13px;font-weight:600;color:#475569;margin:12px 0 8px">'+dsc_taskLabel()+'</div>'
+    +'<textarea id="dscInput" style="width:100%;min-height:74px;box-sizing:border-box" placeholder="Type your response here…"></textarea>'
+    +'<button class="btn bpr" style="width:100%;justify-content:center;margin-top:10px;padding:11px" onclick="dsc_submit()">Submit for feedback</button>'
+    +dsc_dotsHTML();
+}
+function dsc_buildAnalysisPrompt(t){
+  const{scenario,peer}=dsc_cur;
+  const skillInstructions={
+    claim:'Judge ONLY whether the sentence states a single, clear, unambiguous position on the professor\'s question (not vague, not both sides at once).',
+    bridge:'Judge ONLY whether the sentence explicitly engages with '+peer.name+'\'s point (agreeing, disagreeing, or building on it) rather than just stating an unrelated idea.',
+    reason1:'Judge ONLY whether the response gives a real causal explanation (a "why") rather than just restating the point in different words.',
+    reason2:'Judge ONLY whether the response gives a concrete, specific example or detail (not another vague generalization).'
+  };
+  return 'You are a TOEFL Writing coach running a short, targeted micro-drill (NOT the full ETS 0-5 rubric — this is isolated skill practice for the "'+DSC_SKILLS[dsc_skill].label+'" part of the Academic Discussion task).\n\n'
+    +'Professor question: '+scenario.professorQuestion+'\n'
+    +'Classmate ('+peer.name+'): '+peer.text+'\n\n'
+    +'Student response: '+t+'\n\n'
+    +skillInstructions[dsc_skill]+'\n\n'
+    +'Also flag any real grammar errors (agreement, article, gerund after preposition, etc — not surface typos).\n\n'
+    +'Return ONLY a JSON object (no markdown, no text before or after):\n'
+    +'{\n  "on_target": true/false,\n  "feedback": "1-2 sentences, specific and actionable",\n  "grammar_errors": [{ "text": string, "tag": string, "explanation": string }]\n}';
+}
+function dsc_submit(){
+  const t=(document.getElementById('dscInput').value||'').trim();
+  if(!t){toast('⚠️ Write a response first');return;}
+  curText=t;
+  em_lastId=null;wr_lastId=null;iv_lastId=null;sp_lastId=null;
+  dsc_lastId='pending';
+  const fp=dsc_buildAnalysisPrompt(t);
+  ai_overridePrompt=fp;
+  navigator.clipboard.writeText(t).catch(()=>{});
+  document.getElementById('mAititle').textContent='🧩 '+DSC_SKILLS[dsc_skill].label+' Drill Analysis';
+  document.getElementById('mpbox').textContent=fp;
+  document.getElementById('bridgeTaskLabel').textContent='Academic Discussion — '+DSC_SKILLS[dsc_skill].label+' drill';
+  document.getElementById('jsonin').value='';
+  document.getElementById('cpbdg').classList.remove('on');
+  ai_showLoading(false);
+  closeM('mDscDrill');
+  openM('mAI');
+  if(ai_hasKey()){ai_showLoading(true);ai_autoGrade(fp);}
+}
+// Writes into the same stats.exPerf bucket the full task's grammar-error
+// tagging uses, WITHOUT touching stats.patternPerf (unlike ex_logPattern) —
+// 'bridge'/'claim'/'reason1'/'reason2' are structural markers, not grammar
+// patterns, so they must not leak into the Language Skills panel or
+// Critical Errors. Real grammar_errors from this same response still go
+// through ex_logPattern below, exactly like the full task does.
+function dsc_logSkillResult(tag,correct,modeKey){
+  if(!stats.exPerf)stats.exPerf={};
+  if(!stats.exPerf[modeKey])stats.exPerf[modeKey]={};
+  if(!stats.exPerf[modeKey][tag])stats.exPerf[modeKey][tag]={correct:0,wrong:0};
+  stats.exPerf[modeKey][tag][correct?'correct':'wrong']++;
+  saveST();
+}
+function dsc_processResult(r){
+  dsc_lastId=null;
+  const meta=DSC_SKILLS[dsc_skill];
+  const ok=!!r.on_target;
+  dsc_logSkillResult(dsc_skill,ok,meta.blockKey);
+  (r.grammar_errors||[]).forEach(ge=>{if(!ge||!ge.tag)return;ex_logPattern(ge.tag,false,meta.blockKey);});
+  dsc_sessionDone++;
+  openM('mDscDrill');
+  dsc_renderResult(ok,r.feedback||'');
+}
+function dsc_renderResult(ok,feedback){
+  const box=document.getElementById('dscDrillContainer');if(!box)return;
+  const done=dsc_sessionDone>=DSC_SESSION_SIZE;
+  document.getElementById('dscDrillTitle').textContent='🧩 '+DSC_SKILLS[dsc_skill].label+' Drill · '+dsc_sessionDone+' of '+DSC_SESSION_SIZE;
+  box.innerHTML=dsc_contextHTML()
+    +'<div class="card" style="margin-top:10px;background:'+(ok?'#F0FDF4':'#FFFBEB')+';border-color:'+(ok?'#BBF7D0':'#FDE68A')+'">'
+    +'<div style="font-size:13px;color:'+(ok?'#166534':'#92400E')+';display:flex;gap:8px;align-items:flex-start"><span>'+(ok?'✓':'⚠️')+'</span><span>'+esc(feedback)+'</span></div>'
+    +'</div>'
+    +(done
+      ?'<button class="btn bpr" style="width:100%;justify-content:center;margin-top:10px;padding:11px" onclick="dsc_finishSession()">Finish session</button>'
+      :'<button class="btn bpr" style="width:100%;justify-content:center;margin-top:10px;padding:11px" onclick="dsc_pick()">Next exercise</button>')
+    +dsc_dotsHTML();
+}
+function dsc_finishSession(){
+  closeM('mDscDrill');
+  toast('✅ Drill session complete');
+  renderReadiness();
 }
 function renderReadiness(){
   const box=document.getElementById('readinessContainer');
@@ -5242,7 +5419,9 @@ function skillDiagHTML(){
   groups.forEach(g=>{
     h+='<div style="font-size:12px;font-weight:700;color:#475569;margin:10px 2px 4px">'+esc(g)+'</div>';
     taskRows.filter(r=>r.group===g).forEach(r=>{
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #EEF2FC"><span style="font-size:13px">'+esc(r.name)+'</span>'+chip(r)+'</div>';
+      const skillKey=g==='Academic Discussion'?DSC_SKILL_BY_NAME[r.name]:null;
+      const rowAttrs=skillKey?' class="tap" style="cursor:pointer" onclick="closeM(\'mSkillDiag\');dsc_start(\''+skillKey+'\')"':'';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #EEF2FC"'+rowAttrs+'><span style="font-size:13px">'+esc(r.name)+(skillKey?' <span style="color:#94A3B8;font-size:11px">→ drill</span>':'')+'</span>'+chip(r)+'</div>';
     });
   });
   h+='<div style="font-size:11.5px;color:#94A3B8;padding:8px 2px;line-height:1.5">Interview and Listen &amp; Repeat don\'t have a per-skill breakdown yet — that needs the AI rubric prompts to return skill-scoped fields, planned for a later phase.</div>';
