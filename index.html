@@ -1192,6 +1192,17 @@ let iv_cur=null,iv_lastId=null,iv_active=false;
 let RRQI=null,RRQP=null;
 let rqItems={rd:[],ra:[],lcr:[],lc:[],an:[],at:[]},rqProgress={rd:{},ra:{},lcr:{},lc:{},an:{},at:{}};
 let rq_cur={},rq_checked={},rq_sel={},rq_played={};
+// Per-question display order for the current rq item, keyed like rq_cur:
+// rq_shuffleMap[key][qi] is an array of ORIGINAL choice indices in the
+// order they're rendered. Several seed passages (esp. Listen to a
+// Conversation/Announcement/Academic Talk) were authored with the correct
+// answer almost always at index 1 — shuffling the on-screen order (while
+// rq_sel/q.correct keep referring to the original index, unchanged) fixes
+// that without touching any content or the scoring logic below.
+let rq_shuffleMap={};
+function rq_buildShuffleMap(item){
+  return item?item.questions.map(q=>shuffle(q.choices.map((c,i)=>i))):[];
+}
 let peuaCompleted={};
 let peuaNotes={};
 let activePeuaMonth=5;
@@ -6044,6 +6055,7 @@ function rq_genFinish(raw){
   // was on screen before and making the user hunt for it in the rotation.
   rq_cur[rqGenKey]=item;
   rq_sel[rqGenKey]=new Array(item.questions.length).fill(null);
+  rq_shuffleMap[rqGenKey]=rq_buildShuffleMap(item);
   rq_checked[rqGenKey]=false;
   rq_played[rqGenKey]=false;
   toefl_itemStart(rqGenKey);
@@ -6070,6 +6082,7 @@ function rq_pick(key){
 function rq_load(key){
   rq_cur[key]=rq_pick(key);
   rq_sel[key]=rq_cur[key]?new Array(rq_cur[key].questions.length).fill(null):[];
+  rq_shuffleMap[key]=rq_buildShuffleMap(rq_cur[key]);
   rq_checked[key]=false;
   rq_played[key]=false;
   if(rq_cur[key])toefl_itemStart(key);
@@ -6080,6 +6093,7 @@ function rq_next(key,force){
     const items=rq_items(key);
     rq_cur[key]=items[Math.floor(Math.random()*items.length)];
     rq_sel[key]=new Array(rq_cur[key].questions.length).fill(null);
+    rq_shuffleMap[key]=rq_buildShuffleMap(rq_cur[key]);
     toefl_itemStart(key);
   }
   renderRev();
@@ -6221,11 +6235,16 @@ function rq_render(key){
   }
   it.questions.forEach((q,qi)=>{
     h+='<div class="rq-q"><div class="rq-qtxt">'+(qi+1)+'. '+esc(q.q)+'</div>';
-    q.choices.forEach((c,ci)=>{
+    // Render choices in the shuffled display order (rq_shuffleMap), but keep
+    // comparing/storing the ORIGINAL index (oi) everywhere — q.correct and
+    // rq_sel both still refer to the item's own data, unchanged.
+    const order=(rq_shuffleMap[key]&&rq_shuffleMap[key][qi])||q.choices.map((c,i)=>i);
+    order.forEach(oi=>{
+      const c=q.choices[oi];
       let cls='rq-choice';
-      if(checked){if(ci===q.correct)cls+=' ok';else if(ci===sel[qi])cls+=' bad';}
-      else if(sel[qi]===ci)cls+=' picked';
-      h+='<button class="'+cls+'"'+(checked?' disabled':'')+' onclick="rq_selectChoice(\''+key+'\','+qi+','+ci+')">'+esc(c)+'</button>';
+      if(checked){if(oi===q.correct)cls+=' ok';else if(oi===sel[qi])cls+=' bad';}
+      else if(sel[qi]===oi)cls+=' picked';
+      h+='<button class="'+cls+'"'+(checked?' disabled':'')+' onclick="rq_selectChoice(\''+key+'\','+qi+','+oi+')">'+esc(c)+'</button>';
     });
     h+='</div>';
   });
