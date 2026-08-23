@@ -1181,7 +1181,7 @@ try{mode45=localStorage.getItem('c145mode')==='1';}catch(e){mode45=false;}
 // can route a graded drill response the same way. ai_overridePrompt lets
 // copyPrompt()/openInClaude() work for a drill's own prompt text without
 // threading a new mode through buildPrompt()'s #rtxt-based dispatch.
-let dsc_lastId=null,ai_overridePrompt=null;
+let dsc_lastId=null,ai_overridePrompt=null,microdrill_family=null;
 let em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
 let em_stepPlan={purpose:'',details:'',ask:''};
 let em_promptChecked={};
@@ -3441,7 +3441,7 @@ function ai_finishProcessing(r){
   renderMeters();
   // Each TOEFL task carries its own ETS rubric JSON schema and renderer; the
   // *_lastId flags (set in openAIModal, only one at a time) route accordingly.
-  if(dsc_lastId){dsc_processResult(r);return;}
+  if(dsc_lastId){(microdrill_family==='email'?emd_processResult:dsc_processResult)(r);return;}
   if(em_lastId){em_processEmailResult(r);return;}
   if(wr_lastId){wr_processResult(r);return;}
   if(iv_lastId){iv_processResult(r);return;}
@@ -5169,17 +5169,9 @@ function readiness_biggestGap(){
 // ── NEXT BEST DRILL (Phase 2) ────────────────────────────────────────────────
 // Turns the Biggest Gap into one concrete next step: which existing activity
 // to open, and (for a task-skill gap) which Step-by-step block to scaffold.
-// No new exercises exist yet — Phase 3/4 add isolated Engage/Elaboration
-// micro-drills; until then this points at the closest real activity so the
-// recommendation is never a dead end.
-// Academic Discussion gaps now route to the isolated micro-drills below
-// (dsc_*); Write an Email doesn't have those yet (Phase 4), so its gaps
-// still point at the full task with Step-by-step mode pre-selected.
-const TASK_SKILL_DRILL_MAP={
-  Purpose:{key:'writing:email',step:'em',label:'Write an Email'},
-  Elaboration:{key:'writing:email',step:'em',label:'Write an Email'},
-  Register:{key:'writing:email',step:'em',label:'Write an Email'}
-};
+// Academic Discussion and Write an Email task-skill gaps both route to their
+// isolated micro-drills below (dsc_*/emd_*) — no full task response needed.
+// A language (grammar) gap still points at Build a Sentence, filtered.
 function readiness_nextBestDrill(){
   const gap=readiness_biggestGap();
   if(gap.type==='none')return null;
@@ -5194,15 +5186,17 @@ function readiness_nextBestDrill(){
         actKey:'dsc',actSkill:skillKey
       };
     }
-    const m=TASK_SKILL_DRILL_MAP[gap.name];
-    if(!m)return null;
-    const secs=TOEFL_ACT_TARGET[m.key]||300,mins=Math.max(1,Math.round(secs/60));
-    return{
-      title:m.label+' — '+gap.name,
-      why:gap.detail+' Step-by-step mode will highlight that part while you write.',
-      estLabel:'~'+mins+' min · 1 focused attempt',
-      actKey:m.key,actStep:m.step,actFilter:null
-    };
+    if(gap.group==='Write an Email'){
+      const skillKey=EMD_SKILL_BY_NAME[gap.name];
+      if(!skillKey)return null;
+      return{
+        title:'Write an Email — '+gap.name,
+        why:gap.detail+' A 5-exercise micro-drill on just that skill — no full response required.',
+        estLabel:'5 exercises · ~5 min',
+        actKey:'emd',actSkill:skillKey
+      };
+    }
+    return null;
   }
   const tag=gap.name;
   const matching=bsItems.filter(it=>it&&it.tag===tag);
@@ -5220,10 +5214,9 @@ function startNextBestDrill(){
   if(!d)return;
   closeM('mSkillDiag');
   if(d.actKey==='dsc'){dsc_start(d.actSkill);return;}
+  if(d.actKey==='emd'){emd_start(d.actSkill);return;}
   goTab('rev');
   toeflShow(d.actKey);
-  if(d.actStep==='wr')wr_setStepMode(true);
-  else if(d.actStep==='em')em_setStepMode(true);
   if(d.actFilter)bs_setTopicFilter(d.actFilter);
 }
 
@@ -5313,7 +5306,7 @@ function dsc_submit(){
   if(!t){toast('⚠️ Write a response first');return;}
   curText=t;
   em_lastId=null;wr_lastId=null;iv_lastId=null;sp_lastId=null;
-  dsc_lastId='pending';
+  dsc_lastId='pending';microdrill_family='discussion';
   const fp=dsc_buildAnalysisPrompt(t);
   ai_overridePrompt=fp;
   navigator.clipboard.writeText(t).catch(()=>{});
@@ -5364,6 +5357,126 @@ function dsc_renderResult(ok,feedback){
     +dsc_dotsHTML();
 }
 function dsc_finishSession(){
+  closeM('mDscDrill');
+  toast('✅ Drill session complete');
+  renderReadiness();
+}
+
+// ── WRITE AN EMAIL SKILL DRILLS (Phase 4) ───────────────────────────────────
+// Same idea as the Academic Discussion drills above (dsc_*), applied to
+// Purpose/Elaboration/Register. Reuses emScenarios content and the same
+// mDscDrill modal shell (now a generic "Skill Drill" surface for either
+// task), the same AI Bridge grading path, and dsc_logSkillResult() so
+// results land in stats.exPerf['em-step:*'] without touching patternPerf —
+// identical reasoning to the Discussion drills.
+const EMD_SKILLS={
+  opening:{label:'Purpose',blockKey:'em-step:opening'},
+  idea1:{label:'Elaboration',blockKey:'em-step:idea1'},
+  closing:{label:'Register',blockKey:'em-step:closing'}
+};
+const EMD_SKILL_BY_NAME={Purpose:'opening',Elaboration:'idea1',Register:'closing'};
+let emd_skill=null,emd_cur=null,emd_sessionDone=0;
+const EMD_SESSION_SIZE=5;
+function emd_start(skillKey){
+  if(!EMD_SKILLS[skillKey]||!emScenarios.length){toast('⚠️ No Write an Email scenarios available yet');return;}
+  emd_skill=skillKey;
+  emd_sessionDone=0;
+  emd_pick();
+  openM('mDscDrill');
+}
+function emd_pick(){
+  const scenario=emScenarios[Math.floor(Math.random()*emScenarios.length)];
+  const tasks=scenario.tasks||[];
+  const task=tasks.length?tasks[Math.floor(Math.random()*tasks.length)]:'';
+  emd_cur={scenario,task,register:em_deriveRegister(scenario.recipient)};
+  emd_renderPrompt();
+}
+function emd_taskLabel(){
+  const{scenario,task,register}=emd_cur;
+  switch(emd_skill){
+    case 'opening':return 'Write ONE sentence stating the purpose of this email to '+esc(scenario.recipient)+'.';
+    case 'idea1':return 'Expand this bare point into 1-2 developed sentences — add a reason and a concrete detail: "'+esc(task)+'"';
+    case 'closing':return 'Write ONE closing sentence appropriate for a '+register+' email to '+esc(scenario.recipient)+'.';
+  }
+}
+function emd_contextHTML(){
+  const{scenario}=emd_cur;
+  return '<div class="card" style="background:#F8FAFF"><div style="font-size:11px;color:#94A3B8;font-family:\'DM Mono\',monospace;margin-bottom:4px">TO '+esc(String(scenario.recipient||'').toUpperCase())+'</div><div style="font-size:13.5px">'+esc(scenario.context)+'</div></div>';
+}
+function emd_dotsHTML(){
+  let h='<div style="display:flex;gap:5px;justify-content:center;margin-top:10px">';
+  for(let i=0;i<EMD_SESSION_SIZE;i++)h+='<div style="width:'+(i<emd_sessionDone?'16px':'6px')+';height:6px;border-radius:4px;background:'+(i<emd_sessionDone?'#2563EB':'#DDE3F5')+'"></div>';
+  return h+'</div>';
+}
+function emd_renderPrompt(){
+  const box=document.getElementById('dscDrillContainer');if(!box)return;
+  document.getElementById('dscDrillTitle').textContent='📧 '+EMD_SKILLS[emd_skill].label+' Drill · '+(emd_sessionDone+1)+' of '+EMD_SESSION_SIZE;
+  box.innerHTML=emd_contextHTML()
+    +'<div style="font-size:13px;font-weight:600;color:#475569;margin:12px 0 8px">'+emd_taskLabel()+'</div>'
+    +'<textarea id="dscInput" style="width:100%;min-height:74px;box-sizing:border-box" placeholder="Type your response here…"></textarea>'
+    +'<button class="btn bpr" style="width:100%;justify-content:center;margin-top:10px;padding:11px" onclick="emd_submit()">Submit for feedback</button>'
+    +emd_dotsHTML();
+}
+function emd_buildAnalysisPrompt(t){
+  const{scenario,task,register}=emd_cur;
+  const skillInstructions={
+    opening:'Judge ONLY whether the sentence clearly states why the writer is emailing (the purpose/reason/action) — not vague, not several unrelated purposes at once.',
+    idea1:'Judge ONLY whether the response elaborates the bare point with a real reason ("why") AND a concrete detail — not just restating the point in different words.',
+    closing:'Judge ONLY whether the closing sentence matches the expected register ('+register+') for this recipient — a formal email needs a polite, professional sign-off line; an informal one can be warmer/more casual.'
+  };
+  return 'You are a TOEFL Writing coach running a short, targeted micro-drill (NOT the full ETS 0-5 rubric — this is isolated skill practice for the "'+EMD_SKILLS[emd_skill].label+'" part of the Write an Email task).\n\n'
+    +'Scenario: '+scenario.context+'\n'
+    +'Recipient: '+scenario.recipient+' (expected register: '+register+')\n'
+    +(emd_skill==='idea1'?'Bare point to expand: '+task+'\n':'')
+    +'\nStudent response: '+t+'\n\n'
+    +skillInstructions[emd_skill]+'\n\n'
+    +'Also flag any real grammar errors (agreement, article, gerund after preposition, etc — not surface typos).\n\n'
+    +'Return ONLY a JSON object (no markdown, no text before or after):\n'
+    +'{\n  "on_target": true/false,\n  "feedback": "1-2 sentences, specific and actionable",\n  "grammar_errors": [{ "text": string, "tag": string, "explanation": string }]\n}';
+}
+function emd_submit(){
+  const t=(document.getElementById('dscInput').value||'').trim();
+  if(!t){toast('⚠️ Write a response first');return;}
+  curText=t;
+  em_lastId=null;wr_lastId=null;iv_lastId=null;sp_lastId=null;
+  dsc_lastId='pending';microdrill_family='email';
+  const fp=emd_buildAnalysisPrompt(t);
+  ai_overridePrompt=fp;
+  navigator.clipboard.writeText(t).catch(()=>{});
+  document.getElementById('mAititle').textContent='📧 '+EMD_SKILLS[emd_skill].label+' Drill Analysis';
+  document.getElementById('mpbox').textContent=fp;
+  document.getElementById('bridgeTaskLabel').textContent='Write an Email — '+EMD_SKILLS[emd_skill].label+' drill';
+  document.getElementById('jsonin').value='';
+  document.getElementById('cpbdg').classList.remove('on');
+  ai_showLoading(false);
+  closeM('mDscDrill');
+  openM('mAI');
+  if(ai_hasKey()){ai_showLoading(true);ai_autoGrade(fp);}
+}
+function emd_processResult(r){
+  dsc_lastId=null;
+  const meta=EMD_SKILLS[emd_skill];
+  const ok=!!r.on_target;
+  dsc_logSkillResult(meta.label.toLowerCase(),ok,meta.blockKey);
+  (r.grammar_errors||[]).forEach(ge=>{if(!ge||!ge.tag)return;ex_logPattern(ge.tag,false,meta.blockKey);});
+  emd_sessionDone++;
+  openM('mDscDrill');
+  emd_renderResult(ok,r.feedback||'');
+}
+function emd_renderResult(ok,feedback){
+  const box=document.getElementById('dscDrillContainer');if(!box)return;
+  const done=emd_sessionDone>=EMD_SESSION_SIZE;
+  document.getElementById('dscDrillTitle').textContent='📧 '+EMD_SKILLS[emd_skill].label+' Drill · '+emd_sessionDone+' of '+EMD_SESSION_SIZE;
+  box.innerHTML=emd_contextHTML()
+    +'<div class="card" style="margin-top:10px;background:'+(ok?'#F0FDF4':'#FFFBEB')+';border-color:'+(ok?'#BBF7D0':'#FDE68A')+'">'
+    +'<div style="font-size:13px;color:'+(ok?'#166534':'#92400E')+';display:flex;gap:8px;align-items:flex-start"><span>'+(ok?'✓':'⚠️')+'</span><span>'+esc(feedback)+'</span></div>'
+    +'</div>'
+    +(done
+      ?'<button class="btn bpr" style="width:100%;justify-content:center;margin-top:10px;padding:11px" onclick="emd_finishSession()">Finish session</button>'
+      :'<button class="btn bpr" style="width:100%;justify-content:center;margin-top:10px;padding:11px" onclick="emd_pick()">Next exercise</button>')
+    +emd_dotsHTML();
+}
+function emd_finishSession(){
   closeM('mDscDrill');
   toast('✅ Drill session complete');
   renderReadiness();
@@ -5419,9 +5532,11 @@ function skillDiagHTML(){
   groups.forEach(g=>{
     h+='<div style="font-size:12px;font-weight:700;color:#475569;margin:10px 2px 4px">'+esc(g)+'</div>';
     taskRows.filter(r=>r.group===g).forEach(r=>{
-      const skillKey=g==='Academic Discussion'?DSC_SKILL_BY_NAME[r.name]:null;
-      const rowAttrs=skillKey?' class="tap" style="cursor:pointer" onclick="closeM(\'mSkillDiag\');dsc_start(\''+skillKey+'\')"':'';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #EEF2FC"'+rowAttrs+'><span style="font-size:13px">'+esc(r.name)+(skillKey?' <span style="color:#94A3B8;font-size:11px">→ drill</span>':'')+'</span>'+chip(r)+'</div>';
+      const drillFn=g==='Academic Discussion'?(DSC_SKILL_BY_NAME[r.name]&&"dsc_start('"+DSC_SKILL_BY_NAME[r.name]+"')")
+        :g==='Write an Email'?(EMD_SKILL_BY_NAME[r.name]&&"emd_start('"+EMD_SKILL_BY_NAME[r.name]+"')")
+        :null;
+      const rowAttrs=drillFn?' class="tap" style="cursor:pointer" onclick="closeM(\'mSkillDiag\');'+drillFn+'"':'';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #EEF2FC"'+rowAttrs+'><span style="font-size:13px">'+esc(r.name)+(drillFn?' <span style="color:#94A3B8;font-size:11px">→ drill</span>':'')+'</span>'+chip(r)+'</div>';
     });
   });
   h+='<div style="font-size:11.5px;color:#94A3B8;padding:8px 2px;line-height:1.5">Interview and Listen &amp; Repeat don\'t have a per-skill breakdown yet — that needs the AI rubric prompts to return skill-scoped fields, planned for a later phase.</div>';
