@@ -5064,7 +5064,13 @@ function readiness_biggestGap(){
     const art=/^[aeiou]/i.test(g.name)?'an':'a';
     return{type:'task',group:g.group,name:g.name,detail:g.wrong+' of your last '+g.total+' graded '+g.group+' responses had '+art+' '+g.name.toLowerCase()+' issue flagged.'};
   }
-  const langPriority=readiness_languageSkillRows().filter(r=>r.state.cls==='priority');
+  // Only consider a language tag actionable if Build a Sentence actually has
+  // an exercise for it — some tags in stats.patternPerf are one-off phrases
+  // the AI grader invented while describing an error (e.g. "chunk-altered-
+  // word") rather than a real grammar pattern with a drill behind it. Those
+  // still show up in the full Skill Diagnostic for transparency, but must
+  // never become "the" Biggest Gap with no way to act on it.
+  const langPriority=readiness_languageSkillRows().filter(r=>r.state.cls==='priority'&&bsItems.some(it=>it&&it.tag===r.tag));
   if(langPriority.length){
     const g=langPriority[0];
     return{type:'language',name:g.tag,detail:Math.round(g.acc*100)+'% accuracy over '+g.a+' attempts.'};
