@@ -5722,6 +5722,14 @@ function cw_load(){
   cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
   if(cw_cur)toefl_itemStart('complete');
 }
+// Retry the SAME passage (mirrors bs_reset()) instead of moving on to a new
+// one — clears the checked state and every typed answer, keeps cw_cur.
+function cw_reset(){
+  if(!cw_cur)return;
+  cw_checked=false;cw_vals=[];cw_liveId=null;cw_liveVals=[];
+  toefl_itemStart('complete');
+  renderRev();
+}
 // True if a typed/selected value matches the blank's answer (or an accepted variant).
 function cw_blankOk(b,val){
   const v=String(val||'').trim().toLowerCase();
@@ -5839,9 +5847,9 @@ function cw_render(){
   if(cw_checked){
     h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some words are off — corrections shown above. ')
       +'<span style="opacity:.85">'+esc(noteTxt)+'</span></div>'
-      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_next(false)">Next →</button></div>';
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_next(false)">Next →</button><button class="btn bsm" onclick="cw_reset()">↺ Try again</button></div>';
   }else{
-    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_check()">✓ Check</button></div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_check()">✓ Check</button><button class="btn bsm" onclick="cw_reset()">↺ Reset</button></div>';
   }
   h+='</div>';
   return h+exPerfPanel('cw');
