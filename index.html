@@ -5106,7 +5106,7 @@ let session_attempted=0,session_correct=0,session_submitted=0;
 const SESSION_SECTIONS={
   reading:{label:'Reading',icon:'📖',minutes:30,activities:['complete','rd','ra']},
   listening:{label:'Listening',icon:'🎧',minutes:29,activities:['lcr','lc','an','at']},
-  writing:{label:'Writing',icon:'✍️',minutes:23,activities:['writing:email','writing:discussion']},
+  writing:{label:'Writing',icon:'✍️',minutes:23,activities:['build','writing:email','writing:discussion']},
   speaking:{label:'Speaking',icon:'🎤',minutes:8,activities:['speaking:lr','speaking:iv']}
 };
 function session_sectionForKey(key){
@@ -6006,12 +6006,14 @@ function bs_clear(slot){if(bs_checked)return;if(slot>=0&&slot<bs_slots.length)bs
 function bs_reset(){if(!bs_cur)return;bs_checked=false;bs_setup(bs_cur);renderRev();}
 function bs_check(){
   if(!bs_cur||!bs_slots.every(x=>x!=null))return;
+  if(session_active&&session_locked){toast('⏰ Session time is up');return;}
   const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';}).join(' ');
   const correct=guess===bs_cur.answer.join(' ');
   bs_checked=true;
   ex_grade(bsProgress,bs_cur.id,correct);bs_saveProgress();
   ex_logPattern(bs_cur.tag,correct,'bs');
   toefl_logTime('build');
+  if(session_active){session_attempted++;if(correct)session_correct++;}
   renderRev();
 }
 function bs_next(force){bs_load();if(force&&!bs_cur){const items=bs_filteredItems();if(items.length)bs_setup(items[Math.floor(Math.random()*items.length)]);}renderRev();}
