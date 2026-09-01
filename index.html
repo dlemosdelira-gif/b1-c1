@@ -5878,11 +5878,19 @@ function openSkillDiag(){
   openM('mSkillDiag');
 }
 function toeflHubHTML(){
+  // Reading/Listening item totals below reflect the ETS TOEFL iBT Technical
+  // Manual's own "number of scored questions" table (Table 1): each is a
+  // two-stage adaptive test — a 20-item router stage plus a 15-item stage-2
+  // module (lower or upper, depending on router performance) — 35 scored
+  // items total per section. That's the actual per-test-taker count; looser
+  // "50"/"47" figures floating around test-prep sites conflate raw score
+  // points (e.g. Complete the Words scores each of its 10 gaps separately)
+  // with distinct items, which is a different unit than what's shown here.
   const sections=[
-    {name:'Reading',key:'reading',items:50,time:30,band:true,rows:[
+    {name:'Reading',key:'reading',items:35,time:30,band:true,rows:[
       ['complete',cwItems.length],['rd',rq_items('rd').length],['ra',rq_items('ra').length]
     ]},
-    {name:'Listening',key:'listening',items:47,time:29,band:false,rows:[
+    {name:'Listening',key:'listening',items:35,time:29,band:false,rows:[
       ['lcr',rq_items('lcr').length],['lc',rq_items('lc').length],['an',rq_items('an').length],['at',rq_items('at').length]
     ]},
     {name:'Writing',key:'writing',items:12,time:23,band:true,rows:[
@@ -5915,7 +5923,8 @@ function toeflHubHTML(){
     +'<th style="padding:8px 6px;text-align:left;font-weight:700;font-size:12px">Task type</th>'
     +'<th style="padding:8px 4px;text-align:center;font-weight:700;font-size:12px">Items</th>'
     +'<th style="padding:8px 4px;text-align:center;font-weight:700;font-size:12px">Time</th>'
-    +'</tr></thead><tbody>'+rowsHTML+'</tbody></table></div>';
+    +'</tr></thead><tbody>'+rowsHTML+'</tbody></table></div>'
+    +'<div style="font-size:11px;color:#94A3B8;margin:-6px 0 12px">Reading/Listening totals: 20-item router stage + 15-item stage-2 module (per ETS TOEFL iBT Technical Manual). Item counts on each row below are your practice pool size, not the exam\'s per-test count.</div>';
 }
 // Enter (or leave, if key is null) a TOEFL activity. Visibility is handled with
 // .hid toggling on persistent DOM nodes (not innerHTML rebuilds) for the
