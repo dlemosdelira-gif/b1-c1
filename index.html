@@ -6873,7 +6873,10 @@ function em_setMode(on){
 function em_pick(){
   if(!emScenarios.length){em_cur=null;return;}
   const fresh=emScenarios.filter(s=>!emProgress[s.id]);
-  const pool=fresh.length?fresh:emScenarios;
+  let pool=fresh.length?fresh:emScenarios;
+  // Exclude the scenario just shown so "New scenario" always actually changes
+  // it — otherwise a plain random pick can silently reselect the same one.
+  if(em_cur&&pool.length>1)pool=pool.filter(s=>s.id!==em_cur.id);
   em_cur=pool[Math.floor(Math.random()*pool.length)];
   em_stepReset();
 }
@@ -7178,7 +7181,10 @@ function em_processEmailResult(r){
 function wr_pick(){
   if(!wrScenarios.length){wr_cur=null;return;}
   const fresh=wrScenarios.filter(s=>!wrProgress[s.id]);
-  const pool=fresh.length?fresh:wrScenarios;
+  let pool=fresh.length?fresh:wrScenarios;
+  // Exclude the prompt just shown so "New prompt" always actually changes it —
+  // otherwise a plain random pick can silently reselect the same one.
+  if(wr_cur&&pool.length>1)pool=pool.filter(s=>s.id!==wr_cur.id);
   wr_cur=pool[Math.floor(Math.random()*pool.length)];
   wr_stepReset();
 }
