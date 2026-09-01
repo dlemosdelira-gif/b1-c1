@@ -5197,6 +5197,21 @@ function tt_tick(){
 function tt_timeUp(){
   if(tt_locked)return;
   const key=tt_key;
+  if(key==='writing:email'||key==='writing:discussion'||key==='speaking:lr'||key==='speaking:iv'){
+    // Unlike Session/manual Simulation Mode (which deliberately lock for a
+    // one-shot, real-exam-conditions attempt), the automatic per-task timer
+    // is only a pacing nudge: it submits whatever draft exists so nothing is
+    // lost, but the actual practice workflow here is analyze → read AI
+    // feedback → revise → resubmit, so the editor and Analyze button must
+    // stay usable afterward — tt_stop() instead of locking, and no
+    // sim_lockEditor() call.
+    const ta=document.getElementById('rtxt');
+    const hasText=!!(ta&&ta.value.trim());
+    if(hasText){toast('⏱ Time is up — submitting your current draft automatically (you can still revise and resubmit)');openAIModal(key.indexOf('writing')===0?'writing':'speaking');}
+    else toast('⏱ Time is up');
+    tt_stop();
+    return;
+  }
   if(key==='build'){
     if(bs_cur&&!bs_checked){
       if(bs_slots.every(x=>x!=null))bs_check();
@@ -5206,12 +5221,6 @@ function tt_timeUp(){
     if(cw_cur&&!cw_checked)cw_checkPartial();
   }else if(RQ_LABEL[key]){
     if(rq_cur[key]&&!rq_checked[key])rq_checkPartial(key);
-  }else if(key==='writing:email'||key==='writing:discussion'||key==='speaking:lr'||key==='speaking:iv'){
-    sim_lockEditor();
-    const ta=document.getElementById('rtxt');
-    const hasText=!!(ta&&ta.value.trim());
-    if(hasText){toast('⏱ Time is up — submitting your response automatically');openAIModal(key.indexOf('writing')===0?'writing':'speaking');}
-    else toast('⏱ Time is up');
   }
   // Lock only after the auto-grade/auto-submit above has had a chance to run,
   // so those internal calls aren't blocked by the tt_active&&tt_locked guards.
