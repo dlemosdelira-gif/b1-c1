@@ -1005,6 +1005,7 @@ textarea{min-height:120px}
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <div style="font-size:14px;font-weight:600;color:#0F172A" id="toeflTitle">🎯 TOEFL Practice</div>
       <div id="examCountdown" style="font-size:14px;font-weight:600;color:#0F172A"></div>
+      <span id="toeflSessionBadge" class="hid" style="display:flex;align-items:center;gap:6px"></span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <span class="wc hid" id="duecnt">0 due</span>
@@ -3319,6 +3320,7 @@ function chunks_refreshPanel(){
   const arrow=panel.querySelector('.mdlArrow');if(arrow)arrow.textContent='▸';
 }
 function openAIModal(mode){
+  if(session_active&&session_locked){toast('⏰ Session time is up');return;}
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
   ai_overridePrompt=null;
   curText=t;curMode=mode||'writing';
@@ -3428,6 +3430,7 @@ function processJSON(){
 // Shared by the manual paste-back path (processJSON) and the automatic
 // Gemini path (ai_autoGrade) once either has a parsed result object.
 function ai_finishProcessing(r){
+  if(session_active&&(em_lastId||wr_lastId||iv_lastId||sp_lastId))session_submitted++;
   const w=curText.trim().split(/\s+/).filter(Boolean).length;
   stats.wordsToday=(stats.wordsToday||0)+w;
   stats.totalMins=(stats.totalMins||0)+Math.max(1,Math.ceil(w/100)*5);
@@ -5001,6 +5004,7 @@ function toefl_tickTimer(){
     }
   }
   sim_tick();
+  session_tick();
 }
 // ── TIMED SIMULATION MODE ────────────────────────────────────────────────────
 // A layer over the existing Writing/Speaking flow, not a parallel
@@ -5082,6 +5086,74 @@ function sim_renderBadge(){
   el.innerHTML='<span class="tag" style="background:#FEE2E2;color:#B91C1C;font-weight:700">🎯 SIMULATION</span>'
     +'<span style="font-family:\'DM Mono\',monospace;font-weight:700;font-size:16px;color:'+(urgent?'#DC2626':'#0F172A')+'">'+m+':'+String(s).padStart(2,'0')+'</span>'
     +(sim_locked?'<span class="tag tgg">✓ submitted</span>':'');
+}
+// ── PRACTICE BY SESSION ──────────────────────────────────────────────────────
+// One countdown for an entire TOEFL section (Reading/Listening/Writing/
+// Speaking) rather than sim_* above's single-task timer. Deliberately does
+// NOT curate a queue of items — the user already moves freely between a
+// section's activities via the existing Hub; a session just time-boxes that
+// free movement to ~90% of the section's official time and, unlike sim_*
+// (which auto-submits), locks and DISCARDS whatever is unsubmitted when time
+// runs out, matching the real exam. Reuses sim_lockEditor() to freeze any
+// in-progress Writing/Speaking response without submitting it, and gates the
+// same Check/Submit entry points every self-checking exercise already funnels
+// through (bs_check/cw_check/rq_check/openAIModal) rather than adding a
+// parallel submission path.
+let session_active=false,session_section=null,session_deadline=null,session_locked=false;
+let session_attempted=0,session_correct=0,session_submitted=0;
+const SESSION_SECTIONS={
+  reading:{label:'Reading',icon:'📖',minutes:30,activities:['complete','rd','ra']},
+  listening:{label:'Listening',icon:'🎧',minutes:29,activities:['lcr','lc','an','at']},
+  writing:{label:'Writing',icon:'✍️',minutes:23,activities:['writing:email','writing:discussion']},
+  speaking:{label:'Speaking',icon:'🎤',minutes:8,activities:['speaking:lr','speaking:iv']}
+};
+function session_sectionForKey(key){
+  for(const s in SESSION_SECTIONS){if(SESSION_SECTIONS[s].activities.includes(key))return s;}
+  return null;
+}
+function session_start(sectionKey){
+  if(session_active){toast('⚠️ Exit the current session first');return;}
+  const sec=SESSION_SECTIONS[sectionKey];if(!sec)return;
+  session_active=true;session_section=sectionKey;session_locked=false;
+  session_deadline=Date.now()+Math.round(sec.minutes*60*0.9)*1000;
+  session_attempted=0;session_correct=0;session_submitted=0;
+  session_renderBadge();
+  toeflShow(sec.activities[0]);
+  toast('🎯 '+sec.label+' session started — '+Math.round(sec.minutes*0.9)+' min on the clock');
+}
+function session_exit(){
+  session_active=false;session_section=null;session_deadline=null;session_locked=false;
+  session_renderBadge();
+  renderRev();
+}
+function session_tick(){
+  if(!session_active||!session_deadline)return;
+  const remain=Math.max(0,Math.round((session_deadline-Date.now())/1000));
+  session_renderBadge();
+  if(remain<=0&&!session_locked)session_timeUp();
+}
+// No auto-submit here (unlike sim_timeUp): the user's own call was to freeze
+// and discard, matching the real exam's hard cutoff.
+function session_timeUp(){
+  session_locked=true;
+  sim_lockEditor();
+  session_renderBadge();
+  const accSummary=session_attempted?(' · '+Math.round(session_correct/session_attempted*100)+'% correct on '+session_attempted+' item'+(session_attempted===1?'':'s')):'';
+  const subSummary=session_submitted?(' · '+session_submitted+' response'+(session_submitted===1?'':'s')+' submitted'):'';
+  toast('⏰ Session time is up'+accSummary+subSummary);
+  renderRev();
+}
+function session_renderBadge(){
+  const el=document.getElementById('toeflSessionBadge');if(!el)return;
+  if(!session_active){el.classList.add('hid');el.innerHTML='';return;}
+  el.classList.remove('hid');
+  const sec=SESSION_SECTIONS[session_section];
+  const remain=Math.max(0,Math.round(((session_deadline||Date.now())-Date.now())/1000));
+  const m=Math.floor(remain/60),s=remain%60;
+  const urgent=remain<=120;
+  el.innerHTML='<span class="tag" style="background:#EFF6FF;color:#1D4ED8;font-weight:700">'+sec.icon+' '+esc(sec.label)+' SESSION</span>'
+    +'<span style="font-family:\'DM Mono\',monospace;font-weight:700;font-size:14px;color:'+(session_locked?'#94A3B8':(urgent?'#DC2626':'#0F172A'))+'">'+(session_locked?'ended':(m+':'+String(s).padStart(2,'0')))+'</span>'
+    +'<button class="btn bsm" style="padding:3px 8px;font-size:12px" onclick="session_exit()">Exit</button>';
 }
 function toefl_fmtSecs(s){
   s=Math.round(s);
@@ -5734,16 +5806,16 @@ function openSkillDiag(){
 }
 function toeflHubHTML(){
   const sections=[
-    {name:'Reading',items:50,time:30,band:true,rows:[
+    {name:'Reading',key:'reading',items:50,time:30,band:true,rows:[
       ['complete',cwItems.length],['rd',rq_items('rd').length],['ra',rq_items('ra').length]
     ]},
-    {name:'Listening',items:47,time:29,band:false,rows:[
+    {name:'Listening',key:'listening',items:47,time:29,band:false,rows:[
       ['lcr',rq_items('lcr').length],['lc',rq_items('lc').length],['an',rq_items('an').length],['at',rq_items('at').length]
     ]},
-    {name:'Writing',items:12,time:23,band:true,rows:[
+    {name:'Writing',key:'writing',items:12,time:23,band:true,rows:[
       ['build',bsItems.length],['writing:email',emScenarios.length],['writing:discussion',wrScenarios.length]
     ]},
-    {name:'Speaking',items:11,time:8,band:false,rows:[
+    {name:'Speaking',key:'speaking',items:11,time:8,band:false,rows:[
       ['speaking:lr',spSentences.length],['speaking:iv',ivInterviews.length]
     ]}
   ];
@@ -5753,7 +5825,9 @@ function toeflHubHTML(){
     sec.rows.forEach((r,i)=>{
       const key=r[0],count=r[1],label=TOEFL_ACT_LABEL[key],icon=TOEFL_ACT_ICON[key];
       rowsHTML+='<tr style="background:'+bg+'">';
-      if(i===0)rowsHTML+='<td rowspan="'+sec.rows.length+'" style="padding:8px 6px;font-weight:700;color:#0F172A;font-size:12px;vertical-align:top;border-bottom:1px solid #E2E8F0">'+esc(sec.name)+'</td>';
+      if(i===0)rowsHTML+='<td rowspan="'+sec.rows.length+'" style="padding:8px 6px;font-weight:700;color:#0F172A;font-size:12px;vertical-align:top;border-bottom:1px solid #E2E8F0">'+esc(sec.name)
+        +'<div style="margin-top:6px"><button class="btn bsm" style="padding:3px 7px;font-size:11px;white-space:nowrap" onclick="session_start(\''+sec.key+'\')">▶ Session</button></div>'
+        +'</td>';
       rowsHTML+='<td style="padding:0;border-bottom:1px solid #E2E8F0"><div class="toefl-row" onclick="toeflShow(\''+key+'\')"><span>'+icon+' '+esc(label)+'</span><span class="toefl-row-meta">'+count+' item'+(count===1?'':'s')+' →</span></div></td>';
       if(i===0){
         rowsHTML+='<td rowspan="'+sec.rows.length+'" style="padding:8px 4px;text-align:center;vertical-align:middle;font-size:12px;font-family:\'DM Mono\',monospace;color:#475569;border-bottom:1px solid #E2E8F0">'+sec.items+'</td>'
@@ -5777,6 +5851,10 @@ function toeflHubHTML(){
 // self-checking-exercise branch below ever rebuilds innerHTML, and that's safe
 // since bs_/cw_/rq_ state lives in JS variables, not the DOM.
 function toeflShow(key){
+  if(session_active&&key!=null&&session_sectionForKey(key)!==session_section){
+    toast('This session is scoped to '+SESSION_SECTIONS[session_section].label+' — exit it to open other activities');
+    return;
+  }
   toeflActivity=key;
   const hub=document.getElementById('toeflHub'),back=document.getElementById('toeflBackBar'),
     ex=document.getElementById('toeflEx'),wr=document.getElementById('toeflWriting'),
@@ -5806,6 +5884,7 @@ function toeflShow(key){
 }
 function renderRev(){
   renderExamCountdown();
+  session_renderBadge();
   const hub=document.getElementById('toeflHub');
   if(hub)hub.innerHTML=toeflScoreCardHTML()+toeflHubHTML();
   const ex=document.getElementById('toeflEx');
@@ -6117,6 +6196,7 @@ function cw_render(){
 }
 function cw_check(){
   if(!cw_cur)return;
+  if(session_active&&session_locked){toast('⏰ Session time is up');return;}
   const blanks=cw_activeBlanks();
   // Capture the user's answers before re-render so nothing is lost.
   cw_vals=blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
@@ -6125,6 +6205,7 @@ function cw_check(){
   ex_grade(cwProgress,cw_cur.id,allOk);cw_saveProgress();
   ex_logPattern(cw_cur.tag,allOk,'cw');
   toefl_logTime('complete');
+  if(session_active){session_attempted++;if(allOk)session_correct++;}
   renderRev();
 }
 function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length){cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];toefl_itemStart('complete');}renderRev();}
@@ -6283,6 +6364,7 @@ function rq_selectChoice(key,qIdx,choiceIdx){
 }
 function rq_check(key){
   const it=rq_cur[key];if(!it)return;
+  if(session_active&&session_locked){toast('⏰ Session time is up');return;}
   const sel=rq_sel[key]||[];
   if(!it.questions.every((q,i)=>sel[i]!=null)){toast('⚠️ Answer all questions first');return;}
   const allOk=it.questions.every((q,i)=>sel[i]===q.correct);
@@ -6290,6 +6372,7 @@ function rq_check(key){
   ex_grade(rq_progress(key),it.id,allOk);rq_saveProgress();
   ex_logPattern(it.tag,allOk,key);
   toefl_logTime(key);
+  if(session_active){session_attempted++;if(allOk)session_correct++;}
   renderRev();
 }
 // Two distinct EN voices for two-speaker playback (e.g. "Listen to a
