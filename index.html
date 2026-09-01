@@ -256,6 +256,7 @@ textarea{min-height:120px}
 .cw-blank{display:inline-block;min-width:120px;padding:4px 8px;border:1px solid #BFDBFE;border-radius:6px;font-size:15px;font-family:'DM Sans',sans-serif;background:#fff;color:#0F172A;vertical-align:baseline;margin:0 2px}
 .cw-blank.ok{border-color:#86EFAC;background:#F0FDF4;color:#16A34A}
 .cw-blank.bad{border-color:#FECACA;background:#FEF2F2;color:#DC2626}
+.cw-blank.skip{border-color:#E2E8F0;background:#F8FAFC;color:#94A3B8}
 .cw-sol{font-size:13px;color:#16A34A;font-weight:600;margin-left:4px;font-family:'DM Mono',monospace}
 .cw-clue{font-size:13px;color:#94A3B8;margin-left:4px;font-style:italic}
 .cw-let-pre{font-weight:400;color:#0F172A}
@@ -1022,6 +1023,7 @@ textarea{min-height:120px}
   <div class="hid" id="toeflBackBar" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn bsm" onclick="toeflShow(null)">← Menu</button>
     <div style="font-size:14px;font-weight:600;color:#0F172A;flex:1" id="toeflActTitle"></div>
+    <span id="toeflTaskTimerBadge" class="hid" style="display:flex;align-items:center;gap:6px"></span>
     <span id="toeflSimBadge" class="hid" style="display:flex;align-items:center;gap:6px"></span>
     <span id="toeflLiveTimer" style="font-family:'DM Mono',monospace;font-weight:700;color:#2563EB;font-size:14px"></span>
   </div>
@@ -3323,6 +3325,7 @@ function chunks_refreshPanel(){
 }
 function openAIModal(mode){
   if(session_active&&session_locked){toast('⏰ Session time is up');return;}
+  if(tt_active&&tt_locked){toast('⏱ Time is up for this item');return;}
   const t=document.getElementById('rtxt').value.trim();if(!t)return;
   ai_overridePrompt=null;
   curText=t;curMode=mode||'writing';
@@ -4984,7 +4987,7 @@ function renderExamCountdown(){
   if(el)el.innerHTML=examCountdownHTML();
 }
 let toefl_itemStartTs={};
-function toefl_itemStart(key){toefl_itemStartTs[key]=Date.now();}
+function toefl_itemStart(key){toefl_itemStartTs[key]=Date.now();tt_arm(key);}
 function toefl_logTime(key){
   const t0=toefl_itemStartTs[key];if(!t0)return;
   const secs=Math.round((Date.now()-t0)/1000);
@@ -5007,6 +5010,7 @@ function toefl_tickTimer(){
   }
   sim_tick();
   session_tick();
+  tt_tick();
 }
 // ── TIMED SIMULATION MODE ────────────────────────────────────────────────────
 // A layer over the existing Writing/Speaking flow, not a parallel
@@ -5021,6 +5025,10 @@ function sim_toggle(){
   sim_active=!sim_active;
   if(sim_active&&SIM_KEYS.includes(toeflActivity))sim_start(toeflActivity);
   else sim_stop();
+  // Manual Simulation Mode and the automatic per-task timer both race for the
+  // same countdown badge — whichever mode is now active decides, by re-running
+  // the same arm/stop logic toefl_itemStart() already uses on item entry.
+  if(sim_active)tt_stop();else tt_arm(toeflActivity);
   sim_renderToggleBtn();
 }
 function sim_renderToggleBtn(){
@@ -5156,6 +5164,69 @@ function session_renderBadge(){
   el.innerHTML='<span class="tag" style="background:#EFF6FF;color:#1D4ED8;font-weight:700">'+sec.icon+' '+esc(sec.label)+' SESSION</span>'
     +'<span style="font-family:\'DM Mono\',monospace;font-weight:700;font-size:14px;color:'+(session_locked?'#94A3B8':(urgent?'#DC2626':'#0F172A'))+'">'+(session_locked?'ended':(m+':'+String(s).padStart(2,'0')))+'</span>'
     +'<button class="btn bsm" style="padding:3px 8px;font-size:12px" onclick="session_exit()">Exit</button>';
+}
+// ── PER-TASK TIMER (standalone practice, outside Session/Simulation modes) ──
+// Automatically arms a countdown at 90% of the task's existing pacing target
+// (TOEFL_ACT_TARGET — until now only used for the Pacing stats, never
+// enforced) every time a fresh item/prompt begins. Reuses toefl_itemStart()
+// as the single hook: every bs_setup/cw_load/rq_load/em_pick/wr_pick/sp_pick/
+// iv-next call already calls it to mark pacing start, so arming the timer
+// there covers all 12 task types for free, no per-activity plumbing needed.
+// Unlike Session (which discards unsubmitted work), this SAVES whatever was
+// done: self-checking exercises grade only the sub-answers actually filled
+// in (see cw_checkPartial/rq_checkPartial), and Writing/Speaking auto-submit
+// the current draft — same "don't lose what you typed" auto-submit sim_*
+// already does, just reused here instead of duplicated.
+let tt_active=false,tt_key=null,tt_deadline=null,tt_locked=false;
+function tt_arm(key){
+  if(session_active||sim_active||!key||!TOEFL_ACT_TARGET[key]){tt_stop();return;}
+  tt_active=true;tt_key=key;tt_locked=false;
+  tt_deadline=Date.now()+Math.round(TOEFL_ACT_TARGET[key]*0.9)*1000;
+  tt_renderBadge();
+}
+function tt_stop(){
+  tt_active=false;tt_key=null;tt_deadline=null;tt_locked=false;
+  tt_renderBadge();
+}
+function tt_tick(){
+  if(!tt_active||!tt_deadline||tt_locked)return;
+  const remain=Math.max(0,Math.round((tt_deadline-Date.now())/1000));
+  tt_renderBadge();
+  if(remain<=0)tt_timeUp();
+}
+function tt_timeUp(){
+  if(tt_locked)return;
+  const key=tt_key;
+  if(key==='build'){
+    if(bs_cur&&!bs_checked){
+      if(bs_slots.every(x=>x!=null))bs_check();
+      else{toast('⏱ Time is up for this item — left incomplete, not counted');renderRev();}
+    }
+  }else if(key==='complete'){
+    if(cw_cur&&!cw_checked)cw_checkPartial();
+  }else if(RQ_LABEL[key]){
+    if(rq_cur[key]&&!rq_checked[key])rq_checkPartial(key);
+  }else if(key==='writing:email'||key==='writing:discussion'||key==='speaking:lr'||key==='speaking:iv'){
+    sim_lockEditor();
+    const ta=document.getElementById('rtxt');
+    const hasText=!!(ta&&ta.value.trim());
+    if(hasText){toast('⏱ Time is up — submitting your response automatically');openAIModal(key.indexOf('writing')===0?'writing':'speaking');}
+    else toast('⏱ Time is up');
+  }
+  // Lock only after the auto-grade/auto-submit above has had a chance to run,
+  // so those internal calls aren't blocked by the tt_active&&tt_locked guards.
+  tt_locked=true;
+  tt_renderBadge();
+}
+function tt_renderBadge(){
+  const el=document.getElementById('toeflTaskTimerBadge');if(!el)return;
+  if(!tt_active||!tt_deadline){el.classList.add('hid');el.innerHTML='';return;}
+  el.classList.remove('hid');
+  const remain=Math.max(0,Math.round((tt_deadline-Date.now())/1000));
+  const m=Math.floor(remain/60),s=remain%60;
+  const totalSecs=Math.max(1,Math.round((TOEFL_ACT_TARGET[tt_key]||60)*0.9));
+  const urgent=remain<=Math.max(5,Math.round(totalSecs*0.2));
+  el.innerHTML='<span class="tag" style="background:#FFFBEB;color:'+(tt_locked?'#94A3B8':'#B45309')+';font-weight:700">⏱ '+(tt_locked?'time up':(m+':'+String(s).padStart(2,'0')))+'</span>';
 }
 function toefl_fmtSecs(s){
   s=Math.round(s);
@@ -5879,6 +5950,8 @@ function toeflShow(key){
     else if(key==='build'){if(!bs_cur&&!bs_checked)bs_load();}
     else if(key==='complete'){if(!cw_cur&&!cw_checked)cw_load();}
     else if(RQ_LABEL[key]){if(rq_cur[key]===undefined)rq_load(key);}
+  }else{
+    tt_stop();
   }
   // Refreshes the hub (item counts + score estimate) every time, including when
   // returning to the menu — cheap, and keeps the score estimate current.
@@ -6007,6 +6080,7 @@ function bs_reset(){if(!bs_cur)return;bs_checked=false;bs_setup(bs_cur);renderRe
 function bs_check(){
   if(!bs_cur||!bs_slots.every(x=>x!=null))return;
   if(session_active&&session_locked){toast('⏰ Session time is up');return;}
+  if(tt_active&&tt_locked){toast('⏱ Time is up for this item');return;}
   const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';}).join(' ');
   const correct=guess===bs_cur.answer.join(' ');
   bs_checked=true;
@@ -6131,7 +6205,7 @@ function cw_render(){
     if(cwItems.length)return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No passages due right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="cw_next(true)">Practice anyway</button></div>'+exPerfPanel('cw');
     return tb+'<div class="card empty"><div class="etit">No passages yet</div><div class="esub">Add your first one above.</div></div>'+exPerfPanel('cw');
   }
-  let body='',allOk=true,gapCount=0;
+  let body='',allOk=true,gapCount=0,anySkipped=false;
   if(cw_cur.mode==='letters'){
     // Rebuild the paragraph, replacing each [[word|n]] token with prefix + inline
     // input (or a colored recap once checked). Answers are the hidden letters.
@@ -6141,9 +6215,9 @@ function cw_render(){
       const word=m[1],plen=Math.max(1,Math.min(word.length-1,parseInt(m[2],10)||1));
       const prefix=word.slice(0,plen),ans=word.slice(plen);
       if(cw_checked){
-        const val=(cw_vals[i]||''),ok=val.trim().toLowerCase()===ans.toLowerCase();
-        if(!ok)allOk=false;
-        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-blank '+(ok?'ok':'bad')+'" style="min-width:0;padding:2px 6px">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(ans)+'</span>');
+        const val=(cw_vals[i]||''),skip=!val.trim(),ok=!skip&&val.trim().toLowerCase()===ans.toLowerCase();
+        if(skip)anySkipped=true;else if(!ok)allOk=false;
+        body+='<span class="cw-let-pre">'+esc(prefix)+'</span><span class="cw-blank '+(skip?'skip':(ok?'ok':'bad'))+'" style="min-width:0;padding:2px 6px">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(ans)+'</span>');
       }else{
         // Restore an in-progress value if this re-render happened to interrupt
         // the user mid-typing (see cw_count()/cw_liveVals) — same item only.
@@ -6167,9 +6241,9 @@ function cw_render(){
       if(i<cw_cur.blanks.length){
         const b=cw_cur.blanks[i];
         if(cw_checked){
-          const val=(cw_vals[i]||''),ok=cw_blankOk(b,val);
-          if(!ok)allOk=false;
-          body+='<span class="cw-blank '+(ok?'ok':'bad')+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>')+cw_clueHTML(b);
+          const val=(cw_vals[i]||''),skip=!val.trim(),ok=!skip&&cw_blankOk(b,val);
+          if(skip)anySkipped=true;else if(!ok)allOk=false;
+          body+='<span class="cw-blank '+(skip?'skip':(ok?'ok':'bad'))+'">'+(esc(val)||'—')+'</span>'+(ok?'':'<span class="cw-sol">→ '+esc(b.answer)+'</span>')+cw_clueHTML(b);
         }else if(cw_cur.mode==='mc'){
           const opts=shuffle((b.options||[]).slice());
           body+='<select class="cw-blank" id="cwb'+i+'"><option value="">— choose —</option>'+opts.map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+'</select>'+cw_clueHTML(b);
@@ -6190,6 +6264,7 @@ function cw_render(){
   if(isLetters&&!cw_checked){h+='<div style="font-size:14px;color:#64748B;margin-bottom:10px">Answered <span id="cwCount">0</span> of '+gapCount+'</div>';}
   if(cw_checked){
     h+='<div class="ex-fb '+(allOk?'ok':'bad')+'">'+(allOk?'✅ All correct! ':'❌ Some words are off — corrections shown above. ')
+      +(anySkipped?'<br><span style="opacity:.85">⏱ Grayed-out blanks were left unanswered when time ran out — not counted as wrong.</span> ':'')
       +'<span style="opacity:.85">'+esc(noteTxt)+'</span></div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="cw_next(false)">Next →</button><button class="btn bsm" onclick="cw_reset()">↺ Try again</button></div>';
   }else{
@@ -6201,6 +6276,7 @@ function cw_render(){
 function cw_check(){
   if(!cw_cur)return;
   if(session_active&&session_locked){toast('⏰ Session time is up');return;}
+  if(tt_active&&tt_locked){toast('⏱ Time is up for this item');return;}
   const blanks=cw_activeBlanks();
   // Capture the user's answers before re-render so nothing is lost.
   cw_vals=blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
@@ -6210,6 +6286,23 @@ function cw_check(){
   ex_logPattern(cw_cur.tag,allOk,'cw');
   toefl_logTime('complete');
   if(session_active){session_attempted++;if(allOk)session_correct++;}
+  renderRev();
+}
+// Called when the per-task timer runs out mid-item: grades only the blanks the
+// user actually filled in, leaving the rest gray/unanswered instead of wrong.
+function cw_checkPartial(){
+  if(!cw_cur)return;
+  const blanks=cw_activeBlanks();
+  cw_vals=blanks.map((b,i)=>{const el=document.getElementById('cwb'+i);return el?el.value.trim():'';});
+  cw_checked=true;
+  const answeredIdx=blanks.map((b,i)=>i).filter(i=>cw_vals[i]);
+  if(answeredIdx.length){
+    const allAnsweredOk=answeredIdx.every(i=>cw_blankOk(blanks[i],cw_vals[i]));
+    ex_grade(cwProgress,cw_cur.id,allAnsweredOk);cw_saveProgress();
+    ex_logPattern(cw_cur.tag,allAnsweredOk,'cw');
+  }
+  toefl_logTime('complete');
+  toast('⏱ Time is up — graded '+answeredIdx.length+'/'+blanks.length+' answered blank'+(blanks.length===1?'':'s'));
   renderRev();
 }
 function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length){cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];toefl_itemStart('complete');}renderRev();}
@@ -6369,6 +6462,7 @@ function rq_selectChoice(key,qIdx,choiceIdx){
 function rq_check(key){
   const it=rq_cur[key];if(!it)return;
   if(session_active&&session_locked){toast('⏰ Session time is up');return;}
+  if(tt_active&&tt_locked){toast('⏱ Time is up for this item');return;}
   const sel=rq_sel[key]||[];
   if(!it.questions.every((q,i)=>sel[i]!=null)){toast('⚠️ Answer all questions first');return;}
   const allOk=it.questions.every((q,i)=>sel[i]===q.correct);
@@ -6377,6 +6471,22 @@ function rq_check(key){
   ex_logPattern(it.tag,allOk,key);
   toefl_logTime(key);
   if(session_active){session_attempted++;if(allOk)session_correct++;}
+  renderRev();
+}
+// Called when the per-task timer runs out mid-item: grades only the questions the
+// user actually answered, leaving the rest unanswered instead of counting as wrong.
+function rq_checkPartial(key){
+  const it=rq_cur[key];if(!it)return;
+  const sel=rq_sel[key]||[];
+  rq_checked[key]=true;
+  const answeredIdx=it.questions.map((q,i)=>i).filter(i=>sel[i]!=null);
+  if(answeredIdx.length){
+    const allAnsweredOk=answeredIdx.every(i=>sel[i]===it.questions[i].correct);
+    ex_grade(rq_progress(key),it.id,allAnsweredOk);rq_saveProgress();
+    ex_logPattern(it.tag,allAnsweredOk,key);
+  }
+  toefl_logTime(key);
+  toast('⏱ Time is up — graded '+answeredIdx.length+'/'+it.questions.length+' answered question'+(it.questions.length===1?'':'s'));
   renderRev();
 }
 // Two distinct EN voices for two-speaker playback (e.g. "Listen to a
