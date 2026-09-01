@@ -6875,8 +6875,14 @@ function em_pick(){
   const fresh=emScenarios.filter(s=>!emProgress[s.id]);
   let pool=fresh.length?fresh:emScenarios;
   // Exclude the scenario just shown so "New scenario" always actually changes
-  // it — otherwise a plain random pick can silently reselect the same one.
-  if(em_cur&&pool.length>1)pool=pool.filter(s=>s.id!==em_cur.id);
+  // it. If that empties the pool (e.g. the only unpracticed scenario left IS
+  // the one on screen), widen to the full list minus the current one instead
+  // of getting stuck reselecting it forever.
+  if(em_cur){
+    let filtered=pool.filter(s=>s.id!==em_cur.id);
+    if(!filtered.length)filtered=emScenarios.filter(s=>s.id!==em_cur.id);
+    if(filtered.length)pool=filtered;
+  }
   em_cur=pool[Math.floor(Math.random()*pool.length)];
   em_stepReset();
 }
@@ -7182,9 +7188,16 @@ function wr_pick(){
   if(!wrScenarios.length){wr_cur=null;return;}
   const fresh=wrScenarios.filter(s=>!wrProgress[s.id]);
   let pool=fresh.length?fresh:wrScenarios;
-  // Exclude the prompt just shown so "New prompt" always actually changes it —
-  // otherwise a plain random pick can silently reselect the same one.
-  if(wr_cur&&pool.length>1)pool=pool.filter(s=>s.id!==wr_cur.id);
+  // Exclude the prompt just shown so "New prompt" always actually changes it.
+  // If that empties the pool (e.g. the only unpracticed prompt left IS the
+  // one on screen — very possible for a returning user who's already worked
+  // through most of the set), widen to the full list minus the current one
+  // instead of getting stuck reselecting it forever.
+  if(wr_cur){
+    let filtered=pool.filter(s=>s.id!==wr_cur.id);
+    if(!filtered.length)filtered=wrScenarios.filter(s=>s.id!==wr_cur.id);
+    if(filtered.length)pool=filtered;
+  }
   wr_cur=pool[Math.floor(Math.random()*pool.length)];
   wr_stepReset();
 }
