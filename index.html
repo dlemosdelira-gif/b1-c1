@@ -841,9 +841,11 @@ textarea{min-height:120px}
         <span class="rtsep"></span>
         <button type="button" class="rtb" onmousedown="event.preventDefault();execRichCmd('removeFormat')" title="Clear formatting">⌫ Format</button>
       </div>
-      <div id="peuaNotesEditor" class="rteditor" contenteditable="true" data-ph="Write your notes — summary, vocabulary, key points…"></div>
+      <div id="peuaNotesEditor" class="rteditor" contenteditable="true" data-ph="Write your notes — summary, vocabulary, key points…" oninput="rtScheduleAutosave()"></div>
       <div class="fl g8" style="justify-content:flex-end;margin-top:14px">
-        <button class="btn bsm" onclick="closePeuaNotesModal()">Cancel</button>
+        <span id="rtSaveStatus" style="margin-right:auto;font-size:12px;color:#94A3B8"></span>
+        <button class="btn bsm" onclick="closePeuaNotesModal()">Close</button>
+        <button class="btn bsm" onclick="rtSaveNow()">💾 Save</button>
         <button class="btn bpr bsm" onclick="saveRtNote()">Save &amp; Close</button>
       </div>
     </div>
@@ -8499,11 +8501,36 @@ function sanitizeNoteHtml(html){
 // Toolbar handler. mousedown+preventDefault on the buttons keeps the editor's
 // selection, so execCommand applies to the right text.
 function execRichCmd(cmd){const ed=document.getElementById('peuaNotesEditor');if(ed)ed.focus();try{document.execCommand(cmd,false,null);}catch(e){}if(ed)ed.focus();}
-function closePeuaNotesModal(){const m=document.getElementById('peuaNotesModal');if(m)m.classList.add('hid');peuaNotesCtx=null;}
+// Autosave: debounced on every keystroke (rtScheduleAutosave, wired to the
+// editor's oninput), plus an explicit "Save" button (rtSaveNow) for anyone
+// who wants an immediate confirmation without waiting or closing the modal.
+// Both funnel through persistRtNote() so there is exactly one save path.
+let rtAutosaveTimer=null;
+function rtSetSaveStatus(state){
+  const el=document.getElementById('rtSaveStatus');if(!el)return;
+  el.textContent=state==='saving'?'Saving…':state==='saved'?'✓ Saved':'';
+}
+function rtScheduleAutosave(){
+  rtSetSaveStatus('saving');
+  clearTimeout(rtAutosaveTimer);
+  rtAutosaveTimer=setTimeout(()=>{rtAutosaveTimer=null;persistRtNote();rtSetSaveStatus('saved');},700);
+}
+function rtSaveNow(){
+  clearTimeout(rtAutosaveTimer);rtAutosaveTimer=null;
+  persistRtNote();
+  rtSetSaveStatus('saved');
+}
+function closePeuaNotesModal(){
+  if(rtAutosaveTimer){clearTimeout(rtAutosaveTimer);rtAutosaveTimer=null;persistRtNote();}
+  const m=document.getElementById('peuaNotesModal');if(m)m.classList.add('hid');
+  peuaNotesCtx=null;
+  rtSetSaveStatus('');
+}
 function openRtModal(title,html){
   const ed=document.getElementById('peuaNotesEditor');if(!ed)return;
   document.getElementById('peuaNotesTitle').textContent=title;
   ed.innerHTML=html||'';
+  rtSetSaveStatus('');
   document.getElementById('peuaNotesModal').classList.remove('hid');
   setTimeout(()=>{try{ed.focus();}catch(e){}},30);
 }
@@ -8512,37 +8539,37 @@ function openPeuaNotesModal(month,tid,taskText){
   const existing=(tid&&peuaNotes[peuaNoteKey(month,tid)])||'';
   openRtModal('📝 '+(taskText||'Task note'), existing?(isHtmlNote(existing)?sanitizeNoteHtml(existing):formatText(existing)):'');
 }
-function savePeuaNote(month,tid){
-  if(!tid){closePeuaNotesModal();return;}
-  const ed=document.getElementById('peuaNotesEditor');
-  const key=peuaNoteKey(month,tid);
-  const html=sanitizeNoteHtml(ed?ed.innerHTML:'');
-  const plain=ed?(ed.textContent||'').replace(/ /g,' ').trim():'';
-  if(plain){peuaNotes[key]=html;}else{delete peuaNotes[key];}
-  savePeuaNotes();
-  closePeuaNotesModal();
-  if(curTab==='peua')renderPeua();
-}
 function savePeuaNotes(){localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));fbSet(RPTN,Object.keys(peuaNotes).length?JSON.stringify(peuaNotes):null);}
 function openCycleNotesModal(cycleKey,label){
   peuaNotesCtx={type:'cycle',cycleKey:cycleKey};
   const existing=cycleNotes[cycleKey]||'';
   openRtModal('📝 '+(label||'Lesson notes'), existing?(isHtmlNote(existing)?sanitizeNoteHtml(existing):formatText(existing)):'');
 }
-function saveCycleNoteRich(cycleKey){
+// Persists the editor's current content to whichever store peuaNotesCtx
+// points at, without closing the modal -- autosave, the manual Save button,
+// and closing (which flushes any pending autosave first) all call this.
+function persistRtNote(){
+  if(!peuaNotesCtx)return;
   const ed=document.getElementById('peuaNotesEditor');
   const html=sanitizeNoteHtml(ed?ed.innerHTML:'');
-  const plain=ed?(ed.textContent||'').replace(/ /g,' ').trim():'';
-  if(plain){cycleNotes[cycleKey]=html;}else{delete cycleNotes[cycleKey];}
-  saveCycleNotes();
-  closePeuaNotesModal();
-  if(curTab==='prac')renderPrac();
+  const plain=ed?(ed.textContent||'').replace(/ /g,' ').trim():'';
+  if(peuaNotesCtx.type==='peua'){
+    if(!peuaNotesCtx.tid)return;
+    const key=peuaNoteKey(peuaNotesCtx.month,peuaNotesCtx.tid);
+    if(plain){peuaNotes[key]=html;}else{delete peuaNotes[key];}
+    savePeuaNotes();
+    if(curTab==='peua')renderPeua();
+  }else if(peuaNotesCtx.type==='cycle'){
+    if(plain){cycleNotes[peuaNotesCtx.cycleKey]=html;}else{delete cycleNotes[peuaNotesCtx.cycleKey];}
+    saveCycleNotes();
+    if(curTab==='prac')renderPrac();
+  }
 }
+// "Save & Close" button: flush immediately (bypassing the debounce) and close.
 function saveRtNote(){
-  if(!peuaNotesCtx){closePeuaNotesModal();return;}
-  if(peuaNotesCtx.type==='peua')savePeuaNote(peuaNotesCtx.month,peuaNotesCtx.tid);
-  else if(peuaNotesCtx.type==='cycle')saveCycleNoteRich(peuaNotesCtx.cycleKey);
-  else closePeuaNotesModal();
+  clearTimeout(rtAutosaveTimer);rtAutosaveTimer=null;
+  persistRtNote();
+  closePeuaNotesModal();
 }
 
 function savePeuaTaskEdit(){
