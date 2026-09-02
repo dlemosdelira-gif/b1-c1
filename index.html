@@ -6740,25 +6740,77 @@ function cw_delItem(id){
   cw_checked=false;cw_load();renderRev();
 }
 
-// ══ IMPORT / EXPORT (Build a Sentence + Complete the Words) ═══════════════════
-// JSON is lossless; CSV is a spreadsheet-friendly convenience. Both work per mode.
+// ══ IMPORT / EXPORT (all 5 non-comprehension task types) ══════════════════════
+// JSON is lossless; CSV is a spreadsheet-friendly convenience. IO_MODES keeps
+// each activity's shape/validation/storage plumbing in one place so adding a
+// new mode never means touching ex_exportJSON/ex_exportCSV/ex_importFile.
+function iv_groupedSets(){
+  const bySet={};
+  ivInterviews.forEach(it=>{if(!it||!it.set)return;(bySet[it.set]=bySet[it.set]||[]).push(it);});
+  return Object.keys(bySet).map(setId=>{
+    const items=bySet[setId].slice().sort((a,b)=>(a.order||0)-(b.order||0));
+    return {tag:items[0].tag,interviewer:items[0].interviewer,questions:items.map(x=>x.question)};
+  });
+}
+const IO_MODES={
+  bs:{label:'🧩 Build a Sentence',unit:'exercise',file:'build-a-sentence',
+    items:()=>bsItems,
+    clean:it=>({tag:it.tag,prompt:it.prompt,frame:it.frame,answer:it.answer||[],distract:it.distract||[]}),
+    csvHeader:['tag','prompt','frame','answer','distract'],
+    csvRow:it=>[it.tag,it.prompt,it.frame,(it.answer||[]).join(' / '),(it.distract||[]).join(' / ')],
+    csvParse:(idx,r)=>({tag:r[idx('tag')],prompt:r[idx('prompt')],frame:r[idx('frame')],answer:String(r[idx('answer')]||'').split('/').map(x=>x.trim()).filter(Boolean),distract:String(r[idx('distract')]||'').split('/').map(x=>x.trim()).filter(Boolean)}),
+    norm:io_normBS,
+    add:n=>{bsItems.push(n);},
+    afterImport:()=>{bs_normLower();bs_saveItems();if(curTab==='rev'){bs_checked=false;bs_load();}}},
+  cw:{label:'✏️ Complete the Words',unit:'exercise',file:'complete-the-words',
+    items:()=>cwItems,
+    clean:it=>({tag:it.tag,mode:it.mode,text:it.text,blanks:it.blanks||[]}),
+    csvHeader:['tag','mode','text','blanks'],
+    csvRow:it=>[it.tag,it.mode,it.text,JSON.stringify(it.blanks||[])],
+    csvParse:(idx,r)=>{let bl=[];try{bl=JSON.parse(r[idx('blanks')]);}catch(e){}return {tag:r[idx('tag')],mode:r[idx('mode')],text:r[idx('text')],blanks:bl};},
+    norm:io_normCW,
+    add:n=>{cwItems.push(n);},
+    afterImport:()=>{cw_saveItems();if(curTab==='rev'){cw_checked=false;cw_load();}}},
+  em:{label:'📧 Write an Email',unit:'scenario',file:'write-an-email',
+    items:()=>emScenarios,
+    clean:it=>({tag:it.tag,recipient:it.recipient,context:it.context,tasks:it.tasks||[]}),
+    csvHeader:['tag','recipient','context','tasks'],
+    csvRow:it=>[it.tag,it.recipient,it.context,(it.tasks||[]).join(' / ')],
+    csvParse:(idx,r)=>({tag:r[idx('tag')],recipient:r[idx('recipient')],context:r[idx('context')],tasks:String(r[idx('tasks')]||'').split('/').map(x=>x.trim()).filter(Boolean)}),
+    norm:io_normEM,
+    add:n=>{emScenarios.push(n);},
+    afterImport:()=>{em_saveScenarios();if(curTab==='rev'&&toeflActivity==='writing:email'){em_pick();em_renderScenario();}}},
+  wr:{label:'📝 Write for an Academic Discussion',unit:'prompt',file:'academic-discussion',
+    items:()=>wrScenarios,
+    clean:it=>({tag:it.tag,professorQuestion:it.professorQuestion,peer1:it.peer1,peer2:it.peer2}),
+    csvHeader:['tag','professorquestion','peer1name','peer1text','peer2name','peer2text'],
+    csvRow:it=>[it.tag,it.professorQuestion,it.peer1.name,it.peer1.text,it.peer2.name,it.peer2.text],
+    csvParse:(idx,r)=>({tag:r[idx('tag')],professorQuestion:r[idx('professorquestion')],peer1:{name:r[idx('peer1name')],text:r[idx('peer1text')]},peer2:{name:r[idx('peer2name')],text:r[idx('peer2text')]}}),
+    norm:io_normWR,
+    add:n=>{wrScenarios.push(n);},
+    afterImport:()=>{wr_saveScenarios();if(curTab==='rev'&&toeflActivity==='writing:discussion'){wr_pick();wr_renderScenario();}}},
+  iv:{label:'🎙️ Take an Interview',unit:'set',file:'take-an-interview',
+    items:()=>iv_groupedSets(),
+    clean:it=>it,
+    csvHeader:['tag','interviewer','q1','q2','q3','q4'],
+    csvRow:it=>[it.tag,it.interviewer,it.questions[0]||'',it.questions[1]||'',it.questions[2]||'',it.questions[3]||''],
+    csvParse:(idx,r)=>({tag:r[idx('tag')],interviewer:r[idx('interviewer')],questions:[r[idx('q1')],r[idx('q2')],r[idx('q3')],r[idx('q4')]]}),
+    norm:io_normIV,
+    add:arr=>{ivInterviews.push(...arr);},
+    afterImport:()=>{iv_saveInterviews();if(curTab==='rev'&&toeflActivity==='speaking:iv'){iv_shuffle();}}}
+};
 let io_mode='bs';
-function openIO(mode){io_mode=mode;const t=document.getElementById('ioTitle');if(t)t.textContent=(mode==='bs'?'🧩 Build a Sentence':'✏️ Complete the Words')+' — Import / Export';const h=document.getElementById('ioHint');if(h)h.textContent='';openM('mIO');}
-function io_items(){return io_mode==='bs'?bsItems:cwItems;}
+function openIO(mode){io_mode=mode;const t=document.getElementById('ioTitle');if(t)t.textContent=IO_MODES[mode].label+' — Import / Export';const h=document.getElementById('ioHint');if(h)h.textContent='';openM('mIO');}
 function ex_download(name,text,mime){
   const blob=new Blob([text],{type:mime||'text/plain'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();
   setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);
 }
-// Strip runtime-only fields; keep the authoring shape.
-function io_clean(it){
-  if(io_mode==='bs')return {tag:it.tag,prompt:it.prompt,frame:it.frame,answer:it.answer||[],distract:it.distract||[]};
-  return {tag:it.tag,mode:it.mode,text:it.text,blanks:it.blanks||[]};
-}
 function ex_exportJSON(){
-  const payload={kind:io_mode==='bs'?'build-a-sentence':'complete-the-words',version:1,items:io_items().map(io_clean)};
-  ex_download((io_mode==='bs'?'build-a-sentence':'complete-the-words')+'.json',JSON.stringify(payload,null,2),'application/json');
+  const m=IO_MODES[io_mode];
+  const payload={kind:m.file,version:1,items:m.items().map(m.clean)};
+  ex_download(m.file+'.json',JSON.stringify(payload,null,2),'application/json');
 }
 // ── CSV helpers ──
 function csvCell(s){s=String(s==null?'':s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
@@ -6777,18 +6829,12 @@ function parseCSV(text){
   return rows.filter(r=>r.length&&!(r.length===1&&r[0]===''));
 }
 function ex_exportCSV(){
-  let out='';
-  if(io_mode==='bs'){
-    out=csvRow(['tag','prompt','frame','answer','distract'])+'\n';
-    io_items().forEach(it=>{out+=csvRow([it.tag,it.prompt,it.frame,(it.answer||[]).join(' / '),(it.distract||[]).join(' / ')])+'\n';});
-    ex_download('build-a-sentence.csv',out,'text/csv');
-  }else{
-    out=csvRow(['tag','mode','text','blanks'])+'\n';
-    io_items().forEach(it=>{out+=csvRow([it.tag,it.mode,it.text,JSON.stringify(it.blanks||[])])+'\n';});
-    ex_download('complete-the-words.csv',out,'text/csv');
-  }
+  const m=IO_MODES[io_mode];
+  let out=csvRow(m.csvHeader)+'\n';
+  m.items().forEach(it=>{out+=csvRow(m.csvRow(it))+'\n';});
+  ex_download(m.file+'.csv',out,'text/csv');
 }
-// ── Validation → normalized item (or null) ──
+// ── Validation → normalized item(s) (or null) ──
 function io_normBS(o){
   if(!o||typeof o.frame!=='string'||typeof o.prompt!=='string')return null;
   const answer=Array.isArray(o.answer)?o.answer.map(x=>String(x)):[];
@@ -6815,8 +6861,31 @@ function io_normCW(o){
   for(const b of o.blanks){if(!b||typeof b.answer==='undefined')return null;if(mode==='mc'&&!(Array.isArray(b.options)&&b.options.length>=2))return null;}
   return {id:'cwu-'+uid(),tag:String(o.tag||'word-order'),mode,text:o.text,blanks:o.blanks,custom:true};
 }
+function io_normEM(o){
+  if(!o||typeof o.recipient!=='string'||typeof o.context!=='string')return null;
+  const tasks=Array.isArray(o.tasks)?o.tasks.map(x=>String(x)).filter(Boolean):[];
+  if(!o.recipient.trim()||!o.context.trim()||!tasks.length)return null;
+  return {id:'emu-'+uid(),tag:String(o.tag||'custom'),recipient:o.recipient,context:o.context,tasks};
+}
+function io_normWR(o){
+  if(!o||typeof o.professorQuestion!=='string'||!o.professorQuestion.trim())return null;
+  const p1=o.peer1||{},p2=o.peer2||{};
+  if(!p1.name||!p1.text||!p2.name||!p2.text)return null;
+  return {id:'wru-'+uid(),tag:String(o.tag||'custom'),professorQuestion:o.professorQuestion,peer1:{name:String(p1.name),text:String(p1.text)},peer2:{name:String(p2.name),text:String(p2.text)}};
+}
+// Unlike the other norm*() functions, one valid input here yields FOUR stored
+// ivInterviews items sharing a fresh set id (see IO_MODES.iv.add) — a whole
+// interview set, matching iv_saveNew()'s manual-add shape.
+function io_normIV(o){
+  if(!o||typeof o.interviewer!=='string'||!o.interviewer.trim())return null;
+  const questions=(Array.isArray(o.questions)?o.questions:[]).map(x=>String(x||'').trim()).filter(Boolean);
+  if(questions.length!==4)return null;
+  const tag=String(o.tag||'custom'),interviewer=o.interviewer,setId='ivu-'+uid();
+  return questions.map((question,i)=>({id:'ivu-'+uid(),set:setId,order:i+1,tag,interviewer,question}));
+}
 function ex_importFile(file){
   if(!file)return;
+  const m=IO_MODES[io_mode];
   const hint=document.getElementById('ioHint');
   const reader=new FileReader();
   reader.onload=()=>{
@@ -6830,20 +6899,14 @@ function ex_importFile(file){
         const rows=parseCSV(txt);if(!rows.length){hint.textContent='⚠️ Empty file.';return;}
         const header=rows[0].map(h=>h.trim().toLowerCase());const body=rows.slice(1);
         const idx=n=>header.indexOf(n);
-        if(io_mode==='bs'){
-          rawItems=body.map(r=>({tag:r[idx('tag')],prompt:r[idx('prompt')],frame:r[idx('frame')],answer:String(r[idx('answer')]||'').split('/').map(x=>x.trim()).filter(Boolean),distract:String(r[idx('distract')]||'').split('/').map(x=>x.trim()).filter(Boolean)}));
-        }else{
-          rawItems=body.map(r=>{let bl=[];try{bl=JSON.parse(r[idx('blanks')]);}catch(e){}return {tag:r[idx('tag')],mode:r[idx('mode')],text:r[idx('text')],blanks:bl};});
-        }
+        rawItems=body.map(r=>m.csvParse(idx,r));
       }
     }catch(e){hint.textContent='⚠️ Could not parse the file: '+(e.message||'invalid format');return;}
-    const norm=io_mode==='bs'?io_normBS:io_normCW;
     let added=0,skipped=0;
-    rawItems.forEach(o=>{const n=norm(o);if(n){io_items().push(n);added++;}else skipped++;});
-    if(io_mode==='bs'){bs_normLower();bs_saveItems();}else{cw_saveItems();}
-    hint.textContent='✅ Imported '+added+' exercise(s)'+(skipped?', skipped '+skipped+' invalid':'')+'.';
-    toast('✅ Imported '+added+' exercise(s)');
-    if(curTab==='rev'){if(io_mode==='bs'){bs_checked=false;bs_load();}else{cw_checked=false;cw_load();}renderRev();}
+    rawItems.forEach(o=>{const n=m.norm(o);if(n){m.add(n);added++;}else skipped++;});
+    m.afterImport();
+    hint.textContent='✅ Imported '+added+' '+m.unit+(added===1?'':'s')+(skipped?', skipped '+skipped+' invalid':'')+'.';
+    toast('✅ Imported '+added+' '+m.unit+(added===1?'':'s'));
   };
   reader.readAsText(file);
 }
@@ -6958,7 +7021,7 @@ function em_renderScenario(){
     h+='<ul style="margin:0 0 10px 20px;padding:0;font-size:14px;color:#0F172A;line-height:1.6">'+tasks+'</ul>';
   }
   h+='<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have '+EM_MINUTES+' minutes to complete this task. Write as much as you can in complete sentences.</div>'
-    +'<div class="fl g8"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button><button class="btn bte bsm" onclick="openEMAdd()">+ Add scenario</button></div>'
+    +'<div class="fl g8"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button><button class="btn bte bsm" onclick="openEMAdd()">+ Add scenario</button><button class="btn bsm" onclick="openIO(\'em\')" title="Import / export">⇅</button></div>'
     +'</div>';
   if(em_stepMode)h+=em_stepFormHTML();
   box.innerHTML=h;
@@ -7278,7 +7341,7 @@ function wr_renderScenario(){
     +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:8px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer1.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer1.text)+'</span></div>'
     +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:10px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer2.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer2.text)+'</span></div>'
     +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have 10 minutes and should write 100-130 words. State your position clearly and respond to at least one classmate.</div>'
-    +'<div class="fl g8"><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button><button class="btn bte bsm" onclick="openWRAdd()">+ Add prompt</button></div>'
+    +'<div class="fl g8"><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button><button class="btn bte bsm" onclick="openWRAdd()">+ Add prompt</button><button class="btn bsm" onclick="openIO(\'wr\')" title="Import / export">⇅</button></div>'
     +'</div>';
   if(wr_stepMode)h+=wr_stepFormHTML();
   box.innerHTML=h;
@@ -8017,6 +8080,7 @@ function iv_renderScenario(){
     +'<button class="btn bpr bsm" id="ivPlayBtn" onclick="iv_play()">🔊 Play question</button>'
     +'<button class="btn bsm" onclick="iv_shuffle()">⏭️ Next question</button>'
     +'<button class="btn bte bsm" onclick="openIVAdd()">+ Add set</button>'
+    +'<button class="btn bsm" onclick="openIO(\'iv\')" title="Import / export">⇅</button>'
     +'</div>'
     +'</div>';
 }
