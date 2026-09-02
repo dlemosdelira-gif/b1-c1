@@ -789,6 +789,63 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mEMAdd" onclick="if(event.target===this)closeM('mEMAdd')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">📧 Add Email Scenario</div><button class="btn bsm" onclick="closeM('mEMAdd')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Recipient *</label><input type="text" id="emAddRecipient" placeholder="e.g. the international office"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Context / situation *</label><textarea id="emAddContext" style="min-height:100px" placeholder="You recently attended an online workshop about studying abroad…"></textarea></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Tasks — one per line, typically 3 *</label><textarea id="emAddTasks" style="min-height:80px" placeholder="Thank them for organizing the workshop.&#10;Explain that you did not receive the materials.&#10;Ask them to send the files or tell you how to access them."></textarea></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Tag (optional)</label><input type="text" id="emAddTag" placeholder="e.g. complaint, apology, request-info"></div>
+      <div id="emAddHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mEMAdd')">Cancel</button>
+        <button class="btn bpr bsm" onclick="em_saveNew()">Save Scenario</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mWRAdd" onclick="if(event.target===this)closeM('mWRAdd')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">📝 Add Academic Discussion Prompt</div><button class="btn bsm" onclick="closeM('mWRAdd')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Professor's question *</label><textarea id="wrAddQuestion" style="min-height:90px" placeholder="Some universities now require students to complete a mandatory internship…"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Peer 1 name *</label><input type="text" id="wrAddP1Name" placeholder="e.g. Marina"></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Peer 1 response *</label><input type="text" id="wrAddP1Text" placeholder="I think mandatory internships are a great idea…"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Peer 2 name *</label><input type="text" id="wrAddP2Name" placeholder="e.g. Diego"></div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Peer 2 response *</label><input type="text" id="wrAddP2Text" placeholder="I disagree with Marina…"></div>
+      </div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Tag (optional)</label><input type="text" id="wrAddTag" placeholder="e.g. education, technology, environment"></div>
+      <div id="wrAddHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mWRAdd')">Cancel</button>
+        <button class="btn bpr bsm" onclick="wr_saveNew()">Save Prompt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mIVAdd" onclick="if(event.target===this)closeM('mIVAdd')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">🎙️ Add Interview Set</div><button class="btn bsm" onclick="closeM('mIVAdd')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Topic / tag *</label><input type="text" id="ivAddTopic" placeholder="e.g. campus-life"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Interviewer role *</label><input type="text" id="ivAddInterviewer" placeholder="e.g. A campus researcher"></div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Questions — one per line, exactly 4 *</label><textarea id="ivAddQuestions" style="min-height:120px" placeholder="How do you usually spend your free time between classes?&#10;What has been your favorite way to meet new people since you started here?&#10;Do you think your university does enough to help new students make friends?&#10;If you could change one thing about campus social life, what would it be?"></textarea>
+        <div style="font-size:13px;color:#94A3B8;margin-top:4px">Paste the 4 questions, one per line, from simplest to most demanding (matches the real test's within-set difficulty ramp).</div></div>
+      <div id="ivAddHint" style="font-size:14px;color:#DC2626;min-height:18px"></div>
+      <div class="fl g8" style="justify-content:flex-end">
+        <button class="btn bsm" onclick="closeM('mIVAdd')">Cancel</button>
+        <button class="btn bpr bsm" onclick="iv_saveNew()">Save Interview Set</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mWrChecklist" onclick="if(event.target===this)closeM('mWrChecklist')">
   <div class="modal" style="max-width:480px">
     <div class="mhdr"><div class="mtit">✅ Checklist before submitting</div><button class="btn bsm" onclick="closeM('mWrChecklist')">✕</button></div>
@@ -6901,12 +6958,31 @@ function em_renderScenario(){
     h+='<ul style="margin:0 0 10px 20px;padding:0;font-size:14px;color:#0F172A;line-height:1.6">'+tasks+'</ul>';
   }
   h+='<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have '+EM_MINUTES+' minutes to complete this task. Write as much as you can in complete sentences.</div>'
-    +'<div><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button></div>'
+    +'<div class="fl g8"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button><button class="btn bte bsm" onclick="openEMAdd()">+ Add scenario</button></div>'
     +'</div>';
   if(em_stepMode)h+=em_stepFormHTML();
   box.innerHTML=h;
 }
 function em_shuffle(){em_pick();em_renderScenario();if(em_stepMode)em_syncStepText();}
+function openEMAdd(){
+  ['emAddRecipient','emAddContext','emAddTasks','emAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('emAddHint').textContent='';
+  openM('mEMAdd');
+}
+function em_saveNew(){
+  const recipient=document.getElementById('emAddRecipient').value.trim();
+  const context=document.getElementById('emAddContext').value.trim();
+  const tasks=document.getElementById('emAddTasks').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const tag=document.getElementById('emAddTag').value.trim()||'custom';
+  const hint=document.getElementById('emAddHint');
+  if(!recipient||!context||!tasks.length){hint.textContent='⚠️ Fill in the recipient, the context and at least one task.';return;}
+  const item={id:'emu-'+uid(),tag,recipient,context,tasks};
+  emScenarios.push(item);
+  em_saveScenarios();
+  closeM('mEMAdd');
+  toast('✅ Scenario added!');
+  if(toeflActivity==='writing:email'){em_cur=item;em_stepReset();em_renderScenario();}
+}
 // Passo 0 is explicitly non-graded and never sent anywhere — pure in-memory
 // scratch space, reset with every new scenario/step-mode entry.
 function em_stepReset(){
@@ -7202,12 +7278,33 @@ function wr_renderScenario(){
     +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:8px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer1.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer1.text)+'</span></div>'
     +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:10px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer2.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer2.text)+'</span></div>'
     +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have 10 minutes and should write 100-130 words. State your position clearly and respond to at least one classmate.</div>'
-    +'<div><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button></div>'
+    +'<div class="fl g8"><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button><button class="btn bte bsm" onclick="openWRAdd()">+ Add prompt</button></div>'
     +'</div>';
   if(wr_stepMode)h+=wr_stepFormHTML();
   box.innerHTML=h;
 }
 function wr_shuffle(){wr_pick();wr_renderScenario();if(wr_stepMode)wr_syncStepText();}
+function openWRAdd(){
+  ['wrAddQuestion','wrAddP1Name','wrAddP1Text','wrAddP2Name','wrAddP2Text','wrAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('wrAddHint').textContent='';
+  openM('mWRAdd');
+}
+function wr_saveNew(){
+  const professorQuestion=document.getElementById('wrAddQuestion').value.trim();
+  const p1Name=document.getElementById('wrAddP1Name').value.trim();
+  const p1Text=document.getElementById('wrAddP1Text').value.trim();
+  const p2Name=document.getElementById('wrAddP2Name').value.trim();
+  const p2Text=document.getElementById('wrAddP2Text').value.trim();
+  const tag=document.getElementById('wrAddTag').value.trim()||'custom';
+  const hint=document.getElementById('wrAddHint');
+  if(!professorQuestion||!p1Name||!p1Text||!p2Name||!p2Text){hint.textContent='⚠️ Fill in the professor\'s question and both peers\' names and responses.';return;}
+  const item={id:'wru-'+uid(),tag,professorQuestion,peer1:{name:p1Name,text:p1Text},peer2:{name:p2Name,text:p2Text}};
+  wrScenarios.push(item);
+  wr_saveScenarios();
+  closeM('mWRAdd');
+  toast('✅ Prompt added!');
+  if(toeflActivity==='writing:discussion'){wr_cur=item;wr_stepReset();wr_renderScenario();}
+}
 // Passo 0 is explicitly non-graded and never sent anywhere — pure in-memory
 // scratch space, reset with every new scenario/step-mode entry.
 function wr_stepReset(){
@@ -7919,10 +8016,31 @@ function iv_renderScenario(){
     +'<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
     +'<button class="btn bpr bsm" id="ivPlayBtn" onclick="iv_play()">🔊 Play question</button>'
     +'<button class="btn bsm" onclick="iv_shuffle()">⏭️ Next question</button>'
+    +'<button class="btn bte bsm" onclick="openIVAdd()">+ Add set</button>'
     +'</div>'
     +'</div>';
 }
 function iv_shuffle(){iv_pick(iv_cur?iv_cur.id:null);iv_renderScenario();}
+function openIVAdd(){
+  ['ivAddTopic','ivAddInterviewer','ivAddQuestions'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ivAddHint').textContent='';
+  openM('mIVAdd');
+}
+function iv_saveNew(){
+  const topic=document.getElementById('ivAddTopic').value.trim();
+  const interviewer=document.getElementById('ivAddInterviewer').value.trim();
+  const questions=document.getElementById('ivAddQuestions').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const hint=document.getElementById('ivAddHint');
+  if(!topic||!interviewer){hint.textContent='⚠️ Enter a topic/tag and the interviewer role.';return;}
+  if(questions.length!==4){hint.textContent='⚠️ You entered '+questions.length+' question(s) — enter exactly 4, one per line.';return;}
+  const setId='ivu-'+uid();
+  const items=questions.map((question,i)=>({id:'ivu-'+uid(),set:setId,order:i+1,tag:topic,interviewer,question}));
+  ivInterviews.push(...items);
+  iv_saveInterviews();
+  closeM('mIVAdd');
+  toast('✅ Interview set added (4 questions)!');
+  if(toeflActivity==='speaking:iv'){iv_cur=items[0];iv_renderScenario();}
+}
 function iv_play(){
   if(!iv_cur)return;
   const b=document.getElementById('ivPlayBtn');if(b)b.textContent='🔊 Play again';
