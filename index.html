@@ -587,6 +587,10 @@ textarea{min-height:120px}
         <div style="font-size:14px;color:#475569;font-weight:600">Summarizing with Gemini…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
       </div>
+      <div id="recapRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div id="recapRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
+        <button class="btn bpr bsm" onclick="recap_retryGemini()">🔄 Try Gemini again</button>
+      </div>
       <div class="mstep" id="recapStep1"><div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Send this prompt to Claude:</div>
@@ -2134,6 +2138,7 @@ function recap_openSummaryModal(week){
   document.getElementById('recapPromptBox').textContent=recapCurPrompt;
   document.getElementById('recapSummaryIn').value=recapSummaries[weekKey]||'';
   document.getElementById('recapCpbdg').classList.remove('on');
+  document.getElementById('recapRetryBox').classList.add('hid');
   recap_showLoading(false);
   openM('mRecapSummary');
   if(ai_hasKey()){recap_showLoading(true);recap_autoSummarize(weekKey,recapCurPrompt);}
@@ -2153,9 +2158,17 @@ async function recap_autoSummarize(weekKey,prompt){
     toast('🧠 Summary generated!');
     if(curTab==='prac')renderPrac();
   }catch(e){
-    toast('⚠️ Gemini failed ('+e.message+') — switched to manual mode');
+    toast('⚠️ Gemini failed ('+e.message+') — retry or use the manual flow below');
     recap_showLoading(false);
+    const box=document.getElementById('recapRetryBox');
+    if(box){box.classList.remove('hid');document.getElementById('recapRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
   }
+}
+function recap_retryGemini(){
+  if(!recapCurWeekKey||!recapCurPrompt)return;
+  document.getElementById('recapRetryBox').classList.add('hid');
+  recap_showLoading(true);
+  recap_autoSummarize(recapCurWeekKey,recapCurPrompt);
 }
 function recap_copyPrompt(){
   navigator.clipboard.writeText(recapCurPrompt).then(()=>document.getElementById('recapCpbdg').classList.add('on'));
