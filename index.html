@@ -521,6 +521,10 @@ textarea{min-height:120px}
         <div style="font-size:14px;color:#475569;font-weight:600">Grading with Gemini…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
       </div>
+      <div id="aiRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div id="aiRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
+        <button class="btn bpr bsm" onclick="ai_retryGemini()">🔄 Try Gemini again</button>
+      </div>
       <div class="mstep" id="aiStep1"><div class="mnum">1</div>
         <div style="width:100%">
           <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:2px">Your text was copied. Send this prompt to Claude:</div>
@@ -618,6 +622,10 @@ textarea{min-height:120px}
         <div style="font-size:32px;margin-bottom:10px">➕</div>
         <div style="font-size:14px;color:#475569;font-weight:600">Generating with Gemini…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
+      </div>
+      <div id="rqGenRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div id="rqGenRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
+        <button class="btn bpr bsm" onclick="rq_retryGemini()">🔄 Try Gemini again</button>
       </div>
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
@@ -3104,6 +3112,17 @@ function updMic(){
 function ai_getKey(){try{return localStorage.getItem('c1geminiKey')||'';}catch(e){return'';}}
 function ai_getModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-3.6-flash';}catch(e){return'gemini-3.6-flash';}}
 function ai_hasKey(){return!!ai_getKey();}
+function ai_sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+// Most "Gemini failed" reports turn out to be one of three transient causes —
+// none of which meant the request was actually bad, they just needed one
+// more try: the free-tier rate limit (429, easy to hit doing several
+// exercises back-to-back), a momentary "model overloaded" (503) or
+// server-side hiccup (500), or a dropped connection. A genuinely bad
+// request (400 malformed prompt, 401/403 bad key, 404 unknown model) fails
+// identically every time, so those are NOT retried — retrying them would
+// just burn the user's quota for no benefit. Up to 2 retries, short
+// exponential backoff (900ms, 1800ms) — enough to ride out a rate-limit
+// window without making the user wait long on a real failure.
 async function gemini_call(prompt,opts){
   opts=opts||{};
   const key=ai_getKey();
@@ -3111,21 +3130,38 @@ async function gemini_call(prompt,opts){
   const model=ai_getModel();
   const body={contents:[{parts:[{text:prompt}]}]};
   if(opts.json)body.generationConfig={responseMimeType:'application/json'};
-  let res;
-  try{
-    res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key),{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
-    });
-  }catch(e){throw new Error('Network error reaching Gemini: '+e.message);}
-  if(!res.ok){
-    let msg=res.status+' '+res.statusText;
-    try{const errJson=await res.json();if(errJson&&errJson.error&&errJson.error.message)msg=errJson.error.message;}catch(e){}
-    throw new Error(msg);
+  const maxAttempts=3;
+  for(let attempt=1;attempt<=maxAttempts;attempt++){
+    const isLastAttempt=attempt===maxAttempts;
+    let res;
+    try{
+      res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key),{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+      });
+    }catch(e){
+      if(!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      throw new Error('Network error reaching Gemini: '+e.message);
+    }
+    if(!res.ok){
+      let msg=res.status+' '+res.statusText;
+      try{const errJson=await res.json();if(errJson&&errJson.error&&errJson.error.message)msg=errJson.error.message;}catch(e){}
+      const transient=res.status===429||res.status===500||res.status===503;
+      if(transient&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      throw new Error(msg);
+    }
+    const data=await res.json();
+    const cand=data&&data.candidates&&data.candidates[0];
+    const text=cand&&cand.content&&cand.content.parts&&cand.content.parts[0]&&cand.content.parts[0].text;
+    if(!text){
+      // finishReason like MAX_TOKENS or SAFETY explains a genuinely empty
+      // response that a retry can't fix; no reason at all is more likely a
+      // fluke worth one more attempt.
+      const finishReason=cand&&cand.finishReason;
+      if(!finishReason&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      throw new Error(finishReason?('Gemini stopped early ('+finishReason+')'):'Empty response from Gemini');
+    }
+    return text;
   }
-  const data=await res.json();
-  const text=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
-  if(!text)throw new Error('Empty response from Gemini');
-  return text;
 }
 
 // ── GEMINI TTS (optional, natural voices for Listening/Speaking audio) ─────
@@ -3414,6 +3450,7 @@ function openAIModal(mode){
   document.getElementById('bridgeTaskLabel').textContent=bridge_getTaskLabel(curMode);
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
+  document.getElementById('aiRetryBox').classList.add('hid');
   ai_showLoading(false);
   // Mark the relevant scenario/sentence/question as practiced now; capture
   // the score later in processJSON once the pasted analysis comes back.
@@ -3454,7 +3491,12 @@ function ai_showLoading(on){
   if(s1)s1.classList.toggle('hid',on);
   if(s2)s2.classList.toggle('hid',on);
 }
+// Kept so "🔄 Try Gemini again" can resubmit the exact same prompt without
+// the caller (openAIModal/dsc drill/emd drill — all three share this one
+// grading path) having to re-derive it from scratch.
+let ai_lastPrompt='';
 async function ai_autoGrade(fp){
+  ai_lastPrompt=fp;
   try{
     const text=await gemini_call(fp,{json:true});
     let r;
@@ -3463,9 +3505,17 @@ async function ai_autoGrade(fp){
     closeM('mAI');
     ai_finishProcessing(r);
   }catch(e){
-    toast('⚠️ Gemini failed ('+e.message+') — switched to manual mode');
+    toast('⚠️ Gemini failed ('+e.message+') — retry or use the manual flow below');
     ai_showLoading(false);
+    const box=document.getElementById('aiRetryBox');
+    if(box){box.classList.remove('hid');document.getElementById('aiRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
   }
+}
+function ai_retryGemini(){
+  if(!ai_lastPrompt)return;
+  document.getElementById('aiRetryBox').classList.add('hid');
+  ai_showLoading(true);
+  ai_autoGrade(ai_lastPrompt);
 }
 function copyPrompt(){
   const fp=ai_overridePrompt||buildPrompt(curMode,document.getElementById('rtxt').value.trim());
@@ -5620,6 +5670,7 @@ function dsc_submit(){
   document.getElementById('bridgeTaskLabel').textContent='Academic Discussion — '+DSC_SKILLS[dsc_skill].label+' drill';
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
+  document.getElementById('aiRetryBox').classList.add('hid');
   ai_showLoading(false);
   closeM('mDscDrill');
   openM('mAI');
@@ -5754,6 +5805,7 @@ function emd_submit(){
   document.getElementById('bridgeTaskLabel').textContent='Write an Email — '+EMD_SKILLS[emd_skill].label+' drill';
   document.getElementById('jsonin').value='';
   document.getElementById('cpbdg').classList.remove('on');
+  document.getElementById('aiRetryBox').classList.add('hid');
   ai_showLoading(false);
   closeM('mDscDrill');
   openM('mAI');
@@ -6341,6 +6393,7 @@ function rq_openGenModal(key){
   document.getElementById('rqGenStep2').style.display='none';
   document.getElementById('rqGenIn').value='';
   document.getElementById('rqGenCpbdg').classList.remove('on');
+  document.getElementById('rqGenRetryBox').classList.add('hid');
   rq_genShowLoading(false);
   openM('mRQGen');
 }
@@ -6367,11 +6420,19 @@ async function rq_autoGenerate(prompt){
     const text=await gemini_call(prompt,{json:true});
     rq_genFinish(text);
   }catch(e){
-    toast('⚠️ Gemini failed ('+e.message+') — switched to manual mode');
+    toast('⚠️ Gemini failed ('+e.message+') — retry or use the manual flow below');
     rq_genShowLoading(false);
     document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
     document.getElementById('rqGenStep2').style.display='block';
+    const box=document.getElementById('rqGenRetryBox');
+    if(box){box.classList.remove('hid');document.getElementById('rqGenRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
   }
+}
+function rq_retryGemini(){
+  if(!rqGenCurPrompt)return;
+  document.getElementById('rqGenRetryBox').classList.add('hid');
+  rq_genShowLoading(true);
+  rq_autoGenerate(rqGenCurPrompt);
 }
 function rq_genCopyPrompt(){
   navigator.clipboard.writeText(rqGenCurPrompt).then(()=>document.getElementById('rqGenCpbdg').classList.add('on'));
