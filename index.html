@@ -3339,7 +3339,21 @@ function chunks_kind(){
 // filtered+relocated (see chunks_blockHTML below).
 const CHUNKS_BLOCK_GROUPS={
   email:{opening:['Opening'],body:['Requests','Apologies & bad news','Proposing solutions','Confirmations & thanks'],closing:['Closing']},
-  discussion:{opening:['Agreeing','Disagreeing','Partial agreement','Referencing a classmate'],body:['Developing your argument','Anticipating a counterargument','Transition connectors'],closing:['Closing']}
+  discussion:{opening:['Nuanced opening'],body:['Developing your argument','Addressing the other view'],closing:['Closing with conviction']}
+};
+// Which of email's 4 Body groups actually apply to each scenario tag (see
+// EM_SEED) — the Body block otherwise always pools all 4 regardless of the
+// email actually being written, which is most of why it used to run 25+
+// phrases deep. Falls back to the full email.body list (chunks_blockHTML)
+// for tags not listed here, e.g. a custom scenario added via the Email
+// import/manual-add flow with a tag that isn't one of the 6 built-in ones.
+const EM_TAG_BODY_GROUPS={
+  'request-info':['Requests'],
+  'complaint':['Requests','Proposing solutions'],
+  'apology':['Apologies & bad news'],
+  'invitation-response':['Confirmations & thanks','Apologies & bad news'],
+  'feedback':['Proposing solutions'],
+  'follow-up':['Requests','Confirmations & thanks']
 };
 const CHUNKS_BLOCK_LABEL={opening:'Opening',body:'Body',closing:'Closing'};
 // Each rhetorical-move group is its own collapsible sub-section, closed by
@@ -3385,7 +3399,7 @@ function chunks_registerHintHTML(kind){
       ? 'This email is to someone you know — informal/neutral phrasing shown.'
       : 'This email calls for a formal tone — formal/neutral phrasing shown.';
   }
-  if(kind==='discussion')return 'Academic Discussion favors a neutral, semi-formal tone — formal/neutral phrasing shown.';
+  if(kind==='discussion')return 'Academic Discussion favors a neutral, semi-formal tone. Use these as starters, not verbatim templates — memorized "empty" language is penalized.';
   return '';
 }
 // Single collapsible "Useful Phrases — <Block>" panel scoped to one
@@ -3397,34 +3411,51 @@ function chunks_registerHintHTML(kind){
 // register doesn't fit the current scenario are filtered out entirely
 // (chunks_allowedRegisters) — except phrases also tagged 'critical', which
 // always show since they resolve a Band-0 structural risk regardless of tone.
+// Shown expanded, directly under the block it applies to — no click-to-
+// reveal step. This used to collapse by default and group phrases under
+// Formal/Neutral sub-headers, both of which cost time you don't have while
+// writing against the clock; now that each block's phrase list is short and
+// curated (a handful of starters, not a long bank), one flat list with an
+// inline register tag per phrase is faster to scan than expand-then-parse.
 function chunks_blockHTML(kind,blockKey){
-  const titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
+  let titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
+  if(kind==='email'&&blockKey==='body'&&em_cur&&EM_TAG_BODY_GROUPS[em_cur.tag]){
+    titles=EM_TAG_BODY_GROUPS[em_cur.tag];
+  }
   if(!titles||!titles.length)return '';
   const allowed=chunks_allowedRegisters(kind);
-  const byRegister={formal:[],neutral:[],informal:[]};
+  const items=[];
   (CHUNKS[kind]||[]).filter(g=>titles.includes(g.title)).forEach(g=>g.phrases.forEach(p=>{
     const text=typeof p==='string'?p:p.t;
     const regs=(typeof p==='string'?[]:(p.r||[]));
     const registerKey=regs.find(r=>r!=='critical')||'neutral';
     const critical=regs.includes('critical');
     if(allowed&&!allowed.includes(registerKey)&&!critical)return;
-    if(!byRegister[registerKey])byRegister[registerKey]=[];
-    byRegister[registerKey].push({text,critical});
+    items.push({text,registerKey,critical});
   }));
-  const body=['formal','neutral','informal'].filter(r=>byRegister[r]&&byRegister[r].length).map(r=>{
-    const label=CHUNKS_TAG_LABEL[r].charAt(0).toUpperCase()+CHUNKS_TAG_LABEL[r].slice(1);
-    return '<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">'+esc(label)+'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:6px">'
-      +byRegister[r].map(p=>'<div style="padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;background:#fff;font-size:14px;line-height:1.4">'+esc(p.text)+(p.critical?'<span class="tag '+CHUNKS_TAG_CLASS.critical+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+CHUNKS_TAG_LABEL.critical+'</span>':'')+'</div>').join('')
-      +'</div></div>';
-  }).join('');
+  if(!items.length)return '';
   const hint=chunks_registerHintHTML(kind);
+  const body=items.map(p=>'<div style="padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;background:#fff;font-size:14px;line-height:1.4">'+esc(p.text)
+    +'<span class="tag '+CHUNKS_TAG_CLASS[p.registerKey]+'" style="font-size:11px;padding:2px 7px;margin-left:6px">'+esc(CHUNKS_TAG_LABEL[p.registerKey])+'</span>'
+    +(p.critical?'<span class="tag '+CHUNKS_TAG_CLASS.critical+'" style="font-size:11px;padding:2px 7px;margin-left:4px">'+esc(CHUNKS_TAG_LABEL.critical)+'</span>':'')
+    +'</div>').join('');
+  const hintHTML=hint?'<div style="font-size:12px;color:#94A3B8;font-style:italic;margin-bottom:10px">'+esc(hint)+'</div>':'';
+  // A short, curated list (Academic Discussion's new phrase bank included)
+  // is faster to just show than to make the writer click to reveal — but a
+  // long bank (Email's Body list, unchanged here) left expanded would bury
+  // the block's own textarea in scroll, so those still open on click.
+  const SHORT_LIST_MAX=8;
+  if(items.length<=SHORT_LIST_MAX){
+    return '<div class="card" style="margin-top:10px;background:#FFFBEB;border-color:#FCD34D">'
+      +'<div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:8px">💡 Useful Phrases — '+esc(CHUNKS_BLOCK_LABEL[blockKey]||'')+'</div>'
+      +hintHTML+'<div style="display:flex;flex-direction:column;gap:6px">'+body+'</div>'
+      +'</div>';
+  }
   return '<div class="card" style="margin-top:10px;background:#FFFBEB;border-color:#FCD34D">'
     +'<div class="ctit" style="cursor:pointer;justify-content:space-between;margin-bottom:0" onclick="bridge_toggleModelAnswer(this)">'
     +'<span>💡 Useful Phrases — '+esc(CHUNKS_BLOCK_LABEL[blockKey]||'')+'</span><span class="mdlArrow" style="font-size:12px">▸</span></div>'
-    +'<div class="mdlBody hid" style="margin-top:10px">'
-    +(hint?'<div style="font-size:12px;color:#94A3B8;font-style:italic;margin-bottom:10px">'+esc(hint)+'</div>':'')
-    +body+'</div>'
+    +'<div class="mdlBody hid" style="margin-top:10px">'+hintHTML
+    +'<div style="display:flex;flex-direction:column;gap:6px">'+body+'</div></div>'
     +'</div>';
 }
 // Renders the panel collapsed (matching bridge_modelAnswerHTML's "Exemplo 5/5"
@@ -4314,149 +4345,86 @@ const CHUNKS_LABEL={email:'💡 Useful Phrases — Email',discussion:'💡 Usefu
 const CHUNKS_TAG_CLASS={formal:'tbl',neutral:'tgr',informal:'tpu',critical:'trd'};
 const CHUNKS_TAG_LABEL={formal:'formal',neutral:'neutral',informal:'informal',critical:'critical'};
 const CHUNKS={
+  // Trimmed to a handful of sharp options per group instead of a long bank —
+  // same "fewer, better" optimization applied to Academic Discussion below,
+  // plus body phrases are now filtered by the scenario's own tag
+  // (EM_TAG_BODY_GROUPS) rather than always pooling all 4 body groups, so
+  // the panel only ever shows phrases relevant to the email actually being
+  // written (a request-info scenario doesn't need apology phrasing, etc.).
   email:[
     {title:'Opening',phrases:[
       {t:'I am writing to inform you that...',r:['formal']},
-      {t:'I am writing in regard to...',r:['formal']},
-      {t:'I am writing to request...',r:['formal']},
       {t:'I am reaching out because...',r:['neutral']},
-      {t:'This is to confirm that...',r:['neutral']},
-      {t:'I hope this email finds you well. I am writing to...',r:['formal']},
       {t:'Further to our previous conversation, I would like to...',r:['formal']},
-      {t:'I am contacting you with regard to...',r:['formal']},
       {t:"Hope you're doing well! Just wanted to let you know that...",r:['informal']},
-      {t:'Quick note to say that...',r:['informal']},
-      {t:'So, I wanted to reach out about...',r:['informal']}
+      {t:'Quick note to say that...',r:['informal']}
     ]},
     {title:'Requests',phrases:[
       {t:'I would appreciate it if you could...',r:['formal']},
-      {t:'Could you please provide/confirm/send...',r:['neutral']},
-      {t:'I was wondering whether you might be able to...',r:['neutral']},
       {t:'Would it be possible to...',r:['neutral']},
-      {t:'I would be grateful if you could...',r:['formal']},
-      {t:'Do you think it would be possible for you to...',r:['formal']},
-      {t:'I would like to ask if you could kindly...',r:['formal']},
-      {t:'Please let me know at your earliest convenience whether...',r:['formal']},
       {t:'Any chance you could...?',r:['informal']},
-      {t:'Could you do me a favor and...?',r:['informal']},
-      {t:'Mind sending me...?',r:['informal']}
+      {t:'Could you do me a favor and...?',r:['informal']}
     ]},
     {title:'Apologies & bad news',phrases:[
-      {t:'I apologize for any inconvenience this may have caused.',r:['formal']},
-      {t:'I am sorry for the delay in responding.',r:['neutral']},
-      {t:'Unfortunately, due to [reason], I am unable to...',r:['neutral']},
       {t:'I regret to inform you that...',r:['formal']},
-      {t:'I sincerely apologize for the misunderstanding regarding...',r:['formal']},
+      {t:'Unfortunately, due to [reason], I am unable to...',r:['neutral']},
       {t:'Please accept my apologies for missing...',r:['formal','critical']},
-      {t:'I am afraid I will not be able to attend...',r:['neutral']},
-      {t:'Due to an unforeseen circumstance, I must reschedule...',r:['formal']},
-      {t:'Sorry, my bad — I totally forgot to...',r:['informal']},
-      {t:'Ugh, sorry about that, I meant to...',r:['informal']},
-      {t:"Bad news — I can't make it to...",r:['informal']}
+      {t:"Bad news — I can't make it to...",r:['informal']},
+      {t:'Sorry, my bad — I totally forgot to...',r:['informal']}
     ]},
     {title:'Proposing solutions',phrases:[
       {t:'As an alternative, I suggest that we...',r:['formal']},
-      {t:'Would it work better if we...',r:['neutral']},
       {t:'One option would be to...',r:['neutral']},
-      {t:'To resolve this, I propose...',r:['formal']},
-      {t:'If this is not possible, perhaps we could instead...',r:['neutral']},
       {t:'What if we just...?',r:['informal']},
       {t:'Maybe we could try...instead?',r:['informal']}
     ]},
     {title:'Confirmations & thanks',phrases:[
       {t:'Thank you for your patience regarding this matter.',r:['formal']},
-      {t:'I appreciate you taking the time to...',r:['neutral']},
-      {t:'Please let me know if you need any further information.',r:['neutral']},
-      {t:'Thank you for bringing this to my attention.',r:['formal']},
-      {t:'I can confirm that everything is in order.',r:['neutral']},
       {t:'I would like to confirm your presence at...',r:['formal','critical']},
-      {t:'Thanks so much, this really helped!',r:['informal']},
+      {t:'Please let me know if you need any further information.',r:['neutral']},
       {t:"Sounds good, I'll be there!",r:['informal']},
       {t:"Just to confirm, we're still on for...?",r:['informal']}
     ]},
     {title:'Closing',phrases:[
       {t:'I look forward to hearing from you.',r:['formal']},
       {t:'Please do not hesitate to contact me if you have any questions.',r:['formal']},
-      {t:'Thank you in advance for your assistance.',r:['formal']},
-      {t:'Should you need any further clarification, feel free to reach out.',r:['formal']},
-      {t:'I look forward to your reply.',r:['neutral']},
       {t:'Best regards, / Kind regards, / Sincerely,',r:['formal']},
       {t:'Let me know what you think!',r:['informal']},
-      {t:'Talk soon! / Catch you later,',r:['informal']},
-      {t:'Cheers, / Thanks again,',r:['informal']}
+      {t:'Talk soon! / Catch you later,',r:['informal']}
     ]}
   ],
+  // Calibrated to the TOEFL iBT 5.0/5 (100/100) rubric for this task, not the
+  // 4.0 one: a concessive, position-taking opening rather than a flat
+  // agree/disagree statement; argument development that explains the
+  // *mechanism* behind a reason instead of just naming it; a direct
+  // refutation of the other student's view rather than a soft hedge; and a
+  // confident, synthesized close. Kept deliberately short (a handful of
+  // starters per block, formal/neutral register only — informal doesn't fit
+  // a 5.0 response) since a long list to scan mid-write works against the
+  // "write fast" use case more than it helps; these are sentence starters to
+  // build your own sentence from, not fill-in templates (memorized template
+  // language is explicitly penalized by the rubric).
   discussion:[
-    {title:'Agreeing',phrases:[
-      {t:"I agree with [Name]'s point that..., because...",r:['formal','critical']},
-      {t:"I completely agree with [Name]'s view on...",r:['neutral']},
-      {t:'[Name] makes a strong point when saying that...',r:['neutral']},
-      {t:"I share [Name]'s opinion that...",r:['formal']},
-      {t:'Yeah, I think [Name] is totally right that...',r:['informal']},
-      {t:"Honestly, I'm with [Name] on this one, because...",r:['informal']}
-    ]},
-    {title:'Disagreeing',phrases:[
-      {t:"I disagree with [Name]'s view, since...",r:['formal','critical']},
-      {t:'Contrary to what [Name] argues, I believe that...',r:['formal']},
-      {t:'I see this differently from [Name], because...',r:['neutral']},
-      {t:"I am not entirely convinced by [Name]'s argument that...",r:['neutral']},
-      {t:"I don't really see it the way [Name] does, because...",r:['informal']},
-      {t:"Honestly, I'd push back on [Name]'s point, since...",r:['informal']}
-    ]},
-    {title:'Partial agreement',phrases:[
-      {t:'While [Name] raises a valid point, I believe that...',r:['formal']},
-      {t:'I partly agree with [Name], but I would add that...',r:['neutral']},
-      {t:"Although [Name]'s reasoning makes sense, I think...",r:['neutral']},
-      {t:'[Name] is right in saying..., however I would argue that...',r:['formal']},
-      {t:"[Name]'s got a point, but I'd say there's more to it, like...",r:['informal']}
-    ]},
-    {title:'Referencing a classmate',phrases:[
-      {t:'Building on what [Name] said,...',r:['neutral']},
-      {t:"Similar to [Name]'s example,...",r:['neutral']},
-      {t:'Unlike [Name], I think...',r:['neutral']},
-      {t:'As [Name] mentioned,...',r:['formal']},
-      {t:"Adding to [Name]'s idea,...",r:['neutral']},
-      {t:"Going back to [Name]'s comment about..., I would like to point out that...",r:['formal']},
-      {t:'Like [Name] said,...',r:['informal']},
-      {t:"Piggybacking on [Name]'s idea,...",r:['informal']}
+    {title:'Nuanced opening',phrases:[
+      {t:'While [Name] raises a valid point about..., I am more inclined to think that...',r:['formal','critical']},
+      {t:'I agree with [Name] that..., though I would also argue that...',r:['neutral','critical']},
+      {t:'Contrary to what [Name] suggests, I believe that..., since...',r:['formal']},
+      {t:"Building on [Name]'s point, I would add that...",r:['neutral']}
     ]},
     {title:'Developing your argument',phrases:[
-      {t:'This is mainly because...',r:['neutral']},
-      {t:'For instance,...',r:['neutral']},
-      {t:'One key reason is that...',r:['neutral']},
-      {t:'This can be illustrated by...',r:['formal']},
-      {t:'A clear example of this is...',r:['neutral']},
-      {t:'This matters because it directly affects...',r:['neutral']},
-      {t:'In practice, this means that...',r:['neutral']},
-      {t:'Basically, what happens is...',r:['informal']},
-      {t:'Like, take [example] — that shows exactly what I mean.',r:['informal']}
+      {t:'Beyond [surface reason], [deeper reason] also plays a significant role.',r:['formal']},
+      {t:'This matters because it directly shapes...',r:['neutral']},
+      {t:'Because..., [students/people] are compelled to...',r:['formal']},
+      {t:'A clear example of this is..., which shows that...',r:['neutral']}
     ]},
-    {title:'Anticipating a counterargument',phrases:[
-      {t:'Some might argue that..., but...',r:['neutral']},
-      {t:'It could be said that..., however...',r:['formal']},
-      {t:'Even though there are exceptions,...',r:['neutral']},
-      {t:'While there may be some truth to that,...',r:['neutral']},
-      {t:'Sure, that can happen sometimes, but usually...',r:['informal']}
+    {title:'Addressing the other view',phrases:[
+      {t:"I do not fully agree with [Name]'s point that..., as...",r:['formal','critical']},
+      {t:'While that may be true in some cases, it overlooks...',r:['neutral']},
+      {t:"[Name]'s concern is understandable, but in practice...",r:['neutral']}
     ]},
-    {title:'Transition connectors',phrases:[
-      {t:'In addition to this,...',r:['formal']},
-      {t:'On the other hand,...',r:['neutral']},
-      {t:'As a result,...',r:['neutral']},
-      {t:'Furthermore,...',r:['formal']},
-      {t:'Moreover,...',r:['formal']},
-      {t:'That said,...',r:['neutral']},
-      {t:'Consequently,...',r:['formal']},
-      {t:'In this sense,...',r:['neutral']},
-      {t:'Also,...',r:['informal']},
-      {t:'Plus,...',r:['informal']},
-      {t:'Anyway,...',r:['informal']}
-    ]},
-    {title:'Closing',phrases:[
-      {t:'Overall, I believe...',r:['neutral']},
-      {t:'For these reasons,...',r:['formal']},
-      {t:'Taking everything into account,...',r:['formal']},
-      {t:"In short, [Name]'s point and mine both suggest that...",r:['neutral']},
-      {t:"So yeah, that's basically why I think...",r:['informal']}
+    {title:'Closing with conviction',phrases:[
+      {t:'Ultimately, ... outweigh(s) ...',r:['formal']},
+      {t:'Taking both perspectives into account, I still believe that..., because...',r:['neutral']}
     ]}
   ],
   interview:[
