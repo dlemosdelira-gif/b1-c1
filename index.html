@@ -3341,6 +3341,20 @@ const CHUNKS_BLOCK_GROUPS={
   email:{opening:['Opening'],body:['Requests','Apologies & bad news','Proposing solutions','Confirmations & thanks'],closing:['Closing']},
   discussion:{opening:['Nuanced opening'],body:['Developing your argument','Addressing the other view'],closing:['Closing with conviction']}
 };
+// Which of email's 4 Body groups actually apply to each scenario tag (see
+// EM_SEED) — the Body block otherwise always pools all 4 regardless of the
+// email actually being written, which is most of why it used to run 25+
+// phrases deep. Falls back to the full email.body list (chunks_blockHTML)
+// for tags not listed here, e.g. a custom scenario added via the Email
+// import/manual-add flow with a tag that isn't one of the 6 built-in ones.
+const EM_TAG_BODY_GROUPS={
+  'request-info':['Requests'],
+  'complaint':['Requests','Proposing solutions'],
+  'apology':['Apologies & bad news'],
+  'invitation-response':['Confirmations & thanks','Apologies & bad news'],
+  'feedback':['Proposing solutions'],
+  'follow-up':['Requests','Confirmations & thanks']
+};
 const CHUNKS_BLOCK_LABEL={opening:'Opening',body:'Body',closing:'Closing'};
 // Each rhetorical-move group is its own collapsible sub-section, closed by
 // default like the outer panel — reference-only browsing (no click-to-insert:
@@ -3404,7 +3418,10 @@ function chunks_registerHintHTML(kind){
 // curated (a handful of starters, not a long bank), one flat list with an
 // inline register tag per phrase is faster to scan than expand-then-parse.
 function chunks_blockHTML(kind,blockKey){
-  const titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
+  let titles=(CHUNKS_BLOCK_GROUPS[kind]||{})[blockKey];
+  if(kind==='email'&&blockKey==='body'&&em_cur&&EM_TAG_BODY_GROUPS[em_cur.tag]){
+    titles=EM_TAG_BODY_GROUPS[em_cur.tag];
+  }
   if(!titles||!titles.length)return '';
   const allowed=chunks_allowedRegisters(kind);
   const items=[];
@@ -4328,76 +4345,52 @@ const CHUNKS_LABEL={email:'💡 Useful Phrases — Email',discussion:'💡 Usefu
 const CHUNKS_TAG_CLASS={formal:'tbl',neutral:'tgr',informal:'tpu',critical:'trd'};
 const CHUNKS_TAG_LABEL={formal:'formal',neutral:'neutral',informal:'informal',critical:'critical'};
 const CHUNKS={
+  // Trimmed to a handful of sharp options per group instead of a long bank —
+  // same "fewer, better" optimization applied to Academic Discussion below,
+  // plus body phrases are now filtered by the scenario's own tag
+  // (EM_TAG_BODY_GROUPS) rather than always pooling all 4 body groups, so
+  // the panel only ever shows phrases relevant to the email actually being
+  // written (a request-info scenario doesn't need apology phrasing, etc.).
   email:[
     {title:'Opening',phrases:[
       {t:'I am writing to inform you that...',r:['formal']},
-      {t:'I am writing in regard to...',r:['formal']},
-      {t:'I am writing to request...',r:['formal']},
       {t:'I am reaching out because...',r:['neutral']},
-      {t:'This is to confirm that...',r:['neutral']},
-      {t:'I hope this email finds you well. I am writing to...',r:['formal']},
       {t:'Further to our previous conversation, I would like to...',r:['formal']},
-      {t:'I am contacting you with regard to...',r:['formal']},
       {t:"Hope you're doing well! Just wanted to let you know that...",r:['informal']},
-      {t:'Quick note to say that...',r:['informal']},
-      {t:'So, I wanted to reach out about...',r:['informal']}
+      {t:'Quick note to say that...',r:['informal']}
     ]},
     {title:'Requests',phrases:[
       {t:'I would appreciate it if you could...',r:['formal']},
-      {t:'Could you please provide/confirm/send...',r:['neutral']},
-      {t:'I was wondering whether you might be able to...',r:['neutral']},
       {t:'Would it be possible to...',r:['neutral']},
-      {t:'I would be grateful if you could...',r:['formal']},
-      {t:'Do you think it would be possible for you to...',r:['formal']},
-      {t:'I would like to ask if you could kindly...',r:['formal']},
-      {t:'Please let me know at your earliest convenience whether...',r:['formal']},
       {t:'Any chance you could...?',r:['informal']},
-      {t:'Could you do me a favor and...?',r:['informal']},
-      {t:'Mind sending me...?',r:['informal']}
+      {t:'Could you do me a favor and...?',r:['informal']}
     ]},
     {title:'Apologies & bad news',phrases:[
-      {t:'I apologize for any inconvenience this may have caused.',r:['formal']},
-      {t:'I am sorry for the delay in responding.',r:['neutral']},
-      {t:'Unfortunately, due to [reason], I am unable to...',r:['neutral']},
       {t:'I regret to inform you that...',r:['formal']},
-      {t:'I sincerely apologize for the misunderstanding regarding...',r:['formal']},
+      {t:'Unfortunately, due to [reason], I am unable to...',r:['neutral']},
       {t:'Please accept my apologies for missing...',r:['formal','critical']},
-      {t:'I am afraid I will not be able to attend...',r:['neutral']},
-      {t:'Due to an unforeseen circumstance, I must reschedule...',r:['formal']},
-      {t:'Sorry, my bad — I totally forgot to...',r:['informal']},
-      {t:'Ugh, sorry about that, I meant to...',r:['informal']},
-      {t:"Bad news — I can't make it to...",r:['informal']}
+      {t:"Bad news — I can't make it to...",r:['informal']},
+      {t:'Sorry, my bad — I totally forgot to...',r:['informal']}
     ]},
     {title:'Proposing solutions',phrases:[
       {t:'As an alternative, I suggest that we...',r:['formal']},
-      {t:'Would it work better if we...',r:['neutral']},
       {t:'One option would be to...',r:['neutral']},
-      {t:'To resolve this, I propose...',r:['formal']},
-      {t:'If this is not possible, perhaps we could instead...',r:['neutral']},
       {t:'What if we just...?',r:['informal']},
       {t:'Maybe we could try...instead?',r:['informal']}
     ]},
     {title:'Confirmations & thanks',phrases:[
       {t:'Thank you for your patience regarding this matter.',r:['formal']},
-      {t:'I appreciate you taking the time to...',r:['neutral']},
-      {t:'Please let me know if you need any further information.',r:['neutral']},
-      {t:'Thank you for bringing this to my attention.',r:['formal']},
-      {t:'I can confirm that everything is in order.',r:['neutral']},
       {t:'I would like to confirm your presence at...',r:['formal','critical']},
-      {t:'Thanks so much, this really helped!',r:['informal']},
+      {t:'Please let me know if you need any further information.',r:['neutral']},
       {t:"Sounds good, I'll be there!",r:['informal']},
       {t:"Just to confirm, we're still on for...?",r:['informal']}
     ]},
     {title:'Closing',phrases:[
       {t:'I look forward to hearing from you.',r:['formal']},
       {t:'Please do not hesitate to contact me if you have any questions.',r:['formal']},
-      {t:'Thank you in advance for your assistance.',r:['formal']},
-      {t:'Should you need any further clarification, feel free to reach out.',r:['formal']},
-      {t:'I look forward to your reply.',r:['neutral']},
       {t:'Best regards, / Kind regards, / Sincerely,',r:['formal']},
       {t:'Let me know what you think!',r:['informal']},
-      {t:'Talk soon! / Catch you later,',r:['informal']},
-      {t:'Cheers, / Thanks again,',r:['informal']}
+      {t:'Talk soon! / Catch you later,',r:['informal']}
     ]}
   ],
   // Calibrated to the TOEFL iBT 5.0/5 (100/100) rubric for this task, not the
