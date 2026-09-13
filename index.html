@@ -6884,17 +6884,34 @@ function io_normCW(o){
   for(const b of o.blanks){if(!b||typeof b.answer==='undefined')return null;if(mode==='mc'&&!(Array.isArray(b.options)&&b.options.length>=2))return null;}
   return {id:'cwu-'+uid(),tag:String(o.tag||'word-order'),mode,text:o.text,blanks:o.blanks,custom:true};
 }
+// Also accepts the richer export shape some outside sources (other TOEFL
+// prep tools/courses) use instead of this app's own minimal one: `to`
+// instead of `recipient`, `instructions` instead of `tasks`. `tips` and
+// `useful_chunks` in that shape have no home in this app's item schema
+// (there's no per-item tips/chunks slot) and are intentionally dropped —
+// the Useful Phrases panel is a shared, curated bank, not per-scenario.
 function io_normEM(o){
-  if(!o||typeof o.recipient!=='string'||typeof o.context!=='string')return null;
-  const tasks=Array.isArray(o.tasks)?o.tasks.map(x=>String(x)).filter(Boolean):[];
-  if(!o.recipient.trim()||!o.context.trim()||!tasks.length)return null;
-  return {id:'emu-'+uid(),tag:String(o.tag||'custom'),recipient:o.recipient,context:o.context,tasks};
+  if(!o)return null;
+  const recipient=typeof o.recipient==='string'?o.recipient:(typeof o.to==='string'?o.to:'');
+  const context=typeof o.context==='string'?o.context:'';
+  if(!recipient.trim()||!context.trim())return null;
+  const tasks=(Array.isArray(o.tasks)?o.tasks:(Array.isArray(o.instructions)?o.instructions:[])).map(x=>String(x)).filter(Boolean);
+  if(!tasks.length)return null;
+  return {id:'emu-'+uid(),tag:String(o.tag||'custom'),recipient,context,tasks};
 }
+// Same idea for the richer Academic Discussion shape: `professor.prompt`
+// instead of `professorQuestion`, a `classmates` array instead of separate
+// `peer1`/`peer2` objects (first two entries become peer1/peer2 — the item
+// schema only ever shows two peers).
 function io_normWR(o){
-  if(!o||typeof o.professorQuestion!=='string'||!o.professorQuestion.trim())return null;
-  const p1=o.peer1||{},p2=o.peer2||{};
+  if(!o)return null;
+  const professorQuestion=typeof o.professorQuestion==='string'?o.professorQuestion:(o.professor&&typeof o.professor.prompt==='string'?o.professor.prompt:'');
+  if(!professorQuestion.trim())return null;
+  const classmates=Array.isArray(o.classmates)?o.classmates:null;
+  const p1=o.peer1||(classmates&&classmates[0]?{name:classmates[0].name,text:classmates[0].post}:{});
+  const p2=o.peer2||(classmates&&classmates[1]?{name:classmates[1].name,text:classmates[1].post}:{});
   if(!p1.name||!p1.text||!p2.name||!p2.text)return null;
-  return {id:'wru-'+uid(),tag:String(o.tag||'custom'),professorQuestion:o.professorQuestion,peer1:{name:String(p1.name),text:String(p1.text)},peer2:{name:String(p2.name),text:String(p2.text)}};
+  return {id:'wru-'+uid(),tag:String(o.tag||'custom'),professorQuestion,peer1:{name:String(p1.name),text:String(p1.text)},peer2:{name:String(p2.name),text:String(p2.text)}};
 }
 // Unlike the other norm*() functions, one valid input here yields FOUR stored
 // ivInterviews items sharing a fresh set id (see IO_MODES.iv.add) — a whole
