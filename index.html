@@ -3867,6 +3867,9 @@ function renderCardsStudy(){
   if(dv.length===0){c.innerHTML=ctrls+'<div class="card empty"><div class="etit">No cards match this filter</div><div class="esub">'+(revCfg.mode==='topic'&&!revCfg.topic?'Select a topic above.':'Try a different filter or add cards with this topic.')+'</div></div>';return;}
   if(flashIdx>=dv.length)flashIdx=0;
   const card=dv[flashIdx];
+  // stopPropagation so tapping it opens the edit modal instead of flipping
+  // the card underneath it (the whole .fcard is one big onclick="flipCard()").
+  const editBtn='<button onclick="event.stopPropagation();openEdit(\''+card.id+'\')" title="Edit card" aria-label="Edit card" style="position:absolute;top:10px;right:10px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:6px;cursor:pointer;padding:5px 6px;display:flex;align-items:center;z-index:2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
   let dots='<div class="pdots">';
   dv.forEach((_,i)=>dots+='<div class="pdot2'+(i<flashIdx?' dn':i===flashIdx?' cu':'')+'"></div>');
   dots+='</div>';
@@ -3878,10 +3881,10 @@ function renderCardsStudy(){
   let ch='';
   try{
     if(!flipped){
-      ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
+      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }else{
-      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+(card.note?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+formatText(card.note)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+(card.note?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+formatText(card.note)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
         +gradeBtns
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
@@ -3889,10 +3892,10 @@ function renderCardsStudy(){
     console.error('renderCardsStudy card error:',err,card);
     const sFront=esc(card&&card.simple),sBack=esc(card&&card.c1),sEx=esc(card&&card.example),sNote=esc(card&&card.note);
     if(!flipped){
-      ch='<div class="fcard" onclick="flipCard()"><div class="fhint">Front</div><div class="fword">'+sFront+'</div><div class="ftap">Tap to reveal →</div></div>'
+      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint">Front</div><div class="fword">'+sFront+'</div><div class="ftap">Tap to reveal →</div></div>'
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }else{
-      ch='<div class="fcard" onclick="flipCard()"><div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+(sNote?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+sNote+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div></div>'
+      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+(sNote?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+sNote+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div></div>'
         +gradeBtns
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
