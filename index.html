@@ -1254,11 +1254,9 @@ try{mode45=localStorage.getItem('c145mode')==='1';}catch(e){mode45=false;}
 // threading a new mode through buildPrompt()'s #rtxt-based dispatch.
 let dsc_lastId=null,ai_overridePrompt=null,microdrill_family=null;
 let em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
-let em_stepPlan={purpose:'',details:'',ask:''};
 let em_promptChecked={};
 let em_lastStepBlocks=null; // snapshot at submit time, for block-of-error lookup
 let wr_stepBlocks={bridge:'',claim:'',reason1:'',reason2:'',closing:''};
-let wr_stepPlan={side:'',reasons:'',examples:''};
 let wr_stepPeer=null;
 let wr_lastStepBlocks=null;
 let sp_cur=null,sp_lastId=null,sp_played=false;
@@ -7086,22 +7084,12 @@ function em_saveNew(){
   toast('✅ Scenario added!');
   if(toeflActivity==='writing:email'){em_cur=item;em_stepReset();em_renderScenario();}
 }
-// Passo 0 is explicitly non-graded and never sent anywhere — pure in-memory
-// scratch space, reset with every new scenario/step-mode entry.
 function em_stepReset(){
   em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
-  em_stepPlan={purpose:'',details:'',ask:''};
   em_promptChecked={};
 }
 function em_stepFormHTML(){
-  return '<div style="border:1px dashed #CBD5E1;background:#F8FAFC;border-radius:10px;padding:12px;margin-top:10px">'
-    +'<div class="ctit" style="color:#64748B">📋 Step 0 — Planning (optional, not graded)</div>'
-    +'<div style="display:flex;flex-direction:column;gap:8px">'
-    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Purpose</label><input type="text" value="'+esc(em_stepPlan.purpose)+'" oninput="em_onPlanInput(\'purpose\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
-    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Key details</label><input type="text" value="'+esc(em_stepPlan.details)+'" oninput="em_onPlanInput(\'details\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
-    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Ask / next step</label><input type="text" value="'+esc(em_stepPlan.ask)+'" oninput="em_onPlanInput(\'ask\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
-    +'</div></div>'
-    +'<div class="card" style="margin-top:10px">'
+  return '<div class="card" style="margin-top:10px">'
     +'<div class="ctit">✉️ Block 1 — Opening</div>'
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Cordial greeting + introduce the purpose</div>'
     +'<textarea oninput="em_onBlockInput(\'opening\',this.value)" style="min-height:60px;color:#0F172A">'+esc(em_stepBlocks.opening)+'</textarea>'
@@ -7123,7 +7111,6 @@ function em_stepFormHTML(){
     +'</div>'
     +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Set aside ~1 min to review grammar, tone, and coverage before submitting.</div>';
 }
-function em_onPlanInput(key,val){em_stepPlan[key]=val;}
 function em_togglePromptCheck(i){em_promptChecked[i]=!em_promptChecked[i];}
 function em_onBlockInput(key,val){em_stepBlocks[key]=val;em_syncStepText();}
 // Concatenates the WRITING blocks only (never the Passo 0 planning fields)
@@ -7408,24 +7395,14 @@ function wr_saveNew(){
   toast('✅ Prompt added!');
   if(toeflActivity==='writing:discussion'){wr_cur=item;wr_stepReset();wr_renderScenario();}
 }
-// Passo 0 is explicitly non-graded and never sent anywhere — pure in-memory
-// scratch space, reset with every new scenario/step-mode entry.
 function wr_stepReset(){
   wr_stepBlocks={bridge:'',claim:'',reason1:'',reason2:'',closing:''};
-  wr_stepPlan={side:'',reasons:'',examples:''};
   wr_stepPeer=null;
 }
 function wr_stepFormHTML(){
   const peer1=wr_cur.peer1.name,peer2=wr_cur.peer2.name;
   const pillStyle=function(sel){return 'padding:7px 14px;border-radius:999px;border:1px solid '+(sel?'#B91C1C':'#DDE3F5')+';background:'+(sel?'#FEE2E2':'#fff')+';color:'+(sel?'#B91C1C':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif';};
-  return '<div style="border:1px dashed #CBD5E1;background:#F8FAFC;border-radius:10px;padding:12px;margin-top:10px">'
-    +'<div class="ctit" style="color:#64748B">📋 Step 0 — Planning (optional, not graded)</div>'
-    +'<div style="display:flex;flex-direction:column;gap:8px">'
-    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Side</label><input type="text" value="'+esc(wr_stepPlan.side)+'" oninput="wr_onPlanInput(\'side\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
-    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Reason(s)</label><input type="text" value="'+esc(wr_stepPlan.reasons)+'" oninput="wr_onPlanInput(\'reasons\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
-    +'<div><label style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">Example(s)</label><input type="text" value="'+esc(wr_stepPlan.examples)+'" oninput="wr_onPlanInput(\'examples\',this.value)" style="width:100%;padding:7px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:\'DM Sans\',sans-serif;color:#0F172A"></div>'
-    +'</div></div>'
-    +'<div class="card" style="margin-top:10px;background:#FEF2F2;border-color:#FECACA">'
+  return '<div class="card" style="margin-top:10px;background:#FEF2F2;border-color:#FECACA">'
     +'<div class="ctit" style="color:#B91C1C">🚨 Block 1 — Opening (critical point — Band-0 risk)</div>'
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:6px">Responding to: <span style="color:#DC2626;font-weight:600">required</span></div>'
     +'<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
@@ -7454,7 +7431,6 @@ function wr_stepFormHTML(){
     +'</div>'
     +'<div style="font-size:12.5px;color:#94A3B8;text-align:center;margin-top:10px">🔎 Set aside time to review your sentences and fix obvious mistakes before submitting.</div>';
 }
-function wr_onPlanInput(key,val){wr_stepPlan[key]=val;}
 function wr_selectPeer(name){
   wr_stepPeer=name;
   if(!wr_stepBlocks.claim||!wr_stepBlocks.claim.trim())wr_stepBlocks.claim="Responding to "+name+"'s point, ";
