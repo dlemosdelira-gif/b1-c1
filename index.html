@@ -5146,6 +5146,27 @@ function session_exit(){
   session_renderBadge();
   renderRev();
 }
+// Called from the exercise engines' own "Next →" handlers (bs_next/cw_next/
+// rq_next) instead of their normal same-type reload whenever a session is
+// active: the real exam moves through a section's task types in sequence
+// (e.g. Reading: Complete the Words → Read in Daily Life → Read an Academic
+// Passage), one item of each, not an open-ended pool of one type — so
+// finishing the current item during a session should hand off to the next
+// activity in SESSION_SECTIONS, not surface another item of the same kind.
+// Returns true once it has taken over navigation (caller should stop there).
+function session_advanceToNextActivity(){
+  if(!session_active||session_locked)return false;
+  const sec=SESSION_SECTIONS[session_section];if(!sec)return false;
+  const idx=sec.activities.indexOf(toeflActivity);
+  if(idx===-1||idx>=sec.activities.length-1){
+    const accSummary=session_attempted?(' — '+Math.round(session_correct/session_attempted*100)+'% correct on '+session_attempted+' item'+(session_attempted===1?'':'s')):'';
+    toast('🎉 '+sec.label+' session complete'+accSummary);
+    session_exit();
+    return true;
+  }
+  toeflShow(sec.activities[idx+1]);
+  return true;
+}
 function session_tick(){
   if(!session_active||!session_deadline)return;
   const remain=Math.max(0,Math.round((session_deadline-Date.now())/1000));
@@ -6120,7 +6141,10 @@ function bs_check(){
   if(session_active){session_attempted++;if(correct)session_correct++;}
   renderRev();
 }
-function bs_next(force){bs_load();if(force&&!bs_cur){const items=bs_filteredItems();if(items.length)bs_setup(items[Math.floor(Math.random()*items.length)]);}renderRev();}
+function bs_next(force){
+  if(!force&&session_advanceToNextActivity())return;
+  bs_load();if(force&&!bs_cur){const items=bs_filteredItems();if(items.length)bs_setup(items[Math.floor(Math.random()*items.length)]);}renderRev();
+}
 // Grammar tags offered in the add-exercise form (plus free "custom" entry).
 const BS_TAGS=['relative-clauses','embedded-questions','conjunctions','comparatives','conditionals','passive-voice','reported-speech','prepositions','present-perfect','gerund-after-preposition','infinitive-after-modal','subject-verb-agreement','articles','word-order'];
 function openBSAdd(){
@@ -6335,7 +6359,10 @@ function cw_checkPartial(){
   toast('⏱ Time is up — graded '+answeredIdx.length+'/'+blanks.length+' answered blank'+(blanks.length===1?'':'s'));
   renderRev();
 }
-function cw_next(force){cw_load();if(force&&!cw_cur&&cwItems.length){cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];toefl_itemStart('complete');}renderRev();}
+function cw_next(force){
+  if(!force&&session_advanceToNextActivity())return;
+  cw_load();if(force&&!cw_cur&&cwItems.length){cw_cur=cwItems[Math.floor(Math.random()*cwItems.length)];toefl_itemStart('complete');}renderRev();
+}
 
 // ── READING/LISTENING COMPREHENSION ENGINE ──────────────────────────────────
 // Shared multiple-choice engine for Read in Daily Life, Read an Academic Passage,
@@ -6482,6 +6509,7 @@ function rq_load(key){
   if(rq_cur[key])toefl_itemStart(key);
 }
 function rq_next(key,force){
+  if(!force&&session_advanceToNextActivity())return;
   rq_load(key);
   if(force&&!rq_cur[key]&&rq_items(key).length){
     const items=rq_items(key);
