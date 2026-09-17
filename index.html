@@ -6664,10 +6664,13 @@ function rq_toolbar(key){
   const items=rq_items(key),noun=RQ_NOUN[key]||'item';
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' '+noun+(items.length===1?'':'s')+'</span>'
-    +'<button onclick="rq_openGenModal(\''+key+'\')" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">➕ Generate from text</button></div>';
+    +'<div class="fl g8">'
+    +'<button onclick="rq_openGenModal(\''+key+'\')" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">➕ Generate from text</button>'
+    +(IO_MODES[key]?'<button class="btn bsm" onclick="openIO(\''+key+'\')" title="Import / export">⇅</button>':'')
+    +'</div></div>';
 }
 // Type pill label text — displayed uppercase via CSS, so plain words suffice.
-const RQ_TYPE_LABEL={factual:'Factual',vocabulary:'Vocabulary',reference:'Reference',inference:'Inference','rhetorical-purpose':'Rhetorical Purpose','insert-text':'Insert Text'};
+const RQ_TYPE_LABEL={factual:'Factual',vocabulary:'Vocabulary',reference:'Reference',inference:'Inference','rhetorical-purpose':'Rhetorical Purpose','insert-text':'Insert Text','negative-factual':'Negative Factual','sentence-simplification':'Sentence Simplification','select-the-sentence':'Select the Sentence'};
 // Turns a paragraph containing [A]/[B]/[C]/[D] tokens into that same text with
 // each token replaced by a clickable marker button — the rest of the text is
 // escaped normally, the tokens become trusted button HTML we build ourselves.
@@ -6846,7 +6849,25 @@ const IO_MODES={
     csvParse:(idx,r)=>({tag:r[idx('tag')],interviewer:r[idx('interviewer')],questions:[r[idx('q1')],r[idx('q2')],r[idx('q3')],r[idx('q4')]]}),
     norm:io_normIV,
     add:arr=>{ivInterviews.push(...arr);},
-    afterImport:()=>{iv_saveInterviews();if(curTab==='rev'&&toeflActivity==='speaking:iv'){iv_shuffle();}}}
+    afterImport:()=>{iv_saveInterviews();if(curTab==='rev'&&toeflActivity==='speaking:iv'){iv_shuffle();}}},
+  rd:{label:'📰 Read in Daily Life',unit:'passage',file:'read-in-daily-life',
+    items:()=>rq_items('rd'),
+    clean:io_cleanRQ,
+    csvHeader:['tag','text','questions'],
+    csvRow:it=>[it.tag,it.text,JSON.stringify(it.questions)],
+    csvParse:(idx,r)=>{let qs=[];try{qs=JSON.parse(r[idx('questions')]);}catch(e){}return {tag:r[idx('tag')],text:r[idx('text')],questions:qs};},
+    norm:io_normRQ,
+    add:n=>{rq_items('rd').push(n);},
+    afterImport:()=>{rq_saveItems();if(curTab==='rev'&&toeflActivity==='rd'){rq_checked.rd=false;rq_load('rd');}}},
+  ra:{label:'📖 Read an Academic Passage',unit:'passage',file:'read-an-academic-passage',
+    items:()=>rq_items('ra'),
+    clean:io_cleanRQ,
+    csvHeader:['tag','text','questions'],
+    csvRow:it=>[it.tag,it.text,JSON.stringify(it.questions)],
+    csvParse:(idx,r)=>{let qs=[];try{qs=JSON.parse(r[idx('questions')]);}catch(e){}return {tag:r[idx('tag')],text:r[idx('text')],questions:qs};},
+    norm:io_normRQ,
+    add:n=>{rq_items('ra').push(n);},
+    afterImport:()=>{rq_saveItems();if(curTab==='rev'&&toeflActivity==='ra'){rq_checked.ra=false;rq_load('ra');}}}
 };
 let io_mode='bs';
 function openIO(mode){io_mode=mode;const t=document.getElementById('ioTitle');if(t)t.textContent=IO_MODES[mode].label+' — Import / Export';const h=document.getElementById('ioHint');if(h)h.textContent='';openM('mIO');}
@@ -6948,6 +6969,48 @@ function io_normIV(o){
   if(questions.length!==4)return null;
   const tag=String(o.tag||'custom'),interviewer=o.interviewer,setId='ivu-'+uid();
   return questions.map((question,i)=>({id:'ivu-'+uid(),set:setId,order:i+1,tag,interviewer,question}));
+}
+function io_cleanRQ(it){return {tag:it.tag,text:it.text,questions:it.questions.map(q=>({q:q.q,choices:q.choices,correct:q.correct,type:q.type,explanation:q.explanation}))};}
+// Read in Daily Life / Read an Academic Passage share one native shape:
+// {tag,text,questions:[{q,choices,correct,type?,explanation?}]}. Also accepts
+// an alternate per-question shape seen in outside prep-tool exports — one
+// entry per question, the passage folded into "text" behind a bracketed
+// header ("[Passage — Title]"/"[Instructions]"/"[Email]") and a trailing
+// "[Question — Label] ... ___" marker, with the choices/answer under
+// "blanks":[{answer,options}] instead of "questions":[{q,choices,correct}].
+// Each such entry becomes its own single-question item (no attempt to merge
+// entries that share a passage — some, like a "select the sentence" question,
+// legitimately quote only part of it).
+function io_extractRQEntry(o){
+  if(typeof o.text!=='string')return null;
+  const qIdx=o.text.indexOf('[Question');
+  if(qIdx===-1)return null;
+  const m=o.text.slice(qIdx).trim().match(/^\[Question\s*—\s*([^\]]+)\]\s*([\s\S]*)$/);
+  if(!m)return null;
+  const type=m[1].trim().toLowerCase().replace(/\s+/g,'-');
+  const qText=m[2].trim().replace(/_+\s*$/,'').trim();
+  const blank=Array.isArray(o.blanks)?o.blanks[0]:null;
+  if(!qText||!blank||typeof blank.answer!=='string'||!Array.isArray(blank.options)||blank.options.length<2)return null;
+  const choices=blank.options.map(x=>String(x));
+  const correct=choices.indexOf(blank.answer);
+  if(correct===-1)return null;
+  const passage=o.text.slice(0,qIdx).replace(/^\[([^\]]*)\]\s*/,'').trim();
+  if(!passage)return null;
+  const header=o.text.match(/^\[([^\]]+)\]/);
+  let tag='custom';
+  if(header){const h=header[1],dash=h.indexOf('—');tag=(dash!==-1?h.slice(dash+1):h).trim().toLowerCase();}
+  return {tag,text:passage,questions:[{q:qText,choices,correct,type}]};
+}
+function io_normRQ(o){
+  if(!o)return null;
+  if(typeof o.text==='string'&&Array.isArray(o.questions)&&o.questions.length){
+    const qOk=o.questions.every(q=>q&&typeof q.q==='string'&&Array.isArray(q.choices)&&q.choices.length>=2&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<q.choices.length);
+    if(!qOk)return null;
+    return {id:'rqu-'+uid(),tag:String(o.tag||'custom'),text:o.text,questions:o.questions.map(q=>({q:q.q,choices:q.choices.map(x=>String(x)),correct:q.correct,type:q.type?String(q.type):undefined,explanation:q.explanation?String(q.explanation):undefined}))};
+  }
+  const ext=io_extractRQEntry(o);
+  if(!ext)return null;
+  return {id:'rqu-'+uid(),tag:ext.tag,text:ext.text,questions:ext.questions};
 }
 function ex_importFile(file){
   if(!file)return;
