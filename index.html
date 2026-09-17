@@ -1255,6 +1255,12 @@ try{mode45=localStorage.getItem('c145mode')==='1';}catch(e){mode45=false;}
 let dsc_lastId=null,ai_overridePrompt=null,microdrill_family=null;
 let em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
 let em_promptChecked={};
+// null = trust em_deriveRegister()'s guess; 'formal'/'informal' = the student
+// overrode it for the CURRENT scenario (recipients like "your manager" read
+// as informal to the "your ___" heuristic but call for a formal email —
+// rather than special-case every possible recipient phrasing, let the
+// student correct it directly). Reset whenever the scenario changes.
+let em_registerOverride=null;
 let em_lastStepBlocks=null; // snapshot at submit time, for block-of-error lookup
 let wr_stepBlocks={bridge:'',claim:'',reason1:'',reason2:'',closing:''};
 let wr_stepPeer=null;
@@ -3387,13 +3393,13 @@ function chunks_toggleGroup(headerEl){
 // than guessing. Returns null for kinds with no register concept (interview,
 // or when called from the unfiltered free-mode main panel).
 function chunks_allowedRegisters(kind){
-  if(kind==='email')return em_deriveRegister(em_cur&&em_cur.recipient)==='informal'?['informal','neutral']:['formal','neutral'];
+  if(kind==='email')return em_effectiveRegister()==='informal'?['informal','neutral']:['formal','neutral'];
   if(kind==='discussion')return ['formal','neutral'];
   return null;
 }
 function chunks_registerHintHTML(kind){
   if(kind==='email'){
-    return em_deriveRegister(em_cur&&em_cur.recipient)==='informal'
+    return em_effectiveRegister()==='informal'
       ? 'This email is to someone you know — informal/neutral phrasing shown.'
       : 'This email calls for a formal tone — formal/neutral phrasing shown.';
   }
@@ -7127,6 +7133,7 @@ function em_pick(){
   // it — otherwise a plain random pick can silently reselect the same one.
   if(em_cur&&pool.length>1)pool=pool.filter(s=>s.id!==em_cur.id);
   em_cur=pool[Math.floor(Math.random()*pool.length)];
+  em_registerOverride=null;
   em_stepReset();
 }
 function em_renderScenario(){
@@ -7141,6 +7148,19 @@ function em_renderScenario(){
     +'<div style="text-align:center;font-size:15px;font-weight:700;color:#0F172A;margin-bottom:10px">Write an Email</div>'
     +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:10px">'+esc(em_cur.context)+'</div>'
     +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:4px">Write an email to '+esc(em_cur.recipient)+'. In your email, do the following:</div>';
+  // The auto-guessed register can be wrong for a recipient em_deriveRegister
+  // can't classify well (a boss/professor phrased as "your ___", a custom
+  // recipient from a manual/imported scenario) — this lets the student fix
+  // it for the current scenario instead of getting graded/coached against
+  // the wrong tone.
+  h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">'
+    +'<span style="font-size:12px;color:#94A3B8">Register:</span>'
+    +['auto','formal','informal'].map(m=>{
+        const active=m==='auto'?!em_registerOverride:em_registerOverride===m;
+        const label=m==='auto'?'Auto ('+(em_deriveRegister(em_cur.recipient)==='informal'?'Informal':'Formal')+')':(m==='formal'?'Formal':'Informal');
+        return '<button class="exmode-btn sub'+(active?' on':'')+'" style="flex:0 1 auto" onclick="em_setRegisterOverride(\''+m+'\')">'+label+'</button>';
+      }).join('')
+    +'</div>';
   if(em_stepMode){
     h+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">'
       +(em_cur.tasks||[]).map((t,i)=>'<label style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;font-size:14px;color:#0F172A;line-height:1.5"><input type="checkbox" '+(em_promptChecked[i]?'checked':'')+' onchange="em_togglePromptCheck('+i+')" style="width:15px;height:15px;margin-top:2px;cursor:pointer;flex-shrink:0">'+esc(t)+'</label>').join('')
@@ -7173,7 +7193,7 @@ function em_saveNew(){
   em_saveScenarios();
   closeM('mEMAdd');
   toast('✅ Scenario added!');
-  if(toeflActivity==='writing:email'){em_cur=item;em_stepReset();em_renderScenario();}
+  if(toeflActivity==='writing:email'){em_cur=item;em_registerOverride=null;em_stepReset();em_renderScenario();}
 }
 function em_stepReset(){
   em_stepBlocks={opening:'',idea1:'',idea2:'',idea3:'',closing:''};
@@ -7236,14 +7256,25 @@ function em_setStepMode(v){
 // completely different JSON shape, so it gets its own dedicated prompt/parser/
 // renderer instead of reusing the generic one.
 // TOEFL email prompts range from institutional/unknown recipients (formal) to
-// named peers ("your colleague/manager/team") — treat "your ___" as informal.
+// named peers ("your colleague/team") — treat "your ___" as informal, UNLESS
+// the noun itself names someone above the student (manager/boss/professor/
+// etc.), who still gets a formal email despite the "your" phrasing.
 function em_deriveRegister(recipient){
-  return /^your\s/i.test(String(recipient||'').trim())?'informal':'formal';
+  const r=String(recipient||'').trim();
+  if(/\b(manager|boss|supervisor|professor|instructor|dean|director|employer|client|department|office|staff)\b/i.test(r))return 'formal';
+  return /^your\s/i.test(r)?'informal':'formal';
+}
+// The register actually in effect for the CURRENT scenario: the student's
+// manual override if they set one, otherwise em_deriveRegister()'s guess.
+function em_effectiveRegister(){return em_registerOverride||em_deriveRegister(em_cur&&em_cur.recipient);}
+function em_setRegisterOverride(mode){
+  em_registerOverride=mode==='auto'?null:mode;
+  em_renderScenario();
 }
 function em_buildAnalysisPrompt(t){
   const scenario=em_cur?em_cur.context:'';
   const points=((em_cur&&em_cur.tasks)||[]).map((x,i)=>(i+1)+'. '+x).join('\n');
-  const register=em_deriveRegister(em_cur&&em_cur.recipient);
+  const register=em_effectiveRegister();
   return 'You are a certified TOEFL iBT rater, specialized in the "Write an Email" Writing task (2026 format: campus/everyday scenario, 80-120 word response, 7 minutes, graded on the official ETS 0-5 scale).\n\n'
 +'Scenario presented to the candidate: '+scenario+'\n'
 +'Required points the response should cover:\n'+points+'\n'
