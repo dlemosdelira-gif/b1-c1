@@ -6527,6 +6527,26 @@ function rq_load(key){
   rq_played[key]=false;
   if(rq_cur[key])toefl_itemStart(key);
 }
+// Manually switch to a different passage, without waiting to finish (or even
+// start) the current one — same idea as em_shuffle()/wr_shuffle() in Write an
+// Email/Write for an Academic Discussion, only offered here for rd/ra (see
+// the IO_MODES[key] check in rq_toolbar()). Picks randomly among the due
+// pool (falling back to the full item list if nothing else is due, same
+// fallback bs_next()'s force path uses), excluding the current item so
+// "New passage" always actually changes it when more than one is available.
+function rq_shuffle(key){
+  const items=rq_items(key),progress=rq_progress(key);
+  let pool=ex_due(items,progress);
+  if(!pool.length)pool=items;
+  if(rq_cur[key]&&pool.length>1)pool=pool.filter(it=>it.id!==rq_cur[key].id);
+  rq_cur[key]=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+  rq_sel[key]=rq_cur[key]?new Array(rq_cur[key].questions.length).fill(null):[];
+  rq_shuffleMap[key]=rq_buildShuffleMap(rq_cur[key]);
+  rq_checked[key]=false;
+  rq_played[key]=false;
+  if(rq_cur[key])toefl_itemStart(key);
+  if(curTab==='rev')renderRev();
+}
 function rq_next(key,force){
   if(!force&&session_advanceToNextActivity())return;
   rq_load(key);
@@ -6684,6 +6704,7 @@ function rq_toolbar(key){
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+items.length+' '+noun+(items.length===1?'':'s')+'</span>'
     +'<div class="fl g8">'
+    +(IO_MODES[key]?'<button class="btn bsm" onclick="rq_shuffle(\''+key+'\')">🎲 New passage</button>':'')
     +'<button onclick="rq_openGenModal(\''+key+'\')" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;cursor:pointer">➕ Generate from text</button>'
     +(IO_MODES[key]?'<button class="btn bsm" onclick="openIO(\''+key+'\')" title="Import / export">⇅</button>':'')
     +'</div></div>';
