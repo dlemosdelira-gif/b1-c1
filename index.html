@@ -2208,10 +2208,10 @@ async function recap_autoSummarize(weekKey,prompt){
     toast('🧠 Summary generated!');
     if(curTab==='prac')renderPrac();
   }catch(e){
-    toast('⚠️ Gemini failed ('+e.message+') — retry or use the manual flow below');
+    toast('⚠️ Gemini failed ('+ai_friendlyGeminiError(e.message)+') — retry or use the manual flow below');
     recap_showLoading(false);
     const box=document.getElementById('recapRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('recapRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
+    if(box){box.classList.remove('hid');document.getElementById('recapRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
   }
 }
 function recap_retryGemini(){
@@ -2430,7 +2430,7 @@ async function cardProd_autoGrade(prompt){
   }catch(e){
     cardProd_showStage('manual');
     const box=document.getElementById('cardProdRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('cardProdRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
+    if(box){box.classList.remove('hid');document.getElementById('cardProdRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
   }
 }
 function cardProd_retryGemini(){
@@ -3418,7 +3418,13 @@ async function gemini_call(prompt,opts){
     if(!res.ok){
       let msg=res.status+' '+res.statusText;
       try{const errJson=await res.json();if(errJson&&errJson.error&&errJson.error.message)msg=errJson.error.message;}catch(e){}
-      const transient=res.status===429||res.status===500||res.status===503;
+      // 429 quota-exceeded is NOT transient the way 500/503 are — the free
+      // tier's daily/per-minute limit won't clear in the ~1-3s our backoff
+      // waits, so retrying here just burns more of an already-exhausted,
+      // scarce quota (as little as 20 requests/day) for a retry that's
+      // certain to fail identically. Fail fast instead, straight to the
+      // retry-box/manual-fallback UI every call site already has.
+      const transient=res.status===500||res.status===503;
       if(transient&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
       throw new Error(msg);
     }
@@ -3435,6 +3441,21 @@ async function gemini_call(prompt,opts){
     }
     return text;
   }
+}
+// Gemini's raw 429 quota-exceeded message is a long technical dump (docs
+// links, internal metric names) that doesn't make clear what to actually
+// do — extract the server's own suggested wait time (if present) and lead
+// with a short, actionable summary instead. Every "Gemini failed: ..."
+// display in the app (writing/speaking grading, RQ item generation, weekly
+// notes summary, flashcard sentence checking) shows this instead of the
+// raw error message.
+function ai_friendlyGeminiError(msg){
+  if(/quota exceeded/i.test(msg)){
+    const m=msg.match(/retry in ([\d.]+)s/i);
+    const wait=m?Math.ceil(parseFloat(m[1]))+'s':'a bit';
+    return 'Gemini free-tier quota reached for now — wait ~'+wait+' and try again, or use the manual flow below in the meantime.';
+  }
+  return msg;
 }
 
 // ── GEMINI TTS (optional, natural voices for Listening/Speaking audio) ─────
@@ -3809,10 +3830,10 @@ async function ai_autoGrade(fp){
     closeM('mAI');
     ai_finishProcessing(r);
   }catch(e){
-    toast('⚠️ Gemini failed ('+e.message+') — retry or use the manual flow below');
+    toast('⚠️ Gemini failed ('+ai_friendlyGeminiError(e.message)+') — retry or use the manual flow below');
     ai_showLoading(false);
     const box=document.getElementById('aiRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('aiRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
+    if(box){box.classList.remove('hid');document.getElementById('aiRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
   }
 }
 function ai_retryGemini(){
@@ -6694,12 +6715,12 @@ async function rq_autoGenerate(prompt){
     const text=await gemini_call(prompt,{json:true});
     rq_genFinish(text);
   }catch(e){
-    toast('⚠️ Gemini failed ('+e.message+') — retry or use the manual flow below');
+    toast('⚠️ Gemini failed ('+ai_friendlyGeminiError(e.message)+') — retry or use the manual flow below');
     rq_genShowLoading(false);
     document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
     document.getElementById('rqGenStep2').style.display='block';
     const box=document.getElementById('rqGenRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('rqGenRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
+    if(box){box.classList.remove('hid');document.getElementById('rqGenRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
   }
 }
 function rq_retryGemini(){
