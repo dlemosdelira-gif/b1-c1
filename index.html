@@ -705,7 +705,7 @@ textarea{min-height:120px}
       </div>
       <div id="cardProdResultsWrap" class="hid">
         <div id="cardProdResultsBox"></div>
-        <div class="fl g8 mt8" style="justify-content:flex-end"><button class="btn bpr bsm" onclick="closeM('mCardProd')">Done</button></div>
+        <div id="cardProdResultsFooter" class="fl g8 mt8" style="justify-content:flex-end"></div>
       </div>
     </div>
   </div>
@@ -2347,7 +2347,6 @@ try{cardProdQueue=JSON.parse(localStorage.getItem('c1cardprodq')||'null')||[];}c
 if(!Array.isArray(cardProdQueue))cardProdQueue=[];
 let cardProdCfg={batch:'now'};
 try{cardProdCfg=Object.assign(cardProdCfg,JSON.parse(localStorage.getItem('c1cardprodcfg')||'null')||{});}catch(e){}
-let cardProdCurQueue=[],cardProdCurPrompt='';
 function saveCardProdQueue(){localStorage.setItem('c1cardprodq',JSON.stringify(cardProdQueue));}
 function saveCardProdCfg(){localStorage.setItem('c1cardprodcfg',JSON.stringify(cardProdCfg));}
 function setCardProdBatch(v){cardProdCfg.batch=v==='now'?'now':parseInt(v,10);saveCardProdCfg();renderCardsStudy();}
@@ -2390,19 +2389,31 @@ function cardProd_submit(cardId){
 }
 function cardProd_buildPrompt(queue){
   const items=queue.map((q,i)=>(i+1)+'. Target expression: "'+q.target+'" (simple/everyday form: "'+q.simple+'"'+(q.topic?', grammar/vocabulary topic: '+q.topic:'')+')\nStudent sentence: "'+q.sentence+'"').join('\n\n');
-  return 'You are an English/TOEFL writing coach. The student is practicing ACTIVE PRODUCTION of vocabulary/grammar from flashcards — for each item below, they wrote their own original sentence using the target expression (not just recognizing it passively).\n\n'+items+'\n\nFor EACH sentence, in order, judge whether it correctly and naturally uses the target expression (grammar + meaning) — tolerate minor typos/capitalization, focus on whether the target structure itself is used correctly.\n\nReturn ONLY a JSON array (no markdown, no commentary before or after), with EXACTLY '+queue.length+' object(s), one per sentence in the SAME order, each shaped exactly like:\n{"ok": true, "feedback": "one short sentence of feedback in English — praise what works, or say exactly what to fix"}';
+  return 'You are an English/TOEFL writing coach. The student is practicing ACTIVE PRODUCTION of vocabulary/grammar from flashcards — for each item below, they wrote their own original sentence using the target expression (not just recognizing it passively).\n\n'+items+'\n\nFor EACH sentence, in order, judge whether it correctly and naturally uses the target expression (grammar + meaning) — tolerate minor typos/capitalization, focus on whether the target structure itself is used correctly.\n\nIMPORTANT: do NOT reveal a correct example sentence when the student got it wrong — that would give away the answer instead of letting them fix it themselves. Only include an example when they got it right.\n\nReturn ONLY a JSON array (no markdown, no commentary before or after), with EXACTLY '+queue.length+' object(s), one per sentence in the SAME order, each shaped exactly like:\n{"ok": true, "feedback": "one short sentence of feedback in English — praise what works, or say exactly what to fix", "example": "a natural example sentence using the target expression, ONLY when ok is true — otherwise an empty string"}';
 }
-function cardProd_check(){
-  if(!cardProdQueue.length){toast('⚠️ No sentences queued yet');return;}
-  cardProdCurQueue=cardProdQueue.slice();
-  cardProdCurPrompt=cardProd_buildPrompt(cardProdCurQueue);
-  document.getElementById('cardProdPromptBox').textContent=cardProdCurPrompt;
+// Currently in-flight grading request: the items being graded (either the
+// first pass from cardProdQueue, or a retry pass of just the ones the
+// student rewrote), the prompt built from them, and whether this is a
+// retry (which changes how cardProd_applyResults() merges the outcome).
+let cardProdPending=null;
+// The full result set shown in the modal across however many retry rounds
+// happen — correct entries stay put, wrong ones get replaced in place each
+// time their rewrite is rechecked, so the student sees the whole batch's
+// progress rather than losing earlier results as they fix new ones.
+let cardProdCurResults=[];
+function cardProd_startGrading(items,isRetry){
+  cardProdPending={items,isRetry:!!isRetry,prompt:cardProd_buildPrompt(items)};
+  document.getElementById('cardProdPromptBox').textContent=cardProdPending.prompt;
   document.getElementById('cardProdIn').value='';
   document.getElementById('cardProdCpbdg').classList.remove('on');
   document.getElementById('cardProdRetryBox').classList.add('hid');
   openM('mCardProd');
-  if(ai_hasKey()){cardProd_showStage('loading');cardProd_autoGrade(cardProdCurPrompt);}
+  if(ai_hasKey()){cardProd_showStage('loading');cardProd_autoGrade(cardProdPending.prompt);}
   else cardProd_showStage('manual');
+}
+function cardProd_check(){
+  if(!cardProdQueue.length){toast('⚠️ No sentences queued yet');return;}
+  cardProd_startGrading(cardProdQueue.slice(),false);
 }
 function cardProd_showStage(stage){
   const l=document.getElementById('cardProdLoading'),m=document.getElementById('cardProdManual'),r=document.getElementById('cardProdResultsWrap');
@@ -2423,16 +2434,18 @@ async function cardProd_autoGrade(prompt){
   }
 }
 function cardProd_retryGemini(){
-  if(!cardProdCurPrompt)return;
+  if(!cardProdPending)return;
   document.getElementById('cardProdRetryBox').classList.add('hid');
   cardProd_showStage('loading');
-  cardProd_autoGrade(cardProdCurPrompt);
+  cardProd_autoGrade(cardProdPending.prompt);
 }
 function cardProd_copyPrompt(){
-  navigator.clipboard.writeText(cardProdCurPrompt).then(()=>document.getElementById('cardProdCpbdg').classList.add('on'));
+  if(!cardProdPending)return;
+  navigator.clipboard.writeText(cardProdPending.prompt).then(()=>document.getElementById('cardProdCpbdg').classList.add('on'));
 }
 function cardProd_openInClaude(){
-  navigator.clipboard.writeText(cardProdCurPrompt).then(()=>{
+  if(!cardProdPending)return;
+  navigator.clipboard.writeText(cardProdPending.prompt).then(()=>{
     toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
     setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
     document.getElementById('cardProdCpbdg').classList.add('on');
@@ -2448,34 +2461,77 @@ function cardProd_pasteResults(){
 // Shared by the automatic Gemini path and the manual paste-back path, once
 // either has a parsed (hopefully valid) results array.
 function cardProd_applyResults(results){
-  const ok=Array.isArray(results)&&results.length===cardProdCurQueue.length&&results.every(r=>r&&typeof r.ok==='boolean'&&typeof r.feedback==='string');
+  if(!cardProdPending)return;
+  const items=cardProdPending.items,isRetry=cardProdPending.isRetry;
+  const ok=Array.isArray(results)&&results.length===items.length&&results.every(r=>r&&typeof r.ok==='boolean'&&typeof r.feedback==='string'&&(r.example===undefined||typeof r.example==='string'));
   if(!ok){
     toast('⚠️ Response is missing entries, or one is missing "ok"/"feedback"');
     cardProd_showStage('manual');
     return;
   }
-  // Remove exactly the graded items from the pending queue by id (the
-  // snapshot taken when grading started) — anything saved AFTER that
-  // snapshot (possible if the student kept typing while waiting on Gemini)
-  // stays queued for next time instead of being silently dropped.
-  const gradedIds=new Set(cardProdCurQueue.map(q=>q.id));
-  cardProdQueue=cardProdQueue.filter(q=>!gradedIds.has(q.id));
-  saveCardProdQueue();
-  const merged=cardProdCurQueue.map((q,i)=>Object.assign({},q,results[i]));
-  cardProd_renderResults(merged);
-  toast('✅ '+merged.length+' sentence'+(merged.length===1?'':'s')+' checked!');
+  const merged=items.map((q,i)=>Object.assign({},q,results[i]));
+  if(isRetry){
+    // Replace each rewritten item's outcome in place (matched by id) —
+    // everything else already in the result set (correct, or wrong items
+    // not part of THIS retry round) stays exactly as it was.
+    const byId={};merged.forEach(m=>{byId[m.id]=m;});
+    cardProdCurResults=cardProdCurResults.map(r=>byId[r.id]||r);
+  }else{
+    // First pass: remove exactly these items from the persistent queue by
+    // id (the snapshot taken when grading started) — anything saved AFTER
+    // that snapshot (possible if the student kept typing while waiting on
+    // Gemini) stays queued for next time instead of being silently dropped.
+    const gradedIds=new Set(items.map(q=>q.id));
+    cardProdQueue=cardProdQueue.filter(q=>!gradedIds.has(q.id));
+    saveCardProdQueue();
+    cardProdCurResults=merged;
+  }
+  cardProdPending=null;
+  const wrongCount=cardProdCurResults.filter(r=>!r.ok).length;
+  cardProd_renderResults();
+  toast(wrongCount?('⚠️ '+wrongCount+' need'+(wrongCount===1?'s':'')+' another try'):'✅ All correct!');
   renderCardsStudy();
 }
-function cardProd_renderResults(items){
+function cardProd_renderResults(){
   const box=document.getElementById('cardProdResultsBox');
-  if(box)box.innerHTML=items.map(it=>
-    '<div style="padding:10px;border:1px solid '+(it.ok?'#BBF7D0':'#FECACA')+';background:'+(it.ok?'#F0FDF4':'#FEF2F2')+';border-radius:8px;margin-bottom:8px">'
-    +'<div style="font-size:12px;color:#64748B;margin-bottom:4px">'+esc(it.target)+(it.topic?' <span style="opacity:.7">· '+esc(it.topic)+'</span>':'')+'</div>'
-    +'<div style="font-size:14px;color:#0F172A;margin-bottom:6px">“'+esc(it.sentence)+'”</div>'
-    +'<div style="font-size:13px;color:'+(it.ok?'#166534':'#991B1B')+'">'+(it.ok?'✅ ':'❌ ')+esc(it.feedback)+'</div>'
-    +'</div>'
-  ).join('');
+  if(box)box.innerHTML=cardProdCurResults.map(it=>{
+    if(it.ok){
+      return '<div style="padding:10px;border:1px solid #BBF7D0;background:#F0FDF4;border-radius:8px;margin-bottom:8px">'
+        +'<div style="font-size:12px;color:#64748B;margin-bottom:4px">'+esc(it.target)+(it.topic?' <span style="opacity:.7">· '+esc(it.topic)+'</span>':'')+'</div>'
+        +'<div style="font-size:14px;color:#0F172A;margin-bottom:6px">“'+esc(it.sentence)+'”</div>'
+        +'<div style="font-size:13px;color:#166534">✅ '+esc(it.feedback)+'</div>'
+        +(it.example?'<div style="font-size:12.5px;color:#15803D;margin-top:6px;padding-top:6px;border-top:1px solid #BBF7D0">💡 '+esc(it.example)+'</div>':'')
+        +'</div>';
+    }
+    // Wrong: no example shown (would give away the answer) — instead an
+    // editable textarea, pre-filled with their attempt, so they can revise
+    // it right here and send just the rewritten ones back for a new round.
+    return '<div style="padding:10px;border:1px solid #FECACA;background:#FEF2F2;border-radius:8px;margin-bottom:8px">'
+      +'<div style="font-size:12px;color:#64748B;margin-bottom:4px">'+esc(it.target)+(it.topic?' <span style="opacity:.7">· '+esc(it.topic)+'</span>':'')+'</div>'
+      +'<div style="font-size:13px;color:#991B1B;margin-bottom:6px">❌ '+esc(it.feedback)+'</div>'
+      +'<textarea id="cardProdRewrite_'+it.id+'" style="min-height:44px;font-size:14px;width:100%;box-sizing:border-box">'+esc(it.sentence)+'</textarea>'
+      +'</div>';
+  }).join('');
+  const wrongCount=cardProdCurResults.filter(r=>!r.ok).length;
+  const footer=document.getElementById('cardProdResultsFooter');
+  if(footer)footer.innerHTML=wrongCount
+    ?'<button class="btn bpr bsm" onclick="cardProd_recheckWrong()">🔁 Recheck rewritten ('+wrongCount+')</button><button class="btn bsm" onclick="closeM(\'mCardProd\')">Close</button>'
+    :'<button class="btn bpr bsm" onclick="closeM(\'mCardProd\')">Done</button>';
   cardProd_showStage('results');
+}
+// Collects the CURRENT textarea value for every still-wrong item (falling
+// back to its last sentence if left untouched) and runs a fresh grading
+// round on just those — repeatable as many times as needed until every
+// item in the batch is correct.
+function cardProd_recheckWrong(){
+  const wrong=cardProdCurResults.filter(r=>!r.ok);
+  if(!wrong.length)return;
+  const items=wrong.map(r=>{
+    const ta=document.getElementById('cardProdRewrite_'+r.id);
+    const sentence=(ta&&ta.value||'').trim()||r.sentence;
+    return Object.assign({},r,{sentence});
+  });
+  cardProd_startGrading(items,true);
 }
 function revSession(){
   if(revSessionCache)return revSessionCache;
