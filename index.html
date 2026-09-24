@@ -2354,9 +2354,19 @@ function setCardProdBatch(v){cardProdCfg.batch=v==='now'?'now':parseInt(v,10);sa
 function cardProd_boxHTML(card){
   const batch=cardProdCfg.batch;
   const queueInfo=batch==='now'?'':'<span style="font-size:12px;color:#64748B">'+cardProdQueue.length+'/'+batch+' queued'+(cardProdQueue.length?' · <a href="#" onclick="event.preventDefault();event.stopPropagation();cardProd_check()" style="color:#2563EB;text-decoration:underline">Check now</a>':'')+'</span>';
-  return '<div style="margin-top:12px;padding:10px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px" onclick="event.stopPropagation()">'
+  // The target expression can be a whole rule/formula, not just a short
+  // word/phrase (e.g. "Formula: **If + Past Perfect, would + base verb.**
+  // The past event still affects the present situation.") — embedding all
+  // of that in the textarea's placeholder attribute made it render clipped
+  // and broken (a placeholder doesn't get its own scroll/wrap the way real
+  // content does). Shown instead as a short, truncated line ABOVE the
+  // textarea, which wraps normally like any other text in the card.
+  const rawTarget=String(card.c1||card.simple||'').replace(/\*\*/g,'').replace(/\s+/g,' ').trim();
+  const shortTarget=rawTarget.length>70?rawTarget.slice(0,70)+'…':rawTarget;
+  return '<div style="margin-top:12px;padding:10px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;box-sizing:border-box" onclick="event.stopPropagation()">'
     +'<div style="font-size:12px;color:#166534;font-weight:600;margin-bottom:6px">✍️ Use it in a sentence (optional)</div>'
-    +'<textarea id="cardProdInput" style="min-height:50px;font-size:14px;width:100%;box-sizing:border-box;background:#fff" placeholder="Write a sentence using \''+esc(card.c1||card.simple||'')+'\'…"></textarea>'
+    +'<div style="font-size:12.5px;color:#15803D;line-height:1.4;margin-bottom:6px">Target: “'+esc(shortTarget)+'”</div>'
+    +'<textarea id="cardProdInput" style="min-height:50px;font-size:14px;width:100%;box-sizing:border-box;background:#fff" placeholder="Write your sentence here…"></textarea>'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:8px">'
     +'<button class="btn bpr bsm" onclick="cardProd_submit(\''+card.id+'\')">Save'+(batch==='now'?' & Check':'')+'</button>'
     +queueInfo
