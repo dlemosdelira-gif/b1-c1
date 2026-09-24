@@ -665,6 +665,52 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mCardProd" onclick="if(event.target===this)closeM('mCardProd')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
+    <div class="mhdr"><div class="mtit">✍️ Check My Sentences</div><button class="btn bsm" onclick="closeM('mCardProd')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div id="cardProdLoading" class="hid" style="text-align:center;padding:34px 10px">
+        <div style="font-size:32px;margin-bottom:10px">✍️</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Checking with Gemini…</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
+      </div>
+      <div id="cardProdManual" class="hid">
+        <div id="cardProdRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+          <div id="cardProdRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
+          <button class="btn bpr bsm" onclick="cardProd_retryGemini()">🔄 Try Gemini again</button>
+        </div>
+        <div class="mstep"><div class="mnum">1</div>
+          <div style="width:100%">
+            <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Send this prompt to Claude:</div>
+            <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:160px;overflow-y:auto;word-break:break-word" id="cardProdPromptBox"></div>
+            <div class="fl g6 mt8">
+              <button class="btn bpr bsm" onclick="cardProd_copyPrompt()">Copy Full Prompt</button>
+              <button class="btn bsm" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D" onclick="cardProd_openInClaude()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
+              </button>
+              <span class="cbdg" id="cardProdCpbdg">✓ Copied!</span>
+            </div>
+          </div>
+        </div>
+        <div class="mstep"><div class="mnum">2</div>
+          <div style="width:100%">
+            <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
+            <textarea id="cardProdIn" style="min-height:100px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='[{"ok":true,"feedback":"..."}]'></textarea>
+            <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
+              <button class="btn bsm" onclick="closeM('mCardProd')">Cancel</button>
+              <button class="btn bpr bsm" onclick="cardProd_pasteResults()">✓ Check</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="cardProdResultsWrap" class="hid">
+        <div id="cardProdResultsBox"></div>
+        <div class="fl g8 mt8" style="justify-content:flex-end"><button class="btn bpr bsm" onclick="closeM('mCardProd')">Done</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
@@ -2290,6 +2336,137 @@ let revCfg={mode:'all',topic:'',limit:20,random:10};
 let revSessionCache=null;
 try{const s=JSON.parse(localStorage.getItem('c1revcfg')||'null');if(s)revCfg=Object.assign(revCfg,s);}catch(e){}
 function saveRevCfg(){localStorage.setItem('c1revcfg',JSON.stringify(revCfg));}
+// ── Flashcard active production ("Use it in a sentence") ──────────────────
+// Turns flipping-and-reading (passive recognition) into writing a sentence
+// with the target expression (active production). Sentences are queued
+// locally and graded in ONE batched Gemini call per N sentences (or
+// immediately, in "Now" mode) instead of one call per card — cheaper, and
+// doesn't interrupt a fast review pace waiting on a response after every card.
+let cardProdQueue=[];
+try{cardProdQueue=JSON.parse(localStorage.getItem('c1cardprodq')||'null')||[];}catch(e){cardProdQueue=[];}
+if(!Array.isArray(cardProdQueue))cardProdQueue=[];
+let cardProdCfg={batch:'now'};
+try{cardProdCfg=Object.assign(cardProdCfg,JSON.parse(localStorage.getItem('c1cardprodcfg')||'null')||{});}catch(e){}
+let cardProdCurQueue=[],cardProdCurPrompt='';
+function saveCardProdQueue(){localStorage.setItem('c1cardprodq',JSON.stringify(cardProdQueue));}
+function saveCardProdCfg(){localStorage.setItem('c1cardprodcfg',JSON.stringify(cardProdCfg));}
+function setCardProdBatch(v){cardProdCfg.batch=v==='now'?'now':parseInt(v,10);saveCardProdCfg();renderCardsStudy();}
+function cardProd_boxHTML(card){
+  const batch=cardProdCfg.batch;
+  const queueInfo=batch==='now'?'':'<span style="font-size:12px;color:#64748B">'+cardProdQueue.length+'/'+batch+' queued'+(cardProdQueue.length?' · <a href="#" onclick="event.preventDefault();event.stopPropagation();cardProd_check()" style="color:#2563EB;text-decoration:underline">Check now</a>':'')+'</span>';
+  return '<div style="margin-top:12px;padding:10px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px" onclick="event.stopPropagation()">'
+    +'<div style="font-size:12px;color:#166534;font-weight:600;margin-bottom:6px">✍️ Use it in a sentence (optional)</div>'
+    +'<textarea id="cardProdInput" style="min-height:50px;font-size:14px;width:100%;box-sizing:border-box;background:#fff" placeholder="Write a sentence using \''+esc(card.c1||card.simple||'')+'\'…"></textarea>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:8px">'
+    +'<button class="btn bpr bsm" onclick="cardProd_submit(\''+card.id+'\')">Save'+(batch==='now'?' & Check':'')+'</button>'
+    +queueInfo
+    +'</div></div>';
+}
+function cardProd_submit(cardId){
+  const ta=document.getElementById('cardProdInput');
+  const sentence=(ta&&ta.value||'').trim();
+  if(!sentence){toast('⚠️ Write a sentence first');return;}
+  const card=cards.find(c=>c.id===cardId);
+  if(!card)return;
+  cardProdQueue.push({id:uid(),topic:card.topic||'',target:card.c1,simple:card.simple,sentence});
+  saveCardProdQueue();
+  const batch=cardProdCfg.batch;
+  if(batch==='now'||cardProdQueue.length>=batch){
+    cardProd_check();
+  }else{
+    toast('✅ Saved — '+cardProdQueue.length+'/'+batch+' queued');
+    renderCardsStudy();
+  }
+}
+function cardProd_buildPrompt(queue){
+  const items=queue.map((q,i)=>(i+1)+'. Target expression: "'+q.target+'" (simple/everyday form: "'+q.simple+'"'+(q.topic?', grammar/vocabulary topic: '+q.topic:'')+')\nStudent sentence: "'+q.sentence+'"').join('\n\n');
+  return 'You are an English/TOEFL writing coach. The student is practicing ACTIVE PRODUCTION of vocabulary/grammar from flashcards — for each item below, they wrote their own original sentence using the target expression (not just recognizing it passively).\n\n'+items+'\n\nFor EACH sentence, in order, judge whether it correctly and naturally uses the target expression (grammar + meaning) — tolerate minor typos/capitalization, focus on whether the target structure itself is used correctly.\n\nReturn ONLY a JSON array (no markdown, no commentary before or after), with EXACTLY '+queue.length+' object(s), one per sentence in the SAME order, each shaped exactly like:\n{"ok": true, "feedback": "one short sentence of feedback in English — praise what works, or say exactly what to fix"}';
+}
+function cardProd_check(){
+  if(!cardProdQueue.length){toast('⚠️ No sentences queued yet');return;}
+  cardProdCurQueue=cardProdQueue.slice();
+  cardProdCurPrompt=cardProd_buildPrompt(cardProdCurQueue);
+  document.getElementById('cardProdPromptBox').textContent=cardProdCurPrompt;
+  document.getElementById('cardProdIn').value='';
+  document.getElementById('cardProdCpbdg').classList.remove('on');
+  document.getElementById('cardProdRetryBox').classList.add('hid');
+  openM('mCardProd');
+  if(ai_hasKey()){cardProd_showStage('loading');cardProd_autoGrade(cardProdCurPrompt);}
+  else cardProd_showStage('manual');
+}
+function cardProd_showStage(stage){
+  const l=document.getElementById('cardProdLoading'),m=document.getElementById('cardProdManual'),r=document.getElementById('cardProdResultsWrap');
+  if(l)l.classList.toggle('hid',stage!=='loading');
+  if(m)m.classList.toggle('hid',stage!=='manual');
+  if(r)r.classList.toggle('hid',stage!=='results');
+}
+async function cardProd_autoGrade(prompt){
+  try{
+    const text=await gemini_call(prompt,{json:true});
+    let results;
+    try{results=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){throw new Error('Gemini returned invalid JSON');}
+    cardProd_applyResults(results);
+  }catch(e){
+    cardProd_showStage('manual');
+    const box=document.getElementById('cardProdRetryBox');
+    if(box){box.classList.remove('hid');document.getElementById('cardProdRetryMsg').textContent='⚠️ Gemini failed: '+e.message;}
+  }
+}
+function cardProd_retryGemini(){
+  if(!cardProdCurPrompt)return;
+  document.getElementById('cardProdRetryBox').classList.add('hid');
+  cardProd_showStage('loading');
+  cardProd_autoGrade(cardProdCurPrompt);
+}
+function cardProd_copyPrompt(){
+  navigator.clipboard.writeText(cardProdCurPrompt).then(()=>document.getElementById('cardProdCpbdg').classList.add('on'));
+}
+function cardProd_openInClaude(){
+  navigator.clipboard.writeText(cardProdCurPrompt).then(()=>{
+    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+    document.getElementById('cardProdCpbdg').classList.add('on');
+  }).catch(()=>{toast('⚠️ Copy failed — use Copy Full Prompt instead');});
+}
+function cardProd_pasteResults(){
+  const raw=document.getElementById('cardProdIn').value.trim();
+  if(!raw){toast('⚠️ Paste the JSON response first');return;}
+  let results;
+  try{results=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  cardProd_applyResults(results);
+}
+// Shared by the automatic Gemini path and the manual paste-back path, once
+// either has a parsed (hopefully valid) results array.
+function cardProd_applyResults(results){
+  const ok=Array.isArray(results)&&results.length===cardProdCurQueue.length&&results.every(r=>r&&typeof r.ok==='boolean'&&typeof r.feedback==='string');
+  if(!ok){
+    toast('⚠️ Response is missing entries, or one is missing "ok"/"feedback"');
+    cardProd_showStage('manual');
+    return;
+  }
+  // Remove exactly the graded items from the pending queue by id (the
+  // snapshot taken when grading started) — anything saved AFTER that
+  // snapshot (possible if the student kept typing while waiting on Gemini)
+  // stays queued for next time instead of being silently dropped.
+  const gradedIds=new Set(cardProdCurQueue.map(q=>q.id));
+  cardProdQueue=cardProdQueue.filter(q=>!gradedIds.has(q.id));
+  saveCardProdQueue();
+  const merged=cardProdCurQueue.map((q,i)=>Object.assign({},q,results[i]));
+  cardProd_renderResults(merged);
+  toast('✅ '+merged.length+' sentence'+(merged.length===1?'':'s')+' checked!');
+  renderCardsStudy();
+}
+function cardProd_renderResults(items){
+  const box=document.getElementById('cardProdResultsBox');
+  if(box)box.innerHTML=items.map(it=>
+    '<div style="padding:10px;border:1px solid '+(it.ok?'#BBF7D0':'#FECACA')+';background:'+(it.ok?'#F0FDF4':'#FEF2F2')+';border-radius:8px;margin-bottom:8px">'
+    +'<div style="font-size:12px;color:#64748B;margin-bottom:4px">'+esc(it.target)+(it.topic?' <span style="opacity:.7">· '+esc(it.topic)+'</span>':'')+'</div>'
+    +'<div style="font-size:14px;color:#0F172A;margin-bottom:6px">“'+esc(it.sentence)+'”</div>'
+    +'<div style="font-size:13px;color:'+(it.ok?'#166534':'#991B1B')+'">'+(it.ok?'✅ ':'❌ ')+esc(it.feedback)+'</div>'
+    +'</div>'
+  ).join('');
+  cardProd_showStage('results');
+}
 function revSession(){
   if(revSessionCache)return revSessionCache;
   let pool=due();
@@ -3878,6 +4055,9 @@ function renderCardsStudy(){
   if(revCfg.mode==='random'){
     ctrls+='<label style="font-size:14px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   }
+  ctrls+='<label style="font-size:14px;color:#475569">Sentence check:</label><select onchange="setCardProdBatch(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Sans\',sans-serif">'
+    +['now',5,10,15].map(v=>'<option value="'+v+'"'+(cardProdCfg.batch===v?' selected':'')+'>'+(v==='now'?'Now':'Every '+v)+'</option>').join('')
+    +'</select>';
   ctrls+='<label style="font-size:14px;color:#475569;margin-left:auto">Daily limit:</label><input type="number" min="1" max="500" value="'+revCfg.limit+'" onchange="setRevLimit(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   ctrls+='</div></div>';
   if(allDue.length===0){c.innerHTML=ctrls+'<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>';return;}
@@ -3901,7 +4081,7 @@ function renderCardsStudy(){
       ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint">Front'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword">'+formatText(card.simple)+'</div><div class="ftap">Tap to reveal →</div></div>'
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }else{
-      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+(card.note?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+formatText(card.note)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div></div>'
+      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint" style="color:#2563EB">Back'+(card.topic?'<span style="margin-left:8px;font-size:14px;opacity:.7">📚 '+esc(card.topic)+'</span>':'')+'</div><div class="fword bl" style="line-height:1.6">'+formatText(card.c1)+'</div>'+(card.example?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;font-style:italic;line-height:1.6;padding:10px;background:#F8FAFC;border-radius:6px;border-left:3px solid #E5E7EB;white-space:pre-wrap;word-wrap:break-word">'+formatText(card.example)+'</div>':'')+(card.note?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+formatText(card.note)+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+esc(card.simple)+'</div>'+cardProd_boxHTML(card)+'</div>'
         +gradeBtns
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
@@ -3912,7 +4092,7 @@ function renderCardsStudy(){
       ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint">Front</div><div class="fword">'+sFront+'</div><div class="ftap">Tap to reveal →</div></div>'
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }else{
-      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+(sNote?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+sNote+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div></div>'
+      ch='<div class="fcard" onclick="flipCard()" style="position:relative">'+editBtn+'<div class="fhint" style="color:#2563EB">Back</div><div class="fword bl" style="line-height:1.6">'+sBack+'</div>'+(sEx?'<div style="font-size:14px;color:#94A3B8;margin-top:10px;line-height:1.6">'+sEx+'</div>':'')+(sNote?'<div style="font-size:14px;color:#9A3412;margin-top:10px;line-height:1.6;padding:10px;background:#FFF7ED;border-radius:6px;border-left:3px solid #FB923C;white-space:pre-wrap;word-wrap:break-word">📝 '+sNote+'</div>':'')+'<div class="ftap" style="margin-top:8px">← '+sFront+'</div>'+cardProd_boxHTML(card)+'</div>'
         +gradeBtns
         +'<div class="rev-foot"><span class="rev-cnt">'+(flashIdx+1)+' / '+dv.length+'</span>'+navBtns+'</div>';
     }
