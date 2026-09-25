@@ -2347,10 +2347,17 @@ try{cardProdQueue=JSON.parse(localStorage.getItem('c1cardprodq')||'null')||[];}c
 if(!Array.isArray(cardProdQueue))cardProdQueue=[];
 let cardProdCfg={batch:'now'};
 try{cardProdCfg=Object.assign(cardProdCfg,JSON.parse(localStorage.getItem('c1cardprodcfg')||'null')||{});}catch(e){}
+// On by default (matches how this shipped), but toggleable back to the
+// plain flashcard back — writing a sentence for every single card can feel
+// like a lot when you just want a quick pass through the deck.
+let cardProdEnabled=true;
+try{cardProdEnabled=localStorage.getItem('c1cardprodon')!=='0';}catch(e){}
 function saveCardProdQueue(){localStorage.setItem('c1cardprodq',JSON.stringify(cardProdQueue));}
 function saveCardProdCfg(){localStorage.setItem('c1cardprodcfg',JSON.stringify(cardProdCfg));}
 function setCardProdBatch(v){cardProdCfg.batch=v==='now'?'now':parseInt(v,10);saveCardProdCfg();renderCardsStudy();}
+function toggleCardProdEnabled(){cardProdEnabled=!cardProdEnabled;localStorage.setItem('c1cardprodon',cardProdEnabled?'1':'0');renderCardsStudy();}
 function cardProd_boxHTML(card){
+  if(!cardProdEnabled)return'';
   const batch=cardProdCfg.batch;
   const queueInfo=batch==='now'?'':'<span style="font-size:12px;color:#64748B">'+cardProdQueue.length+'/'+batch+' queued'+(cardProdQueue.length?' · <a href="#" onclick="event.preventDefault();event.stopPropagation();cardProd_check()" style="color:#2563EB;text-decoration:underline">Check now</a>':'')+'</span>';
   // The target expression can be a whole rule/formula, not just a short
@@ -4142,9 +4149,12 @@ function renderCardsStudy(){
   if(revCfg.mode==='random'){
     ctrls+='<label style="font-size:14px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   }
-  ctrls+='<label style="font-size:14px;color:#475569">Sentence check:</label><select onchange="setCardProdBatch(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Sans\',sans-serif">'
-    +['now',5,10,15].map(v=>'<option value="'+v+'"'+(cardProdCfg.batch===v?' selected':'')+'>'+(v==='now'?'Now':'Every '+v)+'</option>').join('')
-    +'</select>';
+  ctrls+='<button onclick="toggleCardProdEnabled()" style="padding:6px 10px;border-radius:8px;border:1px solid '+(cardProdEnabled?'#16A34A':'#DDE3F5')+';background:'+(cardProdEnabled?'#F0FDF4':'#fff')+';color:'+(cardProdEnabled?'#166534':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">✍️ Use it in a sentence: '+(cardProdEnabled?'On':'Off')+'</button>';
+  if(cardProdEnabled){
+    ctrls+='<label style="font-size:14px;color:#475569">Sentence check:</label><select onchange="setCardProdBatch(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Sans\',sans-serif">'
+      +['now',5,10,15].map(v=>'<option value="'+v+'"'+(cardProdCfg.batch===v?' selected':'')+'>'+(v==='now'?'Now':'Every '+v)+'</option>').join('')
+      +'</select>';
+  }
   ctrls+='<label style="font-size:14px;color:#475569;margin-left:auto">Daily limit:</label><input type="number" min="1" max="500" value="'+revCfg.limit+'" onchange="setRevLimit(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   ctrls+='</div></div>';
   if(allDue.length===0){c.innerHTML=ctrls+'<div class="card empty"><svg class="eico" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg><div class="etit">All caught up! 🎉</div><div class="esub">No cards due today.</div></div>';return;}
