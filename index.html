@@ -236,6 +236,14 @@ textarea{min-height:120px}
 .exmode-btn.on{background:#2563EB;border-color:#2563EB;color:#fff}
 .exmode-btn:hover:not(.on){background:#F1F5F9}
 .exmode-btn.sub{font-size:13px;padding:6px 8px}
+/* Physical on/off switch (checkbox styled as a sliding pill), not a text
+   button — used where a setting is a plain binary toggle. */
+.toggle-switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:#CBD5E1;border-radius:24px;cursor:pointer;transition:background .15s}
+.toggle-slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.toggle-switch input:checked+.toggle-slider{background:#16A34A}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(18px)}
 .toefl-row{display:flex;flex-direction:column;gap:1px;padding:8px 8px;cursor:pointer;transition:background .15s;color:#0F172A;font-size:13px;line-height:1.3}
 .toefl-row:hover{background:rgba(37,99,235,.08)}
 .toefl-row-meta{font-size:11px;color:#94A3B8;white-space:nowrap;font-family:'DM Mono',monospace}
@@ -4149,7 +4157,7 @@ function renderCardsStudy(){
   if(revCfg.mode==='random'){
     ctrls+='<label style="font-size:14px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   }
-  ctrls+='<button onclick="toggleCardProdEnabled()" title="Use it in a sentence" style="padding:6px 10px;border-radius:8px;border:1px solid '+(cardProdEnabled?'#16A34A':'#DDE3F5')+';background:'+(cardProdEnabled?'#F0FDF4':'#fff')+';color:'+(cardProdEnabled?'#166534':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">✍️ '+(cardProdEnabled?'On':'Off')+'</button>';
+  ctrls+='<span style="display:flex;align-items:center;gap:6px" title="Use it in a sentence"><span style="font-size:16px">✍️</span><label class="toggle-switch"><input type="checkbox" onchange="toggleCardProdEnabled()"'+(cardProdEnabled?' checked':'')+'><span class="toggle-slider"></span></label></span>';
   if(cardProdEnabled){
     ctrls+='<label style="font-size:14px;color:#475569">Sentence check:</label><select onchange="setCardProdBatch(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Sans\',sans-serif">'
       +['now',5,10,15].map(v=>'<option value="'+v+'"'+(cardProdCfg.batch===v?' selected':'')+'>'+(v==='now'?'Now':'Every '+v)+'</option>').join('')
