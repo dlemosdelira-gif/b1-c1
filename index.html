@@ -4149,7 +4149,7 @@ function renderCardsStudy(){
   if(revCfg.mode==='random'){
     ctrls+='<label style="font-size:14px;color:#475569">Random count:</label><input type="number" min="1" max="500" value="'+revCfg.random+'" onchange="setRevRandom(this.value)" style="width:70px;padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Mono\',monospace">';
   }
-  ctrls+='<button onclick="toggleCardProdEnabled()" style="padding:6px 10px;border-radius:8px;border:1px solid '+(cardProdEnabled?'#16A34A':'#DDE3F5')+';background:'+(cardProdEnabled?'#F0FDF4':'#fff')+';color:'+(cardProdEnabled?'#166534':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">✍️ Use it in a sentence: '+(cardProdEnabled?'On':'Off')+'</button>';
+  ctrls+='<button onclick="toggleCardProdEnabled()" title="Use it in a sentence" style="padding:6px 10px;border-radius:8px;border:1px solid '+(cardProdEnabled?'#16A34A':'#DDE3F5')+';background:'+(cardProdEnabled?'#F0FDF4':'#fff')+';color:'+(cardProdEnabled?'#166534':'#475569')+';font-size:14px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">✍️ '+(cardProdEnabled?'On':'Off')+'</button>';
   if(cardProdEnabled){
     ctrls+='<label style="font-size:14px;color:#475569">Sentence check:</label><select onchange="setCardProdBatch(this.value)" style="padding:6px 8px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;background:#fff;font-family:\'DM Sans\',sans-serif">'
       +['now',5,10,15].map(v=>'<option value="'+v+'"'+(cardProdCfg.batch===v?' selected':'')+'>'+(v==='now'?'Now':'Every '+v)+'</option>').join('')
