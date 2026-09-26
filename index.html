@@ -719,6 +719,13 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mM5Checkpoints" onclick="if(event.target===this)closeM('mM5Checkpoints')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:480px">
+    <div class="mhdr"><div class="mtit">🎯 Mission 5.0 — Checkpoints</div><button class="btn bsm" onclick="closeM('mM5Checkpoints')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto" id="m5CheckpointsBody"></div>
+  </div>
+</div>
+
 <div class="mov hid" id="mCL" onclick="if(event.target===this)closeM('mCL')">
   <div class="modal">
     <div class="mhdr"><div class="mtit">➕ Add Custom Lesson</div><button class="btn bsm" onclick="closeM('mCL')">✕</button></div>
@@ -1082,6 +1089,7 @@ textarea{min-height:120px}
 </div>
 
 <div class="pg" id="pg-dash">
+  <div id="m5DashContainer"></div>
   <div class="card csm" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:18px">🎯</span>
@@ -1270,7 +1278,7 @@ function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMont
 const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
@@ -2129,6 +2137,7 @@ function loadLocal(){
   loadMilestones();
   loadLessons();
   ex_loadLocal();
+  m5_loadLocal();
 }
 // Firebase keys cannot contain . # $ / [ ] or be empty. User-derived keys (e.g.
 // a card topic like "FORMAL / ACADEMIC") would otherwise make ref.set() throw
@@ -2662,6 +2671,7 @@ function nextMonth(){
 }
 
 function renderDash(){
+  m5_renderDashboard();
   renderReadiness();
   // Load today's tasks
   const stored=localStorage.getItem('c1dt-'+today);
@@ -9131,6 +9141,182 @@ function ex_loadLocal(){
   rq_loadLocal();
 }
 
+// ══ MISSION 5.0 ═══════════════════════════════════════════════════════════
+// Overlay on top of the existing Escola do TOEFL schedule/Weekly Sprint,
+// tracking checkpoint scores toward the 2026-10-24 TOEFL iBT test date and
+// projecting the overall band. Read-only with respect to that schedule —
+// nothing here modifies, reorders, or locks anything in it. Ships items 1
+// (Checkpoints) and 2 (Dashboard) only; the Rewrite Pending / Gap Bank / Build
+// a Sentence tracker / Take an Interview exam mode this was originally
+// scoped with are deliberately not built (no data source exists yet, and
+// Speaking practice is staying in Escola do TOEFL per instruction).
+const M5_EXAM_DATE='2026-10-24';
+const M5_CHECKPOINTS_DEF=[
+  {id:'baseline',name:'Baseline',date:'2026-09-27',tag:'TestReady free test'},
+  {id:'ets1',name:'ETS #1',date:'2026-10-04',tag:'Official practice test'},
+  {id:'ets2',name:'ETS #2',date:'2026-10-11',tag:'Decision checkpoint'},
+  {id:'ets3',name:'ETS #3',date:'2026-10-18',tag:'Official practice test'}
+];
+const M5_TARGETS={r:5.5,l:5.0,w:4.5,s:4.0};
+const M5_SKILL_LABEL={r:'Reading',l:'Listening',w:'Writing',s:'Speaking'};
+const M5_SKILL_ICON={r:'📖',l:'🎧',w:'✍️',s:'🎤'};
+
+let m5_checkpoints={};
+let m5_collapsed=false;
+try{m5_collapsed=localStorage.getItem('c1m5collapsed')==='1';}catch(e){}
+
+function m5_loadLocal(){
+  try{const v=JSON.parse(localStorage.getItem('c1m5cp')||'null');m5_checkpoints=(v&&typeof v==='object')?v:{};}catch(e){m5_checkpoints={};}
+}
+function m5_saveCheckpoints(){localStorage.setItem('c1m5cp',JSON.stringify(m5_checkpoints));if(RM5)fbSet(RM5,m5_checkpoints);}
+
+function m5_toggleCollapse(){
+  m5_collapsed=!m5_collapsed;
+  try{localStorage.setItem('c1m5collapsed',m5_collapsed?'1':'0');}catch(e){}
+  m5_renderDashboard();
+}
+
+function m5_daysUntilExam(){
+  return Math.round((new Date(M5_EXAM_DATE+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);
+}
+// Latest LOGGED checkpoint in chronological order — not necessarily the most
+// recently EDITED one, so an out-of-order backfill doesn't jump the dashboard
+// back to an earlier milestone.
+function m5_latestCheckpointScores(){
+  for(let i=M5_CHECKPOINTS_DEF.length-1;i>=0;i--){
+    const sc=m5_checkpoints[M5_CHECKPOINTS_DEF[i].id];
+    if(sc)return sc;
+  }
+  return null;
+}
+// The decision rule only makes sense once there's enough real testing
+// evidence behind it — per spec, that's ETS #2 or later.
+function m5_decisionCheckpointLogged(){
+  return !!(m5_checkpoints.ets2||m5_checkpoints.ets3);
+}
+function m5_fmtScore(v){return v==null?'—':v.toFixed(1);}
+// Official ETS rounding: 4.75 -> 5.0, 4.625 -> 4.5.
+function m5_etsRound(avg){return Math.round(avg*2)/2;}
+function m5_decisionRule(avg){
+  if(avg>=4.75)return{bg:'#F0FDF4',border:'#BBF7D0',color:'#166534',text:'🎯 Keep 10/24, target 5.0'};
+  if(avg>=4.25)return{bg:'#FFFBEB',border:'#FDE68A',color:'#B45309',text:'📋 Keep 10/24 as first attempt, book a November retake'};
+  return{bg:'#FEF2F2',border:'#FECACA',color:'#DC2626',text:'🔄 Consider moving the first attempt to November'};
+}
+// Smallest single-section increase (in half-bands) that would push the
+// average to >=4.75, applied to whichever section is currently lowest (the
+// one with the most headroom before the 6.0 ceiling). If even maxing that
+// section out isn't enough, say so instead of recommending a score above
+// the scale.
+function m5_whatMustChange(scores){
+  const keys=['r','l','w','s'];
+  const sum=keys.reduce((a,k)=>a+scores[k],0);
+  const deficit=4.75*4-sum;
+  if(deficit<=0)return{done:true};
+  const lowest=keys.reduce((a,b)=>scores[a]<=scores[b]?a:b);
+  const bump=Math.ceil(deficit/0.5)*0.5;
+  const headroom=6-scores[lowest];
+  if(bump<=headroom)return{single:true,section:lowest,from:scores[lowest],to:scores[lowest]+bump};
+  return{single:false};
+}
+
+function m5_openCheckpointsModal(){
+  m5_renderCheckpointsModal();
+  openM('mM5Checkpoints');
+}
+function m5_renderCheckpointsModal(){
+  const el=document.getElementById('m5CheckpointsBody');
+  if(!el)return;
+  el.innerHTML=M5_CHECKPOINTS_DEF.map(cp=>{
+    const sc=m5_checkpoints[cp.id],done=!!sc;
+    return '<div style="border:1px solid #DDE3F5;border-radius:12px;padding:12px 14px;margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'
+      +'<span style="font-size:14.5px;font-weight:600;color:#0F172A">'+esc(cp.name)+'</span>'
+      +'<span style="font-size:12px;color:#94A3B8;font-family:\'DM Mono\',monospace">'+esc(cp.date.slice(5))+'</span>'
+      +'</div>'
+      +'<span style="font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;'+(done?'background:#F0FDF4;color:#16A34A':'background:#F8FAFF;color:#94A3B8;border:1px solid #DDE3F5')+'">'+(done?'Logged':'Pending')+'</span>'
+      +' <span style="font-size:11.5px;color:#94A3B8">'+esc(cp.tag)+'</span>'
+      +(done
+        ?'<div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">'+Object.keys(M5_TARGETS).map(k=>'<span style="font-size:12.5px;color:#475569">'+M5_SKILL_LABEL[k]+' <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(sc[k])+'</b></span>').join('')+'</div>'
+        :'')
+      +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">'
+      +Object.keys(M5_TARGETS).map(k=>'<div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;color:#475569;font-weight:600">'+M5_SKILL_LABEL[k]+'</label><input id="m5f_'+cp.id+'_'+k+'" type="number" min="1" max="6" step="0.5" value="'+(sc?sc[k]:'')+'" style="width:100%;padding:7px 6px;border:1px solid #DDE3F5;border-radius:7px;font-family:\'DM Mono\',monospace;font-size:14px;text-align:center;background:#F8FAFF;color:#0F172A"></div>').join('')
+      +'</div>'
+      +'<div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn bpr bsm" onclick="m5_saveCheckpoint(\''+cp.id+'\')">'+(done?'Update':'Save')+'</button></div>'
+      +'</div>';
+  }).join('');
+}
+function m5_saveCheckpoint(id){
+  const r=parseFloat(document.getElementById('m5f_'+id+'_r').value);
+  const l=parseFloat(document.getElementById('m5f_'+id+'_l').value);
+  const w=parseFloat(document.getElementById('m5f_'+id+'_w').value);
+  const s=parseFloat(document.getElementById('m5f_'+id+'_s').value);
+  if([r,l,w,s].some(v=>isNaN(v)||v<1||v>6)){toast('⚠️ Enter all four scores (1–6)');return;}
+  m5_checkpoints[id]={r,l,w,s};
+  m5_saveCheckpoints();
+  m5_renderCheckpointsModal();
+  m5_renderDashboard();
+  toast('✅ '+M5_CHECKPOINTS_DEF.find(c=>c.id===id).name+' logged');
+}
+
+function m5_renderDashboard(){
+  const el=document.getElementById('m5DashContainer');
+  if(!el)return;
+  const arrow=m5_collapsed?'▸':'▾';
+  let h='<div class="card" style="margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="m5_toggleCollapse()">'
+    +'<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🎯</span><div><div style="font-weight:600;color:#0F172A">Mission 5.0</div><div style="font-size:11px;color:#94A3B8">'+m5_daysUntilExam()+' days to Oct 24 · TOEFL iBT</div></div></div>'
+    +'<span style="font-size:13px;color:#94A3B8">'+arrow+'</span>'
+    +'</div>';
+
+  if(!m5_collapsed){
+    const scores=m5_latestCheckpointScores();
+    h+='<div style="margin-top:14px">';
+
+    if(!scores){
+      h+='<div style="font-size:13px;color:#64748B;padding:10px;background:#F8FAFF;border-radius:8px">No checkpoint logged yet. Enter your Baseline score after Sunday\'s TestReady test.</div>';
+    }else{
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'
+        +Object.keys(M5_TARGETS).map(k=>{
+          const cur=scores[k],tgt=M5_TARGETS[k],met=cur>=tgt,gap=Math.max(0,tgt-cur);
+          return '<div style="border:1px solid #DDE3F5;border-radius:10px;padding:10px 12px;background:#F8FAFF">'
+            +'<div style="font-size:12.5px;font-weight:600;color:#475569;margin-bottom:6px">'+M5_SKILL_ICON[k]+' '+M5_SKILL_LABEL[k]+'</div>'
+            +'<div style="font-family:\'DM Mono\',monospace"><span style="font-size:20px;font-weight:500;color:#0F172A">'+m5_fmtScore(cur)+'</span><span style="color:#94A3B8;font-size:13px"> → </span><span style="font-size:14px;color:#475569">'+m5_fmtScore(tgt)+'</span></div>'
+            +(met
+              ?'<div style="display:inline-flex;font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:6px;font-family:\'DM Mono\',monospace;background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0">✓ on target</div>'
+              :'<div style="display:inline-flex;font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:6px;font-family:\'DM Mono\',monospace;background:#FFFBEB;color:#D97706;border:1px solid #FDE68A">+'+gap.toFixed(1)+' needed</div>')
+            +'</div>';
+        }).join('')
+        +'</div>';
+
+      const avg=(scores.r+scores.l+scores.w+scores.s)/4,band=m5_etsRound(avg);
+      h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">'
+        +'<span style="font-family:\'DM Mono\',monospace;font-size:30px;font-weight:500;color:#0F172A">'+band.toFixed(1)+'</span>'
+        +'<span style="font-size:12px;color:#64748B">Projected overall (ETS rounding of your latest scores)</span>'
+        +'</div>';
+
+      if(m5_decisionCheckpointLogged()){
+        const rule=m5_decisionRule(avg);
+        h+='<div style="border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;background:'+rule.bg+';color:'+rule.color+';border:1px solid '+rule.border+';margin-bottom:10px">'+rule.text+'</div>';
+      }
+
+      const change=m5_whatMustChange(scores);
+      h+='<div style="font-size:13px;color:#64748B;padding-top:10px;border-top:1px dashed #DDE3F5">'
+        +(change.done
+          ?'You\'re already averaging 4.75+ — hold steady across all four sections.'
+          :change.single
+            ?'What must change: raise <b style="color:#0F172A">'+M5_SKILL_LABEL[change.section]+'</b> from <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.from)+'</b> to <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.to)+'</b> (smallest single-section move to 4.75+).'
+            :'No single section reaches 4.75+ on its own from here — plan improvement in at least two sections.')
+        +'</div>';
+    }
+
+    h+='<div style="margin-top:12px"><button class="btn bsm" onclick="m5_openCheckpointsModal()">📅 Checkpoints</button></div>'
+      +'</div>';
+  }
+
+  h+='</div>';
+  el.innerHTML=h;
+}
+
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
 function setCardsTopicFilter(t){cardsTopicFilter=t;renderCards();}
 function onCardsSearch(v){cardsSearch=(v||'').toLowerCase().trim();applyCardsSearch();}
@@ -9977,6 +10163,7 @@ function startSync(){
     RIVP = db.ref('ivProgress');
     RRQI = db.ref('rqItems');
     RRQP = db.ref('rqProgress');
+    RM5 = db.ref('mission5');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -10031,6 +10218,7 @@ function startSync(){
     RIVP.on('value',s=>{const v=s.val();if(v){ivProgress=v;localStorage.setItem('c1ivp',JSON.stringify(ivProgress));iv_renderScenario();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[toeflActivity]){const k=toeflActivity;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[toeflActivity]&&!rq_cur[toeflActivity])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RM5.on('value',s=>{const v=s.val();if(v){m5_checkpoints=v;localStorage.setItem('c1m5cp',JSON.stringify(v));} setSS('online'); if(curTab==='dash')m5_renderDashboard();}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
