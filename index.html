@@ -1090,18 +1090,6 @@ textarea{min-height:120px}
 
 <div class="pg" id="pg-dash">
   <div id="m5DashContainer"></div>
-  <div class="card csm" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:18px">🎯</span>
-      <div>
-        <div style="font-weight:600;color:#0F172A">5.0 Mode</div>
-        <div style="font-size:11px;color:#94A3B8">Where am I? What's the gap? What do I train now?</div>
-      </div>
-    </div>
-    <div id="mode45Toggle" onclick="toggle45Mode()" style="width:38px;height:22px;border-radius:20px;cursor:pointer;position:relative;flex-shrink:0;transition:background .15s"></div>
-  </div>
-  <div id="readinessContainer"></div>
-
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
   <div id="dashChecklistContainer">
     <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px;padding:12px;cursor:pointer" onclick="toggleDailyTask('preply')"><input type="checkbox" style="width:14px;height:14px;cursor:pointer" onclick="event.stopPropagation()"><div style="flex:1"><div style="font-weight:600;color:#0F172A">🎤 Preply/Speaking</div></div></div></div>
@@ -2672,7 +2660,6 @@ function nextMonth(){
 
 function renderDash(){
   m5_renderDashboard();
-  renderReadiness();
   // Load today's tasks
   const stored=localStorage.getItem('c1dt-'+today);
   const tasks=stored?JSON.parse(stored):{preply:false,reading:false,listening:false,writing:false};
