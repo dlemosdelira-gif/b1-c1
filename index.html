@@ -1279,7 +1279,7 @@ function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMont
 const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null,RERR=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
@@ -9159,13 +9159,17 @@ function ex_loadLocal(){
 // scoped with are deliberately not built (no data source exists yet, and
 // Speaking practice is staying in Escola do TOEFL per instruction).
 const M5_EXAM_DATE='2026-10-24';
+// Checkpoints, targets and the decision rule all match the user's own
+// tracking spreadsheet (TOEFL_planilha_treino_ate_Mock2, aba "Simulados")
+// exactly, per instruction — these are no longer independent app-side
+// assumptions.
 const M5_CHECKPOINTS_DEF=[
-  {id:'baseline',name:'Baseline',date:'2026-09-27',tag:'TestReady free test'},
-  {id:'ets1',name:'ETS #1',date:'2026-10-04',tag:'Official practice test'},
-  {id:'ets2',name:'ETS #2',date:'2026-10-11',tag:'Decision checkpoint'},
-  {id:'ets3',name:'ETS #3',date:'2026-10-18',tag:'Official practice test'}
+  {id:'baseline',name:'Mock 1',date:'2026-10-01',tag:'ETS TestReady — not official'},
+  {id:'mock2',name:'Mock 2',date:'2026-10-11',tag:'Decision checkpoint'},
+  {id:'mock3',name:'Mock 3',date:'2026-10-18',tag:'Official practice test'},
+  {id:'mock4',name:'Mock 4 (ensaio)',date:'2026-10-21',tag:'Rehearsal'}
 ];
-const M5_TARGETS={r:5.5,l:5.0,w:4.5,s:4.0};
+const M5_TARGETS={r:4.5,l:4.5,w:4.0,s:4.0};
 const M5_SKILL_LABEL={r:'Reading',l:'Listening',w:'Writing',s:'Speaking'};
 const M5_SKILL_ICON={r:'📖',l:'🎧',w:'✍️',s:'🎤'};
 
@@ -9198,27 +9202,32 @@ function m5_latestCheckpointScores(){
   return null;
 }
 // The decision rule only makes sense once there's enough real testing
-// evidence behind it — per spec, that's ETS #2 or later.
+// evidence behind it — the spreadsheet itself says the rule "runs starting
+// from Mock 2".
 function m5_decisionCheckpointLogged(){
-  return !!(m5_checkpoints.ets2||m5_checkpoints.ets3);
+  return !!(m5_checkpoints.mock2||m5_checkpoints.mock3||m5_checkpoints.mock4);
 }
 function m5_fmtScore(v){return v==null?'—':v.toFixed(1);}
 // Official ETS rounding: 4.75 -> 5.0, 4.625 -> 4.5.
 function m5_etsRound(avg){return Math.round(avg*2)/2;}
-function m5_decisionRule(avg){
-  if(avg>=4.75)return{bg:'#F0FDF4',border:'#BBF7D0',color:'#166534',text:'🎯 Keep 10/24, target 5.0'};
-  if(avg>=4.25)return{bg:'#FFFBEB',border:'#FDE68A',color:'#B45309',text:'📋 Keep 10/24 as first attempt, book a November retake'};
-  return{bg:'#FEF2F2',border:'#FECACA',color:'#DC2626',text:'🔄 Consider moving the first attempt to November'};
+// Spreadsheet's own decision rule (aba "Simulados"): nota geral (already
+// ETS-rounded to 0.5) >=4.5 keeps 10/24; ==4.0 keeps 10/24 as a first
+// attempt and books a November retake; <=3.5 considers rescheduling.
+function m5_decisionRule(band){
+  if(band>=4.5)return{bg:'#F0FDF4',border:'#BBF7D0',color:'#166534',text:'🎯 Manter 24/10'};
+  if(band>=4.0)return{bg:'#FFFBEB',border:'#FDE68A',color:'#B45309',text:'📋 Manter 24/10 como 1ª tentativa e reservar novembro'};
+  return{bg:'#FEF2F2',border:'#FECACA',color:'#DC2626',text:'🔄 Considerar remarcar a 1ª tentativa'};
 }
 // Smallest single-section increase (in half-bands) that would push the
-// average to >=4.75, applied to whichever section is currently lowest (the
-// one with the most headroom before the 6.0 ceiling). If even maxing that
+// average high enough to round to the spreadsheet's 4.5 "keep 10/24" band
+// (avg >=4.25), applied to whichever section is currently lowest (the one
+// with the most headroom before the 6.0 ceiling). If even maxing that
 // section out isn't enough, say so instead of recommending a score above
 // the scale.
 function m5_whatMustChange(scores){
   const keys=['r','l','w','s'];
   const sum=keys.reduce((a,k)=>a+scores[k],0);
-  const deficit=4.75*4-sum;
+  const deficit=4.25*4-sum;
   if(deficit<=0)return{done:true};
   const lowest=keys.reduce((a,b)=>scores[a]<=scores[b]?a:b);
   const bump=Math.ceil(deficit/0.5)*0.5;
@@ -9299,21 +9308,21 @@ function m5_renderDashboard(){
       const avg=(scores.r+scores.l+scores.w+scores.s)/4,band=m5_etsRound(avg);
       h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">'
         +'<span style="font-family:\'DM Mono\',monospace;font-size:30px;font-weight:500;color:#0F172A">'+band.toFixed(1)+'</span>'
-        +'<span style="font-size:12px;color:#64748B">Projected overall (ETS rounding of your latest scores)</span>'
+        +'<span style="font-size:12px;color:#64748B">Nota geral (média das 4 seções, arredondada para 0,5 — igual à planilha)</span>'
         +'</div>';
 
       if(m5_decisionCheckpointLogged()){
-        const rule=m5_decisionRule(avg);
+        const rule=m5_decisionRule(band);
         h+='<div style="border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;background:'+rule.bg+';color:'+rule.color+';border:1px solid '+rule.border+';margin-bottom:10px">'+rule.text+'</div>';
       }
 
       const change=m5_whatMustChange(scores);
       h+='<div style="font-size:13px;color:#64748B;padding-top:10px;border-top:1px dashed #DDE3F5">'
         +(change.done
-          ?'You\'re already averaging 4.75+ — hold steady across all four sections.'
+          ?'Você já está com nota geral 4,5+ — mantenha o nível nas quatro seções.'
           :change.single
-            ?'What must change: raise <b style="color:#0F172A">'+M5_SKILL_LABEL[change.section]+'</b> from <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.from)+'</b> to <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.to)+'</b> (smallest single-section move to 4.75+).'
-            :'No single section reaches 4.75+ on its own from here — plan improvement in at least two sections.')
+            ?'O que precisa mudar: subir <b style="color:#0F172A">'+M5_SKILL_LABEL[change.section]+'</b> de <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.from)+'</b> para <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.to)+'</b> (menor ajuste numa única seção para chegar a 4,5+).'
+            :'Nenhuma seção isolada chega a 4,5+ a partir daqui — planeje melhora em pelo menos duas seções.')
         +'</div>';
     }
 
@@ -9374,18 +9383,230 @@ function mp_renderSettingsToggle(){
   if(!box)return;
   box.innerHTML='<label class="toggle-switch"><input type="checkbox" onchange="mp_toggle()"'+(modoProva?' checked':'')+'><span class="toggle-slider"></span></label>';
 }
-// Placeholder screens — Hoje ships with Task 5, Erros (err_ namespace) with
-// Task 2. Scaffolded now so Modo Prova's reduced nav is complete and usable
-// as soon as it's turned on, even before those tasks land.
+// ══ CADERNO DE ERROS ═════════════════════════════════════════════════════
+// Mirrors the user's own TOEFL tracking spreadsheet (TOEFL_planilha_treino_
+// ate_Mock2, aba "Erros"): one row per MECANISMO, retested at fixed +2/+5/+10
+// day offsets (not a generic SM-2 curve), with a "Pendência hoje" view — so
+// the in-app clock matches what the spreadsheet already shows. Writes only
+// to its own node/localStorage key; never touches mentoria, Escola do TOEFL,
+// or Cards data.
+const ERR_SOURCES=['Simulado ETS','Flex Practice','Escola','Outro'];
+const ERR_TASKS=['Build a Sentence','Email','Academic Discussion','Listen & Repeat','Interview','Reading','Listening'];
+const ERR_CATEGORIES=['S/V','Preposição','Ordem de palavras','Forma verbal','Artigo','Colocação','Vocabulário','Outro'];
+
+let erros=[];
+try{erros=JSON.parse(localStorage.getItem('c1erros')||'[]')||[];}catch(e){erros=[];}
+if(!Array.isArray(erros))erros=[];
+let err_draft={source:ERR_SOURCES[0],task:ERR_TASKS[0],category:ERR_CATEGORIES[0]};
+try{const d=JSON.parse(localStorage.getItem('c1errdraft')||'null');if(d)err_draft=Object.assign(err_draft,d);}catch(e){}
+let err_editId=null;
+let err_filterMode='pending';
+
+function err_addDays(dateStr,n){const d=new Date(dateStr+'T00:00:00');d.setDate(d.getDate()+n);return localDateStr(d);}
+function err_save(){try{localStorage.setItem('c1erros',JSON.stringify(erros));}catch(e){} if(RERR)fbSet(RERR,erros);}
+function err_saveDraft(){try{localStorage.setItem('c1errdraft',JSON.stringify(err_draft));}catch(e){}}
+
+function err_estado(e){
+  if(e.r10&&e.r10.result==='ok')return'Dominado';
+  const last=[e.r2,e.r5,e.r10].filter(s=>s&&s.result).pop();
+  if(last&&last.result==='erro')return'Voltou: retreinar';
+  if(!e.treinado)return'Identificado';
+  return'Treinado';
+}
+function err_pendingStage(e){
+  if(e.r2&&!e.r2.result&&e.r2.date<=today)return{key:'r2',label:'Reteste +2'};
+  if(e.r5&&!e.r5.result&&e.r5.date<=today)return{key:'r5',label:'Reteste +5'};
+  if(e.r10&&!e.r10.result&&e.r10.date<=today)return{key:'r10',label:'Reteste +10'};
+  return null;
+}
+function err_countPendingToday(){return erros.filter(e=>err_pendingStage(e)).length;}
+
+function err_pick(field,v){err_draft[field]=v;if(err_editId){const e=erros.find(x=>x.id===err_editId);if(e)e[field]=v;}else{err_saveDraft();}mp_renderErros();}
+function err_startNew(){err_editId=null;mp_renderErros();}
+function err_startEdit(id){err_editId=id;mp_renderErros();setTimeout(()=>document.getElementById('errFormCard')?.scrollIntoView({behavior:'smooth',block:'start'}),50);}
+
+function err_submit(){
+  const wrong=(document.getElementById('errWrong').value||'').trim();
+  const correct=(document.getElementById('errCorrect').value||'').trim();
+  const mecanismo=(document.getElementById('errMecanismo').value||'').trim();
+  if(!wrong||!correct){toast('⚠️ Preencha "O que escrevi" e "Versão correta"');return;}
+  if(err_editId){
+    const e=erros.find(x=>x.id===err_editId);
+    if(e){e.mecanismo=mecanismo;e.wrong=wrong;e.correct=correct;}
+    err_editId=null;
+    toast('✅ Erro atualizado');
+  }else{
+    erros.unshift({
+      id:'e'+Date.now()+Math.random().toString(36).slice(2,6),
+      createdAt:today,source:err_draft.source,task:err_draft.task,category:err_draft.category,
+      mecanismo,wrong,correct,treinado:false,
+      r2:{date:err_addDays(today,2),result:null},
+      r5:{date:err_addDays(today,5),result:null},
+      r10:{date:err_addDays(today,10),result:null}
+    });
+    toast('✅ Erro salvo');
+  }
+  err_save();
+  mp_renderErros();
+  mp_renderHoje();
+}
+function err_toggleTreinado(id){const e=erros.find(x=>x.id===id);if(!e)return;e.treinado=!e.treinado;err_save();mp_renderErros();}
+function err_markRetest(id,stageKey,result){
+  const e=erros.find(x=>x.id===id);if(!e)return;
+  e[stageKey].result=result;
+  if(result==='erro'){
+    // Same rule as the spreadsheet: a missed retest restarts the +2/+5/+10
+    // cycle from today instead of just marking that one stage failed.
+    e.r2={date:err_addDays(today,2),result:null};
+    e.r5={date:err_addDays(today,5),result:null};
+    e.r10={date:err_addDays(today,10),result:null};
+    e.treinado=false;
+  }
+  err_save();
+  mp_renderErros();
+  mp_renderHoje();
+}
+function err_delete(id){
+  if(!confirm('Excluir este erro?'))return;
+  erros=erros.filter(x=>x.id!==id);
+  err_save();
+  mp_renderErros();
+  mp_renderHoje();
+}
+function err_setFilter(m){err_filterMode=m;mp_renderErros();}
+
+// One-time import of the 12 Mock 1 errors logged in the user's own tracking
+// spreadsheet (TOEFL_planilha_treino_ate_Mock2, aba "Erros"), read from the
+// full .xlsx (not the earlier truncated Google Sheets preview), so the
+// +2/+5/+10 retest clock from 2026-10-01 carries over instead of resetting
+// and wrong/correct are the real, complete sentences.
+function err_seedFromSheet(){
+  if(erros.length>0)return;
+  try{if(localStorage.getItem('c1errseeded')==='2')return;}catch(e){}
+  const base='2026-10-01';
+  const seed=[
+    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Pergunta indireta: (wh/if) + sujeito + verbo, sem inversão',wrong:'It highlighted how important are student learning to online sources / …whom will give that feedback to',correct:'It highlighted how important online sources are to student learning / …whom I will give that feedback to'},
+    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Pergunta direta: (wh) + auxiliar + sujeito + verbo',wrong:'What kind of projects be you will working on?',correct:'What kind of projects will you be working on?'},
+    {task:'Build a Sentence',category:'Preposição',mecanismo:'Preposição + (not) + -ing',wrong:"I'm worried about for my studies having enough not time / was interested an internship in doing",correct:"I'm worried about not having enough time for my studies / was interested in doing an internship"},
+    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Ordem dos modificadores (quantidade antes do adjetivo)',wrong:'includes additional several countries',correct:'includes several additional countries'},
+    {task:'Email',category:'Forma verbal',mecanismo:'suggest / thank you for + -ing; present perfect com since',wrong:'I kindly suggest you to bring more bands / they are my favorite band since I was young',correct:'I would suggest bringing more bands / they have been my favorite band since I was young'},
+    {task:'Email',category:'Outro',mecanismo:'Redação: 3 pontos do enunciado + detalhe (por que mais food trucks?)',wrong:'(faltou o motivo da sugestão)',correct:'I would suggest adding more food trucks because the lines were long.'},
+    {task:'Academic Discussion',category:'S/V',mecanismo:'Estrutura do verbo: auxiliar certo, need TO + verbo, the first step is TO + verbo',wrong:'free will is could be an illusion / we in the control / If you need buy / the first step is recognize',correct:'free will could be an illusion / we are in control / If you need to buy / the first step is to recognize'},
+    {task:'Academic Discussion',category:'Outro',mecanismo:"Desenvolvimento: 'This shows that…' + reação ao colega pelo nome",wrong:"(sem 'This shows that' e sem reagir à Claire)",correct:'This shows that… Claire is right that…, but…'},
+    {task:'Reading',category:'Vocabulário',mecanismo:'Decidir a classe da palavra (substantivo, adjetivo, verbo) antes do sentido',wrong:'within specials markets / Microeconomics focused on',correct:'within specific markets / Microeconomics focuses on'},
+    {task:'Reading',category:'Outro',mecanismo:"O texto OBRIGA ou só PERMITE? 'Por que menciona X': ache a frase que sustenta",wrong:'(Q26) many complaints / (Q35) difficulty finding the art',correct:'(Q26) sometimes requires emergency maintenance / (Q35) intentional and meaningful act'},
+    {task:'Listening',category:'Outro',mecanismo:'Função primeiro; wh- nunca leva Yes; desconfie da opção que repete o áudio',wrong:'Yes, he placed the order.',correct:'He usually takes the bus.'},
+    {task:'Listening',category:'Outro',mecanismo:"Ideia principal = o que a fala retoma; propósito de X; 'o que vem a seguir' = última frase",wrong:'The grievances of English barons',correct:'The importance of a specific document'}
+  ];
+  erros=seed.map((s,i)=>({
+    id:'eseed'+i,createdAt:base,source:'Simulado ETS',task:s.task,category:s.category,
+    mecanismo:s.mecanismo,wrong:s.wrong,correct:s.correct,treinado:false,
+    r2:{date:err_addDays(base,2),result:null},
+    r5:{date:err_addDays(base,5),result:null},
+    r10:{date:err_addDays(base,10),result:null}
+  }));
+  err_save();
+  try{localStorage.setItem('c1errseeded','2');}catch(e){}
+}
+
+// One-time import of Mock 1's own scores (Simulados sheet) as Mission 5.0's
+// Baseline checkpoint, so the dashboard doesn't ask for a score already on
+// record in the spreadsheet. Only runs if Baseline isn't already logged —
+// never overwrites a real entry.
+function mp_seedMission5FromSheet(){
+  if(m5_checkpoints.baseline)return;
+  try{if(localStorage.getItem('c1m5seeded')==='1')return;}catch(e){}
+  m5_checkpoints.baseline={r:4.0,l:4.0,w:1.5,s:4.0};
+  m5_saveCheckpoints();
+  try{localStorage.setItem('c1m5seeded','1');}catch(e){}
+}
+
 function mp_renderHoje(){
   const el=document.getElementById('pg-hoje');
   if(!el)return;
-  el.innerHTML='<div class="card" style="text-align:center;color:#94A3B8;padding:28px 16px"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-weight:600;color:#0F172A;margin-bottom:4px">Hoje</div><div style="font-size:13px;line-height:1.5">Chegando em breve — tarefas do dia, contador de revisão e contagem regressiva.</div></div>';
+  err_seedFromSheet();
+  const pending=err_countPendingToday();
+  const days=m5_daysUntilExam();
+  el.innerHTML='<div class="card" style="margin-bottom:14px">'
+    +'<div style="font-weight:600;color:#0F172A;margin-bottom:4px">📅 Hoje</div>'
+    +'<div style="font-size:12px;color:#94A3B8">'+days+' dias até 24/10 · TOEFL iBT</div>'
+    +'</div>'
+    +'<div class="card" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:14px" onclick="goTab(\'err\')">'
+    +'<div><div style="font-weight:600;color:#0F172A">📋 Revisar hoje</div><div style="font-size:12px;color:#94A3B8">retestes de erros vencendo hoje</div></div>'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:26px;font-weight:600;color:'+(pending>0?'#D97706':'#16A34A')+'">'+pending+'</div>'
+    +'</div>'
+    +'<div class="card" style="text-align:center;color:#94A3B8;padding:20px"><div style="font-size:13px;line-height:1.5">Tarefas do dia da mentoria e da Escola do TOEFL chegam numa próxima etapa — por ora, consulte as abas PEUA e Escola do TOEFL.</div></div>';
 }
+
 function mp_renderErros(){
   const el=document.getElementById('pg-err');
   if(!el)return;
-  el.innerHTML='<div class="card" style="text-align:center;color:#94A3B8;padding:28px 16px"><div style="font-size:32px;margin-bottom:8px">📝</div><div style="font-weight:600;color:#0F172A;margin-bottom:4px">Caderno de Erros</div><div style="font-size:13px;line-height:1.5">Chegando em breve — registro rápido de erros com revisão espaçada.</div></div>';
+  err_seedFromSheet();
+  const editing=err_editId?erros.find(x=>x.id===err_editId):null;
+  const draft=editing||err_draft;
+  const chip=(field,opt)=>{const cur=draft[field];const on=cur===opt;const safeOpt=opt.replace(/'/g,"\\'");return '<button type="button" onclick="err_pick(\''+field+'\',\''+safeOpt+'\')" style="padding:7px 12px;border-radius:20px;border:1px solid '+(on?'#2563EB':'#DDE3F5')+';background:'+(on?'#2563EB':'#fff')+';color:'+(on?'#fff':'#475569')+';cursor:pointer;font-weight:600;font-size:12.5px;white-space:nowrap;margin:0 6px 6px 0">'+esc(opt)+'</button>';};
+
+  let h='<div class="card" id="errFormCard" style="margin-bottom:14px">'
+    +'<div style="font-weight:600;color:#0F172A;margin-bottom:10px">'+(editing?'✏️ Editar erro':'📝 Novo erro')+'</div>'
+    +'<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:5px;text-transform:uppercase">Origem</div><div>'+ERR_SOURCES.map(o=>chip('source',o)).join('')+'</div></div>'
+    +'<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:5px;text-transform:uppercase">Tarefa</div><div>'+ERR_TASKS.map(o=>chip('task',o)).join('')+'</div></div>'
+    +'<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:600;color:#64748B;margin-bottom:5px;text-transform:uppercase">Categoria</div><div>'+ERR_CATEGORIES.map(o=>chip('category',o)).join('')+'</div></div>'
+    +'<input id="errMecanismo" placeholder="Mecanismo (a regra) — opcional" value="'+esc(editing?editing.mecanismo||'':'')+'" style="width:100%;padding:10px 12px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;margin-bottom:8px;background:#F8FAFF;color:#0F172A;font-family:\'DM Sans\',sans-serif">'
+    +'<textarea id="errWrong" placeholder="O que eu escrevi / disse" style="width:100%;min-height:60px;padding:10px 12px;border:1px solid #DDE3F5;border-radius:8px;font-size:15px;margin-bottom:8px;background:#fff;color:#0F172A;font-family:\'DM Sans\',sans-serif;resize:vertical">'+esc(editing?editing.wrong:'')+'</textarea>'
+    +'<textarea id="errCorrect" placeholder="Versão correta" style="width:100%;min-height:60px;padding:10px 12px;border:1px solid #BBF7D0;border-radius:8px;font-size:15px;margin-bottom:10px;background:#F0FDF4;color:#0F172A;font-family:\'DM Sans\',sans-serif;resize:vertical">'+esc(editing?editing.correct:'')+'</textarea>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn bpr" style="flex:1;padding:13px;font-size:15px;font-weight:600" onclick="err_submit()">💾 '+(editing?'Salvar alterações':'Salvar erro')+'</button>'
+    +(editing?'<button class="btn bsm" onclick="err_startNew()">Cancelar</button>':'')
+    +'</div>'
+    +'</div>';
+
+  const pending=err_countPendingToday();
+  h+='<div class="card" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">'
+    +'<div><div style="font-weight:600;color:#0F172A">📋 Pendências hoje</div><div style="font-size:12px;color:#94A3B8">retestes +2/+5/+10 que vencem hoje</div></div>'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:26px;font-weight:600;color:'+(pending>0?'#D97706':'#16A34A')+'">'+pending+'</div>'
+    +'</div>';
+
+  h+='<div style="display:flex;gap:8px;margin-bottom:10px">'
+    +'<button class="btn '+(err_filterMode==='pending'?'bpr':'bsm')+'" onclick="err_setFilter(\'pending\')" style="flex:1">Pendentes hoje ('+pending+')</button>'
+    +'<button class="btn '+(err_filterMode==='all'?'bpr':'bsm')+'" onclick="err_setFilter(\'all\')" style="flex:1">Todos ('+erros.length+')</button>'
+    +'</div>';
+
+  const list=err_filterMode==='pending'?erros.filter(e=>err_pendingStage(e)):erros;
+  if(list.length===0){
+    h+='<div class="card" style="text-align:center;color:#94A3B8;padding:20px">'+(err_filterMode==='pending'?'Nenhuma pendência hoje. 🎉':'Nenhum erro registrado ainda.')+'</div>';
+  }else{
+    h+=list.map(e=>{
+      const stage=err_pendingStage(e);
+      const estado=err_estado(e);
+      const estadoColor=estado==='Dominado'?'#16A34A':estado==='Voltou: retreinar'?'#DC2626':estado==='Treinado'?'#2563EB':'#94A3B8';
+      return '<div class="card" style="margin-bottom:10px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">'
+        +'<div style="display:flex;flex-wrap:wrap;gap:5px">'
+          +'<span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:#F8FAFF;color:#475569;border:1px solid #DDE3F5">'+esc(e.source)+'</span>'
+          +'<span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:#F8FAFF;color:#475569;border:1px solid #DDE3F5">'+esc(e.task)+'</span>'
+          +'<span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:#F8FAFF;color:#475569;border:1px solid #DDE3F5">'+esc(e.category)+'</span>'
+          +'<span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff;color:'+estadoColor+';border:1px solid '+estadoColor+'">'+estado+'</span>'
+        +'</div>'
+        +'<div style="display:flex;gap:4px;flex-shrink:0">'
+          +'<button onclick="err_startEdit(\''+e.id+'\')" style="padding:4px 6px;border-radius:4px;border:1px solid #BFDBFE;background:#EFF6FF;cursor:pointer;font-size:12px" title="Editar">✏️</button>'
+          +'<button onclick="err_delete(\''+e.id+'\')" style="padding:4px 6px;border-radius:4px;border:1px solid #FECACA;background:#FEF2F2;cursor:pointer;font-size:12px" title="Excluir">🗑️</button>'
+        +'</div>'
+        +'</div>'
+        +(e.mecanismo?'<div style="font-size:12.5px;font-weight:600;color:#475569;margin-bottom:4px">'+esc(e.mecanismo)+'</div>':'')
+        +(e.wrong||e.correct
+          ?'<div style="font-size:13.5px;color:#DC2626;text-decoration:line-through;margin-bottom:2px">'+esc(e.wrong||'—')+'</div>'
+            +'<div style="font-size:13.5px;color:#16A34A;font-weight:600">'+esc(e.correct||'—')+'</div>'
+          :'<div style="font-size:12.5px;color:#94A3B8;font-style:italic">Preencher a partir da planilha (editar ✏️)</div>')
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px dashed #DDE3F5;flex-wrap:wrap;gap:6px">'
+          +'<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#475569;cursor:pointer"><input type="checkbox" '+(e.treinado?'checked':'')+' onchange="err_toggleTreinado(\''+e.id+'\')"> Treinado</label>'
+          +(stage
+            ?'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:11.5px;color:#D97706;font-weight:600">'+stage.label+' hoje</span><button onclick="err_markRetest(\''+e.id+'\',\''+stage.key+'\',\'ok\')" style="padding:4px 10px;border-radius:6px;border:1px solid #BBF7D0;background:#F0FDF4;color:#16A34A;cursor:pointer;font-size:12px;font-weight:600">Acertei</button><button onclick="err_markRetest(\''+e.id+'\',\''+stage.key+'\',\'erro\')" style="padding:4px 10px;border-radius:6px;border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600">Errei</button></div>'
+            :'<span style="font-size:11px;color:#94A3B8;font-family:\'DM Mono\',monospace">+2 '+e.r2.date.slice(5)+(e.r2.result?(e.r2.result==='ok'?' ✓':' ✗'):'')+' · +5 '+e.r5.date.slice(5)+(e.r5.result?(e.r5.result==='ok'?' ✓':' ✗'):'')+' · +10 '+e.r10.date.slice(5)+(e.r10.result?(e.r10.result==='ok'?' ✓':' ✗'):'')+'</span>')
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+  el.innerHTML=h;
 }
 
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
@@ -10172,6 +10393,8 @@ function initApp(){
   loadLocal();
   setSS('offline');
   buildRoadmap();
+  err_seedFromSheet();
+  mp_seedMission5FromSheet();
   mp_applyNav();
   mp_renderSettingsToggle();
   goTab(modoProva?'hoje':'dash');
@@ -10238,6 +10461,7 @@ function startSync(){
     RRQP = db.ref('rqProgress');
     RM5 = db.ref('mission5');
     RMDP = db.ref('modoProva');
+    RERR = db.ref('erros');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -10294,6 +10518,7 @@ function startSync(){
     RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[toeflActivity]&&!rq_cur[toeflActivity])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RM5.on('value',s=>{const v=s.val();if(v){m5_checkpoints=v;localStorage.setItem('c1m5cp',JSON.stringify(v));} setSS('online'); if(curTab==='dash')m5_renderDashboard();}, err=>setSS('offline','DB Error: '+err.code));
     RMDP.on('value',s=>{const v=s.val();if(typeof v==='boolean'&&v!==modoProva){modoProva=v;try{localStorage.setItem('c1modoprova',modoProva?'1':'0');}catch(e){}mp_applyNav();mp_renderSettingsToggle();if(modoProva&&curTab==='dash')goTab('hoje');else if(!modoProva&&(curTab==='hoje'||curTab==='err'))goTab('dash');else if(curTab==='rev')renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RERR.on('value',s=>{const v=s.val();if(v!==null){erros=Array.isArray(v)?v:Object.values(v)||[];if(!Array.isArray(erros))erros=[];try{localStorage.setItem('c1erros',JSON.stringify(erros));}catch(e){}} setSS('online'); if(curTab==='err')mp_renderErros(); if(curTab==='hoje')mp_renderHoje();}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
