@@ -511,9 +511,11 @@ textarea{min-height:120px}
   </div>
   <div class="nav">
     <button class="nb on" onclick="goTab('dash')" id="nav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-    <button class="nb" onclick="goTab('prac')" id="nav-prac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Practice</button>
-    <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>TOEFL</button>
-    <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Cards<span class="nbdg" id="revbdg">0</span></button>
+    <button class="nb hid" onclick="goTab('hoje')" id="nav-hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="nav-hoje-label">Hoje</span></button>
+    <button class="nb hid" onclick="goTab('err')" id="nav-err"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span id="nav-err-label">Erros</span></button>
+    <button class="nb" onclick="goTab('prac')" id="nav-prac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span id="nav-prac-label">Practice</span></button>
+    <button class="nb" onclick="goTab('rev')" id="nav-rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span id="nav-rev-label">TOEFL</span></button>
+    <button class="nb" onclick="goTab('cards')" id="nav-cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><span id="nav-cards-label">Cards</span><span class="nbdg" id="revbdg">0</span></button>
     <button class="nb" onclick="goTab('peua')" id="nav-peua"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>PEUA</button>
   </div>
 </div>
@@ -563,8 +565,15 @@ textarea{min-height:120px}
 
 <div class="mov hid" id="mAISettings" onclick="if(event.target===this)closeM('mAISettings')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:520px">
-    <div class="mhdr"><div class="mtit">⚙️ AI Settings</div><button class="btn bsm" onclick="closeM('mAISettings')">✕</button></div>
+    <div class="mhdr"><div class="mtit">⚙️ Settings</div><button class="btn bsm" onclick="closeM('mAISettings')">✕</button></div>
     <div class="mbdy">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid #E5E7EB">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#0F172A">🎯 Modo Prova</div>
+          <div style="font-size:12px;color:#64748B;line-height:1.5;margin-top:2px">Shows only Hoje, Erros, Revisão, Build-a-Sentence, PEUA and Escola do TOEFL. Nothing is deleted — turn it off to get everything back exactly as it was.</div>
+        </div>
+        <div id="mpSettingsToggle" style="flex-shrink:0"></div>
+      </div>
       <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add a free Gemini API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call Gemini automatically. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563EB">aistudio.google.com/apikey</a> (no card required). The key is stored only in this browser (localStorage) — never synced, never committed anywhere. Leave it blank to keep using the manual copy/paste flow.</div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model (grading/generation)</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
@@ -1088,6 +1097,10 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="pg hid" id="pg-hoje"></div>
+
+<div class="pg hid" id="pg-err"></div>
+
 <div class="pg" id="pg-dash">
   <div id="m5DashContainer"></div>
   <div style="padding:14px 0;font-size:14px;font-weight:600;color:#0F172A">📋 Daily Checklist</div>
@@ -1266,7 +1279,7 @@ function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMont
 const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
@@ -2611,7 +2624,7 @@ function findCurrentPeuaMonth(){
 function goTab(t){
   try{
     curTab=t;
-    ['dash','prac','rev','cards','peua'].forEach(x=>{
+    ['dash','prac','rev','cards','peua','hoje','err'].forEach(x=>{
       const pg=document.getElementById('pg-'+x);
       const nav=document.getElementById('nav-'+x);
       if(pg)pg.classList.toggle('hid',x!==t);
@@ -2623,6 +2636,8 @@ function goTab(t){
     else if(t==='rev')renderRev();
     else if(t==='cards')renderCardsStudy();
     else if(t==='peua'){activePeuaMonth=findCurrentPeuaMonth();activeAmaWeek=findCurrentAmaWeek();renderPeua();}
+    else if(t==='hoje')mp_renderHoje();
+    else if(t==='err')mp_renderErros();
   }catch(e){
     console.error('goTab error:',e);
   }
@@ -6310,6 +6325,11 @@ function toeflShow(key){
   renderRev();
 }
 function renderRev(){
+  // Modo Prova restricts this whole tab to Build a Sentence only — force it
+  // and bail out; the resulting toeflShow('build') call re-enters renderRev()
+  // once toeflActivity is already 'build', so this guard is a no-op on that
+  // second pass and the normal render below runs exactly once.
+  if(modoProva&&toeflActivity!=='build'){toeflShow('build');return;}
   renderExamCountdown();
   session_renderBadge();
   const hub=document.getElementById('toeflHub');
@@ -6322,6 +6342,7 @@ function renderRev(){
   // 'writing:*'/'speaking:*' stay live via em_renderScenario()/sp_renderScenario(),
   // already invoked by em_setMode()/sp_setMode() when the activity was entered —
   // rebuilding here would risk wiping in-progress text in #rtxt.
+  mp_applyRevRestrictions();
 }
 
 // ── BUILD A SENTENCE ──
@@ -9304,6 +9325,69 @@ function m5_renderDashboard(){
   el.innerHTML=h;
 }
 
+// ══ MODO PROVA ════════════════════════════════════════════════════════════
+// Hides most of the app down to the exam's own daily loop (Hoje, Erros,
+// Revisão, Build-a-Sentence, plus the mentoria/Escola do TOEFL schedules)
+// WITHOUT deleting anything — every hidden feature's code, data, and nav
+// entry stays in place and comes straight back when Modo Prova is turned
+// off. Defaults ON per instruction.
+let modoProva=true;
+try{const v=localStorage.getItem('c1modoprova');modoProva=v===null?true:v==='1';}catch(e){modoProva=true;}
+
+function mp_saveFlag(){
+  try{localStorage.setItem('c1modoprova',modoProva?'1':'0');}catch(e){}
+  if(RMDP)fbSet(RMDP,modoProva);
+}
+// Shows/hides nav buttons and relabels the three repurposed tabs (Practice ->
+// "Escola do TOEFL", TOEFL -> "Build-a-Sentence", Cards -> "Revisão") — pure
+// label swaps, the underlying tab ids/functions/data never change.
+function mp_applyNav(){
+  document.getElementById('nav-dash')?.classList.toggle('hid',modoProva);
+  document.getElementById('nav-hoje')?.classList.toggle('hid',!modoProva);
+  document.getElementById('nav-err')?.classList.toggle('hid',!modoProva);
+  const revLbl=document.getElementById('nav-rev-label');if(revLbl)revLbl.textContent=modoProva?'Build-a-Sentence':'TOEFL';
+  const cardsLbl=document.getElementById('nav-cards-label');if(cardsLbl)cardsLbl.textContent=modoProva?'Revisão':'Cards';
+  const pracLbl=document.getElementById('nav-prac-label');if(pracLbl)pracLbl.textContent=modoProva?'Escola do TOEFL':'Practice';
+}
+// Inside the TOEFL tab (repurposed as "Build-a-Sentence"), hides every door
+// back to the full hub: the "← Menu" button and the Timed Simulation/Pacing/
+// Skill Diagnostic buttons. renderRev()'s own guard already forces
+// toeflActivity to 'build' before this runs, so there's never anything
+// else to hide inside #toeflEx itself.
+function mp_applyRevRestrictions(){
+  document.querySelector('#toeflBackBar button[onclick="toeflShow(null)"]')?.classList.toggle('hid',modoProva);
+  document.getElementById('simToggleBtn')?.classList.toggle('hid',modoProva);
+  document.querySelector('[onclick="openPacingModal()"]')?.classList.toggle('hid',modoProva);
+  document.querySelector('[onclick="openSkillDiag()"]')?.classList.toggle('hid',modoProva);
+}
+function mp_toggle(){
+  modoProva=!modoProva;
+  mp_saveFlag();
+  mp_applyNav();
+  if(modoProva&&curTab==='dash')goTab('hoje');
+  else if(!modoProva&&(curTab==='hoje'||curTab==='err'))goTab('dash');
+  else if(curTab==='rev')renderRev();
+  mp_renderSettingsToggle();
+}
+function mp_renderSettingsToggle(){
+  const box=document.getElementById('mpSettingsToggle');
+  if(!box)return;
+  box.innerHTML='<label class="toggle-switch"><input type="checkbox" onchange="mp_toggle()"'+(modoProva?' checked':'')+'><span class="toggle-slider"></span></label>';
+}
+// Placeholder screens — Hoje ships with Task 5, Erros (err_ namespace) with
+// Task 2. Scaffolded now so Modo Prova's reduced nav is complete and usable
+// as soon as it's turned on, even before those tasks land.
+function mp_renderHoje(){
+  const el=document.getElementById('pg-hoje');
+  if(!el)return;
+  el.innerHTML='<div class="card" style="text-align:center;color:#94A3B8;padding:28px 16px"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-weight:600;color:#0F172A;margin-bottom:4px">Hoje</div><div style="font-size:13px;line-height:1.5">Chegando em breve — tarefas do dia, contador de revisão e contagem regressiva.</div></div>';
+}
+function mp_renderErros(){
+  const el=document.getElementById('pg-err');
+  if(!el)return;
+  el.innerHTML='<div class="card" style="text-align:center;color:#94A3B8;padding:28px 16px"><div style="font-size:32px;margin-bottom:8px">📝</div><div style="font-weight:600;color:#0F172A;margin-bottom:4px">Caderno de Erros</div><div style="font-size:13px;line-height:1.5">Chegando em breve — registro rápido de erros com revisão espaçada.</div></div>';
+}
+
 // ── MY CARDS ──────────────────────────────────────────────────────────────────
 function setCardsTopicFilter(t){cardsTopicFilter=t;renderCards();}
 function onCardsSearch(v){cardsSearch=(v||'').toLowerCase().trim();applyCardsSearch();}
@@ -10088,7 +10172,9 @@ function initApp(){
   loadLocal();
   setSS('offline');
   buildRoadmap();
-  renderDash();
+  mp_applyNav();
+  mp_renderSettingsToggle();
+  goTab(modoProva?'hoje':'dash');
   render();
   // Academic Discussion and Listen and Repeat are the default sub-modes
   // (em_active/iv_active both start false), so all four scenario pools need
@@ -10151,6 +10237,7 @@ function startSync(){
     RRQI = db.ref('rqItems');
     RRQP = db.ref('rqProgress');
     RM5 = db.ref('mission5');
+    RMDP = db.ref('modoProva');
 
     RCI.on('value', s=>{
       const v=s.val();
@@ -10206,6 +10293,7 @@ function startSync(){
     RRQI.on('value',s=>{const v=s.val();if(v){rqItems=v;rq_ensureFresh();localStorage.setItem('c1rqi',JSON.stringify(rqItems));if(curTab==='rev'&&RQ_LABEL[toeflActivity]){const k=toeflActivity;if(rq_cur[k]===undefined||rq_cur[k]===null){rq_load(k);renderRev();}else if(rq_checked[k])renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RRQP.on('value',s=>{const v=s.val();if(v){rqProgress=v;localStorage.setItem('c1rqp',JSON.stringify(rqProgress));if(curTab==='rev'&&RQ_LABEL[toeflActivity]&&!rq_cur[toeflActivity])renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RM5.on('value',s=>{const v=s.val();if(v){m5_checkpoints=v;localStorage.setItem('c1m5cp',JSON.stringify(v));} setSS('online'); if(curTab==='dash')m5_renderDashboard();}, err=>setSS('offline','DB Error: '+err.code));
+    RMDP.on('value',s=>{const v=s.val();if(typeof v==='boolean'&&v!==modoProva){modoProva=v;try{localStorage.setItem('c1modoprova',modoProva?'1':'0');}catch(e){}mp_applyNav();mp_renderSettingsToggle();if(modoProva&&curTab==='dash')goTab('hoje');else if(!modoProva&&(curTab==='hoje'||curTab==='err'))goTab('dash');else if(curTab==='rev')renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     // Read-only charts only (no live-typed input lives here), so a background
     // re-render is always safe — same caution as the exercise listeners above,
     // just with nothing to lose.
