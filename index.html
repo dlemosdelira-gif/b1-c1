@@ -9159,13 +9159,17 @@ function ex_loadLocal(){
 // scoped with are deliberately not built (no data source exists yet, and
 // Speaking practice is staying in Escola do TOEFL per instruction).
 const M5_EXAM_DATE='2026-10-24';
+// Checkpoints, targets and the decision rule all match the user's own
+// tracking spreadsheet (TOEFL_planilha_treino_ate_Mock2, aba "Simulados")
+// exactly, per instruction — these are no longer independent app-side
+// assumptions.
 const M5_CHECKPOINTS_DEF=[
-  {id:'baseline',name:'Baseline',date:'2026-09-27',tag:'TestReady free test'},
-  {id:'ets1',name:'ETS #1',date:'2026-10-04',tag:'Official practice test'},
-  {id:'ets2',name:'ETS #2',date:'2026-10-11',tag:'Decision checkpoint'},
-  {id:'ets3',name:'ETS #3',date:'2026-10-18',tag:'Official practice test'}
+  {id:'baseline',name:'Mock 1',date:'2026-10-01',tag:'ETS TestReady — not official'},
+  {id:'mock2',name:'Mock 2',date:'2026-10-11',tag:'Decision checkpoint'},
+  {id:'mock3',name:'Mock 3',date:'2026-10-18',tag:'Official practice test'},
+  {id:'mock4',name:'Mock 4 (ensaio)',date:'2026-10-21',tag:'Rehearsal'}
 ];
-const M5_TARGETS={r:5.5,l:5.0,w:4.5,s:4.0};
+const M5_TARGETS={r:4.5,l:4.5,w:4.0,s:4.0};
 const M5_SKILL_LABEL={r:'Reading',l:'Listening',w:'Writing',s:'Speaking'};
 const M5_SKILL_ICON={r:'📖',l:'🎧',w:'✍️',s:'🎤'};
 
@@ -9198,27 +9202,32 @@ function m5_latestCheckpointScores(){
   return null;
 }
 // The decision rule only makes sense once there's enough real testing
-// evidence behind it — per spec, that's ETS #2 or later.
+// evidence behind it — the spreadsheet itself says the rule "runs starting
+// from Mock 2".
 function m5_decisionCheckpointLogged(){
-  return !!(m5_checkpoints.ets2||m5_checkpoints.ets3);
+  return !!(m5_checkpoints.mock2||m5_checkpoints.mock3||m5_checkpoints.mock4);
 }
 function m5_fmtScore(v){return v==null?'—':v.toFixed(1);}
 // Official ETS rounding: 4.75 -> 5.0, 4.625 -> 4.5.
 function m5_etsRound(avg){return Math.round(avg*2)/2;}
-function m5_decisionRule(avg){
-  if(avg>=4.75)return{bg:'#F0FDF4',border:'#BBF7D0',color:'#166534',text:'🎯 Keep 10/24, target 5.0'};
-  if(avg>=4.25)return{bg:'#FFFBEB',border:'#FDE68A',color:'#B45309',text:'📋 Keep 10/24 as first attempt, book a November retake'};
-  return{bg:'#FEF2F2',border:'#FECACA',color:'#DC2626',text:'🔄 Consider moving the first attempt to November'};
+// Spreadsheet's own decision rule (aba "Simulados"): nota geral (already
+// ETS-rounded to 0.5) >=4.5 keeps 10/24; ==4.0 keeps 10/24 as a first
+// attempt and books a November retake; <=3.5 considers rescheduling.
+function m5_decisionRule(band){
+  if(band>=4.5)return{bg:'#F0FDF4',border:'#BBF7D0',color:'#166534',text:'🎯 Manter 24/10'};
+  if(band>=4.0)return{bg:'#FFFBEB',border:'#FDE68A',color:'#B45309',text:'📋 Manter 24/10 como 1ª tentativa e reservar novembro'};
+  return{bg:'#FEF2F2',border:'#FECACA',color:'#DC2626',text:'🔄 Considerar remarcar a 1ª tentativa'};
 }
 // Smallest single-section increase (in half-bands) that would push the
-// average to >=4.75, applied to whichever section is currently lowest (the
-// one with the most headroom before the 6.0 ceiling). If even maxing that
+// average high enough to round to the spreadsheet's 4.5 "keep 10/24" band
+// (avg >=4.25), applied to whichever section is currently lowest (the one
+// with the most headroom before the 6.0 ceiling). If even maxing that
 // section out isn't enough, say so instead of recommending a score above
 // the scale.
 function m5_whatMustChange(scores){
   const keys=['r','l','w','s'];
   const sum=keys.reduce((a,k)=>a+scores[k],0);
-  const deficit=4.75*4-sum;
+  const deficit=4.25*4-sum;
   if(deficit<=0)return{done:true};
   const lowest=keys.reduce((a,b)=>scores[a]<=scores[b]?a:b);
   const bump=Math.ceil(deficit/0.5)*0.5;
@@ -9299,21 +9308,21 @@ function m5_renderDashboard(){
       const avg=(scores.r+scores.l+scores.w+scores.s)/4,band=m5_etsRound(avg);
       h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">'
         +'<span style="font-family:\'DM Mono\',monospace;font-size:30px;font-weight:500;color:#0F172A">'+band.toFixed(1)+'</span>'
-        +'<span style="font-size:12px;color:#64748B">Projected overall (ETS rounding of your latest scores)</span>'
+        +'<span style="font-size:12px;color:#64748B">Nota geral (média das 4 seções, arredondada para 0,5 — igual à planilha)</span>'
         +'</div>';
 
       if(m5_decisionCheckpointLogged()){
-        const rule=m5_decisionRule(avg);
+        const rule=m5_decisionRule(band);
         h+='<div style="border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;background:'+rule.bg+';color:'+rule.color+';border:1px solid '+rule.border+';margin-bottom:10px">'+rule.text+'</div>';
       }
 
       const change=m5_whatMustChange(scores);
       h+='<div style="font-size:13px;color:#64748B;padding-top:10px;border-top:1px dashed #DDE3F5">'
         +(change.done
-          ?'You\'re already averaging 4.75+ — hold steady across all four sections.'
+          ?'Você já está com nota geral 4,5+ — mantenha o nível nas quatro seções.'
           :change.single
-            ?'What must change: raise <b style="color:#0F172A">'+M5_SKILL_LABEL[change.section]+'</b> from <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.from)+'</b> to <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.to)+'</b> (smallest single-section move to 4.75+).'
-            :'No single section reaches 4.75+ on its own from here — plan improvement in at least two sections.')
+            ?'O que precisa mudar: subir <b style="color:#0F172A">'+M5_SKILL_LABEL[change.section]+'</b> de <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.from)+'</b> para <b style="color:#0F172A;font-family:\'DM Mono\',monospace">'+m5_fmtScore(change.to)+'</b> (menor ajuste numa única seção para chegar a 4,5+).'
+            :'Nenhuma seção isolada chega a 4,5+ a partir daqui — planeje melhora em pelo menos duas seções.')
         +'</div>';
     }
 
@@ -9466,34 +9475,38 @@ function err_delete(id){
 }
 function err_setFilter(m){err_filterMode=m;mp_renderErros();}
 
-// One-time import of the 7 Mock 1 errors already logged in the user's own
-// tracking spreadsheet (TOEFL_planilha_treino_ate_Mock2, aba "Erros"), so the
-// +2/+5/+10 retest clock (from 2026-10-01) carries over instead of resetting.
-// "mecanismo" keeps only the part of each spreadsheet cell that was fully
-// readable here — wrong/correct are deliberately left blank rather than
-// guessed; fill them in via ✏️, copying straight from the spreadsheet.
+// One-time import of the 12 Mock 1 errors logged in the user's own tracking
+// spreadsheet (TOEFL_planilha_treino_ate_Mock2, aba "Erros"), read from the
+// full .xlsx (not the earlier truncated Google Sheets preview), so the
+// +2/+5/+10 retest clock from 2026-10-01 carries over instead of resetting
+// and wrong/correct are the real, complete sentences.
 function err_seedFromSheet(){
   if(erros.length>0)return;
-  try{if(localStorage.getItem('c1errseeded')==='1')return;}catch(e){}
+  try{if(localStorage.getItem('c1errseeded')==='2')return;}catch(e){}
   const base='2026-10-01';
   const seed=[
-    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Pergunta indireta: (wh/if) + sujeito + verbo'},
-    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Pergunta direta: (wh) + auxiliar + sujeito'},
-    {task:'Build a Sentence',category:'Preposição',mecanismo:'Preposição + (not) + -ing'},
-    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Ordem dos modificadores'},
-    {task:'Email',category:'Forma verbal',mecanismo:'suggest / thank you for + -ing'},
-    {task:'Email',category:'Outro',mecanismo:'Redação: 3 pontos do enunciado'},
-    {task:'Academic Discussion',category:'S/V',mecanismo:'Estrutura do verbo: auxiliar certo'}
+    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Pergunta indireta: (wh/if) + sujeito + verbo, sem inversão',wrong:'It highlighted how important are student learning to online sources / …whom will give that feedback to',correct:'It highlighted how important online sources are to student learning / …whom I will give that feedback to'},
+    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Pergunta direta: (wh) + auxiliar + sujeito + verbo',wrong:'What kind of projects be you will working on?',correct:'What kind of projects will you be working on?'},
+    {task:'Build a Sentence',category:'Preposição',mecanismo:'Preposição + (not) + -ing',wrong:"I'm worried about for my studies having enough not time / was interested an internship in doing",correct:"I'm worried about not having enough time for my studies / was interested in doing an internship"},
+    {task:'Build a Sentence',category:'Ordem de palavras',mecanismo:'Ordem dos modificadores (quantidade antes do adjetivo)',wrong:'includes additional several countries',correct:'includes several additional countries'},
+    {task:'Email',category:'Forma verbal',mecanismo:'suggest / thank you for + -ing; present perfect com since',wrong:'I kindly suggest you to bring more bands / they are my favorite band since I was young',correct:'I would suggest bringing more bands / they have been my favorite band since I was young'},
+    {task:'Email',category:'Outro',mecanismo:'Redação: 3 pontos do enunciado + detalhe (por que mais food trucks?)',wrong:'(faltou o motivo da sugestão)',correct:'I would suggest adding more food trucks because the lines were long.'},
+    {task:'Academic Discussion',category:'S/V',mecanismo:'Estrutura do verbo: auxiliar certo, need TO + verbo, the first step is TO + verbo',wrong:'free will is could be an illusion / we in the control / If you need buy / the first step is recognize',correct:'free will could be an illusion / we are in control / If you need to buy / the first step is to recognize'},
+    {task:'Academic Discussion',category:'Outro',mecanismo:"Desenvolvimento: 'This shows that…' + reação ao colega pelo nome",wrong:"(sem 'This shows that' e sem reagir à Claire)",correct:'This shows that… Claire is right that…, but…'},
+    {task:'Reading',category:'Vocabulário',mecanismo:'Decidir a classe da palavra (substantivo, adjetivo, verbo) antes do sentido',wrong:'within specials markets / Microeconomics focused on',correct:'within specific markets / Microeconomics focuses on'},
+    {task:'Reading',category:'Outro',mecanismo:"O texto OBRIGA ou só PERMITE? 'Por que menciona X': ache a frase que sustenta",wrong:'(Q26) many complaints / (Q35) difficulty finding the art',correct:'(Q26) sometimes requires emergency maintenance / (Q35) intentional and meaningful act'},
+    {task:'Listening',category:'Outro',mecanismo:'Função primeiro; wh- nunca leva Yes; desconfie da opção que repete o áudio',wrong:'Yes, he placed the order.',correct:'He usually takes the bus.'},
+    {task:'Listening',category:'Outro',mecanismo:"Ideia principal = o que a fala retoma; propósito de X; 'o que vem a seguir' = última frase",wrong:'The grievances of English barons',correct:'The importance of a specific document'}
   ];
   erros=seed.map((s,i)=>({
     id:'eseed'+i,createdAt:base,source:'Simulado ETS',task:s.task,category:s.category,
-    mecanismo:s.mecanismo,wrong:'',correct:'',treinado:false,
+    mecanismo:s.mecanismo,wrong:s.wrong,correct:s.correct,treinado:false,
     r2:{date:err_addDays(base,2),result:null},
     r5:{date:err_addDays(base,5),result:null},
     r10:{date:err_addDays(base,10),result:null}
   }));
   err_save();
-  try{localStorage.setItem('c1errseeded','1');}catch(e){}
+  try{localStorage.setItem('c1errseeded','2');}catch(e){}
 }
 
 // One-time import of Mock 1's own scores (Simulados sheet) as Mission 5.0's
