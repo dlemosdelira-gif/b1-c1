@@ -1284,6 +1284,10 @@ let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=n
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
+// AI-generated explanation for the current check (wrong answers only — see
+// bs_fetchAIExplain). bs_aiToken guards against a stale response landing
+// after the user has already moved to a new question.
+let bs_aiExplain=null,bs_aiLoading=false,bs_aiErr=null,bs_aiToken=0;
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
 // UI preference only, not synced — mirrors how the other exercise-mode filters
 // (e.g. Flashcards' "By Topic") are just a saved selection, not scored data.
@@ -6353,6 +6357,7 @@ function bs_blankCount(it){return it&&it.frame?(it.frame.split('___').length-1):
 function bs_bankOf(it){return (it.bank&&it.bank.length)?it.bank:(it.answer||[]).concat(it.distract||[]);}
 function bs_setup(it){
   bs_cur=it;
+  bs_aiExplain=null;bs_aiLoading=false;bs_aiErr=null;bs_aiToken++;
   if(!it){bs_tokens=[];bs_slots=[];return;}
   // Draggable bank: unique id per chip (bank may contain distractors/duplicates).
   bs_tokens=shuffle(bs_bankOf(it).map((w,i)=>({id:i,w})));
@@ -6436,6 +6441,44 @@ function bs_specificFeedback(cur,guess,correct){
   const d=diffs[0];
   return 'You wrote "'+esc(d.wrong)+'", it should be "'+esc(d.right)+'"'+(diffs.length>1?' (+'+(diffs.length-1)+' more)':'')+' — '+esc(note);
 }
+// AI explanation for a miss, tailored to the actual words involved — the
+// static PATTERN_NOTE text is the same for every item sharing a tag (e.g.
+// every "prepositions" exercise gets the same generic "pick the one that
+// fits" line), which doesn't say WHY "throughout" beats "along" in THIS
+// sentence. Only called on wrong answers (ai_hasKey() gates it in
+// bs_check()) — Gemini's free tier is small enough (per ai_getKey's own
+// comment, as low as ~20 requests/day) that firing it on every check,
+// including every correct one, would burn through it in a handful of
+// exercises.
+function bs_aiPrompt(item,guessArr){
+  const parts=item.frame.split('___');
+  const guessSentence=parts.reduce((acc,seg,i)=>acc+seg+(i<guessArr.length?(guessArr[i]||'___'):''),'');
+  const correctSentence=parts.reduce((acc,seg,i)=>acc+seg+(i<item.answer.length?item.answer[i]:''),'');
+  return 'You are a concise TOEFL writing tutor helping a student fix a "'+item.tag+'" grammar mistake in a sentence-building exercise.\n'
+    +'Correct sentence: "'+correctSentence+'"\n'
+    +'Student built: "'+guessSentence+'"\n'
+    +'In ONE short sentence (max ~25 words), explain specifically why the student\'s version is wrong and the correct one is right — point at the actual words involved, not just the grammar category name, and phrase it so the student avoids the same mistake next time. Plain text only, no preamble, no quotes around your answer.';
+}
+async function bs_fetchAIExplain(item,guessArr){
+  const myToken=bs_aiToken;
+  bs_aiLoading=true;bs_aiErr=null;renderRev();
+  try{
+    let text=await gemini_call(bs_aiPrompt(item,guessArr),{json:false});
+    text=text.trim().replace(/^["“]|["”]$/g,'');
+    if(myToken!==bs_aiToken)return; // superseded by a newer question/retry
+    bs_aiExplain=text;bs_aiLoading=false;
+    renderRev();
+  }catch(e){
+    if(myToken!==bs_aiToken)return;
+    bs_aiLoading=false;bs_aiErr=ai_friendlyGeminiError(e.message);
+    renderRev();
+  }
+}
+function bs_retryAIExplain(){
+  if(!bs_cur||!bs_checked)return;
+  const guessArr=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';});
+  bs_fetchAIExplain(bs_cur,guessArr);
+}
 function bs_render(){
   const filtered=bs_filteredItems();
   const dueCount=ex_due(filtered,bsProgress).length;
@@ -6463,8 +6506,18 @@ function bs_render(){
     const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';});
     const correct=guess.join(' ')===bs_cur.answer.join(' ');
     const full=bs_cur.frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<bs_cur.answer.length?bs_cur.answer[i]:''),'');
+    let explainHTML;
+    if(!correct&&bs_aiLoading){
+      explainHTML='<span style="opacity:.7">🤖 Working out exactly why…</span>';
+    }else if(!correct&&bs_aiExplain){
+      explainHTML='🤖 '+esc(bs_aiExplain);
+    }else{
+      explainHTML=bs_specificFeedback(bs_cur,guess,correct);
+      if(!correct&&bs_aiErr)explainHTML+='<br><span style="opacity:.7">⚠️ '+esc(bs_aiErr)+' <a href="#" onclick="bs_retryAIExplain();return false" style="color:inherit;text-decoration:underline">Retry</a></span>';
+      else if(!correct&&!ai_hasKey())explainHTML+='<br><span style="opacity:.7">Add a Gemini key in ⚙️ Settings for an explanation tailored to this exact mistake.</span>';
+    }
     h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct sentence: <strong>'+esc(full)+'</strong><br>')
-      +'<span style="opacity:.85">'+bs_specificFeedback(bs_cur,guess,correct)+'</span></div>'
+      +'<span style="opacity:.85">'+explainHTML+'</span></div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_next(false)">Next →</button><button class="btn bsm" onclick="bs_reset()">↺ Try again</button></div>';
   }else{
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button><button class="btn bsm" onclick="bs_reset()">↺ Reset</button></div>';
@@ -6479,14 +6532,16 @@ function bs_check(){
   if(!bs_cur||!bs_slots.every(x=>x!=null))return;
   if(session_active&&session_locked){toast('⏰ Session time is up');return;}
   if(tt_active&&tt_locked){toast('⏱ Time is up for this item');return;}
-  const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';}).join(' ');
-  const correct=guess===bs_cur.answer.join(' ');
+  const guessArr=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';});
+  const correct=guessArr.join(' ')===bs_cur.answer.join(' ');
   bs_checked=true;
   ex_grade(bsProgress,bs_cur.id,correct);bs_saveProgress();
   ex_logPattern(bs_cur.tag,correct,'bs');
   toefl_logTime('build');
   if(session_active){session_attempted++;if(correct)session_correct++;}
+  bs_aiExplain=null;bs_aiErr=null;bs_aiLoading=false;bs_aiToken++;
   renderRev();
+  if(!correct&&ai_hasKey())bs_fetchAIExplain(bs_cur,guessArr);
 }
 function bs_next(force){
   if(!force&&session_advanceToNextActivity())return;
