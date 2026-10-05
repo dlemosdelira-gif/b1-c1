@@ -4438,7 +4438,8 @@ const PATTERN_NOTE={
   'infinitive-after-modal':'A modal/helper verb is followed by the base infinitive (to + base, or bare base after will/can).',
   'subject-verb-agreement':'The verb must agree with the true grammatical subject in number.',
   'spelling':'Watch the exact spelling/word choice — a common look-alike is wrong here.',
-  'article':'Choose the correct article (a/an/the) for the noun and its context.',
+  'articles':'Choose the correct article (a/an/the) for the noun and its context.',
+  'word-order':'English word order is fixed — subject, then verb, then object/complement.',
   'relative-clauses':'A relative clause (who/that/which…) adds information and sits right after the noun it describes.',
   'embedded-questions':'Inside a statement, the embedded question uses statement word order (no inversion): “do you know if she will…”.',
   'conjunctions':'A conjunction (because, so, although…) links the two ideas in the right order.',
@@ -6411,6 +6412,30 @@ function bs_toolbar(){
   }
   return h;
 }
+// Word-by-word diff between what was tapped and the correct answer, used to
+// point at the exact slot that's wrong instead of only naming the grammar
+// pattern — that's what actually helps avoid the same mistake next time.
+function bs_wordDiffs(guess,answer){
+  const out=[];
+  for(let i=0;i<answer.length;i++){
+    if((guess[i]||'')!==answer[i])out.push({wrong:guess[i]||'(blank)',right:answer[i]});
+  }
+  return out;
+}
+// One short, specific line: on a miss, the exact word swap needed; on a hit,
+// which word(s) made it correct — both followed by the underlying rule.
+function bs_specificFeedback(cur,guess,correct){
+  const note=PATTERN_NOTE[cur.tag]||('Pattern: '+cur.tag);
+  if(correct){
+    // Naming the phrase only helps when there's one blank to point at — with
+    // several blanks, listing all of them is noise, so just state the rule.
+    return cur.answer.length===1?'"'+esc(cur.answer[0])+'" is right here — '+esc(note):esc(note);
+  }
+  const diffs=bs_wordDiffs(guess,cur.answer);
+  if(diffs.length===0)return esc(note);
+  const d=diffs[0];
+  return 'You wrote "'+esc(d.wrong)+'", it should be "'+esc(d.right)+'"'+(diffs.length>1?' (+'+(diffs.length-1)+' more)':'')+' — '+esc(note);
+}
 function bs_render(){
   const filtered=bs_filteredItems();
   const dueCount=ex_due(filtered,bsProgress).length;
@@ -6439,7 +6464,7 @@ function bs_render(){
     const correct=guess.join(' ')===bs_cur.answer.join(' ');
     const full=bs_cur.frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<bs_cur.answer.length?bs_cur.answer[i]:''),'');
     h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct sentence: <strong>'+esc(full)+'</strong><br>')
-      +'<span style="opacity:.85">'+esc(PATTERN_NOTE[bs_cur.tag]||('Pattern: '+bs_cur.tag))+'</span></div>'
+      +'<span style="opacity:.85">'+bs_specificFeedback(bs_cur,guess,correct)+'</span></div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_next(false)">Next →</button><button class="btn bsm" onclick="bs_reset()">↺ Try again</button></div>';
   }else{
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button><button class="btn bsm" onclick="bs_reset()">↺ Reset</button></div>';
