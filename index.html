@@ -184,10 +184,10 @@ textarea{min-height:120px}
 
 /* ── MODAL ── */
 .mov{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:14px}
-.modal{background:#fff;border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-x:hidden;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,.2)}
 .mhdr{padding:14px 14px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .mtit{font-size:14px;font-weight:600;color:#0F172A}
-.mbdy{padding:0 14px 14px;display:grid;gap:12px}
+.mbdy{padding:0 14px 14px;display:grid;gap:12px;min-width:0;overflow-x:hidden}
 .rtbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:6px;border:1px solid #DDE3F5;border-bottom:none;border-radius:8px 8px 0 0;background:#F8FAFF}
 .rtb{min-width:34px;height:32px;padding:0 8px;border:1px solid #DDE3F5;border-radius:6px;background:#fff;color:#475569;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;justify-content:center}
 .rtb:hover{background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
@@ -318,7 +318,7 @@ textarea{min-height:120px}
 .citem.due{border-color:#FECACA;background:#FEF2F2}
 .cisim{font-size:14px;color:#94A3B8;text-decoration:line-through}
 .cic1{font-size:14px;font-weight:600;color:#1D4ED8}
-.chunk-form{display:grid;gap:10px;min-width:0}
+.chunk-form{display:grid;gap:10px;min-width:0;max-width:100%;overflow-x:hidden}
 .chunk-form input[type=text]{min-height:unset;height:42px;background:#fff;border-color:#BFDBFE}
 .chunk-form input[type=text]:focus{border-color:#2563EB;background:#fff}
 .chunk-form button{justify-self:end;min-height:38px;padding:8px 14px}
@@ -462,7 +462,7 @@ textarea{min-height:120px}
   .app{max-width:1400px;}
   .cards-grid{grid-template-columns:repeat(3,1fr);}
 }
-.topic-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;min-width:0}
+.topic-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;min-width:0;max-width:100%;overflow-x:hidden}
 .sentence-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:14px;line-height:1.5;}
 .sentence-item:hover{background:#EFF6FF;border-color:#BFDBFE;}
 .sentence-item.selected{background:#DBEAFE;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
