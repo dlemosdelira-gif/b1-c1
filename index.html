@@ -310,10 +310,18 @@ textarea{min-height:120px}
 .citem.due{border-color:#FECACA;background:#FEF2F2}
 .cisim{font-size:14px;color:#94A3B8;text-decoration:line-through}
 .cic1{font-size:14px;font-weight:600;color:#1D4ED8}
-.chunk-form{display:grid;gap:10px}
+.chunk-form{display:grid;gap:10px;min-width:0}
 .chunk-form input[type=text]{min-height:unset;height:42px;background:#fff;border-color:#BFDBFE}
 .chunk-form input[type=text]:focus{border-color:#2563EB;background:#fff}
 .chunk-form button{justify-self:end;min-height:38px;padding:8px 14px}
+/* Grid items default to min-width:auto, which lets a textarea/input's own
+   intrinsic content width force the track (and the whole modal) wider than
+   its container instead of wrapping/shrinking — the classic cause of a
+   horizontal-scrolling form inside a fixed-width modal. min-width:0 on every
+   level (form, its direct children, the fields themselves) removes that
+   floor so width:100% is actually respected. */
+.chunk-form>div,.topic-row>div{min-width:0}
+.chunk-form textarea,.chunk-form input[type=text],.topic-row input[type=text],.topic-row select{min-width:0}
 
 /* ── CORRECTIONS ── */
 .corr{border:1px solid #DDE3F5;border-radius:8px;overflow:hidden}
@@ -436,7 +444,7 @@ textarea{min-height:120px}
   .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .add-chunk-card{max-width:100%;margin:0 0 14px 0;}
   .topic-row{grid-template-columns:1fr 1fr!important}
-  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;align-items:start;gap:10px}
+  .chunk-form{display:grid;grid-template-columns:1fr 1fr 1.2fr;align-items:start;gap:10px}
   .chunk-form>div{display:flex;flex-direction:column}
   .chunk-form>div label{margin-bottom:4px}
   .chunk-form>div textarea{min-height:80px;resize:vertical!important}
@@ -446,7 +454,7 @@ textarea{min-height:120px}
   .app{max-width:1400px;}
   .cards-grid{grid-template-columns:repeat(3,1fr);}
 }
-.topic-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+.topic-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;min-width:0}
 .sentence-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:14px;line-height:1.5;}
 .sentence-item:hover{background:#EFF6FF;border-color:#BFDBFE;}
 .sentence-item.selected{background:#DBEAFE;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
