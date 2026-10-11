@@ -9609,9 +9609,36 @@ function ex_mergeSeeds(items,seed,saveFn){
   if(added&&saveFn)saveFn();
   return added;
 }
+// ex_mergeSeeds is additive-only by design (never overwrites an existing id)
+// so a user's own edits to a built-in item are never clobbered — but
+// BS_SEED_PARETO is managed content I actively revise (its 60 items got a
+// blank-count rewrite right after first shipping), and a browser that had
+// already synced the old shape under the same ids never saw the fix:
+// ex_mergeSeeds only adds missing ids, so the stale (short) version just
+// sat there — and then got auto-archived by bs_archiveShortFormat() for
+// genuinely being under 5 blanks, making all 60 vanish from practice. This
+// force-syncs every bsp*-id item already in `items` to match the current
+// BS_SEED_PARETO definition (frame/answer/distract/tag/family) whenever it
+// differs, clearing any stale archived flag so it's re-evaluated fresh —
+// never touches bsu- (user-added) or bst*-id (BS_SEED) items.
+function bs_reconcileParetoSeed(items,saveFn){
+  const byId={};BS_SEED_PARETO.forEach(s=>{byId[s.id]=s;});
+  let changed=false;
+  for(let i=0;i<items.length;i++){
+    const it=items[i];
+    if(!it||!byId[it.id])continue;
+    const fresh=byId[it.id];
+    if(it.frame!==fresh.frame||JSON.stringify(it.answer)!==JSON.stringify(fresh.answer)||JSON.stringify(it.distract||[])!==JSON.stringify(fresh.distract||[])||it.tag!==fresh.tag||it.family!==fresh.family){
+      items[i]=JSON.parse(JSON.stringify(fresh));
+      changed=true;
+    }
+  }
+  if(changed&&saveFn)saveFn();
+  return changed;
+}
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
-  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();bs_archiveShortFormat();
+  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_reconcileParetoSeed(bsItems,bs_saveItems);bs_normLower();bs_archiveShortFormat();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
@@ -11000,7 +11027,7 @@ function startSync(){
     // it because the field was being destroyed out from under the user, not
     // missed. Data still updates in the background either way; the UI just
     // doesn't redraw over an in-progress attempt.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();bs_archiveShortFormat();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_reconcileParetoSeed(bsItems,bs_saveItems);bs_normLower();bs_archiveShortFormat();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&toeflActivity==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSRT.on('value',s=>{const v=s.val();if(v){bsRetest=v;localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));if(curTab==='rev'&&toeflActivity==='build'&&!bsSet_active)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&toeflActivity==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
