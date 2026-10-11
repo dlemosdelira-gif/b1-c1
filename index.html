@@ -1297,13 +1297,20 @@ const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null,RERR=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null,RBSRT=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 // AI-generated explanation for the current check (wrong answers only — see
 // bs_fetchAIExplain). bs_aiToken guards against a stale response landing
 // after the user has already moved to a new question.
 let bs_aiExplain=null,bs_aiLoading=false,bs_aiErr=null,bs_aiToken=0;
+// Set Mode (timed 10-question focus sets) + the spaced retest queue behind
+// it. bsRetest is durable (synced like bsProgress); the rest is in-memory
+// only — an interrupted set just resets on reload rather than being
+// silently resumed stale. See the "BUILD A SENTENCE — SET MODE" module.
+let bsSet_active=false,bsSet_items=[],bsSet_idx=0,bsSet_results=[],bsSet_deadline=null,bsSet_locked=false,bsSet_finishRemain=0;
+let bsRetest={};
+try{bsRetest=JSON.parse(localStorage.getItem('c1bsretest')||'{}');}catch(e){bsRetest={};}
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
 // UI preference only, not synced — mirrors how the other exercise-mode filters
 // (e.g. Flashcards' "By Topic") are just a saved selection, not scored data.
@@ -4462,134 +4469,135 @@ const BS_SEED=[
 // families intentionally reuse an existing tag's note instead of inventing
 // a near-duplicate one.
 const BS_SEED_PARETO=[
-  // ── 40% · indirect/embedded questions ──────────────────────────────────
+  // ── 40% · indirect/embedded questions (5-8 blanks, mostly single words) ──
   {id:'bsp1',tag:'embedded-questions',family:'indirect',prompt:"Who's teaching Econ 201 next semester?",
-   frame:'i have not heard ___ ___.',answer:['who','is teaching that course'],distract:['are teaching that course']},
+   frame:'i have not heard ___ ___ ___ ___ ___ ___.',answer:['who','is','actually','teaching','that','course'],distract:['are']},
   {id:'bsp2',tag:'embedded-questions',family:'indirect',prompt:"There's a new late-submission policy.",
-   frame:'i have no idea ___ ___.',answer:['what','the new policy says'],distract:['the new policy say']},
+   frame:'i have no idea ___ ___ ___ ___ ___ ___.',answer:['what','exactly','the','new','policy','says'],distract:['say']},
   {id:'bsp3',tag:'embedded-questions',family:'indirect',prompt:'Is the library open on Sundays?',
-   frame:'do you know ___ ___?',answer:['whether','the library is open on sundays'],distract:['is the library open on sundays']},
+   frame:'do you know ___ ___ ___ ___ ___ ___ ___?',answer:['whether','the','library','is','open','on','sundays'],distract:['are']},
   {id:'bsp4',tag:'embedded-questions',family:'indirect',prompt:"I can't find the shuttle schedule.",
-   frame:'could you tell me ___ ___?',answer:['where','the shuttle stops'],distract:['the shuttle stop']},
+   frame:'could you tell me ___ ___ ___ ___ ___?',answer:['where','the','campus','shuttle','stops'],distract:['stop']},
   {id:'bsp5',tag:'embedded-questions',family:'indirect',prompt:'The professor changed the exam date.',
-   frame:'can you tell me ___ ___?',answer:['when','the exam is now'],distract:['when is the exam now']},
+   frame:'can you tell me ___ ___ ___ ___ ___ ___?',answer:['when','the','exam','is','being','held'],distract:['was']},
   {id:'bsp6',tag:'embedded-questions',family:'indirect',prompt:'Someone said the gym closes early today.',
-   frame:"i'm not sure ___ ___.",answer:['what time','the gym closes today'],distract:['what time does the gym close today']},
+   frame:"i'm not sure ___ ___ ___ ___ ___ ___.",answer:['what','time','the','gym','closes','today'],distract:['close']},
   {id:'bsp7',tag:'embedded-questions',family:'indirect',prompt:'My roommate seems upset about something.',
-   frame:'i wonder ___ ___.',answer:['why','she is upset'],distract:['why is she upset']},
+   frame:'i wonder ___ ___ ___ ___ ___.',answer:['why','she','seems','so','upset'],distract:['seem']},
   {id:'bsp8',tag:'embedded-questions',family:'indirect',prompt:'Has the internship application opened yet?',
-   frame:'i have not heard ___ ___.',answer:['whether','the application has opened'],distract:['has the application opened']},
+   frame:'i have not heard ___ ___ ___ ___ ___ ___.',answer:['whether','the','application','has','already','opened'],distract:['have']},
   {id:'bsp9',tag:'embedded-questions',family:'indirect',prompt:'The dean announced some kind of policy change.',
-   frame:'i have no idea ___ ___.',answer:['what','the new policy involves'],distract:['what does the new policy involve']},
+   frame:'i have no idea ___ ___ ___ ___ ___ ___.',answer:['what','the','new','policy','actually','involves'],distract:['involve']},
   {id:'bsp10',tag:'embedded-questions',family:'indirect',prompt:'Which building has the new computer lab?',
-   frame:'do you know ___ ___?',answer:['which building','has the new lab'],distract:['which building have the new lab']},
+   frame:'do you know ___ ___ ___ ___ ___ ___?',answer:['which','building','has','the','new','lab'],distract:['have']},
   {id:'bsp11',tag:'embedded-questions',family:'indirect',prompt:'I missed the announcement about office hours.',
-   frame:'could you tell me ___ ___?',answer:['when','professor lima holds office hours'],distract:['when does professor lima hold office hours']},
+   frame:'could you tell me ___ ___ ___ ___ ___ ___?',answer:['when','professor','lima','holds','office','hours'],distract:['hold']},
   {id:'bsp12',tag:'embedded-questions',family:'indirect',prompt:'The club meeting got moved somewhere.',
-   frame:'can you tell me ___ ___?',answer:['where','the meeting is now'],distract:['where is the meeting now']},
+   frame:'can you tell me ___ ___ ___ ___ ___?',answer:['where','the','meeting','is','now'],distract:['was']},
   {id:'bsp13',tag:'embedded-questions',family:'indirect',prompt:'I heard tuition might increase next year.',
-   frame:"i'm not sure ___ ___.",answer:['how much','tuition will increase'],distract:['how much will tuition increase']},
+   frame:"i'm not sure ___ ___ ___ ___ ___.",answer:['how','much','tuition','will','increase'],distract:['increases']},
   {id:'bsp14',tag:'embedded-questions',family:'indirect',prompt:'My advisor mentioned a new requirement.',
-   frame:'i wonder ___ ___.',answer:['what','the new requirement is'],distract:['what is the new requirement']},
+   frame:'i wonder ___ ___ ___ ___ ___ ___.',answer:['what','the','new','requirement','really','is'],distract:['are']},
   {id:'bsp15',tag:'embedded-questions',family:'indirect',prompt:'Someone said the parking permit rules changed.',
-   frame:'i have not heard ___ ___.',answer:['how','the parking rules changed'],distract:['how did the parking rules change']},
+   frame:'i have not heard ___ ___ ___ ___ ___.',answer:['how','the','parking','rules','changed'],distract:['change']},
   {id:'bsp16',tag:'embedded-questions',family:'indirect',prompt:"I don't know if my package arrived.",
-   frame:'i have no idea ___ ___.',answer:['whether','my package has arrived'],distract:['has my package arrived']},
+   frame:'i have no idea ___ ___ ___ ___ ___ ___.',answer:['whether','my','package','has','already','arrived'],distract:['have']},
   {id:'bsp17',tag:'embedded-questions',family:'indirect',prompt:'Is Professor Kim teaching the seminar this fall?',
-   frame:'do you know ___ ___?',answer:['if','professor kim is teaching it'],distract:['is professor kim teaching it']},
+   frame:'do you know ___ ___ ___ ___ ___ ___?',answer:['if','professor','kim','is','teaching','it'],distract:['are']},
   {id:'bsp18',tag:'embedded-questions',family:'indirect',prompt:'I forgot who to contact about financial aid.',
-   frame:'could you tell me ___ ___?',answer:['who','handles financial aid'],distract:['who does handle financial aid']},
+   frame:'could you tell me ___ ___ ___ ___ ___?',answer:['who','handles','our','financial','aid'],distract:['handle']},
   {id:'bsp19',tag:'embedded-questions',family:'indirect',prompt:'The cafeteria menu changed this week.',
-   frame:'can you tell me ___ ___?',answer:['what','they are serving today'],distract:['what are they serving today']},
+   frame:'can you tell me ___ ___ ___ ___ ___ ___?',answer:['what','exactly','they','are','serving','today'],distract:['is']},
   {id:'bsp20',tag:'embedded-questions',family:'indirect',prompt:'I heard the deadline might be extended.',
-   frame:"i'm not sure ___ ___.",answer:['whether','the deadline was extended'],distract:['was the deadline extended']},
+   frame:"i'm not sure ___ ___ ___ ___ ___.",answer:['whether','the','deadline','was','extended'],distract:['were']},
   {id:'bsp21',tag:'embedded-questions',family:'indirect',prompt:'My classmate dropped the course suddenly.',
-   frame:'i wonder ___ ___.',answer:['why','he dropped the course'],distract:['why did he drop the course']},
+   frame:'i wonder ___ ___ ___ ___ ___.',answer:['why','he','dropped','the','course'],distract:['drop']},
   {id:'bsp22',tag:'embedded-questions',family:'indirect',prompt:'The study group changed its meeting time.',
-   frame:'i have not heard ___ ___.',answer:['what time','the group meets now'],distract:['what time does the group meet now']},
+   frame:'i have not heard ___ ___ ___ ___ ___ ___.',answer:['what','time','the','group','meets','now'],distract:['meet']},
   {id:'bsp23',tag:'embedded-questions',family:'indirect',prompt:"I'm unsure which form I need to submit.",
-   frame:'i have no idea ___ ___.',answer:['which form','i need to submit'],distract:['which form do i need to submit']},
+   frame:'i have no idea ___ ___ ___ ___ ___ ___.',answer:['which','form','i','need','to','submit'],distract:['needs']},
   {id:'bsp24',tag:'embedded-questions',family:'indirect',prompt:'Someone mentioned the bus route changed.',
-   frame:'do you know ___ ___?',answer:['how','the bus route changed'],distract:['how did the bus route change']},
-  // ── 15% · direct what/which/how + noun ──────────────────────────────────
+   frame:'do you know ___ ___ ___ ___ ___ ___?',answer:['how','the','bus','route','actually','changed'],distract:['change']},
+  // ── 15% · direct what/which/how + noun (5-8 blanks) ─────────────────────
   {id:'bsp25',tag:'wh-noun-question',family:'what-noun',prompt:"I'm planning my workout routine for this semester.",
-   frame:'___ ___ you planning to do?',answer:['what type of exercises','are'],distract:['is']},
+   frame:'___ ___ ___ ___ ___ ___ ___ ___ do?',answer:['what','type','of','exercises','are','you','planning','to'],distract:['is']},
   {id:'bsp26',tag:'wh-noun-question',family:'what-noun',prompt:'I need to pick a topic for my research paper.',
-   frame:'___ ___ you planning to write about?',answer:['which topic','are'],distract:['is']},
+   frame:'___ ___ ___ ___ ___ ___ ___ about?',answer:['which','topic','are','you','planning','to','write'],distract:['is']},
   {id:'bsp27',tag:'wh-noun-question',family:'what-noun',prompt:'I visited the museum last week.',
-   frame:'___ ___ you like most?',answer:['which exhibit','did'],distract:['do']},
+   frame:'___ ___ ___ ___ ___ most?',answer:['which','exhibit','did','you','like'],distract:['do']},
   {id:'bsp28',tag:'wh-noun-question',family:'what-noun',prompt:"I'm trying to plan my course load.",
-   frame:'___ ___ you taking next semester?',answer:['how many courses','are'],distract:['is']},
+   frame:'___ ___ ___ ___ ___ ___ ___ semester?',answer:['how','many','courses','are','you','taking','next'],distract:['is']},
   {id:'bsp29',tag:'wh-noun-question',family:'what-noun',prompt:'The bakery changed its hours.',
-   frame:'___ ___ the bakery close now?',answer:['what time','does'],distract:['do']},
+   frame:'___ ___ ___ ___ ___ ___ now?',answer:['what','time','does','the','bakery','close'],distract:['do']},
   {id:'bsp30',tag:'wh-noun-question',family:'what-noun',prompt:'I heard there was a mix-up with the room booking.',
-   frame:'___ caused the mix-up?',answer:['what kind of error'],distract:[]},
+   frame:'___ ___ ___ ___ ___ ___ mix-up?',answer:['what','kind','of','error','caused','the'],distract:['cause']},
   {id:'bsp31',tag:'wh-noun-question',family:'what-noun',prompt:'Several students complained about the cafeteria.',
-   frame:'___ did they complain about?',answer:['which issue'],distract:['what issue']},
+   frame:'___ ___ ___ ___ ___ about?',answer:['which','issue','did','they','complain'],distract:['do']},
   {id:'bsp32',tag:'wh-noun-question',family:'what-noun',prompt:'The internship program accepts a limited number of students.',
-   frame:'___ ___ accepted each year?',answer:['how many students','are'],distract:['is']},
+   frame:'___ ___ ___ ___ ___ ___ year?',answer:['how','many','students','are','accepted','each'],distract:['is']},
   {id:'bsp33',tag:'wh-noun-question',family:'what-noun',prompt:'The advisor mentioned different graduation requirements.',
-   frame:'___ applies to transfer students?',answer:['which requirement'],distract:['what requirement']},
-  // ── 15% · did/do/does + base verb, including negative ───────────────────
+   frame:'___ ___ ___ ___ ___ students?',answer:['which','requirement','applies','to','transfer'],distract:['apply']},
+  // ── 15% · did/do/does + base verb, including negative (5-8 blanks) ──────
   {id:'bsp34',tag:'did-do-does',family:'did-base',prompt:'Were you surprised by the exam results?',
-   frame:'i ___ ___ it would be that hard.',answer:['did not','think'],distract:["didn't thought"]},
+   frame:'i ___ ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','think','it','would','be','that','hard'],distract:['thought']},
   {id:'bsp35',tag:'did-do-does',family:'did-base',prompt:"Why didn't you join the study group?",
-   frame:'i ___ ___ about it in time.',answer:['did not','hear'],distract:["didn't heard"]},
+   frame:'i ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','hear','about','it','in','time'],distract:['heard']},
   {id:'bsp36',tag:'did-do-does',family:'did-base',prompt:'Did the shuttle come on time this morning?',
-   frame:'it ___ ___ on schedule.',answer:['did not','arrive'],distract:["didn't arrived"]},
+   frame:'it ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','arrive','on','schedule','this','morning'],distract:['arrived']},
   {id:'bsp37',tag:'did-do-does',family:'did-base',prompt:'Why did you skip the review session?',
-   frame:'i ___ ___ about it.',answer:['did not','know'],distract:["didn't knew"]},
+   frame:'i ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','know','about','it','at','all'],distract:['knew']},
   {id:'bsp38',tag:'did-do-does',family:'did-base',prompt:'Did you enjoy the guest lecture?',
-   frame:'i ___ ___ it as much as the last one.',answer:['did not','enjoy'],distract:["didn't enjoyed"]},
+   frame:'i ___ ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','enjoy','it','as','much','as','before'],distract:['enjoyed']},
   {id:'bsp39',tag:'did-do-does',family:'did-base',prompt:"Why didn't the printer work yesterday?",
-   frame:'it ___ ___ any paper.',answer:['did not','have'],distract:["didn't had"]},
+   frame:'it ___ ___ ___ ___ ___ ___.',answer:['did','not','have','any','paper','left'],distract:['had']},
   {id:'bsp40',tag:'did-do-does',family:'did-base',prompt:"Did your roommate finish the project on time?",
-   frame:'he ___ ___ it before the deadline.',answer:['did not','finish'],distract:["didn't finished"]},
+   frame:'he ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','finish','it','before','the','deadline'],distract:['finished']},
   {id:'bsp41',tag:'did-do-does',family:'did-base',prompt:'Were you able to reach the professor?',
-   frame:'she ___ ___ to my email.',answer:['did not','reply'],distract:["didn't replied"]},
+   frame:'she ___ ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','reply','to','my','email','at','all'],distract:['replied']},
   {id:'bsp42',tag:'did-do-does',family:'did-base',prompt:'Did the committee approve your proposal?',
-   frame:'they ___ ___ it yet.',answer:['did not','approve'],distract:["didn't approved"]},
-  // ── 10% · either / neither / still / already / almost position ─────────
+   frame:'they ___ ___ ___ ___ ___.',answer:['did','not','approve','it','yet'],distract:['approved']},
+  // ── 10% · either / neither / still / already / almost (5-8 blanks) ──────
   {id:'bsp43',tag:'either-neither-position',family:'either-still',prompt:"I couldn't follow the professor's explanation.",
-   frame:'i did not understand what he said ___.',answer:['either'],distract:['neither']},
+   frame:'i ___ ___ ___ ___ ___ ___ ___.',answer:['did','not','understand','what','he','said','either'],distract:['neither']},
   {id:'bsp44',tag:'either-neither-position',family:'either-still',prompt:'Is the report finished?',
-   frame:'we are ___ working on it.',answer:['still'],distract:['already']},
+   frame:'we ___ ___ ___ ___ ___.',answer:['are','still','working','on','it'],distract:['already']},
   {id:'bsp45',tag:'either-neither-position',family:'either-still',prompt:'Has the professor graded the essays?',
-   frame:'she has ___ finished grading them.',answer:['already'],distract:['still']},
+   frame:'she ___ ___ ___ ___ ___ ___.',answer:['has','already','finished','grading','the','essays'],distract:['still']},
   {id:'bsp46',tag:'either-neither-position',family:'either-still',prompt:'Did anyone understand the instructions?',
-   frame:'___ of us understood them.',answer:['neither'],distract:['either']},
+   frame:'___ ___ ___ ___ ___ ___.',answer:['neither','of','us','understood','the','instructions'],distract:['either']},
   {id:'bsp47',tag:'either-neither-position',family:'either-still',prompt:'Is the presentation ready?',
-   frame:'it is ___ finished.',answer:['almost'],distract:['already']},
+   frame:'it ___ ___ ___ ___ ___.',answer:['is','almost','completely','finished','now'],distract:['already']},
   {id:'bsp48',tag:'either-neither-position',family:'either-still',prompt:'Did you manage to submit the form?',
-   frame:'i have not submitted it ___.',answer:['either'],distract:['neither']},
-  // ── 10% · past tense & participle (narrative/wish/passive/causative/subjunctive) ──
+   frame:'i ___ ___ ___ ___ ___.',answer:['have','not','submitted','it','either'],distract:['neither']},
+  // ── 10% · past tense & participle (5-8 blanks) ──────────────────────────
   {id:'bsp49',tag:'verb-forms',family:'past-participle',prompt:'Were you on time for the exam?',
-   frame:'i wish i ___ ___ earlier.',answer:['had','left'],distract:['have left']},
+   frame:'i ___ ___ ___ ___ ___.',answer:['wish','i','had','left','earlier'],distract:['have']},
   {id:'bsp50',tag:'verb-forms',family:'past-participle',prompt:'Did you know the test would be rescheduled?',
-   frame:'i wish i ___ ___ about it sooner.',answer:['had','known'],distract:['have known']},
+   frame:'i ___ ___ ___ ___ ___ ___ ___.',answer:['wish','i','had','known','about','it','sooner'],distract:['have']},
   {id:'bsp51',tag:'verb-forms',family:'past-participle',prompt:'Who wrote the acceptance letters?',
-   frame:'the acceptance letters ___ ___ by the admissions office.',answer:['were','written'],distract:['was wrote']},
+   frame:'the acceptance letters ___ ___ ___ ___ ___ ___.',answer:['were','written','by','the','admissions','office'],distract:['was']},
   {id:'bsp52',tag:'verb-forms',family:'past-participle',prompt:'Did you paint the apartment yourself?',
-   frame:'no, i ___ ___ ___ by a professional.',answer:['had','it','painted'],distract:['painted']},
+   frame:'no, i ___ ___ ___ ___ ___ ___.',answer:['had','it','painted','by','a','professional'],distract:['paint']},
   {id:'bsp53',tag:'verb-forms',family:'past-participle',prompt:'What did the committee decide about the deadline?',
-   frame:'the committee insisted that the essay ___ ___ by friday.',answer:['be','submitted'],distract:['is submitted']},
+   frame:'the committee insisted that ___ ___ ___ ___ ___ ___.',answer:['the','essay','be','submitted','by','friday'],distract:['is']},
   {id:'bsp54',tag:'verb-forms',family:'past-participle',prompt:'How did you feel after the long flight?',
-   frame:'by the time we landed, i ___ ___ for almost twenty hours.',answer:['had','been traveling'],distract:['have been traveling']},
-  // ── 10% · preposition chunks (due to / depend on / interested in + -ing / discuss) ──
+   frame:'i ___ ___ ___ ___ ___ ___ ___.',answer:['had','been','traveling','for','almost','twenty','hours'],distract:['have']},
+  // ── 10% · preposition chunks (5-8 blanks) ───────────────────────────────
   {id:'bsp55',tag:'prepositions',family:'prep-chunk',prompt:'Why was the flight delayed?',
-   frame:'it was delayed ___ bad weather.',answer:['due to'],distract:['due']},
+   frame:'it ___ ___ ___ ___ ___ ___.',answer:['was','delayed','due','to','bad','weather'],distract:['because']},
   {id:'bsp56',tag:'prepositions',family:'prep-chunk',prompt:'Will the trip happen this weekend?',
-   frame:'it ___ ___ the weather forecast.',answer:['depends','on'],distract:['of']},
+   frame:'it ___ ___ ___ ___ ___.',answer:['depends','on','the','weather','forecast'],distract:['of']},
   {id:'bsp57',tag:'prepositions',family:'prep-chunk',prompt:'Are you applying for the internship?',
-   frame:'yes, i am interested ___ doing it.',answer:['in'],distract:['to']},
+   frame:'yes, i ___ ___ ___ ___ ___ ___.',answer:['am','very','interested','in','doing','it'],distract:['to']},
   {id:'bsp58',tag:'prepositions',family:'prep-chunk',prompt:'What did the panel talk about in the meeting?',
-   frame:'they ___ the new budget proposal.',answer:['discussed'],distract:['discussed about']},
+   frame:'they ___ ___ ___ ___ ___ ___ ___.',answer:['discussed','the','new','budget','proposal','in','detail'],distract:['about']},
   {id:'bsp59',tag:'prepositions',family:'prep-chunk',prompt:'Why did you choose that university?',
-   frame:'i was interested ___ the research opportunities.',answer:['in'],distract:['on']},
+   frame:'i ___ ___ ___ ___ ___ ___ ___.',answer:['was','very','interested','in','the','research','opportunities'],distract:['on']},
   {id:'bsp60',tag:'prepositions',family:'prep-chunk',prompt:'How reliable is the new system?',
-   frame:'its accuracy ___ ___ the quality of the input data.',answer:['depends','on'],distract:['relies']}
+   frame:'its accuracy ___ ___ ___ ___ ___ ___ ___ ___.',answer:['depends','on','the','quality','of','the','input','data'],distract:['relies']}
 ];
-const BS_FAMILY_LABEL={indirect:'Pergunta indireta',['what-noun']:'What/Which + substantivo','did-base':'did/do/does + base',['either-still']:'Either/neither/still','past-participle':'Passado/particípio','prep-chunk':'Chunks de preposição'};
+const BS_FAMILY_LABEL={indirect:'indireta','what-noun':'what+subst','did-base':'did+base','either-still':'either/still','past-participle':'passado/particípio','prep-chunk':'chunks'};
+const BS_FAMILY_ORDER=['indirect','what-noun','did-base','either-still','past-participle','prep-chunk'];
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
   'gerund-after-preposition':'After a preposition (on, to, of…) the verb takes the -ing (gerund) form.',
@@ -5499,6 +5507,7 @@ function toefl_tickTimer(){
   sim_tick();
   session_tick();
   tt_tick();
+  bsSet_tick();
 }
 // ── TIMED SIMULATION MODE ────────────────────────────────────────────────────
 // A layer over the existing Writing/Speaking flow, not a parallel
@@ -6522,8 +6531,22 @@ function bs_setup(it){
   toefl_itemStart('build');
 }
 // Distinct grammar-pattern tags actually present in bsItems (built-in + custom), sorted.
-function bs_topics(){return Array.from(new Set(bsItems.map(it=>it&&it.tag).filter(Boolean))).sort();}
-function bs_filteredItems(){return bs_topicFilter?bsItems.filter(it=>it&&it.tag===bs_topicFilter):bsItems;}
+// A real TOEFL Build-a-Sentence item reconstructs nearly the whole sentence
+// (5-8 blanks). Anything shorter doesn't train what the exam actually
+// covers, so it's archived — hidden from practice and from Set Mode, never
+// deleted. bs_archiveShortFormat() (called once at boot) is the only writer
+// of `archived`; it's additive-only (never un-archives), so manually
+// restoring an item just means clearing the flag by hand if that's ever
+// needed.
+function bs_isShortFormat(it){return !it||(it.frame.match(/___/g)||[]).length<5;}
+function bs_archiveShortFormat(){
+  let changed=false;
+  bsItems.forEach(it=>{if(it&&!it.archived&&bs_isShortFormat(it)){it.archived=true;changed=true;}});
+  if(changed)bs_saveItems();
+}
+function bs_activeItems(){return bsItems.filter(it=>it&&!it.archived);}
+function bs_topics(){return Array.from(new Set(bs_activeItems().map(it=>it&&it.tag).filter(Boolean))).sort();}
+function bs_filteredItems(){const pool=bs_activeItems();return bs_topicFilter?pool.filter(it=>it&&it.tag===bs_topicFilter):pool;}
 function bs_setTopicFilter(v){
   bs_topicFilter=v||'';
   try{localStorage.setItem('c1bsTopic',bs_topicFilter);}catch(e){}
@@ -6584,10 +6607,12 @@ function bs_deleteAllCustom(){
 }
 function bs_toolbar(){
   const topics=bs_topics();
+  const active=bs_activeItems();
   const filteredCount=bs_filteredItems().length;
   const customCount=bs_customItems().length;
+  const archivedCount=bsItems.length-active.length;
   let h='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
-    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+filteredCount+' exercise'+(filteredCount===1?'':'s')+(bs_topicFilter?' · '+esc(bs_topicFilter):'')+'</span>'
+    +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+filteredCount+' exercise'+(filteredCount===1?'':'s')+(bs_topicFilter?' · '+esc(bs_topicFilter):'')+(archivedCount?' · '+archivedCount+' archived (<5 blanks)':'')+'</span>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
     +(customCount?'<button class="btn bdn bsm" onclick="bs_deleteAllCustom()" title="Delete all custom exercises">🗑️ Delete '+customCount+' custom</button>':'')
     +'<button class="btn bsm" onclick="openIO(\'bs\')" title="Import / export">⇅</button>'
@@ -6595,8 +6620,8 @@ function bs_toolbar(){
     +'</div></div>';
   if(topics.length>1){
     h+='<div style="margin-bottom:12px"><select onchange="bs_setTopicFilter(this.value)" style="width:100%;padding:8px 10px;border:1px solid #DDE3F5;border-radius:8px;font-size:14px;background:#fff;color:#0F172A;font-family:\'DM Sans\',sans-serif;cursor:pointer">'
-      +'<option value=""'+(bs_topicFilter===''?' selected':'')+'>🎯 All topics ('+bsItems.length+')</option>'
-      +topics.map(t=>{const cnt=bsItems.filter(it=>it&&it.tag===t).length;return '<option value="'+esc(t)+'"'+(bs_topicFilter===t?' selected':'')+'>'+esc(t)+' ('+cnt+')</option>';}).join('')
+      +'<option value=""'+(bs_topicFilter===''?' selected':'')+'>🎯 All topics ('+active.length+')</option>'
+      +topics.map(t=>{const cnt=active.filter(it=>it&&it.tag===t).length;return '<option value="'+esc(t)+'"'+(bs_topicFilter===t?' selected':'')+'>'+esc(t)+' ('+cnt+')</option>';}).join('')
       +'</select></div>';
   }
   return h;
@@ -6664,10 +6689,11 @@ function bs_retryAIExplain(){
   bs_fetchAIExplain(bs_cur,guessArr);
 }
 function bs_render(){
+  if(bsSet_active||bsSet_locked)return bsSet_render();
   const filtered=bs_filteredItems();
   const dueCount=ex_due(filtered,bsProgress).length;
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
-  const tb=bs_toolbar();
+  const tb=bs_toolbar()+bsSet_entryCard();
   if(!bs_cur){
     const topicNote=bs_topicFilter?' for "'+esc(bs_topicFilter)+'"':'';
     if(filtered.length){return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due'+topicNote+' right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>'+exPerfPanel('bs',filtered,bsProgress);}
@@ -6724,12 +6750,216 @@ function bs_check(){
   toefl_logTime('build');
   if(session_active){session_attempted++;if(correct)session_correct++;}
   bs_aiExplain=null;bs_aiErr=null;bs_aiLoading=false;bs_aiToken++;
+  if(bsSet_active)bsSet_onChecked(correct,guessArr);
   renderRev();
-  if(!correct&&ai_hasKey())bs_fetchAIExplain(bs_cur,guessArr);
+  // No per-question hints during a timed Set — bs_aiExplain's own render
+  // branch is skipped by bsSet_render(), but skip the fetch outright too so
+  // it doesn't burn Gemini quota on explanations the set never shows.
+  if(!correct&&ai_hasKey()&&!bsSet_active)bs_fetchAIExplain(bs_cur,guessArr);
 }
 function bs_next(force){
   if(!force&&session_advanceToNextActivity())return;
   bs_load();if(force&&!bs_cur){const items=bs_filteredItems();if(items.length)bs_setup(items[Math.floor(Math.random()*items.length)]);}renderRev();
+}
+
+// ══ BUILD A SENTENCE — SET MODE ═════════════════════════════════════════════
+// A timed 10-question "focus set" drawn from the family-tagged Pareto pool
+// (BS_SEED_PARETO + anything else carrying a `family`), weighted toward
+// items due for a spaced retest and items never attempted, in roughly the
+// same family proportions as the full pool. No feedback is shown between
+// questions — only the final copyable report — matching real exam pacing.
+function bsSet_saveRetest(){
+  try{localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));}catch(e){}
+  if(RBSRT)fbSet(RBSRT,Object.keys(bsRetest).length?bsRetest:null);
+}
+function bsSet_familyPool(){return bsItems.filter(it=>it&&it.family&&!it.archived);}
+function bsSet_daysSince(dateStr){
+  if(!dateStr)return Infinity;
+  return Math.round((new Date(today+'T00:00:00')-new Date(dateStr+'T00:00:00'))/86400000);
+}
+function bsSet_dueRetestCount(){
+  return bsSet_familyPool().filter(it=>{const r=bsRetest[it.id];return r&&r.status==='in-queue'&&bsSet_daysSince(r.wrongAt)>=2;}).length;
+}
+// Largest-remainder rounding of each family's share of the pool onto `n`
+// slots, so a 10-question set tracks the pool's real family mix instead of
+// a hardcoded split that drifts as the pool changes.
+function bsSet_targetCounts(n){
+  const pool=bsSet_familyPool();
+  const total=pool.length;
+  const counts={};
+  if(!total)return counts;
+  const raw=BS_FAMILY_ORDER.map(f=>{
+    const c=pool.filter(it=>it.family===f).length;
+    const ideal=(c/total)*n;
+    return {f,ideal,floor:Math.floor(ideal)};
+  }).filter(r=>r.floor>=0);
+  let assigned=0;
+  raw.forEach(r=>{counts[r.f]=r.floor;assigned+=r.floor;});
+  const remainder=raw.slice().sort((a,b)=>(b.ideal-b.floor)-(a.ideal-a.floor));
+  for(let i=0;i<n-assigned&&remainder.length;i++)counts[remainder[i%remainder.length].f]++;
+  return counts;
+}
+// Priority within a family: due retests first, then never-attempted items,
+// then anything else already mastered, and only as a last resort an item
+// still inside its 48h cooldown (better to repeat one than leave a slot
+// empty).
+function bsSet_pickForFamily(fam,count){
+  const pool=bsSet_familyPool().filter(it=>it.family===fam);
+  if(!pool.length)return[];
+  const due=[],never=[],rest=[],cooldown=[];
+  pool.forEach(it=>{
+    const r=bsRetest[it.id];
+    if(r&&r.status==='in-queue'){(bsSet_daysSince(r.wrongAt)>=2?due:cooldown).push(it);}
+    else if(!bsProgress[it.id])never.push(it);
+    else rest.push(it);
+  });
+  return shuffle(due).concat(shuffle(never)).concat(shuffle(rest)).concat(shuffle(cooldown)).slice(0,count);
+}
+function bsSet_newSet(){
+  const counts=bsSet_targetCounts(10);
+  let items=[];
+  Object.keys(counts).forEach(f=>{items=items.concat(bsSet_pickForFamily(f,counts[f]));});
+  if(items.length<10){
+    const haveIds=new Set(items.map(it=>it.id));
+    items=items.concat(shuffle(bsSet_familyPool().filter(it=>!haveIds.has(it.id))).slice(0,10-items.length));
+  }
+  bsSet_items=shuffle(items).slice(0,10);
+  bsSet_idx=0;bsSet_results=[];bsSet_active=true;bsSet_locked=false;bsSet_finishRemain=0;
+  bsSet_deadline=Date.now()+360000;
+  bs_cur=null;bs_checked=false;
+  tt_stop(); // the per-item pacing timer would otherwise race the set's own 6:00 clock
+  renderRev();
+}
+function bsSet_remainSecs(){return bsSet_deadline?Math.max(0,Math.round((bsSet_deadline-Date.now())/1000)):0;}
+function bsSet_fmtTime(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function bsSet_tick(){
+  if(!bsSet_active||bsSet_locked)return;
+  const remain=bsSet_remainSecs();
+  const badge=document.getElementById('bsSetTimerBadge');
+  if(badge)badge.textContent=bsSet_fmtTime(remain);
+  if(remain<=0)bsSet_finish();
+}
+// Called from bs_check() (which already graded + saved SM-2 progress as
+// normal) to additionally record this question for the end-of-set report
+// and update the 48h/2-different-days retest queue.
+function bsSet_onChecked(correct,guessArr){
+  const it=bs_cur;if(!it)return;
+  bsSet_results.push({id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:guessArr.slice(),correct,blank:false});
+  const r=bsRetest[it.id]||{status:'none',wrongAt:null,correctDates:[]};
+  if(correct){
+    if(r.status==='in-queue'){
+      if(!r.correctDates.includes(today))r.correctDates.push(today);
+      if(r.correctDates.length>=2)r.status='cleared';
+    }
+  }else{
+    r.status='in-queue';r.wrongAt=today;r.correctDates=[];
+  }
+  bsRetest[it.id]=r;
+  bsSet_saveRetest();
+}
+function bsSet_advance(){
+  bsSet_idx++;
+  bs_cur=null;bs_checked=false;
+  if(bsSet_idx>=bsSet_items.length)bsSet_finish();
+  else renderRev();
+}
+function bsSet_finish(){
+  bsSet_finishRemain=bsSet_remainSecs();
+  bsSet_locked=true;bsSet_active=false;
+  const answeredIds=new Set(bsSet_results.map(r=>r.id));
+  bsSet_items.forEach(it=>{
+    if(!answeredIds.has(it.id))bsSet_results.push({id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true});
+  });
+  bs_cur=null;bs_checked=false;
+  renderRev();
+}
+function bsSet_exit(){
+  bsSet_active=false;bsSet_locked=false;bsSet_items=[];bsSet_results=[];
+  bs_cur=null;bs_checked=false;bs_load();renderRev();
+}
+function bsSet_frameFill(frame,answerArr){
+  const full=frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<answerArr.length?(answerArr[i]||'___'):''),'');
+  return bs_cap(full);
+}
+function bsSet_reportText(){
+  const total=bsSet_results.length;
+  const correctN=bsSet_results.filter(r=>r.correct).length;
+  const blanks=bsSet_results.filter(r=>r.blank).length;
+  const now=new Date();
+  const f2=n=>String(n).padStart(2,'0');
+  let txt='BAS | '+f2(now.getDate())+'/'+f2(now.getMonth()+1)+' '+f2(now.getHours())+':'+f2(now.getMinutes())+' | Set foco\n';
+  txt+='Score: '+correctN+'/'+total+' | Tempo restante: '+bsSet_fmtTime(bsSet_finishRemain)+' | Em branco: '+blanks+'\n';
+  const errors=bsSet_results.filter(r=>!r.correct);
+  if(errors.length){
+    txt+='Erros:\n';
+    errors.forEach(r=>{
+      const qn=bsSet_results.indexOf(r)+1;
+      const myAns=r.blank?'(em branco)':bsSet_frameFill(r.frame,r.myAnswer);
+      const correctAns=bsSet_frameFill(r.frame,r.correctAnswer);
+      txt+='Q'+qn+' ['+(BS_FAMILY_LABEL[r.family]||r.family)+'] Contexto: "'+r.prompt+'" | Minha resposta: "'+myAns+'" | Correta: "'+correctAns+'"\n';
+    });
+  }
+  txt+='Resumo por família: '+BS_FAMILY_ORDER.map(f=>{
+    const items=bsSet_results.filter(r=>r.family===f);
+    if(!items.length)return null;
+    return (BS_FAMILY_LABEL[f]||f)+' '+items.filter(r=>r.correct).length+'/'+items.length;
+  }).filter(Boolean).join(', ')+'\n';
+  const retestCount=Object.values(bsRetest).filter(r=>r.status==='in-queue').length;
+  txt+='Fila de reteste: '+retestCount+' questões';
+  return txt;
+}
+function bsSet_copyReport(){
+  navigator.clipboard.writeText(bsSet_reportText())
+    .then(()=>toast('✅ Relatório copiado'))
+    .catch(()=>toast('⚠️ Não foi possível copiar — selecione o texto manualmente'));
+}
+function bsSet_reportHTML(){
+  return '<div class="card"><div style="font-weight:600;color:#0F172A;margin-bottom:10px">📋 Relatório do Set</div>'
+    +'<pre id="bsSetReportText" style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;font-family:\'DM Mono\',monospace;font-size:12.5px;color:#0F172A;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">'+esc(bsSet_reportText())+'</pre>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn bpr" onclick="bsSet_copyReport()">📋 Copiar relatório</button>'
+    +'<button class="btn bte bsm" onclick="bsSet_newSet()">🎯 Novo set foco</button>'
+    +'<button class="btn bsm" onclick="bsSet_exit()">Sair do Set Mode</button>'
+    +'</div></div>';
+}
+// Entry point into Set Mode, shown above the regular (untimed) Build a
+// Sentence practice — only when there's a family-tagged pool to draw from.
+function bsSet_entryCard(){
+  if(!bsSet_familyPool().length)return'';
+  const due=bsSet_dueRetestCount();
+  return '<div class="card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+    +'<div><div style="font-weight:600;color:#0F172A">🎯 Set foco — 10 questões, 6:00</div><div style="font-size:12px;color:#64748B">'+(due?due+' em reteste · ':'')+'foco Pareto nos seus erros reais</div></div>'
+    +'<button class="btn bpr" onclick="bsSet_newSet()">Novo set foco →</button>'
+    +'</div>';
+}
+function bsSet_render(){
+  if(bsSet_locked)return bsSet_reportHTML();
+  const it=bsSet_items[bsSet_idx];
+  if(!it)return bsSet_reportHTML();
+  if(!bs_cur||bs_cur.id!==it.id){bs_checked=false;bs_setup(it);tt_stop();}
+  const usedSet=new Set(bs_slots.filter(x=>x!=null));
+  const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_fill('+t.id+')">'+esc(t.w)+'</span>').join('');
+  const allFilled=bs_slots.every(x=>x!=null);
+  let h='<div class="card" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'
+    +'<div style="font-weight:600;color:#0F172A">🎯 Set foco — Pergunta '+(bsSet_idx+1)+'/'+bsSet_items.length+'</div>'
+    +'<div id="bsSetTimerBadge" style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:600;color:#0F172A">'+bsSet_fmtTime(bsSet_remainSecs())+'</div>'
+    +'</div>';
+  h+='<div class="card">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
+    +'<span class="tag tbl">'+esc(BS_FAMILY_LABEL[it.family]||it.family)+'</span></div>'
+    +'<div class="bs-prompt">💬 '+esc(it.prompt)+'</div>'
+    +'<div style="font-size:14px;color:#94A3B8;margin-bottom:6px">Tap the phrases to fill the blanks in order.</div>'
+    +'<div class="bs-frame">'+bs_frameHTML()+'</div>'
+    +'<div class="bs-bank">'+(bankChips||'<span class="bs-ph">All phrases placed. Check your answer →</span>')+'</div>';
+  if(bs_checked){
+    h+='<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:10px;padding:10px 12px;font-size:13px;color:#475569;margin-bottom:10px">✓ Resposta registrada — a correção aparece no relatório final.</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bsSet_advance()">'+(bsSet_idx<bsSet_items.length-1?'Next →':'Ver relatório →')+'</button></div>';
+  }else{
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button></div>';
+  }
+  h+='</div>';
+  return h;
 }
 // Grammar tags offered in the add-exercise form (plus free "custom" entry).
 const BS_TAGS=['relative-clauses','embedded-questions','conjunctions','comparatives','conditionals','passive-voice','reported-speech','prepositions','present-perfect','gerund-after-preposition','infinitive-after-modal','subject-verb-agreement','articles','word-order'];
@@ -9381,7 +9611,7 @@ function ex_mergeSeeds(items,seed,saveFn){
 }
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
-  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();
+  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();bs_archiveShortFormat();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
@@ -9626,12 +9856,15 @@ function mp_applyNav(){
 // back to the full hub: the "← Menu" button and the Timed Simulation/Pacing/
 // Skill Diagnostic buttons. renderRev()'s own guard already forces
 // toeflActivity to 'build' before this runs, so there's never anything
-// else to hide inside #toeflEx itself.
+// else to hide inside #toeflEx itself. Also hidden mid-Set (bsSet_active),
+// independent of Modo Prova, so there's no way to back out of a running
+// timed set without finishing or letting the clock run out.
 function mp_applyRevRestrictions(){
-  document.querySelector('#toeflBackBar button[onclick="toeflShow(null)"]')?.classList.toggle('hid',modoProva);
-  document.getElementById('simToggleBtn')?.classList.toggle('hid',modoProva);
-  document.querySelector('[onclick="openPacingModal()"]')?.classList.toggle('hid',modoProva);
-  document.querySelector('[onclick="openSkillDiag()"]')?.classList.toggle('hid',modoProva);
+  const hide=modoProva||bsSet_active;
+  document.querySelector('#toeflBackBar button[onclick="toeflShow(null)"]')?.classList.toggle('hid',hide);
+  document.getElementById('simToggleBtn')?.classList.toggle('hid',hide);
+  document.querySelector('[onclick="openPacingModal()"]')?.classList.toggle('hid',hide);
+  document.querySelector('[onclick="openSkillDiag()"]')?.classList.toggle('hid',hide);
 }
 function mp_toggle(){
   modoProva=!modoProva;
@@ -10708,6 +10941,7 @@ function startSync(){
     RAMA = db.ref('amaCompleted');
     RBSI = db.ref('buildSentenceItems');
     RBSP = db.ref('buildSentenceProgress');
+    RBSRT = db.ref('bsRetest');
     RCWI = db.ref('completeWordsItems');
     RCWP = db.ref('completeWordsProgress');
     REMS = db.ref('emailScenarios');
@@ -10766,8 +11000,9 @@ function startSync(){
     // it because the field was being destroyed out from under the user, not
     // missed. Data still updates in the background either way; the UI just
     // doesn't redraw over an in-progress attempt.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();bs_archiveShortFormat();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&toeflActivity==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSRT.on('value',s=>{const v=s.val();if(v){bsRetest=v;localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));if(curTab==='rev'&&toeflActivity==='build'&&!bsSet_active)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&toeflActivity==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&toeflActivity==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
