@@ -1297,13 +1297,20 @@ const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
 let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null,RERR=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
-let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null;
+let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null,RBSRT=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
 let bs_cur=null,bs_slots=[],bs_tokens=[],bs_checked=false;
 // AI-generated explanation for the current check (wrong answers only — see
 // bs_fetchAIExplain). bs_aiToken guards against a stale response landing
 // after the user has already moved to a new question.
 let bs_aiExplain=null,bs_aiLoading=false,bs_aiErr=null,bs_aiToken=0;
+// Set Mode (timed 10-question focus sets) + the spaced retest queue behind
+// it. bsRetest is durable (synced like bsProgress); the rest is in-memory
+// only — an interrupted set just resets on reload rather than being
+// silently resumed stale. See the "BUILD A SENTENCE — SET MODE" module.
+let bsSet_active=false,bsSet_items=[],bsSet_idx=0,bsSet_results=[],bsSet_deadline=null,bsSet_locked=false,bsSet_finishRemain=0;
+let bsRetest={};
+try{bsRetest=JSON.parse(localStorage.getItem('c1bsretest')||'{}');}catch(e){bsRetest={};}
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
 // UI preference only, not synced — mirrors how the other exercise-mode filters
 // (e.g. Flashcards' "By Topic") are just a saved selection, not scored data.
@@ -4589,7 +4596,8 @@ const BS_SEED_PARETO=[
   {id:'bsp60',tag:'prepositions',family:'prep-chunk',prompt:'How reliable is the new system?',
    frame:'its accuracy ___ ___ the quality of the input data.',answer:['depends','on'],distract:['relies']}
 ];
-const BS_FAMILY_LABEL={indirect:'Pergunta indireta',['what-noun']:'What/Which + substantivo','did-base':'did/do/does + base',['either-still']:'Either/neither/still','past-participle':'Passado/particípio','prep-chunk':'Chunks de preposição'};
+const BS_FAMILY_LABEL={indirect:'indireta','what-noun':'what+subst','did-base':'did+base','either-still':'either/still','past-participle':'passado/particípio','prep-chunk':'chunks'};
+const BS_FAMILY_ORDER=['indirect','what-noun','did-base','either-still','past-participle','prep-chunk'];
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
   'gerund-after-preposition':'After a preposition (on, to, of…) the verb takes the -ing (gerund) form.',
@@ -5499,6 +5507,7 @@ function toefl_tickTimer(){
   sim_tick();
   session_tick();
   tt_tick();
+  bsSet_tick();
 }
 // ── TIMED SIMULATION MODE ────────────────────────────────────────────────────
 // A layer over the existing Writing/Speaking flow, not a parallel
@@ -6664,10 +6673,11 @@ function bs_retryAIExplain(){
   bs_fetchAIExplain(bs_cur,guessArr);
 }
 function bs_render(){
+  if(bsSet_active||bsSet_locked)return bsSet_render();
   const filtered=bs_filteredItems();
   const dueCount=ex_due(filtered,bsProgress).length;
   const dc=document.getElementById('duecnt');if(dc)dc.textContent=dueCount+' due';
-  const tb=bs_toolbar();
+  const tb=bs_toolbar()+bsSet_entryCard();
   if(!bs_cur){
     const topicNote=bs_topicFilter?' for "'+esc(bs_topicFilter)+'"':'';
     if(filtered.length){return tb+'<div class="card empty"><div class="etit">All caught up! 🎉</div><div class="esub">No sentences due'+topicNote+' right now.</div><button class="btn bpr bsm" style="margin-top:10px" onclick="bs_next(true)">Practice anyway</button></div>'+exPerfPanel('bs',filtered,bsProgress);}
@@ -6724,12 +6734,216 @@ function bs_check(){
   toefl_logTime('build');
   if(session_active){session_attempted++;if(correct)session_correct++;}
   bs_aiExplain=null;bs_aiErr=null;bs_aiLoading=false;bs_aiToken++;
+  if(bsSet_active)bsSet_onChecked(correct,guessArr);
   renderRev();
-  if(!correct&&ai_hasKey())bs_fetchAIExplain(bs_cur,guessArr);
+  // No per-question hints during a timed Set — bs_aiExplain's own render
+  // branch is skipped by bsSet_render(), but skip the fetch outright too so
+  // it doesn't burn Gemini quota on explanations the set never shows.
+  if(!correct&&ai_hasKey()&&!bsSet_active)bs_fetchAIExplain(bs_cur,guessArr);
 }
 function bs_next(force){
   if(!force&&session_advanceToNextActivity())return;
   bs_load();if(force&&!bs_cur){const items=bs_filteredItems();if(items.length)bs_setup(items[Math.floor(Math.random()*items.length)]);}renderRev();
+}
+
+// ══ BUILD A SENTENCE — SET MODE ═════════════════════════════════════════════
+// A timed 10-question "focus set" drawn from the family-tagged Pareto pool
+// (BS_SEED_PARETO + anything else carrying a `family`), weighted toward
+// items due for a spaced retest and items never attempted, in roughly the
+// same family proportions as the full pool. No feedback is shown between
+// questions — only the final copyable report — matching real exam pacing.
+function bsSet_saveRetest(){
+  try{localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));}catch(e){}
+  if(RBSRT)fbSet(RBSRT,Object.keys(bsRetest).length?bsRetest:null);
+}
+function bsSet_familyPool(){return bsItems.filter(it=>it&&it.family);}
+function bsSet_daysSince(dateStr){
+  if(!dateStr)return Infinity;
+  return Math.round((new Date(today+'T00:00:00')-new Date(dateStr+'T00:00:00'))/86400000);
+}
+function bsSet_dueRetestCount(){
+  return bsSet_familyPool().filter(it=>{const r=bsRetest[it.id];return r&&r.status==='in-queue'&&bsSet_daysSince(r.wrongAt)>=2;}).length;
+}
+// Largest-remainder rounding of each family's share of the pool onto `n`
+// slots, so a 10-question set tracks the pool's real family mix instead of
+// a hardcoded split that drifts as the pool changes.
+function bsSet_targetCounts(n){
+  const pool=bsSet_familyPool();
+  const total=pool.length;
+  const counts={};
+  if(!total)return counts;
+  const raw=BS_FAMILY_ORDER.map(f=>{
+    const c=pool.filter(it=>it.family===f).length;
+    const ideal=(c/total)*n;
+    return {f,ideal,floor:Math.floor(ideal)};
+  }).filter(r=>r.floor>=0);
+  let assigned=0;
+  raw.forEach(r=>{counts[r.f]=r.floor;assigned+=r.floor;});
+  const remainder=raw.slice().sort((a,b)=>(b.ideal-b.floor)-(a.ideal-a.floor));
+  for(let i=0;i<n-assigned&&remainder.length;i++)counts[remainder[i%remainder.length].f]++;
+  return counts;
+}
+// Priority within a family: due retests first, then never-attempted items,
+// then anything else already mastered, and only as a last resort an item
+// still inside its 48h cooldown (better to repeat one than leave a slot
+// empty).
+function bsSet_pickForFamily(fam,count){
+  const pool=bsSet_familyPool().filter(it=>it.family===fam);
+  if(!pool.length)return[];
+  const due=[],never=[],rest=[],cooldown=[];
+  pool.forEach(it=>{
+    const r=bsRetest[it.id];
+    if(r&&r.status==='in-queue'){(bsSet_daysSince(r.wrongAt)>=2?due:cooldown).push(it);}
+    else if(!bsProgress[it.id])never.push(it);
+    else rest.push(it);
+  });
+  return shuffle(due).concat(shuffle(never)).concat(shuffle(rest)).concat(shuffle(cooldown)).slice(0,count);
+}
+function bsSet_newSet(){
+  const counts=bsSet_targetCounts(10);
+  let items=[];
+  Object.keys(counts).forEach(f=>{items=items.concat(bsSet_pickForFamily(f,counts[f]));});
+  if(items.length<10){
+    const haveIds=new Set(items.map(it=>it.id));
+    items=items.concat(shuffle(bsSet_familyPool().filter(it=>!haveIds.has(it.id))).slice(0,10-items.length));
+  }
+  bsSet_items=shuffle(items).slice(0,10);
+  bsSet_idx=0;bsSet_results=[];bsSet_active=true;bsSet_locked=false;bsSet_finishRemain=0;
+  bsSet_deadline=Date.now()+360000;
+  bs_cur=null;bs_checked=false;
+  tt_stop(); // the per-item pacing timer would otherwise race the set's own 6:00 clock
+  renderRev();
+}
+function bsSet_remainSecs(){return bsSet_deadline?Math.max(0,Math.round((bsSet_deadline-Date.now())/1000)):0;}
+function bsSet_fmtTime(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function bsSet_tick(){
+  if(!bsSet_active||bsSet_locked)return;
+  const remain=bsSet_remainSecs();
+  const badge=document.getElementById('bsSetTimerBadge');
+  if(badge)badge.textContent=bsSet_fmtTime(remain);
+  if(remain<=0)bsSet_finish();
+}
+// Called from bs_check() (which already graded + saved SM-2 progress as
+// normal) to additionally record this question for the end-of-set report
+// and update the 48h/2-different-days retest queue.
+function bsSet_onChecked(correct,guessArr){
+  const it=bs_cur;if(!it)return;
+  bsSet_results.push({id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:guessArr.slice(),correct,blank:false});
+  const r=bsRetest[it.id]||{status:'none',wrongAt:null,correctDates:[]};
+  if(correct){
+    if(r.status==='in-queue'){
+      if(!r.correctDates.includes(today))r.correctDates.push(today);
+      if(r.correctDates.length>=2)r.status='cleared';
+    }
+  }else{
+    r.status='in-queue';r.wrongAt=today;r.correctDates=[];
+  }
+  bsRetest[it.id]=r;
+  bsSet_saveRetest();
+}
+function bsSet_advance(){
+  bsSet_idx++;
+  bs_cur=null;bs_checked=false;
+  if(bsSet_idx>=bsSet_items.length)bsSet_finish();
+  else renderRev();
+}
+function bsSet_finish(){
+  bsSet_finishRemain=bsSet_remainSecs();
+  bsSet_locked=true;bsSet_active=false;
+  const answeredIds=new Set(bsSet_results.map(r=>r.id));
+  bsSet_items.forEach(it=>{
+    if(!answeredIds.has(it.id))bsSet_results.push({id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true});
+  });
+  bs_cur=null;bs_checked=false;
+  renderRev();
+}
+function bsSet_exit(){
+  bsSet_active=false;bsSet_locked=false;bsSet_items=[];bsSet_results=[];
+  bs_cur=null;bs_checked=false;bs_load();renderRev();
+}
+function bsSet_frameFill(frame,answerArr){
+  const full=frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<answerArr.length?(answerArr[i]||'___'):''),'');
+  return bs_cap(full);
+}
+function bsSet_reportText(){
+  const total=bsSet_results.length;
+  const correctN=bsSet_results.filter(r=>r.correct).length;
+  const blanks=bsSet_results.filter(r=>r.blank).length;
+  const now=new Date();
+  const f2=n=>String(n).padStart(2,'0');
+  let txt='BAS | '+f2(now.getDate())+'/'+f2(now.getMonth()+1)+' '+f2(now.getHours())+':'+f2(now.getMinutes())+' | Set foco\n';
+  txt+='Score: '+correctN+'/'+total+' | Tempo restante: '+bsSet_fmtTime(bsSet_finishRemain)+' | Em branco: '+blanks+'\n';
+  const errors=bsSet_results.filter(r=>!r.correct);
+  if(errors.length){
+    txt+='Erros:\n';
+    errors.forEach(r=>{
+      const qn=bsSet_results.indexOf(r)+1;
+      const myAns=r.blank?'(em branco)':bsSet_frameFill(r.frame,r.myAnswer);
+      const correctAns=bsSet_frameFill(r.frame,r.correctAnswer);
+      txt+='Q'+qn+' ['+(BS_FAMILY_LABEL[r.family]||r.family)+'] Contexto: "'+r.prompt+'" | Minha resposta: "'+myAns+'" | Correta: "'+correctAns+'"\n';
+    });
+  }
+  txt+='Resumo por família: '+BS_FAMILY_ORDER.map(f=>{
+    const items=bsSet_results.filter(r=>r.family===f);
+    if(!items.length)return null;
+    return (BS_FAMILY_LABEL[f]||f)+' '+items.filter(r=>r.correct).length+'/'+items.length;
+  }).filter(Boolean).join(', ')+'\n';
+  const retestCount=Object.values(bsRetest).filter(r=>r.status==='in-queue').length;
+  txt+='Fila de reteste: '+retestCount+' questões';
+  return txt;
+}
+function bsSet_copyReport(){
+  navigator.clipboard.writeText(bsSet_reportText())
+    .then(()=>toast('✅ Relatório copiado'))
+    .catch(()=>toast('⚠️ Não foi possível copiar — selecione o texto manualmente'));
+}
+function bsSet_reportHTML(){
+  return '<div class="card"><div style="font-weight:600;color:#0F172A;margin-bottom:10px">📋 Relatório do Set</div>'
+    +'<pre id="bsSetReportText" style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;font-family:\'DM Mono\',monospace;font-size:12.5px;color:#0F172A;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">'+esc(bsSet_reportText())+'</pre>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn bpr" onclick="bsSet_copyReport()">📋 Copiar relatório</button>'
+    +'<button class="btn bte bsm" onclick="bsSet_newSet()">🎯 Novo set foco</button>'
+    +'<button class="btn bsm" onclick="bsSet_exit()">Sair do Set Mode</button>'
+    +'</div></div>';
+}
+// Entry point into Set Mode, shown above the regular (untimed) Build a
+// Sentence practice — only when there's a family-tagged pool to draw from.
+function bsSet_entryCard(){
+  if(!bsSet_familyPool().length)return'';
+  const due=bsSet_dueRetestCount();
+  return '<div class="card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#BFDBFE;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+    +'<div><div style="font-weight:600;color:#0F172A">🎯 Set foco — 10 questões, 6:00</div><div style="font-size:12px;color:#64748B">'+(due?due+' em reteste · ':'')+'foco Pareto nos seus erros reais</div></div>'
+    +'<button class="btn bpr" onclick="bsSet_newSet()">Novo set foco →</button>'
+    +'</div>';
+}
+function bsSet_render(){
+  if(bsSet_locked)return bsSet_reportHTML();
+  const it=bsSet_items[bsSet_idx];
+  if(!it)return bsSet_reportHTML();
+  if(!bs_cur||bs_cur.id!==it.id){bs_checked=false;bs_setup(it);tt_stop();}
+  const usedSet=new Set(bs_slots.filter(x=>x!=null));
+  const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_fill('+t.id+')">'+esc(t.w)+'</span>').join('');
+  const allFilled=bs_slots.every(x=>x!=null);
+  let h='<div class="card" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'
+    +'<div style="font-weight:600;color:#0F172A">🎯 Set foco — Pergunta '+(bsSet_idx+1)+'/'+bsSet_items.length+'</div>'
+    +'<div id="bsSetTimerBadge" style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:600;color:#0F172A">'+bsSet_fmtTime(bsSet_remainSecs())+'</div>'
+    +'</div>';
+  h+='<div class="card">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
+    +'<span class="tag tbl">'+esc(BS_FAMILY_LABEL[it.family]||it.family)+'</span></div>'
+    +'<div class="bs-prompt">💬 '+esc(it.prompt)+'</div>'
+    +'<div style="font-size:14px;color:#94A3B8;margin-bottom:6px">Tap the phrases to fill the blanks in order.</div>'
+    +'<div class="bs-frame">'+bs_frameHTML()+'</div>'
+    +'<div class="bs-bank">'+(bankChips||'<span class="bs-ph">All phrases placed. Check your answer →</span>')+'</div>';
+  if(bs_checked){
+    h+='<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:10px;padding:10px 12px;font-size:13px;color:#475569;margin-bottom:10px">✓ Resposta registrada — a correção aparece no relatório final.</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bsSet_advance()">'+(bsSet_idx<bsSet_items.length-1?'Next →':'Ver relatório →')+'</button></div>';
+  }else{
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button></div>';
+  }
+  h+='</div>';
+  return h;
 }
 // Grammar tags offered in the add-exercise form (plus free "custom" entry).
 const BS_TAGS=['relative-clauses','embedded-questions','conjunctions','comparatives','conditionals','passive-voice','reported-speech','prepositions','present-perfect','gerund-after-preposition','infinitive-after-modal','subject-verb-agreement','articles','word-order'];
@@ -9626,12 +9840,15 @@ function mp_applyNav(){
 // back to the full hub: the "← Menu" button and the Timed Simulation/Pacing/
 // Skill Diagnostic buttons. renderRev()'s own guard already forces
 // toeflActivity to 'build' before this runs, so there's never anything
-// else to hide inside #toeflEx itself.
+// else to hide inside #toeflEx itself. Also hidden mid-Set (bsSet_active),
+// independent of Modo Prova, so there's no way to back out of a running
+// timed set without finishing or letting the clock run out.
 function mp_applyRevRestrictions(){
-  document.querySelector('#toeflBackBar button[onclick="toeflShow(null)"]')?.classList.toggle('hid',modoProva);
-  document.getElementById('simToggleBtn')?.classList.toggle('hid',modoProva);
-  document.querySelector('[onclick="openPacingModal()"]')?.classList.toggle('hid',modoProva);
-  document.querySelector('[onclick="openSkillDiag()"]')?.classList.toggle('hid',modoProva);
+  const hide=modoProva||bsSet_active;
+  document.querySelector('#toeflBackBar button[onclick="toeflShow(null)"]')?.classList.toggle('hid',hide);
+  document.getElementById('simToggleBtn')?.classList.toggle('hid',hide);
+  document.querySelector('[onclick="openPacingModal()"]')?.classList.toggle('hid',hide);
+  document.querySelector('[onclick="openSkillDiag()"]')?.classList.toggle('hid',hide);
 }
 function mp_toggle(){
   modoProva=!modoProva;
@@ -10708,6 +10925,7 @@ function startSync(){
     RAMA = db.ref('amaCompleted');
     RBSI = db.ref('buildSentenceItems');
     RBSP = db.ref('buildSentenceProgress');
+    RBSRT = db.ref('bsRetest');
     RCWI = db.ref('completeWordsItems');
     RCWP = db.ref('completeWordsProgress');
     REMS = db.ref('emailScenarios');
@@ -10768,6 +10986,7 @@ function startSync(){
     // doesn't redraw over an in-progress attempt.
     RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&toeflActivity==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSRT.on('value',s=>{const v=s.val();if(v){bsRetest=v;localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));if(curTab==='rev'&&toeflActivity==='build'&&!bsSet_active)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&toeflActivity==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&toeflActivity==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
