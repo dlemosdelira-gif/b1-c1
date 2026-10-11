@@ -4452,6 +4452,144 @@ const BS_SEED=[
    frame:'it was ___ ___ ___ ___ ___.',
    answer:['worse','than','usual','this','morning'],distract:['bad','more']}
 ];
+// Pareto-focused set built from the user's own real TOEFL mistakes (13 days
+// out from the 2026-10-24 exam): 60 items across the 6 highest-frequency
+// error families, each in exact Mock-Test format (one piece per blank,
+// pieces can be multi-word, 0-1 distractor, lowercase pieces with the
+// assembled sentence's first letter capitalized by bs_frameHTML/bs_render).
+// `family` drives Set Mode's weighted draw/report and is independent of
+// `tag` (which only picks the PATTERN_NOTE shown in feedback) — several
+// families intentionally reuse an existing tag's note instead of inventing
+// a near-duplicate one.
+const BS_SEED_PARETO=[
+  // ── 40% · indirect/embedded questions ──────────────────────────────────
+  {id:'bsp1',tag:'embedded-questions',family:'indirect',prompt:"Who's teaching Econ 201 next semester?",
+   frame:'i have not heard ___ ___.',answer:['who','is teaching that course'],distract:['are teaching that course']},
+  {id:'bsp2',tag:'embedded-questions',family:'indirect',prompt:"There's a new late-submission policy.",
+   frame:'i have no idea ___ ___.',answer:['what','the new policy says'],distract:['the new policy say']},
+  {id:'bsp3',tag:'embedded-questions',family:'indirect',prompt:'Is the library open on Sundays?',
+   frame:'do you know ___ ___?',answer:['whether','the library is open on sundays'],distract:['is the library open on sundays']},
+  {id:'bsp4',tag:'embedded-questions',family:'indirect',prompt:"I can't find the shuttle schedule.",
+   frame:'could you tell me ___ ___?',answer:['where','the shuttle stops'],distract:['the shuttle stop']},
+  {id:'bsp5',tag:'embedded-questions',family:'indirect',prompt:'The professor changed the exam date.',
+   frame:'can you tell me ___ ___?',answer:['when','the exam is now'],distract:['when is the exam now']},
+  {id:'bsp6',tag:'embedded-questions',family:'indirect',prompt:'Someone said the gym closes early today.',
+   frame:"i'm not sure ___ ___.",answer:['what time','the gym closes today'],distract:['what time does the gym close today']},
+  {id:'bsp7',tag:'embedded-questions',family:'indirect',prompt:'My roommate seems upset about something.',
+   frame:'i wonder ___ ___.',answer:['why','she is upset'],distract:['why is she upset']},
+  {id:'bsp8',tag:'embedded-questions',family:'indirect',prompt:'Has the internship application opened yet?',
+   frame:'i have not heard ___ ___.',answer:['whether','the application has opened'],distract:['has the application opened']},
+  {id:'bsp9',tag:'embedded-questions',family:'indirect',prompt:'The dean announced some kind of policy change.',
+   frame:'i have no idea ___ ___.',answer:['what','the new policy involves'],distract:['what does the new policy involve']},
+  {id:'bsp10',tag:'embedded-questions',family:'indirect',prompt:'Which building has the new computer lab?',
+   frame:'do you know ___ ___?',answer:['which building','has the new lab'],distract:['which building have the new lab']},
+  {id:'bsp11',tag:'embedded-questions',family:'indirect',prompt:'I missed the announcement about office hours.',
+   frame:'could you tell me ___ ___?',answer:['when','professor lima holds office hours'],distract:['when does professor lima hold office hours']},
+  {id:'bsp12',tag:'embedded-questions',family:'indirect',prompt:'The club meeting got moved somewhere.',
+   frame:'can you tell me ___ ___?',answer:['where','the meeting is now'],distract:['where is the meeting now']},
+  {id:'bsp13',tag:'embedded-questions',family:'indirect',prompt:'I heard tuition might increase next year.',
+   frame:"i'm not sure ___ ___.",answer:['how much','tuition will increase'],distract:['how much will tuition increase']},
+  {id:'bsp14',tag:'embedded-questions',family:'indirect',prompt:'My advisor mentioned a new requirement.',
+   frame:'i wonder ___ ___.',answer:['what','the new requirement is'],distract:['what is the new requirement']},
+  {id:'bsp15',tag:'embedded-questions',family:'indirect',prompt:'Someone said the parking permit rules changed.',
+   frame:'i have not heard ___ ___.',answer:['how','the parking rules changed'],distract:['how did the parking rules change']},
+  {id:'bsp16',tag:'embedded-questions',family:'indirect',prompt:"I don't know if my package arrived.",
+   frame:'i have no idea ___ ___.',answer:['whether','my package has arrived'],distract:['has my package arrived']},
+  {id:'bsp17',tag:'embedded-questions',family:'indirect',prompt:'Is Professor Kim teaching the seminar this fall?',
+   frame:'do you know ___ ___?',answer:['if','professor kim is teaching it'],distract:['is professor kim teaching it']},
+  {id:'bsp18',tag:'embedded-questions',family:'indirect',prompt:'I forgot who to contact about financial aid.',
+   frame:'could you tell me ___ ___?',answer:['who','handles financial aid'],distract:['who does handle financial aid']},
+  {id:'bsp19',tag:'embedded-questions',family:'indirect',prompt:'The cafeteria menu changed this week.',
+   frame:'can you tell me ___ ___?',answer:['what','they are serving today'],distract:['what are they serving today']},
+  {id:'bsp20',tag:'embedded-questions',family:'indirect',prompt:'I heard the deadline might be extended.',
+   frame:"i'm not sure ___ ___.",answer:['whether','the deadline was extended'],distract:['was the deadline extended']},
+  {id:'bsp21',tag:'embedded-questions',family:'indirect',prompt:'My classmate dropped the course suddenly.',
+   frame:'i wonder ___ ___.',answer:['why','he dropped the course'],distract:['why did he drop the course']},
+  {id:'bsp22',tag:'embedded-questions',family:'indirect',prompt:'The study group changed its meeting time.',
+   frame:'i have not heard ___ ___.',answer:['what time','the group meets now'],distract:['what time does the group meet now']},
+  {id:'bsp23',tag:'embedded-questions',family:'indirect',prompt:"I'm unsure which form I need to submit.",
+   frame:'i have no idea ___ ___.',answer:['which form','i need to submit'],distract:['which form do i need to submit']},
+  {id:'bsp24',tag:'embedded-questions',family:'indirect',prompt:'Someone mentioned the bus route changed.',
+   frame:'do you know ___ ___?',answer:['how','the bus route changed'],distract:['how did the bus route change']},
+  // ── 15% · direct what/which/how + noun ──────────────────────────────────
+  {id:'bsp25',tag:'wh-noun-question',family:'what-noun',prompt:"I'm planning my workout routine for this semester.",
+   frame:'___ ___ you planning to do?',answer:['what type of exercises','are'],distract:['is']},
+  {id:'bsp26',tag:'wh-noun-question',family:'what-noun',prompt:'I need to pick a topic for my research paper.',
+   frame:'___ ___ you planning to write about?',answer:['which topic','are'],distract:['is']},
+  {id:'bsp27',tag:'wh-noun-question',family:'what-noun',prompt:'I visited the museum last week.',
+   frame:'___ ___ you like most?',answer:['which exhibit','did'],distract:['do']},
+  {id:'bsp28',tag:'wh-noun-question',family:'what-noun',prompt:"I'm trying to plan my course load.",
+   frame:'___ ___ you taking next semester?',answer:['how many courses','are'],distract:['is']},
+  {id:'bsp29',tag:'wh-noun-question',family:'what-noun',prompt:'The bakery changed its hours.',
+   frame:'___ ___ the bakery close now?',answer:['what time','does'],distract:['do']},
+  {id:'bsp30',tag:'wh-noun-question',family:'what-noun',prompt:'I heard there was a mix-up with the room booking.',
+   frame:'___ caused the mix-up?',answer:['what kind of error'],distract:[]},
+  {id:'bsp31',tag:'wh-noun-question',family:'what-noun',prompt:'Several students complained about the cafeteria.',
+   frame:'___ did they complain about?',answer:['which issue'],distract:['what issue']},
+  {id:'bsp32',tag:'wh-noun-question',family:'what-noun',prompt:'The internship program accepts a limited number of students.',
+   frame:'___ ___ accepted each year?',answer:['how many students','are'],distract:['is']},
+  {id:'bsp33',tag:'wh-noun-question',family:'what-noun',prompt:'The advisor mentioned different graduation requirements.',
+   frame:'___ applies to transfer students?',answer:['which requirement'],distract:['what requirement']},
+  // ── 15% · did/do/does + base verb, including negative ───────────────────
+  {id:'bsp34',tag:'did-do-does',family:'did-base',prompt:'Were you surprised by the exam results?',
+   frame:'i ___ ___ it would be that hard.',answer:['did not','think'],distract:["didn't thought"]},
+  {id:'bsp35',tag:'did-do-does',family:'did-base',prompt:"Why didn't you join the study group?",
+   frame:'i ___ ___ about it in time.',answer:['did not','hear'],distract:["didn't heard"]},
+  {id:'bsp36',tag:'did-do-does',family:'did-base',prompt:'Did the shuttle come on time this morning?',
+   frame:'it ___ ___ on schedule.',answer:['did not','arrive'],distract:["didn't arrived"]},
+  {id:'bsp37',tag:'did-do-does',family:'did-base',prompt:'Why did you skip the review session?',
+   frame:'i ___ ___ about it.',answer:['did not','know'],distract:["didn't knew"]},
+  {id:'bsp38',tag:'did-do-does',family:'did-base',prompt:'Did you enjoy the guest lecture?',
+   frame:'i ___ ___ it as much as the last one.',answer:['did not','enjoy'],distract:["didn't enjoyed"]},
+  {id:'bsp39',tag:'did-do-does',family:'did-base',prompt:"Why didn't the printer work yesterday?",
+   frame:'it ___ ___ any paper.',answer:['did not','have'],distract:["didn't had"]},
+  {id:'bsp40',tag:'did-do-does',family:'did-base',prompt:"Did your roommate finish the project on time?",
+   frame:'he ___ ___ it before the deadline.',answer:['did not','finish'],distract:["didn't finished"]},
+  {id:'bsp41',tag:'did-do-does',family:'did-base',prompt:'Were you able to reach the professor?',
+   frame:'she ___ ___ to my email.',answer:['did not','reply'],distract:["didn't replied"]},
+  {id:'bsp42',tag:'did-do-does',family:'did-base',prompt:'Did the committee approve your proposal?',
+   frame:'they ___ ___ it yet.',answer:['did not','approve'],distract:["didn't approved"]},
+  // ── 10% · either / neither / still / already / almost position ─────────
+  {id:'bsp43',tag:'either-neither-position',family:'either-still',prompt:"I couldn't follow the professor's explanation.",
+   frame:'i did not understand what he said ___.',answer:['either'],distract:['neither']},
+  {id:'bsp44',tag:'either-neither-position',family:'either-still',prompt:'Is the report finished?',
+   frame:'we are ___ working on it.',answer:['still'],distract:['already']},
+  {id:'bsp45',tag:'either-neither-position',family:'either-still',prompt:'Has the professor graded the essays?',
+   frame:'she has ___ finished grading them.',answer:['already'],distract:['still']},
+  {id:'bsp46',tag:'either-neither-position',family:'either-still',prompt:'Did anyone understand the instructions?',
+   frame:'___ of us understood them.',answer:['neither'],distract:['either']},
+  {id:'bsp47',tag:'either-neither-position',family:'either-still',prompt:'Is the presentation ready?',
+   frame:'it is ___ finished.',answer:['almost'],distract:['already']},
+  {id:'bsp48',tag:'either-neither-position',family:'either-still',prompt:'Did you manage to submit the form?',
+   frame:'i have not submitted it ___.',answer:['either'],distract:['neither']},
+  // ── 10% · past tense & participle (narrative/wish/passive/causative/subjunctive) ──
+  {id:'bsp49',tag:'verb-forms',family:'past-participle',prompt:'Were you on time for the exam?',
+   frame:'i wish i ___ ___ earlier.',answer:['had','left'],distract:['have left']},
+  {id:'bsp50',tag:'verb-forms',family:'past-participle',prompt:'Did you know the test would be rescheduled?',
+   frame:'i wish i ___ ___ about it sooner.',answer:['had','known'],distract:['have known']},
+  {id:'bsp51',tag:'verb-forms',family:'past-participle',prompt:'Who wrote the acceptance letters?',
+   frame:'the acceptance letters ___ ___ by the admissions office.',answer:['were','written'],distract:['was wrote']},
+  {id:'bsp52',tag:'verb-forms',family:'past-participle',prompt:'Did you paint the apartment yourself?',
+   frame:'no, i ___ ___ ___ by a professional.',answer:['had','it','painted'],distract:['painted']},
+  {id:'bsp53',tag:'verb-forms',family:'past-participle',prompt:'What did the committee decide about the deadline?',
+   frame:'the committee insisted that the essay ___ ___ by friday.',answer:['be','submitted'],distract:['is submitted']},
+  {id:'bsp54',tag:'verb-forms',family:'past-participle',prompt:'How did you feel after the long flight?',
+   frame:'by the time we landed, i ___ ___ for almost twenty hours.',answer:['had','been traveling'],distract:['have been traveling']},
+  // ── 10% · preposition chunks (due to / depend on / interested in + -ing / discuss) ──
+  {id:'bsp55',tag:'prepositions',family:'prep-chunk',prompt:'Why was the flight delayed?',
+   frame:'it was delayed ___ bad weather.',answer:['due to'],distract:['due']},
+  {id:'bsp56',tag:'prepositions',family:'prep-chunk',prompt:'Will the trip happen this weekend?',
+   frame:'it ___ ___ the weather forecast.',answer:['depends','on'],distract:['of']},
+  {id:'bsp57',tag:'prepositions',family:'prep-chunk',prompt:'Are you applying for the internship?',
+   frame:'yes, i am interested ___ doing it.',answer:['in'],distract:['to']},
+  {id:'bsp58',tag:'prepositions',family:'prep-chunk',prompt:'What did the panel talk about in the meeting?',
+   frame:'they ___ the new budget proposal.',answer:['discussed'],distract:['discussed about']},
+  {id:'bsp59',tag:'prepositions',family:'prep-chunk',prompt:'Why did you choose that university?',
+   frame:'i was interested ___ the research opportunities.',answer:['in'],distract:['on']},
+  {id:'bsp60',tag:'prepositions',family:'prep-chunk',prompt:'How reliable is the new system?',
+   frame:'its accuracy ___ ___ the quality of the input data.',answer:['depends','on'],distract:['relies']}
+];
+const BS_FAMILY_LABEL={indirect:'Pergunta indireta',['what-noun']:'What/Which + substantivo','did-base':'did/do/does + base',['either-still']:'Either/neither/still','past-participle':'Passado/particípio','prep-chunk':'Chunks de preposição'};
 // Short human explanation per grammar pattern, cited in feedback.
 const PATTERN_NOTE={
   'gerund-after-preposition':'After a preposition (on, to, of…) the verb takes the -ing (gerund) form.',
@@ -4470,7 +4608,10 @@ const PATTERN_NOTE={
   'prepositions':'Pick the preposition that fits the time/place expression (at/on/in, for…).',
   'present-perfect':'Present perfect (have/has + past participle) links a past action to now; adverbs like already/yet sit inside it.',
   'verb-forms':'Use the correct form of the verb (past simple vs. past participle, irregular spellings).',
-  'escola-toefl':'Auto-generated from a real correction in your Escola do TOEFL feedback — practice fixing the exact mistake you made.'
+  'escola-toefl':'Auto-generated from a real correction in your Escola do TOEFL feedback — practice fixing the exact mistake you made.',
+  'wh-noun-question':'A direct wh-question opens with the wh-word + noun, then the auxiliary (is/are/does/did) — no inversion inside an embedded clause.',
+  'did-do-does':'With did (past), the main verb stays in its base form — no double past marking (did not knew → did not know).',
+  'either-neither-position':'Either/already/still/almost attach to the verb group; either (not neither) echoes a negative that was already stated.'
 };
 // Complete the Words — TOEFL "fill in the missing letters" format. Each item is a
 // coherent paragraph where some words are gapped with the token [[word|prefixLen]]:
@@ -6395,16 +6536,24 @@ function bs_load(){
   const pool=ex_due(items,bsProgress);
   bs_setup(pool.length?pool[0]:(items.length?items[Math.floor(Math.random()*items.length)]:null));
 }
+// Every exercise's frame/answer/bank text is stored lowercase (matches the
+// bank chips, which must stay lowercase per the TOEFL format) — this
+// capitalizes only the displayed first letter of the assembled sentence,
+// whether it comes from fixed frame text or from whatever's placed in the
+// first blank.
+function bs_cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
 // Build the framed sentence with inline blank slots (filled ones are clickable).
 function bs_frameHTML(){
   const parts=bs_cur.frame.split('___');
   let html='';
   for(let i=0;i<parts.length;i++){
-    html+=esc(parts[i]);
+    html+=esc(i===0&&parts[i]?bs_cap(parts[i]):parts[i]);
     if(i<bs_slots.length){
       const tid=bs_slots[i];
       if(tid!=null){const t=bs_tokens.find(x=>x.id===tid);
-        html+='<span class="bschip picked'+(bs_checked?'':'')+'" '+(bs_checked?'':'onclick="bs_clear('+i+')"')+'>'+esc(t?t.w:'')+'</span>';
+        let w=t?t.w:'';
+        if(i===0&&!parts[0])w=bs_cap(w);
+        html+='<span class="bschip picked'+(bs_checked?'':'')+'" '+(bs_checked?'':'onclick="bs_clear('+i+')"')+'>'+esc(w)+'</span>';
       }else{
         html+='<span class="bs-slot'+(i===bs_firstEmpty()?' next':'')+'">'+(i+1)+'</span>';
       }
@@ -6416,12 +6565,31 @@ function bs_firstEmpty(){return bs_slots.indexOf(null);}
 // Small toolbar shown above every Build-a-Sentence state: filtered count + add
 // button, plus a topic (grammar pattern) filter select when there's more than
 // one topic to choose from.
+// Custom exercises are the ones you (or a CSV import) added — everything
+// with the 'bsu-' id prefix bs_saveNew() uses. The 44 built-in BS_SEED items
+// and the 60 BS_SEED_PARETO items never carry that prefix, so this can never
+// touch them.
+function bs_customItems(){return bsItems.filter(it=>it&&/^bsu-/.test(it.id));}
+function bs_deleteAllCustom(){
+  const custom=bs_customItems();
+  if(!custom.length){toast('No custom exercises to delete');return;}
+  if(!confirm('Delete all '+custom.length+' custom exercises? The built-in ones are never affected. This cannot be undone.'))return;
+  const ids=new Set(custom.map(it=>it.id));
+  bsItems=bsItems.filter(it=>!ids.has(it.id));
+  custom.forEach(it=>{delete bsProgress[it.id];});
+  bs_saveItems();bs_saveProgress();
+  if(bs_cur&&ids.has(bs_cur.id)){bs_checked=false;bs_load();}
+  toast('✅ Deleted '+custom.length+' custom exercises');
+  renderRev();
+}
 function bs_toolbar(){
   const topics=bs_topics();
   const filteredCount=bs_filteredItems().length;
+  const customCount=bs_customItems().length;
   let h='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+filteredCount+' exercise'+(filteredCount===1?'':'s')+(bs_topicFilter?' · '+esc(bs_topicFilter):'')+'</span>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+    +(customCount?'<button class="btn bdn bsm" onclick="bs_deleteAllCustom()" title="Delete all custom exercises">🗑️ Delete '+customCount+' custom</button>':'')
     +'<button class="btn bsm" onclick="openIO(\'bs\')" title="Import / export">⇅</button>'
     +'<button class="btn bte bsm" onclick="openBSAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add exercise</button>'
     +'</div></div>';
@@ -6521,7 +6689,7 @@ function bs_render(){
   if(bs_checked){
     const guess=bs_slots.map(id=>{const t=bs_tokens.find(x=>x.id===id);return t?t.w:'';});
     const correct=guess.join(' ')===bs_cur.answer.join(' ');
-    const full=bs_cur.frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<bs_cur.answer.length?bs_cur.answer[i]:''),'');
+    const full=bs_cap(bs_cur.frame.split('___').reduce((acc,seg,i)=>acc+seg+(i<bs_cur.answer.length?bs_cur.answer[i]:''),''));
     let explainHTML;
     if(!correct&&bs_aiLoading){
       explainHTML='<span style="opacity:.7">🤖 Working out exactly why…</span>';
@@ -9213,7 +9381,7 @@ function ex_mergeSeeds(items,seed,saveFn){
 }
 function ex_loadLocal(){
   try{const v=JSON.parse(localStorage.getItem('c1bsi')||'null');bsItems=Array.isArray(v)&&v.length?v:BS_SEED.slice();}catch(e){bsItems=BS_SEED.slice();}
-  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();
+  bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();
   if(!localStorage.getItem('c1bsi'))bs_saveItems();
   try{bsProgress=JSON.parse(localStorage.getItem('c1bsp')||'{}');}catch(e){bsProgress={};}
   try{const v=JSON.parse(localStorage.getItem('c1cwi')||'null');cwItems=Array.isArray(v)&&v.length?v:CW_SEED.slice();}catch(e){cwItems=CW_SEED.slice();}
@@ -10598,7 +10766,7 @@ function startSync(){
     // it because the field was being destroyed out from under the user, not
     // missed. Data still updates in the background either way; the UI just
     // doesn't redraw over an in-progress attempt.
-    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_normLower();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&toeflActivity==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&toeflActivity==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&toeflActivity==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
