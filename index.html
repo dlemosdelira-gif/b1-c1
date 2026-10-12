@@ -312,12 +312,12 @@ textarea{min-height:120px}
 .rq-marker:disabled{cursor:default}
 
 /* ── CARD ITEMS ── */
-.cards-grid{display:grid;gap:10px;grid-template-columns:1fr}
-.citem{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;transition:all .15s;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.cards-grid{display:grid;gap:10px;grid-template-columns:1fr;min-width:0}
+.citem{background:#fff;border:1px solid #DDE3F5;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;transition:all .15s;box-shadow:0 1px 2px rgba(15,23,42,.03);min-width:0;max-width:100%}
 .citem:hover{border-color:#BFDBFE;box-shadow:0 2px 8px rgba(37,99,235,.08)}
 .citem.due{border-color:#FECACA;background:#FEF2F2}
-.cisim{font-size:14px;color:#94A3B8;text-decoration:line-through}
-.cic1{font-size:14px;font-weight:600;color:#1D4ED8}
+.cisim{font-size:14px;color:#94A3B8;text-decoration:line-through;overflow-wrap:break-word;word-break:break-word}
+.cic1{font-size:14px;font-weight:600;color:#1D4ED8;overflow-wrap:break-word;word-break:break-word}
 .chunk-form{display:grid;gap:10px;min-width:0;max-width:100%;overflow-x:hidden}
 .chunk-form input[type=text]{min-height:unset;height:42px;background:#fff;border-color:#BFDBFE}
 .chunk-form input[type=text]:focus{border-color:#2563EB;background:#fff}
@@ -10272,9 +10272,9 @@ function renderCards(){
     +'</div>'
     +'<div style="margin-top:14px;padding:12px;background:#fff;border-radius:8px;border:1px solid #E5E7EB">'
     +'<div style="font-size:14px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Preview</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Front:</div><div id="chkwPreview" style="font-size:14px;color:#0F172A;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
-    +'<div><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Back:</div><div id="chexPreview" style="font-size:14px;color:#1D4ED8;line-height:1.5;min-height:40px;word-wrap:break-word"></div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0">'
+    +'<div style="min-width:0;overflow-wrap:break-word"><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Front:</div><div id="chkwPreview" style="font-size:14px;color:#0F172A;line-height:1.5;min-height:40px;overflow-wrap:break-word;word-break:break-word"></div></div>'
+    +'<div style="min-width:0;overflow-wrap:break-word"><div style="font-size:14px;color:#94A3B8;margin-bottom:4px">Back:</div><div id="chexPreview" style="font-size:14px;color:#1D4ED8;line-height:1.5;min-height:40px;overflow-wrap:break-word;word-break:break-word"></div></div>'
     +'</div>'
     +'</div>'
     +'<button class="btn bpr" onclick="saveChunk()" style="padding:12px 20px;font-size:14px;font-weight:600;margin-top:14px;display:block;margin-left:auto;margin-right:auto">💾 Save Card</button>'
