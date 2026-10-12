@@ -1309,6 +1309,12 @@ let bs_aiExplain=null,bs_aiLoading=false,bs_aiErr=null,bs_aiToken=0;
 // only — an interrupted set just resets on reload rather than being
 // silently resumed stale. See the "BUILD A SENTENCE — SET MODE" module.
 let bsSet_active=false,bsSet_items=[],bsSet_idx=0,bsSet_results=[],bsSet_deadline=null,bsSet_locked=false,bsSet_finishRemain=0;
+// The review list (every question, tap to open/edit) is reachable at any
+// time via the "📋 Ver todas" button on the question screen — not only
+// after all 10 are answered. bsSet_revisitIdx is the question currently
+// re-opened from that list for editing (null = either on the normal
+// linear question, or looking at the list itself).
+let bsSet_reviewMode=false,bsSet_revisitIdx=null;
 let bsRetest={};
 try{bsRetest=JSON.parse(localStorage.getItem('c1bsretest')||'{}');}catch(e){bsRetest={};}
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
@@ -6824,7 +6830,8 @@ function bsSet_newSet(){
     items=items.concat(shuffle(bsSet_familyPool().filter(it=>!haveIds.has(it.id))).slice(0,10-items.length));
   }
   bsSet_items=shuffle(items).slice(0,10);
-  bsSet_idx=0;bsSet_results=[];bsSet_active=true;bsSet_locked=false;bsSet_finishRemain=0;
+  bsSet_idx=0;bsSet_results=new Array(bsSet_items.length).fill(null);bsSet_active=true;bsSet_locked=false;bsSet_finishRemain=0;
+  bsSet_reviewMode=false;bsSet_revisitIdx=null;
   bsSet_deadline=Date.now()+360000;
   bs_cur=null;bs_checked=false;
   tt_stop(); // the per-item pacing timer would otherwise race the set's own 6:00 clock
@@ -6840,41 +6847,74 @@ function bsSet_tick(){
   if(remain<=0)bsSet_finish();
 }
 // Called from bs_check() (which already graded + saved SM-2 progress as
-// normal) to additionally record this question for the end-of-set report
-// and update the 48h/2-different-days retest queue.
+// normal) to additionally record this question for the end-of-set report.
+// Just records into bsSet_results[idx] — the retest queue is only updated
+// once, from the FINAL state, in bsSet_finish(), so re-answering the same
+// question from the review list doesn't double-count it.
 function bsSet_onChecked(correct,guessArr){
   const it=bs_cur;if(!it)return;
-  bsSet_results.push({id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:guessArr.slice(),correct,blank:false});
-  const r=bsRetest[it.id]||{status:'none',wrongAt:null,correctDates:[]};
-  if(correct){
-    if(r.status==='in-queue'){
-      if(!r.correctDates.includes(today))r.correctDates.push(today);
-      if(r.correctDates.length>=2)r.status='cleared';
-    }
-  }else{
-    r.status='in-queue';r.wrongAt=today;r.correctDates=[];
-  }
-  bsRetest[it.id]=r;
-  bsSet_saveRetest();
+  const idx=bsSet_revisitIdx!=null?bsSet_revisitIdx:bsSet_idx;
+  bsSet_results[idx]={id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:guessArr.slice(),correct,blank:false};
 }
 function bsSet_advance(){
+  if(bsSet_revisitIdx!=null){bsSet_backToReview();return;}
   bsSet_idx++;
   bs_cur=null;bs_checked=false;
-  if(bsSet_idx>=bsSet_items.length)bsSet_finish();
-  else renderRev();
+  if(bsSet_idx>=bsSet_items.length){
+    if(bsSet_remainSecs()>0){bsSet_reviewMode=true;renderRev();}
+    else bsSet_finish();
+  }else renderRev();
 }
+// Re-opens a question from the review list with its previous answer
+// pre-placed (still editable) — tapping Check again overwrites that
+// question's result in place. Opening the CURRENT linear question (the
+// one bsSet_idx is already sitting on) just resumes normal forward
+// progress; opening any other one returns to the review list after
+// checking, so jumping around never derails the linear walk-through.
+function bsSet_reviseQuestion(i){
+  const it=bsSet_items[i];if(!it)return;
+  bsSet_reviewMode=false;
+  bsSet_revisitIdx=(i===bsSet_idx)?null:i;
+  bs_checked=false;bs_setup(it);tt_stop();
+  const prev=bsSet_results[i];
+  if(prev&&prev.myAnswer){
+    bs_slots=prev.myAnswer.map(w=>{const t=bs_tokens.find(x=>x.w===w&&!bs_slots.includes(x.id));return t?t.id:null;});
+  }
+  renderRev();
+}
+function bsSet_backToReview(){
+  bsSet_revisitIdx=null;bsSet_reviewMode=true;
+  bs_cur=null;bs_checked=false;
+  renderRev();
+}
+function bsSet_finishNow(){bsSet_finish();}
 function bsSet_finish(){
   bsSet_finishRemain=bsSet_remainSecs();
-  bsSet_locked=true;bsSet_active=false;
-  const answeredIds=new Set(bsSet_results.map(r=>r.id));
-  bsSet_items.forEach(it=>{
-    if(!answeredIds.has(it.id))bsSet_results.push({id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true});
+  bsSet_locked=true;bsSet_active=false;bsSet_reviewMode=false;bsSet_revisitIdx=null;
+  bsSet_items.forEach((it,i)=>{
+    if(!bsSet_results[i])bsSet_results[i]={id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true};
   });
+  // Retest queue reflects only the FINAL answer for each question, computed
+  // once here — re-answering the same item from the review list before
+  // finishing never touches bsRetest until this point.
+  bsSet_results.forEach(res=>{
+    const r=bsRetest[res.id]||{status:'none',wrongAt:null,correctDates:[]};
+    if(res.correct){
+      if(r.status==='in-queue'){
+        if(!r.correctDates.includes(today))r.correctDates.push(today);
+        if(r.correctDates.length>=2)r.status='cleared';
+      }
+    }else{
+      r.status='in-queue';r.wrongAt=today;r.correctDates=[];
+    }
+    bsRetest[res.id]=r;
+  });
+  bsSet_saveRetest();
   bs_cur=null;bs_checked=false;
   renderRev();
 }
 function bsSet_exit(){
-  bsSet_active=false;bsSet_locked=false;bsSet_items=[];bsSet_results=[];
+  bsSet_active=false;bsSet_locked=false;bsSet_reviewMode=false;bsSet_revisitIdx=null;bsSet_items=[];bsSet_results=[];
   bs_cur=null;bs_checked=false;bs_load();renderRev();
 }
 function bsSet_frameFill(frame,answerArr){
@@ -6932,18 +6972,49 @@ function bsSet_entryCard(){
     +'<button class="btn bpr" onclick="bsSet_newSet()">Novo set foco →</button>'
     +'</div>';
 }
+// Reachable at ANY point during an active set (not just after the last
+// question is answered) via the "📋 Ver todas" button rendered on every
+// question screen — a list of every question with a "Revisar"/"Responder"
+// button that opens it (still editable) plus a way to finish early.
+function bsSet_reviewListHTML(){
+  let h='<div class="card" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'
+    +'<div style="font-weight:600;color:#0F172A">🎯 Set foco — Revisão</div>'
+    +'<div id="bsSetTimerBadge" style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:600;color:#0F172A">'+bsSet_fmtTime(bsSet_remainSecs())+'</div>'
+    +'</div>';
+  h+='<div class="card">'
+    +'<div style="font-size:13px;color:#64748B;margin-bottom:12px">Toque em qualquer questão pra conferir ou mudar sua resposta — a qualquer momento, antes de fechar o set.</div>';
+  h+=bsSet_items.map((it,i)=>{
+    const res=bsSet_results[i];
+    const answered=res&&!res.blank;
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid #EEF2FF">'
+      +'<div style="min-width:0"><div style="font-size:13px;font-weight:600;color:#0F172A">Q'+(i+1)+' <span class="tag tbl" style="font-size:10.5px">'+esc(BS_FAMILY_LABEL[it.family]||it.family)+'</span></div>'
+      +'<div style="font-size:12px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(it.prompt)+'</div></div>'
+      +'<button class="btn bsm" style="flex-shrink:0" onclick="bsSet_reviseQuestion('+i+')">'+(answered?'Revisar':'Responder')+'</button>'
+      +'</div>';
+  }).join('');
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'
+    +(bsSet_idx<bsSet_items.length?'<button class="btn bsm" onclick="bsSet_reviseQuestion('+bsSet_idx+')">↩️ Continuar de onde parei</button>':'')
+    +'<button class="btn bpr" onclick="bsSet_finishNow()">✅ Finalizar set</button></div>'
+    +'</div>';
+  return h;
+}
 function bsSet_render(){
   if(bsSet_locked)return bsSet_reportHTML();
-  const it=bsSet_items[bsSet_idx];
+  if(bsSet_reviewMode)return bsSet_reviewListHTML();
+  const revising=bsSet_revisitIdx!=null;
+  const idx=revising?bsSet_revisitIdx:bsSet_idx;
+  const it=bsSet_items[idx];
   if(!it)return bsSet_reportHTML();
   if(!bs_cur||bs_cur.id!==it.id){bs_checked=false;bs_setup(it);tt_stop();}
   const usedSet=new Set(bs_slots.filter(x=>x!=null));
   const bankChips=bs_tokens.filter(t=>!usedSet.has(t.id)).map(t=>'<span class="bschip" onclick="bs_fill('+t.id+')">'+esc(t.w)+'</span>').join('');
   const allFilled=bs_slots.every(x=>x!=null);
   let h='<div class="card" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">'
-    +'<div style="font-weight:600;color:#0F172A">🎯 Set foco — Pergunta '+(bsSet_idx+1)+'/'+bsSet_items.length+'</div>'
+    +'<div style="font-weight:600;color:#0F172A">🎯 Set foco — '+(revising?'Revisando Q'+(idx+1):'Pergunta '+(idx+1)+'/'+bsSet_items.length)+'</div>'
+    +'<div style="display:flex;align-items:center;gap:10px">'
+    +'<button class="btn bsm" style="padding:4px 10px;font-size:12px" onclick="bsSet_backToReview()">📋 Ver todas</button>'
     +'<div id="bsSetTimerBadge" style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:600;color:#0F172A">'+bsSet_fmtTime(bsSet_remainSecs())+'</div>'
-    +'</div>';
+    +'</div></div>';
   h+='<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
@@ -6953,10 +7024,11 @@ function bsSet_render(){
     +'<div class="bs-frame">'+bs_frameHTML()+'</div>'
     +'<div class="bs-bank">'+(bankChips||'<span class="bs-ph">All phrases placed. Check your answer →</span>')+'</div>';
   if(bs_checked){
+    const nextLabel=revising?'← Voltar à lista':(idx<bsSet_items.length-1?'Next →':'Revisar respostas →');
     h+='<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:10px;padding:10px 12px;font-size:13px;color:#475569;margin-bottom:10px">✓ Resposta registrada — a correção aparece no relatório final.</div>'
-      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bsSet_advance()">'+(bsSet_idx<bsSet_items.length-1?'Next →':'Ver relatório →')+'</button></div>';
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bsSet_advance()">'+nextLabel+'</button></div>';
   }else{
-    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button></div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn bpr" onclick="bs_check()" '+(allFilled?'':'disabled')+'>✓ Check</button>'+(revising?'<button class="btn bsm" onclick="bsSet_backToReview()">← Voltar à lista</button>':'')+'</div>';
   }
   h+='</div>';
   return h;
