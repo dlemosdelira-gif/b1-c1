@@ -2371,6 +2371,24 @@ function savePeuaTasks(){if(peuaTasks)localStorage.setItem('c1peuaTasks',JSON.st
 // queue and Hard/Good/Easy appeared to stop working.
 let _uidSeq=0;
 function uid(){return Date.now().toString(36)+'-'+(_uidSeq++).toString(36)+'-'+Math.floor(Math.random()*1e9).toString(36);}
+// Parses JSON pasted back from a chat UI (Claude, ChatGPT, etc.) after
+// copying a generated response. Two things routinely break a naive
+// JSON.parse there: (1) the source renders straight quotes/apostrophes as
+// curly/smart ones ("..." / '...'), which is invalid as a JSON string
+// delimiter even though it looks identical to a person; (2) the reply
+// sometimes carries a short preamble/sign-off around the JSON block. This
+// normalizes smart punctuation to ASCII, then on failure falls back to
+// extracting the outermost [...]/{...} block before giving up.
+function parseJsonPaste(raw){
+  let s=String(raw||'').replace(/```json|```/gi,'').trim();
+  s=s.replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
+  try{return JSON.parse(s);}catch(e){}
+  const arrMatch=s.match(/\[[\s\S]*\]/);
+  const objMatch=s.match(/\{[\s\S]*\}/);
+  const candidate=arrMatch&&(!objMatch||arrMatch[0].length>=objMatch[0].length)?arrMatch[0]:(objMatch?objMatch[0]:null);
+  if(candidate)return JSON.parse(candidate);
+  throw new Error('invalid json paste');
+}
 // Reassign ids to any card with a missing or duplicate id so every card is
 // addressable individually. Returns true if anything changed.
 function dedupeCardIds(){
@@ -2513,7 +2531,7 @@ function cardProd_pasteResults(){
   const raw=document.getElementById('cardProdIn').value.trim();
   if(!raw){toast('⚠️ Paste the JSON response first');return;}
   let results;
-  try{results=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  try{results=parseJsonPaste(raw);}catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
   cardProd_applyResults(results);
 }
 // Shared by the automatic Gemini path and the manual paste-back path, once
@@ -3932,7 +3950,7 @@ function processJSON(){
   const raw=document.getElementById('jsonin').value.trim();
   if(!raw){toast('⚠️ Paste Claude\'s JSON first');return;}
   let r;
-  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+  try{r=parseJsonPaste(raw);}
   catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
   closeM('mAI');
   ai_finishProcessing(r);
@@ -7352,7 +7370,7 @@ function rq_genSaveItem(){
 // Gemini path (rq_autoGenerate) once either has the raw response text.
 function rq_genFinish(raw){
   let r;
-  try{r=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){toast('⚠️ Invalid JSON — copy the full response');rq_genShowLoading(false);return;}
+  try{r=parseJsonPaste(raw);}catch(e){toast('⚠️ Invalid JSON — copy the full response');rq_genShowLoading(false);return;}
   const qOk=Array.isArray(r&&r.questions)&&r.questions.length&&r.questions.every(q=>q&&typeof q.q==='string'&&Array.isArray(q.choices)&&q.choices.length===4&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<4);
   if(!r||typeof r.text!=='string'||!r.text.trim()||!qOk){toast('⚠️ Response is missing text, or a question is missing 4 choices/a valid correct index');rq_genShowLoading(false);return;}
   const item={id:'u'+uid(),tag:(r.tag||'custom').toString().slice(0,30),text:r.text,questions:r.questions.map(q=>({q:q.q,choices:q.choices.slice(0,4),correct:q.correct}))};
