@@ -593,6 +593,7 @@ textarea{min-height:120px}
       <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add a free Gemini API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call Gemini automatically. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563EB">aistudio.google.com/apikey</a> (no card required). The key is stored only in this browser (localStorage) — never synced, never committed anywhere. Leave it blank to keep using the manual copy/paste flow.</div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model (grading/generation)</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
+      <div id="aiUsageStatus" style="margin-top:8px;font-size:12px;color:#64748B;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:6px;padding:8px 10px"></div>
       <div class="fl g8 mt8">
         <button class="btn bpr bsm" onclick="ai_saveSettings()">Save</button>
         <button class="btn bsm" onclick="ai_testKey()">Test connection</button>
@@ -3464,6 +3465,38 @@ function ai_getKey(){try{return localStorage.getItem('c1geminiKey')||'';}catch(e
 function ai_getModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-3.6-flash';}catch(e){return'gemini-3.6-flash';}}
 function ai_hasKey(){return!!ai_getKey();}
 function ai_sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+// Local, best-effort tracker for the free tier's daily request cap — Google
+// doesn't expose a "requests remaining today" endpoint, so this just counts
+// successful calls made FROM THIS BROWSER (not calls from other devices
+// using the same key) and learns the actual cap the first time a 429
+// quota-exceeded error reveals it (e.g. "...limit: 20, model: ..."). Good
+// enough to warn the user before they burn their last few calls on
+// something automatic, not a precise live count.
+function ai_usageLoad(){
+  let u;try{u=JSON.parse(localStorage.getItem('c1geminiUsage')||'null');}catch(e){u=null;}
+  if(!u||typeof u!=='object')u={};
+  if(u.date!==today){u.date=today;u.count=0;} // cap learned from a past 429 carries over; count resets daily
+  if(typeof u.count!=='number')u.count=0;
+  return u;
+}
+function ai_usageSave(u){try{localStorage.setItem('c1geminiUsage',JSON.stringify(u));}catch(e){}}
+function ai_recordUsage(){const u=ai_usageLoad();u.count++;ai_usageSave(u);}
+function ai_recordQuotaHit(msg){
+  const u=ai_usageLoad();
+  const m=msg.match(/limit:\s*(\d+)/i);
+  if(m)u.cap=parseInt(m[1],10);
+  if(u.cap&&u.count<u.cap)u.count=u.cap; // hitting the wall means today's true count is at least the cap
+  ai_usageSave(u);
+}
+// Short status line for Settings → AI: how many of today's (believed) free
+// calls are used up, so the user can see "17/20 today" before firing
+// something automatic and getting blindsided by a 429 mid-exercise.
+function ai_usageText(){
+  const u=ai_usageLoad();
+  if(!u.cap)return u.count?('~'+u.count+' Gemini call(s) used today (daily cap unknown until the first 429)'):'No Gemini calls recorded yet today.';
+  const left=Math.max(0,u.cap-u.count);
+  return u.count+'/'+u.cap+' used today · ~'+left+' left (resets ~daily, Pacific time)';
+}
 // Most "Gemini failed" reports turn out to be one of three transient causes —
 // none of which meant the request was actually bad, they just needed one
 // more try: the free-tier rate limit (429, easy to hit doing several
@@ -3504,6 +3537,7 @@ async function gemini_call(prompt,opts){
       // retry-box/manual-fallback UI every call site already has.
       const transient=res.status===500||res.status===503;
       if(transient&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      if(res.status===429)ai_recordQuotaHit(msg);
       throw new Error(msg);
     }
     const data=await res.json();
@@ -3517,6 +3551,7 @@ async function gemini_call(prompt,opts){
       if(!finishReason&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
       throw new Error(finishReason?('Gemini stopped early ('+finishReason+')'):'Empty response from Gemini');
     }
+    ai_recordUsage();
     return text;
   }
 }
@@ -3610,6 +3645,7 @@ function openAISettingsModal(){
   document.getElementById('aiModelInput').value=ai_getModel();
   document.getElementById('aiTtsModelInput').value=ai_getTtsModel();
   document.getElementById('aiSettingsStatus').innerHTML='';
+  document.getElementById('aiUsageStatus').textContent='📊 '+ai_usageText();
   openM('mAISettings');
 }
 function ai_saveSettings(){
@@ -3644,6 +3680,7 @@ async function ai_testKey(){
   }catch(e){
     statusEl.innerHTML='<span style="color:#EF4444">❌ '+esc(e.message)+'</span>';
   }
+  document.getElementById('aiUsageStatus').textContent='📊 '+ai_usageText();
 }
 async function ai_testTts(){
   const statusEl=document.getElementById('aiTtsStatus');
@@ -6678,11 +6715,11 @@ function bs_specificFeedback(cur,guess,correct){
 // static PATTERN_NOTE text is the same for every item sharing a tag (e.g.
 // every "prepositions" exercise gets the same generic "pick the one that
 // fits" line), which doesn't say WHY "throughout" beats "along" in THIS
-// sentence. Only called on wrong answers (ai_hasKey() gates it in
-// bs_check()) — Gemini's free tier is small enough (per ai_getKey's own
-// comment, as low as ~20 requests/day) that firing it on every check,
-// including every correct one, would burn through it in a handful of
-// exercises.
+// sentence. Triggered only by the "✨ Explain this with AI" link/button
+// (bs_retryAIExplain) on a wrong answer, never automatically — Gemini's
+// free tier is small enough (as little as ~20 requests/day) that firing
+// one on every miss, without the user asking, could burn through the
+// whole day's quota in a handful of exercises.
 function bs_aiPrompt(item,guessArr){
   const parts=item.frame.split('___');
   const guessSentence=parts.reduce((acc,seg,i)=>acc+seg+(i<guessArr.length?(guessArr[i]||'___'):''),'');
@@ -6748,6 +6785,7 @@ function bs_render(){
     }else{
       explainHTML=bs_specificFeedback(bs_cur,guess,correct);
       if(!correct&&bs_aiErr)explainHTML+='<br><span style="opacity:.7">⚠️ '+esc(bs_aiErr)+' <a href="#" onclick="bs_retryAIExplain();return false" style="color:inherit;text-decoration:underline">Retry</a></span>';
+      else if(!correct&&ai_hasKey())explainHTML+='<br><a href="#" onclick="bs_retryAIExplain();return false" style="color:inherit;text-decoration:underline;opacity:.85">✨ Explain this with AI</a>';
       else if(!correct&&!ai_hasKey())explainHTML+='<br><span style="opacity:.7">Add a Gemini key in ⚙️ Settings for an explanation tailored to this exact mistake.</span>';
     }
     h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct sentence: <strong>'+esc(full)+'</strong><br>')
@@ -6776,10 +6814,11 @@ function bs_check(){
   bs_aiExplain=null;bs_aiErr=null;bs_aiLoading=false;bs_aiToken++;
   if(bsSet_active)bsSet_onChecked(correct,guessArr);
   renderRev();
-  // No per-question hints during a timed Set — bs_aiExplain's own render
-  // branch is skipped by bsSet_render(), but skip the fetch outright too so
-  // it doesn't burn Gemini quota on explanations the set never shows.
-  if(!correct&&ai_hasKey()&&!bsSet_active)bs_fetchAIExplain(bs_cur,guessArr);
+  // AI explanations on a miss are opt-in ("✨ Explain this with AI", wired
+  // to bs_retryAIExplain) rather than auto-fired here — the free tier's
+  // daily cap is small enough (as little as ~20 requests/day) that firing
+  // on every wrong answer could burn through it before the user asks for
+  // it even once. No hints at all during a timed Set either way.
 }
 function bs_next(force){
   if(!force&&session_advanceToNextActivity())return;
