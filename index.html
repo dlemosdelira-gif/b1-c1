@@ -7114,6 +7114,20 @@ function cw_load(){
   cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
   if(cw_cur)toefl_itemStart('complete');
 }
+// Picks a different passage/scenario at random (prefer un-practiced, like
+// em_pick()'s "New scenario") for the toolbar button below — independent of
+// cw_load()'s due-queue order, which always returns the same first-due item
+// and so wouldn't visibly change anything if pressed as a "skip this one" action.
+function cw_shuffle(){
+  if(!cwItems.length)return;
+  const fresh=cwItems.filter(it=>!cwProgress[it.id]);
+  let pool=fresh.length?fresh:cwItems;
+  if(cw_cur&&pool.length>1)pool=pool.filter(it=>it.id!==cw_cur.id);
+  cw_cur=pool[Math.floor(Math.random()*pool.length)];
+  cw_checked=false;cw_vals=[];cw_liveId=null;cw_liveVals=[];
+  toefl_itemStart('complete');
+  renderRev();
+}
 // Retry the SAME passage (mirrors bs_reset()) instead of moving on to a new
 // one — clears the checked state and every typed answer, keeps cw_cur.
 function cw_reset(){
@@ -7167,6 +7181,7 @@ function cw_toolbar(){
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+cwItems.length+' exercise'+(cwItems.length===1?'':'s')+'</span>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+    +(cwItems.length>1?'<button class="btn bsm" onclick="cw_shuffle()">🎲 New scenario</button>':'')
     +'<button class="btn bsm" onclick="openIO(\'cw\')" title="Import / export">⇅</button>'
     +'<button class="btn bte bsm" onclick="openCWAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add exercise</button>'
     +'</div></div>';
