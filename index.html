@@ -6906,30 +6906,44 @@ function bsSet_backToReview(){
   renderRev();
 }
 function bsSet_finishNow(){bsSet_finish();}
+// Flips to the locked/report state FIRST, then does the (non-essential)
+// result/retest bookkeeping inside try/finally — any unexpected exception
+// there (a malformed item, a Firebase hiccup, anything) used to abort the
+// function before its final renderRev() ever ran, leaving the UI looking
+// like the "Finalizar set" click did nothing (the report would only show
+// up later, once some unrelated click — e.g. "Revisar" — happened to call
+// renderRev() again and finally picked up the already-flipped bsSet_locked
+// state). Now the report always renders, with best-effort bookkeeping.
 function bsSet_finish(){
   bsSet_finishRemain=bsSet_remainSecs();
   bsSet_locked=true;bsSet_active=false;bsSet_reviewMode=false;bsSet_revisitIdx=null;
-  bsSet_items.forEach((it,i)=>{
-    if(!bsSet_results[i])bsSet_results[i]={id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true};
-  });
-  // Retest queue reflects only the FINAL answer for each question, computed
-  // once here — re-answering the same item from the review list before
-  // finishing never touches bsRetest until this point.
-  bsSet_results.forEach(res=>{
-    const r=bsRetest[res.id]||{status:'none',wrongAt:null,correctDates:[]};
-    if(res.correct){
-      if(r.status==='in-queue'){
-        if(!r.correctDates.includes(today))r.correctDates.push(today);
-        if(r.correctDates.length>=2)r.status='cleared';
+  try{
+    bsSet_items.forEach((it,i)=>{
+      if(!bsSet_results[i])bsSet_results[i]={id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true};
+    });
+    // Retest queue reflects only the FINAL answer for each question, computed
+    // once here — re-answering the same item from the review list before
+    // finishing never touches bsRetest until this point.
+    bsSet_results.forEach(res=>{
+      const r=bsRetest[res.id]||{status:'none',wrongAt:null,correctDates:[]};
+      if(res.correct){
+        if(r.status==='in-queue'){
+          if(!r.correctDates.includes(today))r.correctDates.push(today);
+          if(r.correctDates.length>=2)r.status='cleared';
+        }
+      }else{
+        r.status='in-queue';r.wrongAt=today;r.correctDates=[];
       }
-    }else{
-      r.status='in-queue';r.wrongAt=today;r.correctDates=[];
-    }
-    bsRetest[res.id]=r;
-  });
-  bsSet_saveRetest();
-  bs_cur=null;bs_checked=false;
-  renderRev();
+      bsRetest[res.id]=r;
+    });
+    bsSet_saveRetest();
+  }catch(e){
+    console.error('bsSet_finish bookkeeping failed (report still shown):',e&&e.message);
+  }finally{
+    bs_cur=null;bs_checked=false;
+    renderRev();
+    document.getElementById('toeflEx')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 function bsSet_exit(){
   bsSet_active=false;bsSet_locked=false;bsSet_reviewMode=false;bsSet_revisitIdx=null;bsSet_items=[];bsSet_results=[];
@@ -7100,6 +7114,20 @@ function cw_load(){
   cw_cur=pool.length?pool[0]:(cwItems.length?cwItems[Math.floor(Math.random()*cwItems.length)]:null);
   if(cw_cur)toefl_itemStart('complete');
 }
+// Picks a different passage/scenario at random (prefer un-practiced, like
+// em_pick()'s "New scenario") for the toolbar button below — independent of
+// cw_load()'s due-queue order, which always returns the same first-due item
+// and so wouldn't visibly change anything if pressed as a "skip this one" action.
+function cw_shuffle(){
+  if(!cwItems.length)return;
+  const fresh=cwItems.filter(it=>!cwProgress[it.id]);
+  let pool=fresh.length?fresh:cwItems;
+  if(cw_cur&&pool.length>1)pool=pool.filter(it=>it.id!==cw_cur.id);
+  cw_cur=pool[Math.floor(Math.random()*pool.length)];
+  cw_checked=false;cw_vals=[];cw_liveId=null;cw_liveVals=[];
+  toefl_itemStart('complete');
+  renderRev();
+}
 // Retry the SAME passage (mirrors bs_reset()) instead of moving on to a new
 // one — clears the checked state and every typed answer, keeps cw_cur.
 function cw_reset(){
@@ -7153,6 +7181,7 @@ function cw_toolbar(){
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<span style="font-size:14px;color:#64748B;font-family:\'DM Mono\',monospace">'+cwItems.length+' exercise'+(cwItems.length===1?'':'s')+'</span>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+    +(cwItems.length>1?'<button class="btn bsm" onclick="cw_shuffle()">🎲 New scenario</button>':'')
     +'<button class="btn bsm" onclick="openIO(\'cw\')" title="Import / export">⇅</button>'
     +'<button class="btn bte bsm" onclick="openCWAdd()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add exercise</button>'
     +'</div></div>';
