@@ -544,12 +544,12 @@ textarea{min-height:120px}
     <div class="mbdy" style="overflow-y:auto">
       <div id="aiLoading" class="hid" style="text-align:center;padding:34px 10px">
         <div style="font-size:32px;margin-bottom:10px">🤖</div>
-        <div style="font-size:14px;color:#475569;font-weight:600">Grading with Gemini…</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Grading with AI…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
       </div>
       <div id="aiRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
         <div id="aiRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
-        <button class="btn bpr bsm" onclick="ai_retryGemini()">🔄 Try Gemini again</button>
+        <button class="btn bpr bsm" onclick="ai_retryGemini()">🔄 Try again</button>
       </div>
       <div class="mstep" id="aiStep1"><div class="mnum">1</div>
         <div style="width:100%">
@@ -590,14 +590,32 @@ textarea{min-height:120px}
         </div>
         <div id="mpSettingsToggle" style="flex-shrink:0"></div>
       </div>
-      <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add a free Gemini API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call Gemini automatically. Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#2563EB">aistudio.google.com/apikey</a> (no card required). The key is stored only in this browser (localStorage) — never synced, never committed anywhere. Leave it blank to keep using the manual copy/paste flow.</div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
-      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model (grading/generation)</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
-      <div class="fl g8 mt8">
-        <button class="btn bpr bsm" onclick="ai_saveSettings()">Save</button>
-        <button class="btn bsm" onclick="ai_testKey()">Test connection</button>
-        <button class="btn bsm" onclick="ai_clearSettings()" style="color:#EF4444">Remove key</button>
+      <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:14px">Add an API key to skip the copy/paste step — grading, the Recap summary, and the practice-item generator will call the AI automatically. <strong>Claude</strong> is the default: get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:#2563EB">console.anthropic.com</a> (pay-as-you-go, ~$5 minimum top-up — a few cents covers months of this app's usage). <strong>Gemini</strong> has a free tier, but a very small daily request cap. Both keys are stored only in this browser (localStorage) — never synced, never committed anywhere. Leave both blank to keep using the manual copy/paste flow.</div>
+      <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">AI Provider (used for automatic calls)</label>
+        <select id="aiProviderSel" onchange="ai_saveProvider()" style="width:100%;padding:8px 10px;border:1px solid #DDE3F5;border-radius:6px;font-size:14px;font-family:'DM Sans',sans-serif;background:#fff;color:#0F172A">
+          <option value="claude">Claude (recommended)</option>
+          <option value="gemini">Gemini</option>
+        </select>
       </div>
+      <div style="margin-top:14px;padding:12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px">
+        <div style="font-size:13px;font-weight:600;color:#2563EB;margin-bottom:8px">Claude</div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Claude API Key</label><input type="text" id="aiClaudeKeyInput" placeholder="sk-ant-..." autocomplete="off"></div>
+        <div style="margin-top:8px"><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model</label><input type="text" id="aiClaudeModelInput" placeholder="claude-haiku-5-5"></div>
+        <div class="fl g8 mt8">
+          <button class="btn bsm" onclick="ai_testKey('claude')">Test connection</button>
+          <button class="btn bsm" onclick="ai_clearProviderKey('claude')" style="color:#EF4444">Remove key</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:12px;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px">
+        <div style="font-size:13px;font-weight:600;color:#2563EB;margin-bottom:8px">Gemini</div>
+        <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Gemini API Key</label><input type="text" id="aiApiKeyInput" placeholder="AIza..." autocomplete="off"></div>
+        <div style="margin-top:8px"><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Model</label><input type="text" id="aiModelInput" placeholder="gemini-3.6-flash"></div>
+        <div class="fl g8 mt8">
+          <button class="btn bsm" onclick="ai_testKey('gemini')">Test connection</button>
+          <button class="btn bsm" onclick="ai_clearProviderKey('gemini')" style="color:#EF4444">Remove key</button>
+        </div>
+      </div>
+      <div class="fl g8 mt8"><button class="btn bpr bsm" onclick="ai_saveSettings()">Save all</button></div>
       <div id="aiSettingsStatus" style="margin-top:10px;font-size:12px;line-height:1.5"></div>
       <div style="border-top:1px solid #E5E7EB;margin-top:16px;padding-top:14px">
         <div style="font-size:12px;color:#64748B;line-height:1.6;margin-bottom:10px">Optional: natural Gemini voices for Listening/Speaking audio (multi-speaker for "Listen to a Conversation") instead of the browser's built-in voice. Falls back to the browser voice automatically if this fails.</div>
@@ -617,12 +635,12 @@ textarea{min-height:120px}
     <div class="mbdy" style="overflow-y:auto">
       <div id="recapLoading" class="hid" style="text-align:center;padding:34px 10px">
         <div style="font-size:32px;margin-bottom:10px">🧠</div>
-        <div style="font-size:14px;color:#475569;font-weight:600">Summarizing with Gemini…</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Summarizing with AI…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
       </div>
       <div id="recapRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
         <div id="recapRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
-        <button class="btn bpr bsm" onclick="recap_retryGemini()">🔄 Try Gemini again</button>
+        <button class="btn bpr bsm" onclick="recap_retryGemini()">🔄 Try again</button>
       </div>
       <div class="mstep" id="recapStep1"><div class="mnum">1</div>
         <div style="width:100%">
@@ -657,12 +675,12 @@ textarea{min-height:120px}
     <div class="mbdy" style="overflow-y:auto">
       <div id="rqGenLoading" class="hid" style="text-align:center;padding:34px 10px">
         <div style="font-size:32px;margin-bottom:10px">➕</div>
-        <div style="font-size:14px;color:#475569;font-weight:600">Generating with Gemini…</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Generating with AI…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
       </div>
       <div id="rqGenRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
         <div id="rqGenRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
-        <button class="btn bpr bsm" onclick="rq_retryGemini()">🔄 Try Gemini again</button>
+        <button class="btn bpr bsm" onclick="rq_retryGemini()">🔄 Try again</button>
       </div>
       <div class="mstep"><div class="mnum">1</div>
         <div style="width:100%">
@@ -704,13 +722,13 @@ textarea{min-height:120px}
     <div class="mbdy" style="overflow-y:auto">
       <div id="cardProdLoading" class="hid" style="text-align:center;padding:34px 10px">
         <div style="font-size:32px;margin-bottom:10px">✍️</div>
-        <div style="font-size:14px;color:#475569;font-weight:600">Checking with Gemini…</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Checking with AI…</div>
         <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
       </div>
       <div id="cardProdManual" class="hid">
         <div id="cardProdRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
           <div id="cardProdRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
-          <button class="btn bpr bsm" onclick="cardProd_retryGemini()">🔄 Try Gemini again</button>
+          <button class="btn bpr bsm" onclick="cardProd_retryGemini()">🔄 Try again</button>
         </div>
         <div class="mstep"><div class="mnum">1</div>
           <div style="width:100%">
@@ -2252,17 +2270,17 @@ function recap_showLoading(on){
 }
 async function recap_autoSummarize(weekKey,prompt){
   try{
-    const text=await gemini_call(prompt,{json:false});
+    const text=await ai_call(prompt,{json:false});
     recapSummaries[weekKey]=text.trim();
     saveRecapSummaries();
     closeM('mRecapSummary');
     toast('🧠 Summary generated!');
     if(curTab==='prac')renderPrac();
   }catch(e){
-    toast('⚠️ Gemini failed ('+ai_friendlyGeminiError(e.message)+') — retry or use the manual flow below');
+    toast('⚠️ '+ai_providerLabel()+' failed ('+ai_friendlyAIError(e.message)+') — retry or use the manual flow below');
     recap_showLoading(false);
     const box=document.getElementById('recapRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('recapRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
+    if(box){box.classList.remove('hid');document.getElementById('recapRetryMsg').textContent='⚠️ '+ai_providerLabel()+' failed: '+ai_friendlyAIError(e.message);}
   }
 }
 function recap_retryGemini(){
@@ -2499,14 +2517,14 @@ function cardProd_showStage(stage){
 }
 async function cardProd_autoGrade(prompt){
   try{
-    const text=await gemini_call(prompt,{json:true});
+    const text=await ai_call(prompt,{json:true});
     let results;
-    try{results=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){throw new Error('Gemini returned invalid JSON');}
+    try{results=parseJsonPaste(text);}catch(e){throw new Error(ai_providerLabel()+' returned invalid JSON');}
     cardProd_applyResults(results);
   }catch(e){
     cardProd_showStage('manual');
     const box=document.getElementById('cardProdRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('cardProdRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
+    if(box){box.classList.remove('hid');document.getElementById('cardProdRetryMsg').textContent='⚠️ '+ai_providerLabel()+' failed: '+ai_friendlyAIError(e.message);}
   }
 }
 function cardProd_retryGemini(){
@@ -3454,31 +3472,48 @@ function updMic(){
   else{b.className='btn bsm';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Speak';bar.classList.add('hid');}
 }
 
-// ── AI PROVIDER (Gemini, optional) ──────────────────────────────────────────
-// A free Gemini API key lets grading/summarizing/generating call the model
-// directly instead of the manual copy-prompt/paste-response flow. The key
-// lives ONLY in this browser's localStorage — never synced to Firebase,
-// never written into this file — since the repo/Pages site is public and a
-// key committed to source would be scraped and drained within minutes.
-function ai_getKey(){try{return localStorage.getItem('c1geminiKey')||'';}catch(e){return'';}}
-function ai_getModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-3.6-flash';}catch(e){return'gemini-3.6-flash';}}
+// ── AI PROVIDER (Claude or Gemini, optional) ────────────────────────────────
+// An API key lets grading/summarizing/generating call the model directly
+// instead of the manual copy-prompt/paste-response flow. Both providers can
+// be configured at once; ai_getProvider() picks which one automatic calls
+// use. Keys live ONLY in this browser's localStorage — never synced to
+// Firebase, never written into this file — since the repo/Pages site is
+// public and a key committed to source would be scraped and drained within
+// minutes.
+function ai_getProvider(){try{return localStorage.getItem('c1aiProvider')==='gemini'?'gemini':'claude';}catch(e){return'claude';}}
+function ai_providerLabel(){return ai_getProvider()==='claude'?'Claude':'Gemini';}
+function ai_getClaudeKey(){try{return localStorage.getItem('c1claudeKey')||'';}catch(e){return'';}}
+function ai_getClaudeModel(){try{return localStorage.getItem('c1claudeModel')||'claude-haiku-5-5';}catch(e){return'claude-haiku-5-5';}}
+function ai_getGeminiKey(){try{return localStorage.getItem('c1geminiKey')||'';}catch(e){return'';}}
+function ai_getGeminiModel(){try{return localStorage.getItem('c1geminiModel')||'gemini-3.6-flash';}catch(e){return'gemini-3.6-flash';}}
+function ai_hasGeminiKey(){return!!ai_getGeminiKey();}
+// Back-compat dispatchers: every call site that just wants "the currently
+// active provider's key/model" (ai_hasKey() gates most of the app's
+// auto-grade/auto-generate entry points) keeps working unchanged — it's
+// provider-aware under the hood. Gemini's TTS voices are a separate,
+// Gemini-only feature (ai_getGeminiKey()/ai_hasGeminiKey() directly) since
+// Claude has no TTS API, so switching the text provider to Claude must not
+// also turn off Listening/Speaking audio.
+function ai_getKey(){return ai_getProvider()==='claude'?ai_getClaudeKey():ai_getGeminiKey();}
+function ai_getModel(){return ai_getProvider()==='claude'?ai_getClaudeModel():ai_getGeminiModel();}
 function ai_hasKey(){return!!ai_getKey();}
 function ai_sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-// Most "Gemini failed" reports turn out to be one of three transient causes —
+// Most "AI failed" reports turn out to be one of three transient causes —
 // none of which meant the request was actually bad, they just needed one
-// more try: the free-tier rate limit (429, easy to hit doing several
-// exercises back-to-back), a momentary "model overloaded" (503) or
-// server-side hiccup (500), or a dropped connection. A genuinely bad
-// request (400 malformed prompt, 401/403 bad key, 404 unknown model) fails
-// identically every time, so those are NOT retried — retrying them would
-// just burn the user's quota for no benefit. Up to 2 retries, short
-// exponential backoff (900ms, 1800ms) — enough to ride out a rate-limit
-// window without making the user wait long on a real failure.
+// more try: a rate limit (429, easy to hit doing several exercises back-to-
+// back — Gemini's free tier can be as low as ~20 requests/day), a momentary
+// "model overloaded" (503, or 529 on Claude) or server-side hiccup (500), or
+// a dropped connection. A genuinely bad request (400 malformed prompt,
+// 401/403 bad key, 404 unknown model) fails identically every time, so those
+// are NOT retried — retrying them would just burn quota/spend for no
+// benefit. Up to 2 retries, short exponential backoff (900ms, 1800ms) —
+// enough to ride out a rate-limit window without making the user wait long
+// on a real failure.
 async function gemini_call(prompt,opts){
   opts=opts||{};
-  const key=ai_getKey();
+  const key=ai_getGeminiKey();
   if(!key)throw new Error('No Gemini API key configured');
-  const model=ai_getModel();
+  const model=ai_getGeminiModel();
   const body={contents:[{parts:[{text:prompt}]}]};
   if(opts.json)body.generationConfig={responseMimeType:'application/json'};
   const maxAttempts=3;
@@ -3520,19 +3555,76 @@ async function gemini_call(prompt,opts){
     return text;
   }
 }
+// Claude API, called directly from the browser (no server/proxy) the same
+// way gemini_call() is — requires the anthropic-dangerous-direct-browser-
+// access header, which is Anthropic's documented opt-in for CORS requests
+// carrying an API key straight from client-side JS.
+async function claude_call(prompt,opts){
+  opts=opts||{};
+  const key=ai_getClaudeKey();
+  if(!key)throw new Error('No Claude API key configured');
+  const model=ai_getClaudeModel();
+  const body={model:model,max_tokens:4096,messages:[{role:'user',content:prompt}]};
+  if(opts.json)body.system='Respond with ONLY valid JSON — no markdown code fences, no commentary before or after.';
+  const maxAttempts=3;
+  for(let attempt=1;attempt<=maxAttempts;attempt++){
+    const isLastAttempt=attempt===maxAttempts;
+    let res;
+    try{
+      res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify(body)
+      });
+    }catch(e){
+      if(!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      throw new Error('Network error reaching Claude: '+e.message);
+    }
+    if(!res.ok){
+      let msg=res.status+' '+res.statusText;
+      try{const errJson=await res.json();if(errJson&&errJson.error&&errJson.error.message)msg=errJson.error.message;}catch(e){}
+      // 529 is Claude's own "overloaded" status (distinct from a generic 503)
+      // — treated as transient alongside 500/503 for the same reason.
+      const transient=res.status===500||res.status===503||res.status===529;
+      if(transient&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      throw new Error(msg);
+    }
+    const data=await res.json();
+    if(data.stop_reason==='refusal'){
+      const cat=data.stop_details&&data.stop_details.category;
+      throw new Error('Claude declined this request'+(cat?' ('+cat+')':''));
+    }
+    const block=(data.content||[]).find(b=>b&&b.type==='text');
+    const text=block&&block.text;
+    if(!text){
+      const stopReason=data.stop_reason;
+      if(!stopReason&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
+      throw new Error(stopReason?('Claude stopped early ('+stopReason+')'):'Empty response from Claude');
+    }
+    return text;
+  }
+}
+// Dispatches to whichever provider is currently selected — every automatic
+// call site in the app uses this instead of calling gemini_call()/
+// claude_call() directly, so switching the Settings provider picker changes
+// every feature's behavior at once.
+function ai_call(prompt,opts){return ai_getProvider()==='claude'?claude_call(prompt,opts):gemini_call(prompt,opts);}
 // Gemini's raw 429 quota-exceeded message is a long technical dump (docs
-// links, internal metric names) that doesn't make clear what to actually
-// do — extract the server's own suggested wait time (if present) and lead
-// with a short, actionable summary instead. Every "Gemini failed: ..."
-// display in the app (writing/speaking grading, RQ item generation, weekly
-// notes summary, flashcard sentence checking) shows this instead of the
-// raw error message.
-function ai_friendlyGeminiError(msg){
+// links, internal metric names), and Claude's rate-limit/overload messages
+// are similarly unhelpful to a non-technical reader — extract the useful
+// part (Gemini's server-suggested wait time, when present) and lead with a
+// short, actionable summary instead. Every "<Provider> failed: ..." display
+// in the app (writing/speaking grading, RQ item generation, weekly notes
+// summary, flashcard sentence checking) shows this instead of the raw
+// error message.
+function ai_friendlyAIError(msg){
   if(/quota exceeded/i.test(msg)){
     const m=msg.match(/retry in ([\d.]+)s/i);
     const wait=m?Math.ceil(parseFloat(m[1]))+'s':'a bit';
     return 'Gemini free-tier quota reached for now — wait ~'+wait+' and try again, or use the manual flow below in the meantime.';
   }
+  if(/rate_limit_error/i.test(msg))return 'Claude rate limit reached for now — wait a bit and try again, or use the manual flow below in the meantime.';
+  if(/overloaded_error/i.test(msg))return 'Claude is temporarily overloaded — try again in a moment, or use the manual flow below in the meantime.';
   return msg;
 }
 
@@ -3570,7 +3662,7 @@ function ai_pcmToWavBlob(pcmBytes,sampleRate){
 // matching the same names passed here). Returns a playable blob: URL.
 async function gemini_tts(text,opts){
   opts=opts||{};
-  const key=ai_getKey();
+  const key=ai_getGeminiKey();
   if(!key)throw new Error('No Gemini API key configured');
   const model=ai_getTtsModel();
   const speakers=opts.speakers&&opts.speakers.length?opts.speakers:[{voice:'Kore'}];
@@ -3606,41 +3698,69 @@ function ai_playAudioUrl(url){
 }
 
 function openAISettingsModal(){
-  document.getElementById('aiApiKeyInput').value=ai_getKey();
-  document.getElementById('aiModelInput').value=ai_getModel();
+  document.getElementById('aiProviderSel').value=ai_getProvider();
+  document.getElementById('aiClaudeKeyInput').value=ai_getClaudeKey();
+  document.getElementById('aiClaudeModelInput').value=ai_getClaudeModel();
+  document.getElementById('aiApiKeyInput').value=ai_getGeminiKey();
+  document.getElementById('aiModelInput').value=ai_getGeminiModel();
   document.getElementById('aiTtsModelInput').value=ai_getTtsModel();
   document.getElementById('aiSettingsStatus').innerHTML='';
   openM('mAISettings');
 }
+function ai_saveProvider(){
+  localStorage.setItem('c1aiProvider',document.getElementById('aiProviderSel').value==='gemini'?'gemini':'claude');
+  toast('AI provider set to '+ai_providerLabel());
+}
 function ai_saveSettings(){
-  const key=document.getElementById('aiApiKeyInput').value.trim();
-  const model=document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash';
+  const claudeKey=document.getElementById('aiClaudeKeyInput').value.trim();
+  const claudeModel=document.getElementById('aiClaudeModelInput').value.trim()||'claude-haiku-5-5';
+  const geminiKey=document.getElementById('aiApiKeyInput').value.trim();
+  const geminiModel=document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash';
   const ttsModel=document.getElementById('aiTtsModelInput').value.trim()||'gemini-3.1-flash-tts-preview';
-  localStorage.setItem('c1geminiKey',key);
-  localStorage.setItem('c1geminiModel',model);
+  localStorage.setItem('c1claudeKey',claudeKey);
+  localStorage.setItem('c1claudeModel',claudeModel);
+  localStorage.setItem('c1geminiKey',geminiKey);
+  localStorage.setItem('c1geminiModel',geminiModel);
   localStorage.setItem('c1geminiTtsModel',ttsModel);
-  document.getElementById('aiSettingsStatus').innerHTML=key
-    ?'<span style="color:#16A34A">✅ Saved. Grading, the Recap summary, the exercise generator, and Listening/Speaking audio will now use Gemini automatically.</span>'
-    :'<span style="color:#94A3B8">Key cleared — back to manual copy/paste and browser voices.</span>';
-  toast(key?'✅ Gemini key saved':'Key cleared');
+  ai_saveProvider();
+  document.getElementById('aiSettingsStatus').innerHTML=(claudeKey||geminiKey)
+    ?'<span style="color:#16A34A">✅ Saved. Grading, the Recap summary, and the exercise generator will use '+ai_providerLabel()+' automatically.</span>'
+    :'<span style="color:#94A3B8">No keys set — back to manual copy/paste.</span>';
+  toast('✅ Settings saved');
 }
-function ai_clearSettings(){
-  localStorage.removeItem('c1geminiKey');
-  document.getElementById('aiApiKeyInput').value='';
-  document.getElementById('aiSettingsStatus').innerHTML='<span style="color:#94A3B8">Key removed — back to manual copy/paste and browser voices.</span>';
-  toast('🗑 Gemini key removed');
+// provider: 'claude' | 'gemini' — removes only that provider's key, leaving
+// the other one (and TTS, which is always Gemini) untouched.
+function ai_clearProviderKey(provider){
+  if(provider==='claude'){
+    localStorage.removeItem('c1claudeKey');
+    document.getElementById('aiClaudeKeyInput').value='';
+  }else{
+    localStorage.removeItem('c1geminiKey');
+    document.getElementById('aiApiKeyInput').value='';
+  }
+  document.getElementById('aiSettingsStatus').innerHTML='<span style="color:#94A3B8">'+(provider==='claude'?'Claude':'Gemini')+' key removed.</span>';
+  toast('🗑 '+(provider==='claude'?'Claude':'Gemini')+' key removed');
 }
-async function ai_testKey(){
+// provider: 'claude' | 'gemini' — tests that provider's key specifically,
+// independent of which one is currently selected as the active provider.
+async function ai_testKey(provider){
   const statusEl=document.getElementById('aiSettingsStatus');
-  const key=document.getElementById('aiApiKeyInput').value.trim();
-  if(!key){statusEl.innerHTML='<span style="color:#EF4444">Paste a key first</span>';return;}
-  localStorage.setItem('c1geminiKey',key);
-  localStorage.setItem('c1geminiModel',document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash');
-  localStorage.setItem('c1geminiTtsModel',document.getElementById('aiTtsModelInput').value.trim()||'gemini-3.1-flash-tts-preview');
+  const isClaude=provider==='claude';
+  const keyInput=document.getElementById(isClaude?'aiClaudeKeyInput':'aiApiKeyInput');
+  const key=keyInput.value.trim();
+  if(!key){statusEl.innerHTML='<span style="color:#EF4444">Paste a '+(isClaude?'Claude':'Gemini')+' key first</span>';return;}
+  if(isClaude){
+    localStorage.setItem('c1claudeKey',key);
+    localStorage.setItem('c1claudeModel',document.getElementById('aiClaudeModelInput').value.trim()||'claude-haiku-5-5');
+  }else{
+    localStorage.setItem('c1geminiKey',key);
+    localStorage.setItem('c1geminiModel',document.getElementById('aiModelInput').value.trim()||'gemini-3.6-flash');
+    localStorage.setItem('c1geminiTtsModel',document.getElementById('aiTtsModelInput').value.trim()||'gemini-3.1-flash-tts-preview');
+  }
   statusEl.innerHTML='<span style="color:#94A3B8">Testing…</span>';
   try{
-    const text=await gemini_call('Reply with exactly: OK',{json:false});
-    statusEl.innerHTML='<span style="color:#16A34A">✅ Connected! Gemini replied: "'+esc(text.trim().slice(0,60))+'"</span>';
+    const text=isClaude?await claude_call('Reply with exactly: OK',{json:false}):await gemini_call('Reply with exactly: OK',{json:false});
+    statusEl.innerHTML='<span style="color:#16A34A">✅ Connected! '+(isClaude?'Claude':'Gemini')+' replied: "'+esc(text.trim().slice(0,60))+'"</span>';
   }catch(e){
     statusEl.innerHTML='<span style="color:#EF4444">❌ '+esc(e.message)+'</span>';
   }
@@ -3901,17 +4021,17 @@ let ai_lastPrompt='';
 async function ai_autoGrade(fp){
   ai_lastPrompt=fp;
   try{
-    const text=await gemini_call(fp,{json:true});
+    const text=await ai_call(fp,{json:true});
     let r;
-    try{r=JSON.parse(text.replace(/```json|```/g,'').trim());}
-    catch(e){throw new Error('Gemini returned invalid JSON');}
+    try{r=parseJsonPaste(text);}
+    catch(e){throw new Error(ai_providerLabel()+' returned invalid JSON');}
     closeM('mAI');
     ai_finishProcessing(r);
   }catch(e){
-    toast('⚠️ Gemini failed ('+ai_friendlyGeminiError(e.message)+') — retry or use the manual flow below');
+    toast('⚠️ '+ai_providerLabel()+' failed ('+ai_friendlyAIError(e.message)+') — retry or use the manual flow below');
     ai_showLoading(false);
     const box=document.getElementById('aiRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('aiRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
+    if(box){box.classList.remove('hid');document.getElementById('aiRetryMsg').textContent='⚠️ '+ai_providerLabel()+' failed: '+ai_friendlyAIError(e.message);}
   }
 }
 function ai_retryGemini(){
@@ -6696,14 +6816,14 @@ async function bs_fetchAIExplain(item,guessArr){
   const myToken=bs_aiToken;
   bs_aiLoading=true;bs_aiErr=null;renderRev();
   try{
-    let text=await gemini_call(bs_aiPrompt(item,guessArr),{json:false});
+    let text=await ai_call(bs_aiPrompt(item,guessArr),{json:false});
     text=text.trim().replace(/^["“]|["”]$/g,'');
     if(myToken!==bs_aiToken)return; // superseded by a newer question/retry
     bs_aiExplain=text;bs_aiLoading=false;
     renderRev();
   }catch(e){
     if(myToken!==bs_aiToken)return;
-    bs_aiLoading=false;bs_aiErr=ai_friendlyGeminiError(e.message);
+    bs_aiLoading=false;bs_aiErr=ai_friendlyAIError(e.message);
     renderRev();
   }
 }
@@ -6748,7 +6868,7 @@ function bs_render(){
     }else{
       explainHTML=bs_specificFeedback(bs_cur,guess,correct);
       if(!correct&&bs_aiErr)explainHTML+='<br><span style="opacity:.7">⚠️ '+esc(bs_aiErr)+' <a href="#" onclick="bs_retryAIExplain();return false" style="color:inherit;text-decoration:underline">Retry</a></span>';
-      else if(!correct&&!ai_hasKey())explainHTML+='<br><span style="opacity:.7">Add a Gemini key in ⚙️ Settings for an explanation tailored to this exact mistake.</span>';
+      else if(!correct&&!ai_hasKey())explainHTML+='<br><span style="opacity:.7">Add an AI key in ⚙️ Settings for an explanation tailored to this exact mistake.</span>';
     }
     h+='<div class="ex-fb '+(correct?'ok':'bad')+'">'+(correct?'✅ Correct! ':'❌ Not quite. Correct sentence: <strong>'+esc(full)+'</strong><br>')
       +'<span style="opacity:.85">'+explainHTML+'</span></div>'
@@ -7361,15 +7481,15 @@ function rq_genShowLoading(on){
 }
 async function rq_autoGenerate(prompt){
   try{
-    const text=await gemini_call(prompt,{json:true});
+    const text=await ai_call(prompt,{json:true});
     rq_genFinish(text);
   }catch(e){
-    toast('⚠️ Gemini failed ('+ai_friendlyGeminiError(e.message)+') — retry or use the manual flow below');
+    toast('⚠️ '+ai_providerLabel()+' failed ('+ai_friendlyAIError(e.message)+') — retry or use the manual flow below');
     rq_genShowLoading(false);
     document.getElementById('rqGenPromptBox').textContent=rqGenCurPrompt;
     document.getElementById('rqGenStep2').style.display='block';
     const box=document.getElementById('rqGenRetryBox');
-    if(box){box.classList.remove('hid');document.getElementById('rqGenRetryMsg').textContent='⚠️ Gemini failed: '+ai_friendlyGeminiError(e.message);}
+    if(box){box.classList.remove('hid');document.getElementById('rqGenRetryMsg').textContent='⚠️ '+ai_providerLabel()+' failed: '+ai_friendlyAIError(e.message);}
   }
 }
 function rq_retryGemini(){
@@ -7548,7 +7668,7 @@ function rq_play(key){
   const it=rq_cur[key];if(!it)return;
   rq_played[key]=true;
   const b=document.getElementById('rqPlayBtn_'+key);if(b)b.textContent='🔊 Play again';
-  if(ai_hasKey()){
+  if(ai_hasGeminiKey()){
     rq_playGemini(it).catch(e=>{
       toast('⚠️ Gemini voice failed ('+e.message+') — using browser voice');
       rq_playBrowser(it);
@@ -8925,7 +9045,7 @@ function sp_play(){
   if(!sp_cur)return;
   sp_played=true;
   const b=document.getElementById('spPlayBtn');if(b)b.textContent='🔊 Play again';
-  if(ai_hasKey()){
+  if(ai_hasGeminiKey()){
     gemini_tts(sp_cur.text,{speakers:[{voice:'Kore'}]}).then(ai_playAudioUrl).catch(e=>{
       toast('⚠️ Gemini voice failed ('+e.message+') — using browser voice');
       sp_playBrowser();
@@ -9196,7 +9316,7 @@ function iv_saveNew(){
 function iv_play(){
   if(!iv_cur)return;
   const b=document.getElementById('ivPlayBtn');if(b)b.textContent='🔊 Play again';
-  if(ai_hasKey()){
+  if(ai_hasGeminiKey()){
     gemini_tts(iv_cur.question,{speakers:[{voice:'Kore'}]}).then(ai_playAudioUrl).catch(e=>{
       toast('⚠️ Gemini voice failed ('+e.message+') — using browser voice');
       iv_playBrowser();
