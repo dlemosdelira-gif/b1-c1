@@ -6906,30 +6906,44 @@ function bsSet_backToReview(){
   renderRev();
 }
 function bsSet_finishNow(){bsSet_finish();}
+// Flips to the locked/report state FIRST, then does the (non-essential)
+// result/retest bookkeeping inside try/finally — any unexpected exception
+// there (a malformed item, a Firebase hiccup, anything) used to abort the
+// function before its final renderRev() ever ran, leaving the UI looking
+// like the "Finalizar set" click did nothing (the report would only show
+// up later, once some unrelated click — e.g. "Revisar" — happened to call
+// renderRev() again and finally picked up the already-flipped bsSet_locked
+// state). Now the report always renders, with best-effort bookkeeping.
 function bsSet_finish(){
   bsSet_finishRemain=bsSet_remainSecs();
   bsSet_locked=true;bsSet_active=false;bsSet_reviewMode=false;bsSet_revisitIdx=null;
-  bsSet_items.forEach((it,i)=>{
-    if(!bsSet_results[i])bsSet_results[i]={id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true};
-  });
-  // Retest queue reflects only the FINAL answer for each question, computed
-  // once here — re-answering the same item from the review list before
-  // finishing never touches bsRetest until this point.
-  bsSet_results.forEach(res=>{
-    const r=bsRetest[res.id]||{status:'none',wrongAt:null,correctDates:[]};
-    if(res.correct){
-      if(r.status==='in-queue'){
-        if(!r.correctDates.includes(today))r.correctDates.push(today);
-        if(r.correctDates.length>=2)r.status='cleared';
+  try{
+    bsSet_items.forEach((it,i)=>{
+      if(!bsSet_results[i])bsSet_results[i]={id:it.id,family:it.family,tag:it.tag,prompt:it.prompt,frame:it.frame,correctAnswer:it.answer.slice(),myAnswer:null,correct:false,blank:true};
+    });
+    // Retest queue reflects only the FINAL answer for each question, computed
+    // once here — re-answering the same item from the review list before
+    // finishing never touches bsRetest until this point.
+    bsSet_results.forEach(res=>{
+      const r=bsRetest[res.id]||{status:'none',wrongAt:null,correctDates:[]};
+      if(res.correct){
+        if(r.status==='in-queue'){
+          if(!r.correctDates.includes(today))r.correctDates.push(today);
+          if(r.correctDates.length>=2)r.status='cleared';
+        }
+      }else{
+        r.status='in-queue';r.wrongAt=today;r.correctDates=[];
       }
-    }else{
-      r.status='in-queue';r.wrongAt=today;r.correctDates=[];
-    }
-    bsRetest[res.id]=r;
-  });
-  bsSet_saveRetest();
-  bs_cur=null;bs_checked=false;
-  renderRev();
+      bsRetest[res.id]=r;
+    });
+    bsSet_saveRetest();
+  }catch(e){
+    console.error('bsSet_finish bookkeeping failed (report still shown):',e&&e.message);
+  }finally{
+    bs_cur=null;bs_checked=false;
+    renderRev();
+    document.getElementById('toeflEx')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 function bsSet_exit(){
   bsSet_active=false;bsSet_locked=false;bsSet_reviewMode=false;bsSet_revisitIdx=null;bsSet_items=[];bsSet_results=[];
