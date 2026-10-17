@@ -6850,7 +6850,7 @@ function bs_render(){
   let h=tb+'<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
-    +'<div style="display:flex;align-items:center;gap:8px">'+(isCustom?'<button class="btn bdn bsm" title="Delete this custom exercise" onclick="bs_delItem(\''+bs_cur.id+'\')">🗑</button>':'')+'<span class="tag tbl">'+esc(bs_cur.tag)+'</span></div></div>'
+    +(isCustom?'<button class="btn bdn bsm" title="Delete this custom exercise" onclick="bs_delItem(\''+bs_cur.id+'\')">🗑</button>':'')+'</div>'
     // Prompt / context (spoken by the other person)
     +'<div class="bs-prompt">💬 '+esc(bs_cur.prompt)+'</div>'
     +'<div style="font-size:14px;color:#94A3B8;margin-bottom:6px">Tap the phrases to fill the blanks in order. Extra words may not belong.</div>'
@@ -7170,7 +7170,7 @@ function bsSet_render(){
   h+='<div class="card">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
     +'<div style="font-size:14px;font-weight:600;color:#0F172A">🧩 Build a Sentence</div>'
-    +'<span class="tag tbl">'+esc(BS_FAMILY_LABEL[it.family]||it.family)+'</span></div>'
+    +'</div>'
     +'<div class="bs-prompt">💬 '+esc(it.prompt)+'</div>'
     +'<div style="font-size:14px;color:#94A3B8;margin-bottom:6px">Tap the phrases to fill the blanks in order.</div>'
     +'<div class="bs-frame">'+bs_frameHTML()+'</div>'
