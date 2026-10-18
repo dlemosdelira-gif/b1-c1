@@ -1335,6 +1335,18 @@ let bsSet_active=false,bsSet_items=[],bsSet_idx=0,bsSet_results=[],bsSet_deadlin
 let bsSet_reviewMode=false,bsSet_revisitIdx=null;
 let bsRetest={};
 try{bsRetest=JSON.parse(localStorage.getItem('c1bsretest')||'{}');}catch(e){bsRetest={};}
+// bsRetest loads from localStorage synchronously above, but the Firebase
+// node (RBSRT) only arrives later, async — pushing a Set Mode result to
+// Firebase before that first sync lands means bsSet_saveRetest() would be
+// writing from a copy that might already be stale relative to another
+// device. bsRetestReadyPromise resolves on the first RBSRT.on('value')
+// callback (see startSync()) or after a short safety timeout if Firebase
+// never connects (offline, load failure), so a write is never blocked
+// indefinitely.
+let bsRetestReady=false,bsRetestReadyResolve=null;
+const bsRetestReadyPromise=new Promise(res=>{bsRetestReadyResolve=res;});
+function bsRetestMarkReady(){if(!bsRetestReady){bsRetestReady=true;bsRetestReadyResolve();}}
+setTimeout(bsRetestMarkReady,3000);
 // Grammar-pattern topic filter for Build a Sentence ('' = all topics). Local
 // UI preference only, not synced — mirrors how the other exercise-mode filters
 // (e.g. Flashcards' "By Topic") are just a saved selection, not scored data.
@@ -2199,6 +2211,10 @@ function safeKey(k){const s=String(k==null?'':k).replace(/[.#$\/\[\]]/g,'_').rep
 // Wrap every Firebase .set() so a synchronous validation throw can never break
 // the app flow. localStorage persistence still happens regardless.
 function fbSet(ref,val){if(!ref)return;try{const p=ref.set(val);if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(e){console.error('Firebase set skipped:',e&&e.message);}}
+// Same, but for ref.update(obj) — merges the given keys into the node
+// instead of replacing it wholesale, so a write only touches the keys it
+// actually changed and never clobbers sibling keys another device wrote.
+function fbUpdate(ref,obj){if(!ref)return;try{const p=ref.update(obj);if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(e){console.error('Firebase update skipped:',e&&e.message);}}
 // Repair any reviewLog topic keys that contain Firebase-forbidden characters so
 // stats can be saved again (legacy data created before keys were sanitized).
 function sanitizeStatsKeys(){
@@ -6912,9 +6928,20 @@ function bs_next(force){
 // items due for a spaced retest and items never attempted, in roughly the
 // same family proportions as the full pool. No feedback is shown between
 // questions — only the final copyable report — matching real exam pacing.
-function bsSet_saveRetest(){
+// changedIds: item ids touched by this set — only those are pushed to
+// Firebase (ref.update(), not ref.set()), so a write never overwrites
+// bsRetest entries another device added/changed since this device's last
+// sync. localStorage gets the full local bsRetest immediately (this
+// browser's own cache, no cross-device overwrite risk); the Firebase push
+// waits for bsRetestReadyPromise (first RBSRT sync, or its safety timeout)
+// so it's never built from a copy older than this device's own last known
+// server state.
+function bsSet_saveRetest(changedIds){
   try{localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));}catch(e){}
-  if(RBSRT)fbSet(RBSRT,Object.keys(bsRetest).length?bsRetest:null);
+  if(!RBSRT||!changedIds||!changedIds.length)return;
+  const patch={};
+  changedIds.forEach(id=>{patch[id]=bsRetest[id]||null;});
+  bsRetestReadyPromise.then(()=>fbUpdate(RBSRT,patch));
 }
 function bsSet_familyPool(){return bsItems.filter(it=>it&&it.family&&!it.archived);}
 function bsSet_daysSince(dateStr){
@@ -7044,6 +7071,7 @@ function bsSet_finish(){
     // Retest queue reflects only the FINAL answer for each question, computed
     // once here — re-answering the same item from the review list before
     // finishing never touches bsRetest until this point.
+    const changedIds=[];
     bsSet_results.forEach(res=>{
       const r=bsRetest[res.id]||{status:'none',wrongAt:null,correctDates:[]};
       if(res.correct){
@@ -7055,8 +7083,9 @@ function bsSet_finish(){
         r.status='in-queue';r.wrongAt=today;r.correctDates=[];
       }
       bsRetest[res.id]=r;
+      changedIds.push(res.id);
     });
-    bsSet_saveRetest();
+    bsSet_saveRetest(changedIds);
   }catch(e){
     console.error('bsSet_finish bookkeeping failed (report still shown):',e&&e.message);
   }finally{
@@ -11268,7 +11297,7 @@ function startSync(){
     // doesn't redraw over an in-progress attempt.
     RBSI.on('value',s=>{const v=s.val();if(v){bsItems=Object.values(v);bs_ensureFresh();ex_mergeSeeds(bsItems,BS_SEED,bs_saveItems);ex_mergeSeeds(bsItems,BS_SEED_PARETO,bs_saveItems);bs_reconcileParetoSeed(bsItems,bs_saveItems);bs_normLower();bs_archiveShortFormat();localStorage.setItem('c1bsi',JSON.stringify(bsItems));if(curTab==='rev'&&toeflActivity==='build'){if(!bs_cur){bs_load();renderRev();}else if(bs_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RBSP.on('value',s=>{const v=s.val();if(v){bsProgress=v;localStorage.setItem('c1bsp',JSON.stringify(bsProgress));if(curTab==='rev'&&toeflActivity==='build'&&!bs_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
-    RBSRT.on('value',s=>{const v=s.val();if(v){bsRetest=v;localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));if(curTab==='rev'&&toeflActivity==='build'&&!bsSet_active)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
+    RBSRT.on('value',s=>{const v=s.val();if(v){bsRetest=v;localStorage.setItem('c1bsretest',JSON.stringify(bsRetest));if(curTab==='rev'&&toeflActivity==='build'&&!bsSet_active)renderRev();} bsRetestMarkReady(); setSS('online');}, err=>{bsRetestMarkReady();setSS('offline','DB Error: '+err.code);});
     RCWI.on('value',s=>{const v=s.val();if(v){cwItems=Object.values(v);cw_ensureFresh();ex_mergeSeeds(cwItems,CW_SEED,cw_saveItems);localStorage.setItem('c1cwi',JSON.stringify(cwItems));if(curTab==='rev'&&toeflActivity==='complete'){if(!cw_cur){cw_load();renderRev();}else if(cw_checked)renderRev();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     RCWP.on('value',s=>{const v=s.val();if(v){cwProgress=v;localStorage.setItem('c1cwp',JSON.stringify(cwProgress));if(curTab==='rev'&&toeflActivity==='complete'&&!cw_cur)renderRev();} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
     REMS.on('value',s=>{const v=s.val();if(v){emScenarios=Object.values(v);em_ensureFresh();localStorage.setItem('c1ems',JSON.stringify(emScenarios));if(em_active){if(!em_cur)em_pick();em_renderScenario();}} setSS('online');}, err=>setSS('offline','DB Error: '+err.code));
