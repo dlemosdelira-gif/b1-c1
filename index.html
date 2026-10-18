@@ -8299,22 +8299,30 @@ function openEMAdd(){
 // {recipient, context, tasks}. The instruction line is the one piece every
 // real prompt has in common, so it's used as the anchor; returns null if
 // it's missing (nothing reliable to split on).
+// Matched against the raw string (not split into lines first) because some
+// sources (notes apps, PDFs, certain mobile paste paths) collapse the
+// paragraph/line breaks on copy, running everything together on one line —
+// a line-by-line scan would then see the bulleted tasks merged into the
+// instruction line itself and find none. The bullet markers themselves
+// (*/•, still present even when flattened) are what task extraction
+// anchors on instead of line boundaries.
 function em_parsePasted(raw){
-  const lines=raw.replace(/\r\n/g,'\n').split('\n');
-  let anchorIdx=-1,recipient='';
-  for(let i=0;i<lines.length;i++){
-    const m=lines[i].match(/Write an email to\s+(.+?)\.\s*(?:In your email.*)?$/i);
-    if(m){anchorIdx=i;recipient=m[1].trim();break;}
-  }
-  if(anchorIdx<0)return null;
-  const context=lines.slice(0,anchorIdx).map(l=>l.trim()).filter(Boolean).join(' ');
-  const tasks=[];
-  for(const line of lines.slice(anchorIdx+1)){
-    const t=line.trim();
-    if(!t)continue;
-    const bullet=t.match(/^(?:[*•\-]|\d+[.)])\s*(.+)$/);
-    if(bullet){tasks.push(bullet[1].trim());continue;}
-    if(tasks.length)break; // first non-bullet line after the bullets = boilerplate trailer
+  const text=raw.replace(/\r\n/g,'\n');
+  const m=text.match(/Write an email to\s+([^.\n]+)\.\s*(?:In your email[^.\n]*\.)?/i);
+  if(!m)return null;
+  const recipient=m[1].trim();
+  const context=text.slice(0,m.index).replace(/\s+/g,' ').trim();
+  let after=text.slice(m.index+m[0].length);
+  const trailer=after.match(/Write as much as you can|Your Response\s*:|(?:^|\n)\s*To\s*:|(?:^|\n)\s*Subject\s*:/i);
+  if(trailer)after=after.slice(0,trailer.index);
+  let tasks=[...after.matchAll(/[*•]\s*([^*•\n]+)/g)].map(x=>x[1].trim()).filter(Boolean);
+  if(!tasks.length){
+    // No */• markers at all — fall back to one task per non-empty line
+    // (covers "-"/numbered lists, which only make sense line-by-line).
+    tasks=after.split('\n').map(l=>{
+      const b=l.trim().match(/^(?:[*•\-]|\d+[.)])\s*(.+)$/);
+      return b?b[1].trim():null;
+    }).filter(Boolean);
   }
   if(!recipient||!context||!tasks.length)return null;
   return {recipient,context,tasks};
