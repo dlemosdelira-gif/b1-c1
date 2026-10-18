@@ -920,6 +920,12 @@ textarea{min-height:120px}
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">📧 Add Email Scenario</div><button class="btn bsm" onclick="closeM('mEMAdd')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
+      <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:14px">
+        <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Paste the full prompt text</label>
+        <textarea id="emAddPasteBox" style="min-height:110px" placeholder="You are planning a large get-together…&#10;Write an email to Anna. In your email, do the following.&#10;&#10;* Suggest a location…&#10;* Propose some activities…&#10;* Ask for her help…"></textarea>
+        <div class="fl g8 mt8"><button class="btn bpr bsm" onclick="em_pasteParse()">✨ Transformar em set</button></div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:10px">— or fill in manually below —</div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Recipient *</label><input type="text" id="emAddRecipient" placeholder="e.g. the international office"></div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Context / situation *</label><textarea id="emAddContext" style="min-height:100px" placeholder="You recently attended an online workshop about studying abroad…"></textarea></div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Tasks — one per line, typically 3 *</label><textarea id="emAddTasks" style="min-height:80px" placeholder="Thank them for organizing the workshop.&#10;Explain that you did not receive the materials.&#10;Ask them to send the files or tell you how to access them."></textarea></div>
@@ -937,6 +943,12 @@ textarea{min-height:120px}
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">📝 Add Academic Discussion Prompt</div><button class="btn bsm" onclick="closeM('mWRAdd')">✕</button></div>
     <div class="mbdy" style="overflow-y:auto">
+      <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:14px">
+        <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Paste the full prompt text</label>
+        <textarea id="wrAddPasteBox" style="min-height:110px" placeholder="Dr. Peterson&#10;In our next unit, we will explore…&#10;&#10;Jaime&#10;I think taking a gap year is very helpful…&#10;&#10;Olga&#10;I disagree with Jaime…"></textarea>
+        <div class="fl g8 mt8"><button class="btn bpr bsm" onclick="wr_pasteParse()">✨ Transformar em set</button></div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:10px">— or fill in manually below —</div>
       <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Professor's question *</label><textarea id="wrAddQuestion" style="min-height:90px" placeholder="Some universities now require students to complete a mandatory internship…"></textarea></div>
       <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
         <div><label style="font-size:14px;font-weight:600;color:#475569;display:block;margin-bottom:5px">Peer 1 name *</label><input type="text" id="wrAddP1Name" placeholder="e.g. Marina"></div>
@@ -8276,9 +8288,48 @@ function em_renderScenario(){
 }
 function em_shuffle(){em_pick();em_renderScenario();if(em_stepMode)em_syncStepText();}
 function openEMAdd(){
-  ['emAddRecipient','emAddContext','emAddTasks','emAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['emAddPasteBox','emAddRecipient','emAddContext','emAddTasks','emAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('emAddHint').textContent='';
   openM('mEMAdd');
+}
+// Parses a pasted "Write an Email" prompt — one or more context paragraphs,
+// then the fixed instruction line "Write an email to X. In your email, do
+// the following.", then bulleted tasks, then test boilerplate ("Write as
+// much as you can…", "Your Response:", "To:", "Subject:") — into
+// {recipient, context, tasks}. The instruction line is the one piece every
+// real prompt has in common, so it's used as the anchor; returns null if
+// it's missing (nothing reliable to split on).
+function em_parsePasted(raw){
+  const lines=raw.replace(/\r\n/g,'\n').split('\n');
+  let anchorIdx=-1,recipient='';
+  for(let i=0;i<lines.length;i++){
+    const m=lines[i].match(/Write an email to\s+(.+?)\.\s*(?:In your email.*)?$/i);
+    if(m){anchorIdx=i;recipient=m[1].trim();break;}
+  }
+  if(anchorIdx<0)return null;
+  const context=lines.slice(0,anchorIdx).map(l=>l.trim()).filter(Boolean).join(' ');
+  const tasks=[];
+  for(const line of lines.slice(anchorIdx+1)){
+    const t=line.trim();
+    if(!t)continue;
+    const bullet=t.match(/^(?:[*•\-]|\d+[.)])\s*(.+)$/);
+    if(bullet){tasks.push(bullet[1].trim());continue;}
+    if(tasks.length)break; // first non-bullet line after the bullets = boilerplate trailer
+  }
+  if(!recipient||!context||!tasks.length)return null;
+  return {recipient,context,tasks};
+}
+function em_pasteParse(){
+  const raw=document.getElementById('emAddPasteBox').value;
+  const hint=document.getElementById('emAddHint');
+  if(!raw.trim()){hint.style.color='#DC2626';hint.textContent='⚠️ Paste the prompt text first.';return;}
+  const parsed=em_parsePasted(raw);
+  if(!parsed){hint.style.color='#DC2626';hint.textContent='⚠️ Could not find "Write an email to ___. In your email, do the following." in the pasted text — fill in the fields manually below instead.';return;}
+  document.getElementById('emAddRecipient').value=parsed.recipient;
+  document.getElementById('emAddContext').value=parsed.context;
+  document.getElementById('emAddTasks').value=parsed.tasks.join('\n');
+  hint.style.color='#16A34A';
+  hint.textContent='✅ Parsed — review the fields below, then Save Scenario.';
 }
 function em_saveNew(){
   const recipient=document.getElementById('emAddRecipient').value.trim();
@@ -8286,6 +8337,7 @@ function em_saveNew(){
   const tasks=document.getElementById('emAddTasks').value.split('\n').map(s=>s.trim()).filter(Boolean);
   const tag=document.getElementById('emAddTag').value.trim()||'custom';
   const hint=document.getElementById('emAddHint');
+  hint.style.color='#DC2626';
   if(!recipient||!context||!tasks.length){hint.textContent='⚠️ Fill in the recipient, the context and at least one task.';return;}
   const item={id:'emu-'+uid(),tag,recipient,context,tasks};
   emScenarios.push(item);
@@ -8596,9 +8648,75 @@ function wr_renderScenario(){
 }
 function wr_shuffle(){wr_pick();wr_renderScenario();if(wr_stepMode)wr_syncStepText();}
 function openWRAdd(){
-  ['wrAddQuestion','wrAddP1Name','wrAddP1Text','wrAddP2Name','wrAddP2Text','wrAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['wrAddPasteBox','wrAddQuestion','wrAddP1Name','wrAddP1Text','wrAddP2Name','wrAddP2Text','wrAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('wrAddHint').textContent='';
   openM('mWRAdd');
+}
+// Parses a pasted "Write for an Academic Discussion" prompt into
+// {professorQuestion, peer1:{name,text}, peer2:{name,text}}. Real prompts
+// vary in exact layout, so this handles the two common shapes: a speaker's
+// name inline before their text ("Dr. Peterson: In our next unit…") or a
+// name alone on its own short line followed by their text on the next
+// line(s) ("Dr. Peterson" / "In our next unit…"). Boilerplate instruction
+// lines ("Write a post…", "In your response…", a minimum-word-count line)
+// are stripped first since they're not part of any turn. Whatever text
+// comes before the first detected turn is the professor's question even
+// when it isn't itself labeled with a name (the most common real shape);
+// the next two detected turns become peer1/peer2. Returns null if fewer
+// than two turns are found — not enough to tell peer1 from peer2.
+function wr_parsePasted(raw){
+  const BOILERPLATE=/write a post|in your response|your response|minimum of \d+ words|at least \d+ words|express and support|make a contribution|respond to (the )?professor|discussion question|discussion board|your professor is teaching/i;
+  const lines=raw.replace(/\r\n/g,'\n').split('\n').map(l=>l.trim()).filter(l=>l&&!BOILERPLATE.test(l));
+  const isLabel=l=>l.length<=40&&!/[.?!]$/.test(l)&&l.split(/\s+/).length<=5;
+  const turns=[];
+  let introLines=[];
+  let i=0;
+  while(i<lines.length){
+    const line=lines[i];
+    const inline=line.match(/^([A-Z][\w.'\- ]{1,30}):\s*(.+)$/);
+    if(inline){
+      turns.push({name:inline[1].trim(),text:inline[2].trim()});
+      i++;
+    }else if(isLabel(line)&&i+1<lines.length&&!isLabel(lines[i+1])){
+      const name=line.replace(/:$/,'');
+      let text=lines[i+1];
+      i+=2;
+      while(i<lines.length&&!isLabel(lines[i])&&!lines[i].match(/^([A-Z][\w.'\- ]{1,30}):\s*(.+)$/)){text+=' '+lines[i];i++;}
+      turns.push({name,text});
+    }else{
+      if(!turns.length)introLines.push(line);
+      i++;
+    }
+  }
+  if(turns.length<2)return null;
+  // 3+ turns: the first is the professor's (named) turn. Exactly 2 turns:
+  // both are the peers, and the professor's question is whatever untagged
+  // text came before them.
+  let professorQuestion,peer1,peer2;
+  if(turns.length>=3){
+    professorQuestion=turns[0].text;
+    peer1=turns[1];peer2=turns[2];
+  }else{
+    professorQuestion=introLines.join(' ').trim();
+    if(!professorQuestion)return null;
+    peer1=turns[0];peer2=turns[1];
+  }
+  if(!professorQuestion||!peer1.name||!peer1.text||!peer2.name||!peer2.text)return null;
+  return {professorQuestion,peer1,peer2};
+}
+function wr_pasteParse(){
+  const raw=document.getElementById('wrAddPasteBox').value;
+  const hint=document.getElementById('wrAddHint');
+  if(!raw.trim()){hint.style.color='#DC2626';hint.textContent='⚠️ Paste the prompt text first.';return;}
+  const parsed=wr_parsePasted(raw);
+  if(!parsed){hint.style.color='#DC2626';hint.textContent='⚠️ Could not reliably find the professor\'s question and both peers\' responses — fill in the fields manually below instead.';return;}
+  document.getElementById('wrAddQuestion').value=parsed.professorQuestion;
+  document.getElementById('wrAddP1Name').value=parsed.peer1.name;
+  document.getElementById('wrAddP1Text').value=parsed.peer1.text;
+  document.getElementById('wrAddP2Name').value=parsed.peer2.name;
+  document.getElementById('wrAddP2Text').value=parsed.peer2.text;
+  hint.style.color='#16A34A';
+  hint.textContent='✅ Parsed — review the fields below, then Save Prompt.';
 }
 function wr_saveNew(){
   const professorQuestion=document.getElementById('wrAddQuestion').value.trim();
@@ -8608,6 +8726,7 @@ function wr_saveNew(){
   const p2Text=document.getElementById('wrAddP2Text').value.trim();
   const tag=document.getElementById('wrAddTag').value.trim()||'custom';
   const hint=document.getElementById('wrAddHint');
+  hint.style.color='#DC2626';
   if(!professorQuestion||!p1Name||!p1Text||!p2Name||!p2Text){hint.textContent='⚠️ Fill in the professor\'s question and both peers\' names and responses.';return;}
   const item={id:'wru-'+uid(),tag,professorQuestion,peer1:{name:p1Name,text:p1Text},peer2:{name:p2Name,text:p2Text}};
   wrScenarios.push(item);
