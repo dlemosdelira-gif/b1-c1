@@ -3592,7 +3592,13 @@ async function claude_call(prompt,opts){
   const key=ai_getClaudeKey();
   if(!key)throw new Error('No Claude API key configured');
   const model=ai_getClaudeModel();
-  const body={model:model,max_tokens:4096,messages:[{role:'user',content:prompt}]};
+  // 8000 (not 4096) because several callers (e.g. the Writing/Speaking
+  // analysis prompts) ask for a full ~150-200+ word model-answer essay on
+  // top of multiple detailed JSON arrays (errors, points covered,
+  // strengths) in the same response — comfortably over 4096 tokens for a
+  // thorough rater, which silently truncated the JSON mid-object and
+  // surfaced only as a generic "returned invalid JSON" error.
+  const body={model:model,max_tokens:8000,messages:[{role:'user',content:prompt}]};
   if(opts.json)body.system='Respond with ONLY valid JSON — no markdown code fences, no commentary before or after.';
   const maxAttempts=3;
   for(let attempt=1;attempt<=maxAttempts;attempt++){
@@ -3629,6 +3635,10 @@ async function claude_call(prompt,opts){
       if(!stopReason&&!isLastAttempt){await ai_sleep(attempt*900);continue;}
       throw new Error(stopReason?('Claude stopped early ('+stopReason+')'):'Empty response from Claude');
     }
+    // A non-empty response can still be a truncated one — hitting max_tokens
+    // mid-JSON used to surface only as an opaque "invalid JSON" error from
+    // whichever caller tried to parse it. Flagging it here up front instead.
+    if(data.stop_reason==='max_tokens')throw new Error('Claude response was cut off (hit the '+body.max_tokens+'-token limit) — try again');
     return text;
   }
 }
