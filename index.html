@@ -939,6 +939,15 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mEMList" onclick="if(event.target===this)closeM('mEMList')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">📋 Choose Email Scenario</div><button class="btn bsm" onclick="closeM('mEMList')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div id="emListBox"></div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mWRAdd" onclick="if(event.target===this)closeM('mWRAdd')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
     <div class="mhdr"><div class="mtit">📝 Add Academic Discussion Prompt</div><button class="btn bsm" onclick="closeM('mWRAdd')">✕</button></div>
@@ -964,6 +973,15 @@ textarea{min-height:120px}
         <button class="btn bsm" onclick="closeM('mWRAdd')">Cancel</button>
         <button class="btn bpr bsm" onclick="wr_saveNew()">Save Prompt</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="mov hid" id="mWRList" onclick="if(event.target===this)closeM('mWRList')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:560px">
+    <div class="mhdr"><div class="mtit">📋 Choose Discussion Prompt</div><button class="btn bsm" onclick="closeM('mWRList')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div id="wrListBox"></div>
     </div>
   </div>
 </div>
@@ -6069,32 +6087,6 @@ function toefl_scoreEstimate(){
   const overall=toefl_toBand(avg([reading,listening,writing,speaking]));
   return {reading,listening,writing,speaking,overall};
 }
-function toeflScoreCardHTML(){
-  const s=toefl_scoreEstimate();
-  if(s.overall==null){
-    return '<div class="card" style="margin-bottom:12px">'
-      +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:6px">📊 Estimated Score</div>'
-      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6">Complete a few Reading, Listening, Writing, or Speaking activities to see your estimate here.</div>'
-      +'</div>';
-  }
-  const skillRow=(icon,label,val)=>{
-    if(val==null)return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="color:#94A3B8">no data yet</span></div><div style="height:6px;background:#F1F5F9;border-radius:4px"></div></div>';
-    const pct=Math.round(val/6*100),col=val>=5?'#16A34A':val>=3?'#2563EB':'#D97706';
-    return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:#475569">'+icon+' '+label+'</span><span style="font-family:\'DM Mono\',monospace;color:'+col+';font-weight:600">'+val.toFixed(1)+'/6 · '+toefl_cefrLabel(val)+'</span></div><div style="height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px"></div></div></div>';
-  };
-  return '<div class="card" style="margin-bottom:12px">'
-    +'<div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:2px">📊 Estimated Score</div>'
-    +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">'
-    +'<span style="font-family:\'DM Mono\',monospace;font-size:32px;font-weight:700;color:#2563EB">'+s.overall.toFixed(1)+'</span>'
-    +'<span style="font-family:\'DM Mono\',monospace;font-size:15px;color:#94A3B8">/ 6 · '+toefl_cefrLabel(s.overall)+'</span>'
-    +'</div>'
-    +skillRow('📖','Reading',s.reading)
-    +skillRow('🎧','Listening',s.listening)
-    +skillRow('✍️','Writing',s.writing)
-    +skillRow('🎤','Speaking',s.speaking)
-    +'<div style="font-size:11.5px;color:#94A3B8;line-height:1.5;padding-top:8px;margin-top:2px;border-top:1px dashed #DDE3F5">Rough estimate based on your most recent attempts — not your official TOEFL score (which uses ETS\'s own statistical scoring).</div>'
-    +'</div>';
-}
 // ── 4.5 READINESS ENGINE (Phase 1) ──────────────────────────────────────────
 // Dashboard "4.5 Mode" + Skill Diagnostic. Purely a read layer: Task Skills
 // come from the wr-step:*/em-step:* grammar-error tallies writing_findBlock()
@@ -6267,7 +6259,7 @@ function startNextBestDrill(){
 
 // ── ACADEMIC DISCUSSION SKILL DRILLS (Phase 3) ──────────────────────────────
 // Isolated, one-response-at-a-time practice for a single rhetorical block —
-// no full 100-130 word Discussion required. Reuses wrScenarios (the same
+// no full 160+ word Discussion required. Reuses wrScenarios (the same
 // professor question + 2 classmates already used by the full task) and the
 // existing AI Analysis Bridge modal (mAI) for grading, just with a lighter
 // on-target/feedback rubric instead of the full ETS 0-5 scale. Results are
@@ -6705,7 +6697,7 @@ function renderRev(){
   renderExamCountdown();
   session_renderBadge();
   const hub=document.getElementById('toeflHub');
-  if(hub)hub.innerHTML=toeflScoreCardHTML()+toeflHubHTML();
+  if(hub)hub.innerHTML=toeflHubHTML();
   const ex=document.getElementById('toeflEx');
   if(!ex)return;
   if(toeflActivity==='build')ex.innerHTML=bs_render();
@@ -8312,7 +8304,7 @@ function em_renderScenario(){
     h+='<ul style="margin:0 0 10px 20px;padding:0;font-size:14px;color:#0F172A;line-height:1.6">'+tasks+'</ul>';
   }
   h+='<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have '+EM_MINUTES+' minutes to complete this task. Write as much as you can in complete sentences.</div>'
-    +'<div class="fl g8"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button><button class="btn bte bsm" onclick="openEMAdd()">+ Add scenario</button><button class="btn bsm" onclick="openIO(\'em\')" title="Import / export">⇅</button></div>'
+    +'<div class="fl g8"><button class="btn bsm" onclick="em_shuffle()">🎲 New scenario</button><button class="btn bsm" onclick="openEMList()">📋 Choose</button><button class="btn bte bsm" onclick="openEMAdd()">+ Add scenario</button><button class="btn bsm" onclick="openIO(\'em\')" title="Import / export">⇅</button></div>'
     +'</div>';
   if(em_stepMode)h+=em_stepFormHTML();
   box.innerHTML=h;
@@ -8322,6 +8314,32 @@ function openEMAdd(){
   ['emAddPasteBox','emAddRecipient','emAddContext','emAddTasks','emAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('emAddHint').textContent='';
   openM('mEMAdd');
+}
+// Random "New scenario" naturally avoids a scenario the student has already
+// practiced while un-practiced ones remain — great for broad coverage, but
+// it means a specific scenario you want to redo (e.g. one you just added)
+// can go unpicked for a long time if there are many never-tried ones ahead
+// of it. This lets you jump straight to any scenario by name instead of
+// waiting on the shuffle.
+function openEMList(){
+  const box=document.getElementById('emListBox');
+  if(box)box.innerHTML=emScenarios.map(s=>{
+    const done=emProgress[s.id];
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid #EEF2FF">'
+      +'<div style="min-width:0;flex:1">'
+      +'<div style="font-size:13px;font-weight:600;color:#0F172A">'+(done?'✓ ':'')+'<span class="tag tbl" style="font-size:10.5px">'+esc(s.tag)+'</span></div>'
+      +'<div style="font-size:12px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">To '+esc(s.recipient)+' — '+esc(s.context)+'</div>'
+      +'</div>'
+      +'<button class="btn bsm" style="flex-shrink:0" onclick="em_chooseScenario(\''+s.id+'\')">Usar</button>'
+      +'</div>';
+  }).join('')||'<div style="font-size:13px;color:#94A3B8">No scenarios yet.</div>';
+  openM('mEMList');
+}
+function em_chooseScenario(id){
+  const item=emScenarios.find(s=>s.id===id);
+  if(!item)return;
+  em_cur=item;em_registerOverride=null;em_stepReset();em_renderScenario();if(em_stepMode)em_syncStepText();
+  closeM('mEMList');
 }
 // Parses a pasted "Write an Email" prompt — one or more context paragraphs,
 // then the fixed instruction line "Write an email to X. In your email, do
@@ -8674,8 +8692,8 @@ function wr_renderScenario(){
     +'<div style="font-size:14px;color:#0F172A;line-height:1.7;margin-bottom:10px"><strong>Professor:</strong> '+esc(wr_cur.professorQuestion)+'</div>'
     +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:8px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer1.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer1.text)+'</span></div>'
     +'<div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;margin-bottom:10px"><strong style="color:#1D4ED8">'+esc(wr_cur.peer2.name)+':</strong> <span style="font-size:14px;color:#0F172A;line-height:1.6">'+esc(wr_cur.peer2.text)+'</span></div>'
-    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have 10 minutes and should write 100-130 words. State your position clearly and respond to at least one classmate.</div>'
-    +'<div class="fl g8"><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button><button class="btn bte bsm" onclick="openWRAdd()">+ Add prompt</button><button class="btn bsm" onclick="openIO(\'wr\')" title="Import / export">⇅</button></div>'
+    +'<div style="font-size:13px;color:#64748B;line-height:1.6;margin-bottom:10px">In the actual test, you have 10 minutes and should write at least 160 words. State your position clearly and respond to at least one classmate.</div>'
+    +'<div class="fl g8"><button class="btn bsm" onclick="wr_shuffle()">🎲 New prompt</button><button class="btn bsm" onclick="openWRList()">📋 Choose</button><button class="btn bte bsm" onclick="openWRAdd()">+ Add prompt</button><button class="btn bsm" onclick="openIO(\'wr\')" title="Import / export">⇅</button></div>'
     +'</div>';
   if(wr_stepMode)h+=wr_stepFormHTML();
   box.innerHTML=h;
@@ -8685,6 +8703,28 @@ function openWRAdd(){
   ['wrAddPasteBox','wrAddQuestion','wrAddP1Name','wrAddP1Text','wrAddP2Name','wrAddP2Text','wrAddTag'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('wrAddHint').textContent='';
   openM('mWRAdd');
+}
+// Same "jump straight to a specific prompt" escape hatch as openEMList() —
+// see its comment for why random shuffling alone isn't enough.
+function openWRList(){
+  const box=document.getElementById('wrListBox');
+  if(box)box.innerHTML=wrScenarios.map(s=>{
+    const done=wrProgress[s.id];
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid #EEF2FF">'
+      +'<div style="min-width:0;flex:1">'
+      +'<div style="font-size:13px;font-weight:600;color:#0F172A">'+(done?'✓ ':'')+'<span class="tag tbl" style="font-size:10.5px">'+esc(s.tag)+'</span></div>'
+      +'<div style="font-size:12px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.professorQuestion)+'</div>'
+      +'</div>'
+      +'<button class="btn bsm" style="flex-shrink:0" onclick="wr_chooseScenario(\''+s.id+'\')">Usar</button>'
+      +'</div>';
+  }).join('')||'<div style="font-size:13px;color:#94A3B8">No prompts yet.</div>';
+  openM('mWRList');
+}
+function wr_chooseScenario(id){
+  const item=wrScenarios.find(s=>s.id===id);
+  if(!item)return;
+  wr_cur=item;wr_stepReset();wr_renderScenario();if(wr_stepMode)wr_syncStepText();
+  closeM('mWRList');
 }
 // Parses a pasted "Write for an Academic Discussion" prompt into
 // {professorQuestion, peer1:{name,text}, peer2:{name,text}}. Real prompts
@@ -8873,7 +8913,7 @@ function wr_checklistConfirm(){
 function wr_buildAnalysisPrompt(t){
   const q=wr_cur?wr_cur.professorQuestion:'';
   const peers=wr_cur?('- '+wr_cur.peer1.name+': '+wr_cur.peer1.text+'\n- '+wr_cur.peer2.name+': '+wr_cur.peer2.text):'';
-  return 'You are a certified TOEFL iBT rater, specialized in the "Write for an Academic Discussion" Writing task (2026 format: professor question + 2 classmate responses, 100-130 word response, 10 minutes, official ETS 0-5 scale).\n\n'
+  return 'You are a certified TOEFL iBT rater, specialized in the "Write for an Academic Discussion" Writing task (2026 format: professor question + 2 classmate responses, at least 160 words, 10 minutes, official ETS 0-5 scale).\n\n'
 +'Professor question: '+q+'\n'
 +'Classmate responses:\n'+peers+'\n'
 +'Candidate response: '+t+'\n\n'
@@ -8886,7 +8926,8 @@ function wr_buildAnalysisPrompt(t){
 +'BAND 0 — Blank, rejects the topic, is not in English, an entire copy of the prompt, or bears no relation to the prompt.\n\n'
 +'CRITICAL RULE: you MUST check two points that tank the score regardless of grammar: (a) does the response state a clear position within the first few sentences? (b) does the response reference at least one of the classmates (agreeing, disagreeing, or building on their point)? If either is missing, the score is capped at 3 at most, even with flawless grammar — flag this explicitly in the feedback.\n\n'
 +'Separate surface typing errors (do not affect the score) from real grammar errors (agreement, gerund after preposition, infinitive after modal, article).\n\n'
-+'Beyond the scoring analysis, also generate a "modelAnswer5" field containing a model 5/5 (Band 5) response for this SAME professor question and SAME classmates — not a generic example. The model MUST reference at least one of the classmates above by name (e.g. "I agree with '+(wr_cur?wr_cur.peer1.name:'X')+' that..." / "Unlike '+(wr_cur?wr_cur.peer2.name:'Y')+', I believe..."), be 150-225 words, show syntactic variety (subordination, relative clauses, varied connectors), and support each argument with a concrete example.\n\n'
++'Word count: flag "word_count_flag" as "too_short" if the response has fewer than 160 words — that is the required minimum for this task.\n\n'
++'Beyond the scoring analysis, also generate a "modelAnswer5" field containing a model 5/5 (Band 5) response for this SAME professor question and SAME classmates — not a generic example. The model MUST reference at least one of the classmates above by name (e.g. "I agree with '+(wr_cur?wr_cur.peer1.name:'X')+' that..." / "Unlike '+(wr_cur?wr_cur.peer2.name:'Y')+', I believe..."), be 180-250 words, show syntactic variety (subordination, relative clauses, varied connectors), and support each argument with a concrete example.\n\n'
 +'Also generate a "modelAnswerNotes" field (2-3 sentences in English) highlighting the 2-3 elements that make this model different from the candidate\'s response — focus on the points that cost them points.\n\n'
 +'Return ONLY a JSON object (no markdown, no text before or after):\n'
 +'{\n'
