@@ -8560,6 +8560,50 @@ const EM_BAND_COLOR={
   'mostly unsuccessful':'#EA580C','unsuccessful':'#DC2626','no scorable response':'#94A3B8'
 };
 const EM_WCFLAG_LABEL={ok:'✅ Word count OK',too_short:'⚠️ Too short',too_long:'⚠️ Too long'};
+// Snapshot of the scenario + submitted text + AI result behind the feedback
+// panel currently on screen — captured once in em_processEmailResult() (the
+// scenario could otherwise change under us the moment "New scenario" is
+// clicked) and read back by em_reportText()/em_copyReport(), mirroring
+// Build a Sentence's bsSet_reportText()/bsSet_copyReport().
+let em_lastFeedback=null;
+function em_reportText(){
+  if(!em_lastFeedback)return'';
+  const {r,scenario,text}=em_lastFeedback;
+  const now=new Date();
+  const f2=n=>String(n).padStart(2,'0');
+  let txt='EMAIL | '+f2(now.getDate())+'/'+f2(now.getMonth()+1)+' '+f2(now.getHours())+':'+f2(now.getMinutes())+(scenario?' | '+scenario.tag:'')+'\n';
+  if(scenario){
+    txt+='Destinatário: '+scenario.recipient+'\n';
+    txt+='Contexto: '+scenario.context+'\n';
+    if(scenario.tasks?.length)txt+='Tarefas: '+scenario.tasks.join('; ')+'\n';
+  }
+  txt+='\nMinha resposta:\n'+(text||'')+'\n\n';
+  txt+='Score: '+(r.score!=null?r.score:'—')+'/5'+(r.band_label?' ('+r.band_label+')':'')+'\n';
+  if(r.word_count!=null)txt+='Word count: '+r.word_count+' ('+(EM_WCFLAG_LABEL[r.word_count_flag]||r.word_count_flag||'')+')\n';
+  if(r.register_check)txt+='Register: esperado '+(r.register_check.expected||'—')+' — '+(r.register_check.matched?'OK':'não corresponde')+(r.register_check.notes?' ('+r.register_check.notes+')':'')+'\n';
+  if(r.points_coverage?.length){
+    txt+='Pontos exigidos:\n';
+    r.points_coverage.forEach(p=>{txt+='- ['+(p.addressed?'x':' ')+'] '+(p.point||'')+(p.elaboration_quality?' ('+p.elaboration_quality+')':'')+'\n';});
+  }
+  if(r.grammar_errors?.length){
+    txt+='Erros de gramática:\n';
+    r.grammar_errors.forEach(e=>{txt+='- "'+(e.text||'')+'" ['+(e.tag||'')+']'+(e.explanation?': '+e.explanation:'')+'\n';});
+  }
+  if(r.strengths?.length)txt+='Pontos fortes: '+r.strengths.join('; ')+'\n';
+  if(r.overall_feedback)txt+='Feedback geral: '+r.overall_feedback+'\n';
+  return txt;
+}
+function em_copyReport(){
+  navigator.clipboard.writeText(em_reportText())
+    .then(()=>toast('✅ Relatório copiado'))
+    .catch(()=>toast('⚠️ Não foi possível copiar — selecione o texto manualmente'));
+}
+function em_reportHTML(){
+  return '<div class="card"><div style="font-weight:600;color:#0F172A;margin-bottom:10px">📋 Relatório da Análise</div>'
+    +'<pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;font-family:\'DM Mono\',monospace;font-size:12.5px;color:#0F172A;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">'+esc(em_reportText())+'</pre>'
+    +'<button class="btn bpr" onclick="em_copyReport()">📋 Copiar relatório</button>'
+    +'</div>';
+}
 function em_renderFeedback(r){
   const score=(typeof r.score==='number')?r.score:null;
   const band=r.band_label||'';
@@ -8633,6 +8677,7 @@ function em_renderFeedback(r){
   }
 
   h+=em_scoreTrendHTML();
+  h+=em_reportHTML();
   const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
 }
 // Routes a pasted analysis JSON that came from an em_buildAnalysisPrompt() prompt:
@@ -8666,6 +8711,7 @@ function em_processEmailResult(r){
     ex_logPattern(ge.tag,false,block?'em-step:'+block:undefined);
   });
   em_lastStepBlocks=null;
+  em_lastFeedback={r,scenario,text:curText};
   em_renderFeedback(r);
   if(em_active)em_renderScenario();
 }
@@ -8971,6 +9017,46 @@ function wr_scoreTrendHTML(){
   return '<div class="card" style="padding:12px"><div class="ctit">📈 Your last '+log.length+' AI-scored discussions</div>'
     +'<div style="display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding-bottom:2px">'+bars+'</div></div>';
 }
+// Same "snapshot + copyable text report" pair as em_lastFeedback/em_reportText —
+// see their comments for why the scenario is captured rather than re-read
+// from wr_cur, which could already point at the next prompt by copy time.
+let wr_lastFeedback=null;
+function wr_reportText(){
+  if(!wr_lastFeedback)return'';
+  const {r,scenario,text}=wr_lastFeedback;
+  const now=new Date();
+  const f2=n=>String(n).padStart(2,'0');
+  let txt='DISCUSSION | '+f2(now.getDate())+'/'+f2(now.getMonth()+1)+' '+f2(now.getHours())+':'+f2(now.getMinutes())+(scenario?' | '+scenario.tag:'')+'\n';
+  if(scenario){
+    txt+='Professor: '+scenario.professorQuestion+'\n';
+    txt+=scenario.peer1.name+': '+scenario.peer1.text+'\n';
+    txt+=scenario.peer2.name+': '+scenario.peer2.text+'\n';
+  }
+  txt+='\nMinha resposta:\n'+(text||'')+'\n\n';
+  txt+='Score: '+(r.score!=null?r.score:'—')+'/5'+(r.band_label?' ('+r.band_label+')':'')+'\n';
+  if(r.word_count!=null)txt+='Word count: '+r.word_count+' ('+(EM_WCFLAG_LABEL[r.word_count_flag]||r.word_count_flag||'')+')\n';
+  txt+='Posição clara: '+(r.has_clear_position?'sim':'não')+' | Referencia colega: '+(r.references_peer?'sim':'não')+'\n';
+  if(r.position_and_peer_note)txt+='Obs: '+r.position_and_peer_note+'\n';
+  if(r.elaboration_quality)txt+='Elaboração: '+r.elaboration_quality+'\n';
+  if(r.grammar_errors?.length){
+    txt+='Erros de gramática:\n';
+    r.grammar_errors.forEach(e=>{txt+='- "'+(e.text||'')+'" ['+(e.tag||'')+']'+(e.explanation?': '+e.explanation:'')+'\n';});
+  }
+  if(r.strengths?.length)txt+='Pontos fortes: '+r.strengths.join('; ')+'\n';
+  if(r.overall_feedback)txt+='Feedback geral: '+r.overall_feedback+'\n';
+  return txt;
+}
+function wr_copyReport(){
+  navigator.clipboard.writeText(wr_reportText())
+    .then(()=>toast('✅ Relatório copiado'))
+    .catch(()=>toast('⚠️ Não foi possível copiar — selecione o texto manualmente'));
+}
+function wr_reportHTML(){
+  return '<div class="card"><div style="font-weight:600;color:#0F172A;margin-bottom:10px">📋 Relatório da Análise</div>'
+    +'<pre style="white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;font-family:\'DM Mono\',monospace;font-size:12.5px;color:#0F172A;background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:12px;margin-bottom:10px">'+esc(wr_reportText())+'</pre>'
+    +'<button class="btn bpr" onclick="wr_copyReport()">📋 Copiar relatório</button>'
+    +'</div>';
+}
 function wr_renderFeedback(r){
   const score=(typeof r.score==='number')?r.score:null;
   const band=r.band_label||'';
@@ -9042,6 +9128,7 @@ function wr_renderFeedback(r){
   }
 
   h+=wr_scoreTrendHTML();
+  h+=wr_reportHTML();
   const el=document.getElementById('anlres');el.innerHTML=h;el.classList.remove('hid');
 }
 // grammar_errors from Write and Email both feed the same tag taxonomy Build a
@@ -9071,6 +9158,7 @@ function wr_processResult(r){
     ex_logPattern(ge.tag,false,block?'wr-step:'+block:undefined);
   });
   wr_lastStepBlocks=null;
+  wr_lastFeedback={r,scenario,text:curText};
   wr_renderFeedback(r);
   if(!em_active)wr_renderScenario();
 }
