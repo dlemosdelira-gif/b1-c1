@@ -1509,16 +1509,44 @@ let cycleNotes={};
 let recapSummaries={};
 let recapCurWeekKey=null,recapCurPrompt='';
 // Retroactive, whole-program version of the same idea: every cycle note
-// across all 16 weeks, classified by TOEFL skill and condensed into a short
-// tip list per skill — so "what should I remember about Listening" doesn't
-// require re-reading 16 weeks of per-cycle notes in order. Same copy-prompt/
-// paste-response (or auto-call) pattern as recapSummaries; re-generating
-// just re-reads whatever cycleNotes exist at the time, so it naturally picks
-// up new notes on the next run — nothing to keep in sync manually.
-let skillNotes={reading:[],listening:[],speaking:[],writing:[],vocabulary:[],general:[]};
+// across all 16 weeks, classified by TOEFL skill AND task (same Reading/
+// Listening/Writing/Speaking > task breakdown SESSION_SECTIONS/TOEFL_ACT_LABEL
+// already use for the exam simulator) and condensed into a short tip list per
+// task — so "what should I remember about Complete the Words" doesn't require
+// re-reading 16 weeks of per-cycle notes in order. Same copy-prompt/paste-
+// response (or auto-call) pattern as recapSummaries; re-generating just
+// re-reads whatever cycleNotes exist at the time, so it naturally picks up
+// new notes on the next run — nothing to keep in sync manually.
+// Shape: {reading:{complete:[],rd:[],ra:[]}, listening:{lcr:[],lc:[],an:[],at:[]},
+// writing:{build:[],'writing:email':[],'writing:discussion':[]},
+// speaking:{'speaking:lr':[],'speaking:iv':[]}, vocabulary:[], general:[]} —
+// built from SESSION_SECTIONS so it tracks that config if it ever changes.
+function skillNotes_emptyShape(){
+  const shape={};
+  Object.keys(SESSION_SECTIONS).forEach(sec=>{
+    shape[sec]={};
+    SESSION_SECTIONS[sec].activities.forEach(act=>{shape[sec][act]=[];});
+  });
+  shape.vocabulary=[];
+  shape.general=[];
+  return shape;
+}
+// Guards against a stale pre-subtopic shape (flat {reading:[...]} arrays)
+// lingering in localStorage/Firebase from before subtopics were added —
+// this is derived/regeneratable data, so stale shape just means "needs a
+// re-run" rather than something to migrate.
+function skillNotes_isValidShape(v){
+  if(!v||typeof v!=='object')return false;
+  return Object.keys(SESSION_SECTIONS).every(sec=>v[sec]&&typeof v[sec]==='object'&&!Array.isArray(v[sec]));
+}
+// Initialized to {} here (not skillNotes_emptyShape()) because SESSION_SECTIONS
+// is declared later in the file as a const — this line runs during initial
+// script evaluation, before that declaration's line has executed. The real
+// shape is filled in by init() (skillNotes_isValidShape()/skillNotes_emptyShape()
+// below), which only runs after the whole script has loaded.
+let skillNotes={};
 let skillNotesGeneratedAt=null;
 let skillNotesCurPrompt='';
-const SKILL_NOTES_LABEL={reading:'📖 Reading',listening:'🎧 Listening',speaking:'🎤 Speaking',writing:'✍️ Writing',vocabulary:'🔤 Vocabulary',general:'📌 General'};
 let bulkSelectMode=false;
 let selectedCardIds=new Set();
 let cardsTopicFilter='';
@@ -2277,7 +2305,11 @@ function loadLocal(){
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
   try{recapSummaries=JSON.parse(localStorage.getItem('c1recapsum')||'{}');}catch(e){recapSummaries={};}
-  try{const v=JSON.parse(localStorage.getItem('c1skillnotes')||'null');if(v){skillNotes=v.skillNotes||skillNotes;skillNotesGeneratedAt=v.generatedAt||null;}}catch(e){}
+  try{
+    const v=JSON.parse(localStorage.getItem('c1skillnotes')||'null');
+    if(v&&skillNotes_isValidShape(v.skillNotes)){skillNotes=v.skillNotes;skillNotesGeneratedAt=v.generatedAt||null;}
+    else skillNotes=skillNotes_emptyShape();
+  }catch(e){skillNotes=skillNotes_emptyShape();}
   try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
   try{escolaFeedback=JSON.parse(localStorage.getItem('c1esc')||'[]');}catch(e){escolaFeedback=[];}
   if(!Array.isArray(escolaFeedback))escolaFeedback=[];
@@ -2432,18 +2464,23 @@ function skillNotes_allEntries(){
 function skillNotes_buildPrompt(){
   const entries=skillNotes_allEntries();
   const notesBlock=entries.map(e=>'Week '+e.week+', Cycle '+e.cycle+':\n'+e.notes).join('\n\n');
+  const structureLines=Object.keys(SESSION_SECTIONS).map(sec=>{
+    const s=SESSION_SECTIONS[sec];
+    return s.label+' ("'+sec+'"): '+s.activities.map(act=>'"'+act+'" = '+(TOEFL_ACT_LABEL[act]||act)).join(', ');
+  }).join('\n');
+  const shapeLines=Object.keys(SESSION_SECTIONS).map(sec=>{
+    const s=SESSION_SECTIONS[sec];
+    return '  "'+sec+'": {'+s.activities.map(act=>'"'+act+'": [string, ...]').join(', ')+'}';
+  }).join(',\n');
   return 'You are helping a TOEFL iBT student organize their study notes. Below are their raw lesson notes from every cycle they have completed so far across a 16-week study program, in order.\n\n'+notesBlock
-    +'\n\nClassify and condense these into a study reference organized by TOEFL skill area. For each area, extract the distinct, actionable tips/rules/insights the student recorded (merge duplicates or near-duplicates into one tip; drop pure logistics like "watched lesson X" that carry no reusable insight; keep anything specific — numbers, example phrases, named strategies — rather than vague restatements).\n\n'
-    +'Return ONLY a JSON object (no markdown, no text before or after) with this exact shape:\n'
-    +'{\n'
-    +'  "reading": [string, ...],\n'
-    +'  "listening": [string, ...],\n'
-    +'  "speaking": [string, ...],\n'
-    +'  "writing": [string, ...],\n'
+    +'\n\nClassify and condense these into a study reference organized by TOEFL skill AND specific task. For each task, extract the distinct, actionable tips/rules/insights the student recorded about it (merge duplicates or near-duplicates into one tip; drop pure logistics like "watched lesson X" that carry no reusable insight; keep anything specific — numbers, example phrases, named strategies — rather than vague restatements).\n\n'
+    +'The skill/task breakdown to classify into is:\n'+structureLines+'\n\n'
+    +'Return ONLY a JSON object (no markdown, no text before or after) with this exact shape (use these exact keys):\n'
+    +'{\n'+shapeLines+',\n'
     +'  "vocabulary": [string, ...],\n'
     +'  "general": [string, ...]\n'
     +'}\n'
-    +'Use "vocabulary" for specific words/phrases the student noted learning. Use "general" only for test-taking strategies that do not belong to one specific skill (time management, overall mindset, etc). Each array entry should be one short, self-contained tip (max ~20 words). Omit a skill\'s array entirely (use []) if nothing in the notes belongs there.';
+    +'Classify each tip under the single most specific task it relates to — only fall back to "general" when a tip genuinely does not point at one specific task (overall time management, mindset, etc). Use "vocabulary" for specific words/phrases the student noted learning. Each array entry should be one short, self-contained tip (max ~20 words). Use [] for any task with nothing in the notes.';
 }
 function skillNotes_open(){
   const entries=skillNotes_allEntries();
@@ -2465,8 +2502,18 @@ function skillNotes_showLoading(on){
   if(s2)s2.classList.toggle('hid',on);
 }
 function skillNotes_applyResult(r){
-  const clean=k=>Array.isArray(r[k])?r[k].map(String).filter(Boolean):[];
-  skillNotes={reading:clean('reading'),listening:clean('listening'),speaking:clean('speaking'),writing:clean('writing'),vocabulary:clean('vocabulary'),general:clean('general')};
+  const shape=skillNotes_emptyShape();
+  Object.keys(SESSION_SECTIONS).forEach(sec=>{
+    const secData=(r&&r[sec]&&typeof r[sec]==='object'&&!Array.isArray(r[sec]))?r[sec]:{};
+    SESSION_SECTIONS[sec].activities.forEach(act=>{
+      const arr=secData[act];
+      shape[sec][act]=Array.isArray(arr)?arr.map(String).filter(Boolean):[];
+    });
+  });
+  const cleanFlat=k=>Array.isArray(r&&r[k])?r[k].map(String).filter(Boolean):[];
+  shape.vocabulary=cleanFlat('vocabulary');
+  shape.general=cleanFlat('general');
+  skillNotes=shape;
   skillNotesGeneratedAt=Date.now();
   saveSkillNotes();
 }
@@ -2517,28 +2564,70 @@ function skillNotes_processJSON(){
   if(curTab==='prac')renderPrac();
 }
 function skillNotes_totalTips(){
-  return Object.values(skillNotes).reduce((s,a)=>s+(a?a.length:0),0);
+  let n=0;
+  Object.keys(SESSION_SECTIONS).forEach(sec=>{
+    Object.values(skillNotes[sec]||{}).forEach(arr=>{n+=(arr||[]).length;});
+  });
+  n+=(skillNotes.vocabulary||[]).length;
+  n+=(skillNotes.general||[]).length;
+  return n;
+}
+// Toggles one collapsible section/subtopic in skillNotesViewHTML() — shared
+// by both levels, keyed by the body element's own id (its arrow sibling is
+// always that id + '-arrow').
+function skn_toggle(id){
+  const c=document.getElementById(id);
+  if(!c)return;
+  const open=c.style.display==='block';
+  c.style.display=open?'none':'block';
+  const arrow=document.getElementById(id+'-arrow');
+  if(arrow)arrow.textContent=open?'▸':'▾';
 }
 function skillNotesViewHTML(){
   if(!skillNotesGeneratedAt||!skillNotes_totalTips()){
     return '<div class="card" style="margin-bottom:12px"><div style="font-weight:600;color:#0F172A;margin-bottom:6px">📚 Dicas por Skill</div>'
-      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6;margin-bottom:10px">Reúna todas as suas anotações de ciclo em dicas organizadas por Reading, Listening, Speaking, Writing e Vocabulary.</div>'
+      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6;margin-bottom:10px">Reúna todas as suas anotações de ciclo em dicas organizadas por Reading, Listening, Speaking, Writing (e suas tarefas específicas) e Vocabulary.</div>'
       +'<button class="btn bpr bsm" onclick="skillNotes_open()">📚 Organizar notas por skill</button>'
       +'</div>';
   }
   const d=new Date(skillNotesGeneratedAt);
   const f2=n=>String(n).padStart(2,'0');
+  const subListHTML=tips=>'<ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#475569;line-height:1.7">'+tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>';
+  // A collapsible row used at both the section level (Reading/Listening/...)
+  // and the subtopic level (Complete the Words/...) — same markup, just
+  // different font sizes/indent, so the id+body it toggles is the only
+  // thing that varies.
+  const collapsibleHTML=(id,label,count,bodyHTML,big)=>'<div style="margin-bottom:'+(big?'8px':'6px')+(big?';border:1px solid #EEF2FF;border-radius:8px;overflow:hidden':'')+'">'
+    +'<div onclick="skn_toggle(\''+id+'\')" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:'+(big?'10px 12px;background:#F8FAFF':'4px 0')+'">'
+    +'<span id="'+id+'-arrow" style="font-size:'+(big?'11px':'10px')+';color:'+(big?'#64748B':'#94A3B8')+'">▸</span>'
+    +'<span style="font-size:'+(big?'14px':'13px')+';font-weight:'+(big?'700':'600')+';color:#0F172A">'+label+'</span>'
+    +'<span style="font-size:'+(big?'12px':'11.5px')+';color:'+(big?'#94A3B8':'#CBD5E1')+'">('+count+')</span>'
+    +'</div>'
+    +'<div id="'+id+'" style="display:none;padding:'+(big?'8px 12px':'0 0 0 4px')+'">'+bodyHTML+'</div>'
+    +'</div>';
   let h='<div class="card" style="margin-bottom:12px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<div style="font-weight:600;color:#0F172A">📚 Dicas por Skill</div>'
     +'<button class="btn bsm" onclick="skillNotes_open()">🔄 Atualizar</button>'
     +'</div>'
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:10px">Gerado em '+f2(d.getDate())+'/'+f2(d.getMonth()+1)+' '+f2(d.getHours())+':'+f2(d.getMinutes())+' · '+skillNotes_totalTips()+' dicas</div>';
-  ['reading','listening','speaking','writing','vocabulary','general'].forEach(k=>{
+  Object.keys(SESSION_SECTIONS).forEach(sec=>{
+    const s=SESSION_SECTIONS[sec];
+    const secData=skillNotes[sec]||{};
+    const secTotal=s.activities.reduce((n,act)=>n+((secData[act]||[]).length),0);
+    if(!secTotal)return;
+    const subsHTML=s.activities.map(act=>{
+      const tips=secData[act]||[];
+      if(!tips.length)return'';
+      const subId='skn-sub-'+sec+'-'+act.replace(/[^a-z0-9]/gi,'_');
+      return collapsibleHTML(subId,esc(TOEFL_ACT_LABEL[act]||act),tips.length,subListHTML(tips),false);
+    }).join('');
+    h+=collapsibleHTML('skn-sec-'+sec,s.icon+' '+s.label,secTotal,subsHTML,true);
+  });
+  [['vocabulary','🔤 Vocabulary'],['general','📌 General']].forEach(([k,label])=>{
     const tips=skillNotes[k]||[];
     if(!tips.length)return;
-    h+='<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:6px">'+SKILL_NOTES_LABEL[k]+' <span style="font-weight:400;color:#94A3B8">('+tips.length+')</span></div>'
-      +'<ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#475569;line-height:1.7">'+tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>';
+    h+=collapsibleHTML('skn-sec-'+k,label,tips.length,subListHTML(tips),true);
   });
   h+='</div>';
   return h;
@@ -11758,7 +11847,7 @@ function startSync(){
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RRS.on('value',s=>{const v=s.val();if(v){try{recapSummaries=JSON.parse(v); localStorage.setItem('c1recapsum',JSON.stringify(recapSummaries));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
-    RSKN.on('value',s=>{const v=s.val();if(v){try{const p=JSON.parse(v);skillNotes=p.skillNotes||skillNotes;skillNotesGeneratedAt=p.generatedAt||null; localStorage.setItem('c1skillnotes',v);}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
+    RSKN.on('value',s=>{const v=s.val();if(v){try{const p=JSON.parse(v);if(skillNotes_isValidShape(p.skillNotes)){skillNotes=p.skillNotes;skillNotesGeneratedAt=p.generatedAt||null; localStorage.setItem('c1skillnotes',v);}}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAMA.on('value',s=>{const v=s.val();if(v){amaCompleted=v; localStorage.setItem('c1ama',JSON.stringify(v));} setSS('online'); if(curTab==='peua'&&peuaView==='ama')renderAma();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
