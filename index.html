@@ -2472,7 +2472,7 @@ function skillNotes_applyResult(r){
 }
 async function skillNotes_autoGenerate(prompt){
   try{
-    const text=await ai_call(prompt,{json:true});
+    const text=await ai_call(prompt,{json:true,max_tokens:AI_LARGE_OUTPUT_TOKENS});
     let r;
     try{r=parseJsonPaste(text);}
     catch(e){throw new Error(ai_providerLabel()+' returned invalid JSON');}
@@ -3747,7 +3747,11 @@ async function gemini_call(prompt,opts){
   if(!key)throw new Error('No Gemini API key configured');
   const model=ai_getGeminiModel();
   const body={contents:[{parts:[{text:prompt}]}]};
-  if(opts.json)body.generationConfig={responseMimeType:'application/json'};
+  if(opts.json||opts.max_tokens){
+    body.generationConfig={};
+    if(opts.json)body.generationConfig.responseMimeType='application/json';
+    if(opts.max_tokens)body.generationConfig.maxOutputTokens=opts.max_tokens;
+  }
   const maxAttempts=3;
   for(let attempt=1;attempt<=maxAttempts;attempt++){
     const isLastAttempt=attempt===maxAttempts;
@@ -3801,8 +3805,10 @@ async function claude_call(prompt,opts){
   // top of multiple detailed JSON arrays (errors, points covered,
   // strengths) in the same response — comfortably over 4096 tokens for a
   // thorough rater, which silently truncated the JSON mid-object and
-  // surfaced only as a generic "returned invalid JSON" error.
-  const body={model:model,max_tokens:8000,messages:[{role:'user',content:prompt}]};
+  // surfaced only as a generic "returned invalid JSON" error. A caller
+  // whose own output can run even larger (e.g. classifying dozens of cycle
+  // notes at once) can raise it further via opts.max_tokens.
+  const body={model:model,max_tokens:opts.max_tokens||8000,messages:[{role:'user',content:prompt}]};
   if(opts.json)body.system='Respond with ONLY valid JSON — no markdown code fences, no commentary before or after.';
   const maxAttempts=3;
   for(let attempt=1;attempt<=maxAttempts;attempt++){
@@ -3851,6 +3857,11 @@ async function claude_call(prompt,opts){
 // claude_call() directly, so switching the Settings provider picker changes
 // every feature's behavior at once.
 function ai_call(prompt,opts){return ai_getProvider()==='claude'?claude_call(prompt,opts):gemini_call(prompt,opts);}
+// A prompt whose own expected output easily runs well past the usual ~8000-
+// token budget (e.g. skillNotes_buildPrompt(), which can be classifying
+// dozens of cycle notes into six tip lists at once) passes this instead of
+// {json:true} alone, so claude_call() doesn't truncate the JSON mid-object.
+const AI_LARGE_OUTPUT_TOKENS=16000;
 // Gemini's raw 429 quota-exceeded message is a long technical dump (docs
 // links, internal metric names), and Claude's rate-limit/overload messages
 // are similarly unhelpful to a non-technical reader — extract the useful
