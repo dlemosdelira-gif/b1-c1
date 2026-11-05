@@ -669,6 +669,47 @@ textarea{min-height:120px}
   </div>
 </div>
 
+<div class="mov hid" id="mSkillNotes" onclick="if(event.target===this)closeM('mSkillNotes')">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
+    <div class="mhdr"><div class="mtit">📚 Organize Notes by Skill</div><button class="btn bsm" onclick="closeM('mSkillNotes')">✕</button></div>
+    <div class="mbdy" style="overflow-y:auto">
+      <div id="sknCount" style="font-size:13px;color:#64748B;margin-bottom:10px"></div>
+      <div id="sknLoading" class="hid" style="text-align:center;padding:34px 10px">
+        <div style="font-size:32px;margin-bottom:10px">📚</div>
+        <div style="font-size:14px;color:#475569;font-weight:600">Organizing with AI…</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:6px">This usually takes a few seconds.</div>
+      </div>
+      <div id="sknRetryBox" class="hid" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div id="sknRetryMsg" style="font-size:13px;color:#991B1B;margin-bottom:8px;line-height:1.5"></div>
+        <button class="btn bpr bsm" onclick="skillNotes_retry()">🔄 Try again</button>
+      </div>
+      <div class="mstep" id="sknStep1"><div class="mnum">1</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:6px">Send this prompt to Claude:</div>
+          <div style="background:#F8FAFF;border:1px solid #DDE3F5;border-radius:8px;padding:10px;font-size:14px;font-family:'DM Mono',monospace;color:#475569;line-height:1.6;max-height:160px;overflow-y:auto;word-break:break-word" id="sknPromptBox"></div>
+          <div class="fl g6 mt8">
+            <button class="btn bpr bsm" onclick="skillNotes_copyPrompt()">Copy Full Prompt</button>
+            <button class="btn bsm" style="background:#FEF3C7;color:#B45309;border-color:#FCD34D" onclick="skillNotes_openInClaude()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>🤖 Open in Claude
+            </button>
+            <span class="cbdg" id="sknCpbdg">✓ Copied!</span>
+          </div>
+        </div>
+      </div>
+      <div class="mstep" id="sknStep2"><div class="mnum">2</div>
+        <div style="width:100%">
+          <div style="font-size:14px;font-weight:500;color:#0F172A;margin-bottom:8px">Paste Claude's JSON response here:</div>
+          <textarea id="sknJsonIn" style="min-height:120px;font-family:'DM Mono',monospace;font-size:14px;width:100%;box-sizing:border-box" placeholder='{"reading":[...],"listening":[...],...}'></textarea>
+          <div class="fl g8 mt8" style="justify-content:flex-end;flex-wrap:wrap;gap:8px">
+            <button class="btn bsm" onclick="closeM('mSkillNotes')">Cancel</button>
+            <button class="btn bpr bsm" onclick="skillNotes_processJSON()">⚡ Process</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mov hid" id="mRQGen" onclick="if(event.target===this)closeM('mRQGen')">
   <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:600px">
     <div class="mhdr"><div class="mtit" id="rqGenTitle">➕ Generate Item from Text</div><button class="btn bsm" onclick="closeM('mRQGen')">✕</button></div>
@@ -1200,6 +1241,7 @@ textarea{min-height:120px}
       </div>
     </div>
   </div>
+  <div id="pracSkillNotes"></div>
   <div id="pmctx"></div>
   <div id="weeklyActivitiesContainer"></div>
   <div id="lessonlist"></div>
@@ -1343,7 +1385,7 @@ function localDateStr(d){d=d||new Date();return d.getFullYear()+'-'+f2(d.getMont
 const today=localDateStr();
 const IVLS=[1,3,7,14,30,60,90];
 let milestones={},monthProgress={};
-let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null,RERR=null;
+let db=null,RCI=null,RCA=null,RST=null,RCU=null,RMO=null,RSE=null,RMS=null,RMP=null,RDT=null,RDR=null,RPE=null,RPET=null,RAC=null,RCIC=null,RCN=null,RPTN=null,RRS=null,RM5=null,RMDP=null,RERR=null,RSKN=null;
 // New exercise modes: Build a Sentence (bs), Complete the Words (cw), Write an Email (em)
 let RBSI=null,RBSP=null,RCWI=null,RCWP=null,REMS=null,REMP=null,RESC=null,RWRS=null,RWRP=null,RSPS=null,RSPP=null,RIVI=null,RIVP=null,RESM=null,RWSM=null,RBSRT=null;
 let bsItems=[],bsProgress={},cwItems=[],cwProgress={},emScenarios=[],emProgress={},wrScenarios=[],wrProgress={},spSentences=[],spProgress={},ivInterviews=[],ivProgress={};
@@ -1466,6 +1508,17 @@ let cycleNotes={};
 // server-side AI call — see recap_openSummaryModal().
 let recapSummaries={};
 let recapCurWeekKey=null,recapCurPrompt='';
+// Retroactive, whole-program version of the same idea: every cycle note
+// across all 16 weeks, classified by TOEFL skill and condensed into a short
+// tip list per skill — so "what should I remember about Listening" doesn't
+// require re-reading 16 weeks of per-cycle notes in order. Same copy-prompt/
+// paste-response (or auto-call) pattern as recapSummaries; re-generating
+// just re-reads whatever cycleNotes exist at the time, so it naturally picks
+// up new notes on the next run — nothing to keep in sync manually.
+let skillNotes={reading:[],listening:[],speaking:[],writing:[],vocabulary:[],general:[]};
+let skillNotesGeneratedAt=null;
+let skillNotesCurPrompt='';
+const SKILL_NOTES_LABEL={reading:'📖 Reading',listening:'🎧 Listening',speaking:'🎤 Speaking',writing:'✍️ Writing',vocabulary:'🔤 Vocabulary',general:'📌 General'};
 let bulkSelectMode=false;
 let selectedCardIds=new Set();
 let cardsTopicFilter='';
@@ -2224,6 +2277,7 @@ function loadLocal(){
   try{cycleItemChecked=JSON.parse(localStorage.getItem('c1cycleitems')||'{}');}catch(e){cycleItemChecked={};}
   try{cycleNotes=JSON.parse(localStorage.getItem('c1cyclenotes')||'{}');}catch(e){cycleNotes={};}
   try{recapSummaries=JSON.parse(localStorage.getItem('c1recapsum')||'{}');}catch(e){recapSummaries={};}
+  try{const v=JSON.parse(localStorage.getItem('c1skillnotes')||'null');if(v){skillNotes=v.skillNotes||skillNotes;skillNotesGeneratedAt=v.generatedAt||null;}}catch(e){}
   try{peuaNotes=JSON.parse(localStorage.getItem('c1peuaNotes')||'{}');}catch(e){peuaNotes={};}
   try{escolaFeedback=JSON.parse(localStorage.getItem('c1esc')||'[]');}catch(e){escolaFeedback=[];}
   if(!Array.isArray(escolaFeedback))escolaFeedback=[];
@@ -2275,6 +2329,11 @@ function saveCycleItemChecked(){localStorage.setItem('c1cycleitems',JSON.stringi
 function toggleCycleItem(itemKey){cycleItemChecked[itemKey]=!cycleItemChecked[itemKey];saveCycleItemChecked();renderEnsurance();}
 function saveCycleNotes(){localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));fbSet(RCN,Object.keys(cycleNotes).length?JSON.stringify(cycleNotes):null);}
 function saveRecapSummaries(){localStorage.setItem('c1recapsum',JSON.stringify(recapSummaries));fbSet(RRS,Object.keys(recapSummaries).length?JSON.stringify(recapSummaries):null);}
+function saveSkillNotes(){
+  const payload={skillNotes,generatedAt:skillNotesGeneratedAt};
+  localStorage.setItem('c1skillnotes',JSON.stringify(payload));
+  fbSet(RSKN,skillNotesGeneratedAt?JSON.stringify(payload):null);
+}
 function recap_notePlainText(raw){
   const d=document.createElement('div');
   d.innerHTML=noteToHtml(raw);
@@ -2358,6 +2417,132 @@ function recap_saveSummary(){
   if(curTab==='prac')renderPrac();
 }
 function setCycleNote(key,val){cycleNotes[key]=val.trim();if(!cycleNotes[key])delete cycleNotes[key];saveCycleNotes();}
+// Every saved cycle note across the whole 16-week program, as {week,cycle,notes}
+// in program order — the raw material skillNotes_buildPrompt() classifies and
+// condenses. Plain-text (HTML notes stripped), reusing recap_notePlainText so
+// the two features never diverge on how a note's HTML is flattened.
+function skillNotes_allEntries(){
+  return cycleKeysList().map(key=>{
+    const raw=cycleNotes[key];
+    if(!raw)return null;
+    const [w,c]=key.split('-');
+    return {week:+w,cycle:+c,notes:recap_notePlainText(raw)};
+  }).filter(Boolean);
+}
+function skillNotes_buildPrompt(){
+  const entries=skillNotes_allEntries();
+  const notesBlock=entries.map(e=>'Week '+e.week+', Cycle '+e.cycle+':\n'+e.notes).join('\n\n');
+  return 'You are helping a TOEFL iBT student organize their study notes. Below are their raw lesson notes from every cycle they have completed so far across a 16-week study program, in order.\n\n'+notesBlock
+    +'\n\nClassify and condense these into a study reference organized by TOEFL skill area. For each area, extract the distinct, actionable tips/rules/insights the student recorded (merge duplicates or near-duplicates into one tip; drop pure logistics like "watched lesson X" that carry no reusable insight; keep anything specific — numbers, example phrases, named strategies — rather than vague restatements).\n\n'
+    +'Return ONLY a JSON object (no markdown, no text before or after) with this exact shape:\n'
+    +'{\n'
+    +'  "reading": [string, ...],\n'
+    +'  "listening": [string, ...],\n'
+    +'  "speaking": [string, ...],\n'
+    +'  "writing": [string, ...],\n'
+    +'  "vocabulary": [string, ...],\n'
+    +'  "general": [string, ...]\n'
+    +'}\n'
+    +'Use "vocabulary" for specific words/phrases the student noted learning. Use "general" only for test-taking strategies that do not belong to one specific skill (time management, overall mindset, etc). Each array entry should be one short, self-contained tip (max ~20 words). Omit a skill\'s array entirely (use []) if nothing in the notes belongs there.';
+}
+function skillNotes_open(){
+  const entries=skillNotes_allEntries();
+  if(!entries.length){toast('⚠️ No cycle notes to organize yet');return;}
+  skillNotesCurPrompt=skillNotes_buildPrompt();
+  document.getElementById('sknPromptBox').textContent=skillNotesCurPrompt;
+  document.getElementById('sknJsonIn').value='';
+  document.getElementById('sknCpbdg').classList.remove('on');
+  document.getElementById('sknRetryBox').classList.add('hid');
+  document.getElementById('sknCount').textContent=entries.length+' cycle note'+(entries.length!==1?'s':'')+' found, across weeks '+entries[0].week+'–'+entries[entries.length-1].week+'.';
+  skillNotes_showLoading(false);
+  openM('mSkillNotes');
+  if(ai_hasKey()){skillNotes_showLoading(true);skillNotes_autoGenerate(skillNotesCurPrompt);}
+}
+function skillNotes_showLoading(on){
+  const l=document.getElementById('sknLoading'),s1=document.getElementById('sknStep1'),s2=document.getElementById('sknStep2');
+  if(l)l.classList.toggle('hid',!on);
+  if(s1)s1.classList.toggle('hid',on);
+  if(s2)s2.classList.toggle('hid',on);
+}
+function skillNotes_applyResult(r){
+  const clean=k=>Array.isArray(r[k])?r[k].map(String).filter(Boolean):[];
+  skillNotes={reading:clean('reading'),listening:clean('listening'),speaking:clean('speaking'),writing:clean('writing'),vocabulary:clean('vocabulary'),general:clean('general')};
+  skillNotesGeneratedAt=Date.now();
+  saveSkillNotes();
+}
+async function skillNotes_autoGenerate(prompt){
+  try{
+    const text=await ai_call(prompt,{json:true});
+    let r;
+    try{r=parseJsonPaste(text);}
+    catch(e){throw new Error(ai_providerLabel()+' returned invalid JSON');}
+    skillNotes_applyResult(r);
+    closeM('mSkillNotes');
+    toast('📚 Notes organized by skill!');
+    if(curTab==='prac')renderPrac();
+  }catch(e){
+    toast('⚠️ '+ai_providerLabel()+' failed ('+ai_friendlyAIError(e.message)+') — retry or use the manual flow below');
+    skillNotes_showLoading(false);
+    const box=document.getElementById('sknRetryBox');
+    if(box){box.classList.remove('hid');document.getElementById('sknRetryMsg').textContent='⚠️ '+ai_providerLabel()+' failed: '+ai_friendlyAIError(e.message);}
+  }
+}
+function skillNotes_retry(){
+  if(!skillNotesCurPrompt)return;
+  document.getElementById('sknRetryBox').classList.add('hid');
+  skillNotes_showLoading(true);
+  skillNotes_autoGenerate(skillNotesCurPrompt);
+}
+function skillNotes_copyPrompt(){
+  navigator.clipboard.writeText(skillNotesCurPrompt).then(()=>document.getElementById('sknCpbdg').classList.add('on'));
+}
+function skillNotes_openInClaude(){
+  navigator.clipboard.writeText(skillNotesCurPrompt).then(()=>{
+    toast('✅ Prompt copied! Paste with Ctrl+V in Claude');
+    setTimeout(()=>window.open('https://claude.ai/new','_blank'),300);
+    document.getElementById('sknCpbdg').classList.add('on');
+  }).catch(()=>{
+    toast('⚠️ Copy failed — use Copy Full Prompt instead');
+  });
+}
+function skillNotes_processJSON(){
+  const raw=document.getElementById('sknJsonIn').value.trim();
+  if(!raw){toast('⚠️ Paste the JSON first');return;}
+  let r;
+  try{r=parseJsonPaste(raw);}
+  catch(e){toast('⚠️ Invalid JSON — copy the full response');return;}
+  skillNotes_applyResult(r);
+  closeM('mSkillNotes');
+  toast('📚 Notes organized by skill!');
+  if(curTab==='prac')renderPrac();
+}
+function skillNotes_totalTips(){
+  return Object.values(skillNotes).reduce((s,a)=>s+(a?a.length:0),0);
+}
+function skillNotesViewHTML(){
+  if(!skillNotesGeneratedAt||!skillNotes_totalTips()){
+    return '<div class="card" style="margin-bottom:12px"><div style="font-weight:600;color:#0F172A;margin-bottom:6px">📚 Dicas por Skill</div>'
+      +'<div style="font-size:13px;color:#94A3B8;line-height:1.6;margin-bottom:10px">Reúna todas as suas anotações de ciclo em dicas organizadas por Reading, Listening, Speaking, Writing e Vocabulary.</div>'
+      +'<button class="btn bpr bsm" onclick="skillNotes_open()">📚 Organizar notas por skill</button>'
+      +'</div>';
+  }
+  const d=new Date(skillNotesGeneratedAt);
+  const f2=n=>String(n).padStart(2,'0');
+  let h='<div class="card" style="margin-bottom:12px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<div style="font-weight:600;color:#0F172A">📚 Dicas por Skill</div>'
+    +'<button class="btn bsm" onclick="skillNotes_open()">🔄 Atualizar</button>'
+    +'</div>'
+    +'<div style="font-size:12px;color:#94A3B8;margin-bottom:10px">Gerado em '+f2(d.getDate())+'/'+f2(d.getMonth()+1)+' '+f2(d.getHours())+':'+f2(d.getMinutes())+' · '+skillNotes_totalTips()+' dicas</div>';
+  ['reading','listening','speaking','writing','vocabulary','general'].forEach(k=>{
+    const tips=skillNotes[k]||[];
+    if(!tips.length)return;
+    h+='<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:6px">'+SKILL_NOTES_LABEL[k]+' <span style="font-weight:400;color:#94A3B8">('+tips.length+')</span></div>'
+      +'<ul style="margin:0 0 0 18px;padding:0;font-size:14px;color:#475569;line-height:1.7">'+tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul></div>';
+  });
+  h+='</div>';
+  return h;
+}
 // Flat "week-cycle" key sequence across the whole 16-week program, in
 // program order (cycle numbers within a week aren't necessarily 1..6 for
 // every week, so this reads the actual keys rather than assuming a range).
@@ -3206,6 +3391,7 @@ function renderWeeklyActivities(monthNum){
 
 // ── ENSURANCE CRONOGRAMA RENDER ────────────────────────────────────────────────
 function renderEnsurance(){
+  const sknBox=document.getElementById('pracSkillNotes');if(sknBox)sknBox.innerHTML=skillNotesViewHTML();
   const week=ENSURANCE_CRONOGRAMA.semanas[ensuranceWeek];
   if(!week){
     document.getElementById('pmctx').innerHTML='<div style="color:#94A3B8">Week not found</div>';
@@ -11514,6 +11700,7 @@ function startSync(){
     RCIC = db.ref('cycleItemChecked');
     RCN = db.ref('cycleNotes');
     RRS = db.ref('recapSummaries');
+    RSKN = db.ref('skillNotes');
     RPTN = db.ref('peuaNotes');
     RAMA = db.ref('amaCompleted');
     RBSI = db.ref('buildSentenceItems');
@@ -11560,6 +11747,7 @@ function startSync(){
     RCIC.on('value',s=>{const v=s.val();if(v){try{cycleItemChecked=JSON.parse(v); localStorage.setItem('c1cycleitems',JSON.stringify(cycleItemChecked));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RCN.on('value',s=>{const v=s.val();if(v){try{cycleNotes=JSON.parse(v); localStorage.setItem('c1cyclenotes',JSON.stringify(cycleNotes));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RRS.on('value',s=>{const v=s.val();if(v){try{recapSummaries=JSON.parse(v); localStorage.setItem('c1recapsum',JSON.stringify(recapSummaries));}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
+    RSKN.on('value',s=>{const v=s.val();if(v){try{const p=JSON.parse(v);skillNotes=p.skillNotes||skillNotes;skillNotesGeneratedAt=p.generatedAt||null; localStorage.setItem('c1skillnotes',v);}catch(e){}} setSS('online'); if(curTab==='prac')renderPrac();}, err=>setSS('offline','DB Error: '+err.code));
     RPTN.on('value',s=>{const v=s.val();if(v){try{peuaNotes=JSON.parse(v); localStorage.setItem('c1peuaNotes',JSON.stringify(peuaNotes));}catch(e){}} setSS('online'); if(curTab==='peua')renderPeua();}, err=>setSS('offline','DB Error: '+err.code));
     RAMA.on('value',s=>{const v=s.val();if(v){amaCompleted=v; localStorage.setItem('c1ama',JSON.stringify(v));} setSS('online'); if(curTab==='peua'&&peuaView==='ama')renderAma();}, err=>setSS('offline','DB Error: '+err.code));
     RMO.once('value',s=>{const v=s.val();if(v&&v!==activeMonth){activeMonth=v; localStorage.setItem('c1mo',v); buildRoadmap(); if(curTab==='prac')renderPrac();} });
