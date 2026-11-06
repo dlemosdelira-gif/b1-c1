@@ -3177,21 +3177,12 @@ function renderDash(){
   renderEscolaDash();
 }
 
-function renderReviewPerf(){
-  const el=document.getElementById('reviewPerfContainer');
-  if(!el)return;
+// Every number renderReviewPerf() and revPerf_reportJSON() both need — kept
+// in one place so the on-screen chart and the copyable report can never
+// drift apart (same reasoning as bsSet_frameFill() being shared between the
+// Set Mode screen and its report text).
+function revPerf_computeData(){
   const log=stats.reviewLog||{};
-  const COL={h:'#DC2626',g:'#2563EB',e:'#16A34A'};
-  const LBL={h:'Hard',g:'Good',e:'Easy'};
-  const pct=(n,d)=>d>0?Math.round(n/d*100):0;
-  const bar=(h,g,e,sum,ht)=>{
-    if(sum===0)return `<div style="height:${ht}px;background:#F1F5F9;border-radius:4px"></div>`;
-    return `<div style="display:flex;height:${ht}px;border-radius:4px;overflow:hidden">`
-      +`<div style="width:${h/sum*100}%;background:${COL.h}"></div>`
-      +`<div style="width:${g/sum*100}%;background:${COL.g}"></div>`
-      +`<div style="width:${e/sum*100}%;background:${COL.e}"></div></div>`;
-  };
-  // Build last 14 days (oldest -> newest)
   const days=[];
   for(let i=13;i>=0;i--){
     const dt=new Date();dt.setDate(dt.getDate()-i);
@@ -3202,11 +3193,65 @@ function renderReviewPerf(){
   }
   const tot=days.reduce((a,d)=>{a.h+=d.h;a.g+=d.g;a.e+=d.e;return a;},{h:0,g:0,e:0});
   const sum=tot.h+tot.g+tot.e;
+  const tr=log[today]||{};
+  const todayRec={h:tr.h||0,g:tr.g||0,e:tr.e||0,total:(tr.h||0)+(tr.g||0)+(tr.e||0)};
+  const topicTotals={};
+  days.forEach(d=>{
+    const tLog=((log[d.key])||{}).topics||{};
+    Object.keys(tLog).forEach(t=>{
+      if(!topicTotals[t])topicTotals[t]={h:0,g:0,e:0};
+      topicTotals[t].h+=(tLog[t].h||0);
+      topicTotals[t].g+=(tLog[t].g||0);
+      topicTotals[t].e+=(tLog[t].e||0);
+    });
+  });
+  const MIN_TOPIC_REV=3;
+  const topicList=Object.keys(topicTotals)
+    .map(t=>({t,h:topicTotals[t].h,g:topicTotals[t].g,e:topicTotals[t].e,total:topicTotals[t].h+topicTotals[t].g+topicTotals[t].e}))
+    .filter(x=>x.total>=MIN_TOPIC_REV)
+    .sort((a,b)=>(b.h/b.total)-(a.h/a.total));
+  return {days,tot,sum,todayRec,topicList,MIN_TOPIC_REV};
+}
+// A copyable snapshot of the same data renderReviewPerf() charts, meant for
+// pasting into an AI chat for analysis — JSON rather than the bsSet-style
+// plain-text report since the data here is inherently tabular (a day-by-day
+// and topic-by-topic breakdown), not a narrative of one finished session.
+function revPerf_reportJSON(){
+  const d=revPerf_computeData();
+  const pct=(n,den)=>den>0?Math.round(n/den*100):0;
+  const withPct=r=>({hard:r.h,good:r.g,easy:r.e,total:r.total,pctHard:pct(r.h,r.total),pctGood:pct(r.g,r.total),pctEasy:pct(r.e,r.total)});
+  return {
+    generatedAt:new Date().toISOString(),
+    today:withPct(d.todayRec),
+    last14Days:d.days.map(x=>Object.assign({date:x.key},withPct(x))),
+    summary14Days:withPct(Object.assign({total:d.sum},d.tot)),
+    topicsByDifficulty:d.topicList.map(x=>Object.assign({topic:x.t},withPct(x)))
+  };
+}
+function revPerf_copyReport(){
+  navigator.clipboard.writeText(JSON.stringify(revPerf_reportJSON(),null,2))
+    .then(()=>toast('✅ Relatório copiado'))
+    .catch(()=>toast('⚠️ Não foi possível copiar — selecione o texto manualmente'));
+}
+function renderReviewPerf(){
+  const el=document.getElementById('reviewPerfContainer');
+  if(!el)return;
+  const COL={h:'#DC2626',g:'#2563EB',e:'#16A34A'};
+  const LBL={h:'Hard',g:'Good',e:'Easy'};
+  const pct=(n,d)=>d>0?Math.round(n/d*100):0;
+  const bar=(h,g,e,sum,ht)=>{
+    if(sum===0)return `<div style="height:${ht}px;background:#F1F5F9;border-radius:4px"></div>`;
+    return `<div style="display:flex;height:${ht}px;border-radius:4px;overflow:hidden">`
+      +`<div style="width:${h/sum*100}%;background:${COL.h}"></div>`
+      +`<div style="width:${g/sum*100}%;background:${COL.g}"></div>`
+      +`<div style="width:${e/sum*100}%;background:${COL.e}"></div></div>`;
+  };
+  const {days,tot,sum,todayRec,topicList,MIN_TOPIC_REV}=revPerf_computeData();
   if(sum===0){
     el.innerHTML='<div style="text-align:center;color:#94A3B8;font-size:14px;padding:10px 0;line-height:1.6">No reviews recorded in the last 14 days yet.<br>Do reviews in the Review tab to track your performance here. 📈</div>';
     return;
   }
-  const tr=log[today]||{};const th=tr.h||0,tg=tr.g||0,te=tr.e||0,ts=th+tg+te;
+  const th=todayRec.h,tg=todayRec.g,te=todayRec.e,ts=todayRec.total;
   const legend='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:14px">'
     +Object.keys(LBL).map(k=>`<span style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;border-radius:3px;background:${COL[k]};display:inline-block"></span>${LBL[k]}</span>`).join('')
     +'</div>';
@@ -3235,22 +3280,8 @@ function renderReviewPerf(){
     +bar(tot.h,tot.g,tot.e,sum,18)
     +`<div style="display:flex;justify-content:space-between;margin-top:6px;font-size:14px;font-weight:700"><span style="color:${COL.h}">${pct(tot.h,sum)}% Hard</span><span style="color:${COL.g}">${pct(tot.g,sum)}% Good</span><span style="color:${COL.e}">${pct(tot.e,sum)}% Easy</span></div>`
     +'</div>';
-  // Topics by difficulty (aggregate last 14 days)
-  const topicTotals={};
-  days.forEach(d=>{
-    const tLog=((log[d.key])||{}).topics||{};
-    Object.keys(tLog).forEach(t=>{
-      if(!topicTotals[t])topicTotals[t]={h:0,g:0,e:0};
-      topicTotals[t].h+=(tLog[t].h||0);
-      topicTotals[t].g+=(tLog[t].g||0);
-      topicTotals[t].e+=(tLog[t].e||0);
-    });
-  });
-  const MIN_TOPIC_REV=3;
-  const topicList=Object.keys(topicTotals)
-    .map(t=>({t,h:topicTotals[t].h,g:topicTotals[t].g,e:topicTotals[t].e,total:topicTotals[t].h+topicTotals[t].g+topicTotals[t].e}))
-    .filter(x=>x.total>=MIN_TOPIC_REV)
-    .sort((a,b)=>(b.h/b.total)-(a.h/a.total));
+  // Topics by difficulty (aggregate last 14 days) — topicList/MIN_TOPIC_REV
+  // already computed by revPerf_computeData() above.
   const topicBlkInner=topicList.length===0
     ?'<div style="font-size:13px;color:#94A3B8;margin-top:4px">Not enough data yet. Each topic appears after '+MIN_TOPIC_REV+' reviews. Per-topic tracking started recently, so it only counts reviews made from now on.</div>'
     :topicList.map(x=>{
@@ -3268,7 +3299,10 @@ function renderReviewPerf(){
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:12px">Sorted hardest first · highest % Hard at the top</div>'
     +topicBlkInner
     +'</div>';
-  el.innerHTML=legend+todayBlk+daysBlk+aggBlk+topicsBlk;
+  const copyBlk='<div style="margin-top:16px;padding-top:12px;border-top:1px solid #EEF2FF">'
+    +'<button class="btn bpr bsm" onclick="revPerf_copyReport()">📋 Copiar relatório (JSON)</button>'
+    +'</div>';
+  el.innerHTML=legend+todayBlk+daysBlk+aggBlk+topicsBlk+copyBlk;
 }
 
 function toggleCI(k){
