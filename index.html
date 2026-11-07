@@ -2572,6 +2572,37 @@ function skillNotes_totalTips(){
   n+=(skillNotes.general||[]).length;
   return n;
 }
+// A copyable snapshot of the generated skill tips, meant for pasting into an
+// AI chat for analysis — same idea as revPerf_reportJSON() (Cards' Review
+// Performance) and bsSet_reportText() (Build a Sentence): JSON here, like
+// revPerf, since the data is a nested skill > task > tip-list breakdown
+// rather than a one-session narrative. Labels (not just the raw keys) are
+// included so the JSON is self-explanatory without the app's own context.
+function skillNotes_reportJSON(){
+  const sections={};
+  Object.keys(SESSION_SECTIONS).forEach(sec=>{
+    const s=SESSION_SECTIONS[sec];
+    const secData=skillNotes[sec]||{};
+    const tasks={};
+    s.activities.forEach(act=>{
+      const tips=secData[act]||[];
+      if(tips.length)tasks[TOEFL_ACT_LABEL[act]||act]=tips;
+    });
+    if(Object.keys(tasks).length)sections[s.label]=tasks;
+  });
+  return {
+    generatedAt:skillNotesGeneratedAt?new Date(skillNotesGeneratedAt).toISOString():null,
+    totalTips:skillNotes_totalTips(),
+    bySkillAndTask:sections,
+    vocabulary:skillNotes.vocabulary||[],
+    general:skillNotes.general||[]
+  };
+}
+function skillNotes_copyReport(){
+  navigator.clipboard.writeText(JSON.stringify(skillNotes_reportJSON(),null,2))
+    .then(()=>toast('✅ Relatório copiado'))
+    .catch(()=>toast('⚠️ Não foi possível copiar — selecione o texto manualmente'));
+}
 // Toggles one collapsible section/subtopic in skillNotesViewHTML() — shared
 // by both levels, keyed by the body element's own id (its arrow sibling is
 // always that id + '-arrow').
@@ -2608,7 +2639,7 @@ function skillNotesViewHTML(){
   let h='<div class="card" style="margin-bottom:12px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
     +'<div style="font-weight:600;color:#0F172A">📚 Dicas por Skill</div>'
-    +'<button class="btn bsm" onclick="skillNotes_open()">🔄 Atualizar</button>'
+    +'<div class="fl g6"><button class="btn bsm" onclick="skillNotes_copyReport()">📋 Copiar relatório (JSON)</button><button class="btn bsm" onclick="skillNotes_open()">🔄 Atualizar</button></div>'
     +'</div>'
     +'<div style="font-size:12px;color:#94A3B8;margin-bottom:10px">Gerado em '+f2(d.getDate())+'/'+f2(d.getMonth()+1)+' '+f2(d.getHours())+':'+f2(d.getMinutes())+' · '+skillNotes_totalTips()+' dicas</div>';
   Object.keys(SESSION_SECTIONS).forEach(sec=>{
